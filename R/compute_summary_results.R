@@ -2,7 +2,7 @@ compute_summary_results = function(x,s,w,a){
   wpost <- wpost.laplace(x,s,w,a)
   l=lambda(x,s,a)
   PosteriorMean = wpost* (l * ashr:::my_etruncnorm(0,Inf,x-s^2*a,s) + (1-l)*ashr:::my_etruncnorm(-Inf,0,x+s^2*a,s))
-  PosteriorMeanSquared = wpost* (l * ashr:::my_e2truncnorm(0,Inf,x-s^2*a,s) + (1-l)*ashr:::my_e2truncnorm(-Inf,0,x+s^2*a,s))
+  PosteriorMean2 = wpost* (l * ashr:::my_e2truncnorm(0,Inf,x-s^2*a,s) + (1-l)*ashr:::my_e2truncnorm(-Inf,0,x+s^2*a,s))
   return(data.frame(PosteriorMean=PosteriorMean,PosteriorMean2=PosteriorMean2))
 }
 
