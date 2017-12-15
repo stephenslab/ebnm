@@ -1,6 +1,7 @@
 # ebnm: Fit the Empirical Bayes Normal Means problem
 
-The ebnm package fits the EBNM problem with a prior that is a mixture
+The `ebnm` package fits the EBNM problem. Currently it does this
+for a simple "point-Laplace" prior: that is a mixture
 of a point mass at 0 and a Laplace distribution. It is derived from the Empirical
 Bayes methods developed by I. M. Johnstone and B. W. Silverman.
 It is designed to be fast and stable.
@@ -25,12 +26,12 @@ library(devtools)
 install_github("stephenslab/ebnm")
 ```
 
-Load ebnm into your R environment, and get an overview of the
-package:
+There is only one exported function, `ebnm_point_laplace`.
+Load `ebnm` into your R environment, and get help:
 
 ```R
 library(ebnm)
-help(package = ebnm)
+??ebnm_point_laplace
 ```
 
 
