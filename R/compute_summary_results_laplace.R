@@ -1,5 +1,5 @@
-compute_summary_results = function(x,s,w,a){
-  wpost <- wpost.laplace(x,s,w,a)
+compute_summary_results_laplace = function(x,s,w,a){
+  wpost <- wpost_laplace(x,s,w,a)
   l=lambda(x,s,a)
   PosteriorMean = wpost* (l * ashr:::my_etruncnorm(0,Inf,x-s^2*a,s) + (1-l)*ashr:::my_etruncnorm(-Inf,0,x+s^2*a,s))
   PosteriorMean2 = wpost* (l * ashr:::my_e2truncnorm(0,Inf,x-s^2*a,s) + (1-l)*ashr:::my_e2truncnorm(-Inf,0,x+s^2*a,s))
@@ -9,11 +9,11 @@ compute_summary_results = function(x,s,w,a){
 #
 #  Calculate the posterior weight for non-zero effect
 #
-wpost.laplace <- function(x, s, w, a)
+wpost_laplace <- function(x, s, w, a)
 {
   if(w==0){return(rep(0,length(x)))}
   if(w==1){return(rep(1,length(x)))}
-  lg = logg.laplace(x,s,a)
+  lg = logg_laplace(x,s,a)
   lf = dnorm(x,0,s,log=TRUE)
   return(w/(w+(1-w)*exp(lf-lg)))
 }

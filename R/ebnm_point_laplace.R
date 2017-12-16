@@ -33,14 +33,14 @@ ebnm_point_laplace <- function (x,s=1,g=NULL,fixg=FALSE) {
 
   # Estimate g from data
   if(!fixg){
-    g <- wandafromx.mle(x, s)
+    g <- mle_laplace(x, s)
   }
 
 	w=1-g$pi0
 	a=g$a
 
-	loglik = loglik.laplace(x,s,w,a)
-	result = compute_summary_results(x,s,w,a)
+	loglik = loglik_laplace(x,s,w,a)
+	result = compute_summary_results_laplace(x,s,w,a)
 
 	#postmean <- postmean * m_sdev
 	#postmean2 <- postmean2 * m_sdev^2

@@ -16,7 +16,7 @@ mle_laplace <- function(x, s,control=NULL) {
   hi  <-  c(1,1/sigmamin^2)
   startpar  <- c(0.5,2/(sigmamax^2+sigmamin^2))
 
-  uu <- optim(startpar, function(par,x,s){-loglik.laplace(x,s,par[1],par[2])}, method="L-BFGS-B",
+  uu <- optim(startpar, function(par,x,s){-loglik_laplace(x,s,par[1],par[2])}, method="L-BFGS-B",
                 lower = lo, upper = hi, x = x, s = s, control=control)
   uu <- uu$par
 
@@ -37,7 +37,7 @@ mle_laplace.grad <- function(x, s, control=NULL) {
   hi  <-  c(1,1/sigmamin^2)
   startpar  <- c(0.5,2/(sigmamax^2+sigmamin^2))
 
-  uu <- optim(startpar, function(par,x,s){-loglik.laplace(x,s,par[1],par[2])},
+  uu <- optim(startpar, function(par,x,s){-loglik_laplace(x,s,par[1],par[2])},
               gr= function(par,x,s){grad_negloglik(x,s,par[1],par[2])}, method="L-BFGS-B",
               lower = lo, upper = hi, x = x, s = s, control=control)
   uu <- uu$par
@@ -61,7 +61,7 @@ mle_laplace.logscale <- function(x, s,control=NULL) {
   startpar  <- c(0,log(2/(sigmamax^2+sigmamin^2)))
 
   uu <- optim(startpar,
-              function(par,x,s){-loglik.laplace(x,s,exp(par[1])/(1+exp(par[1])),
+              function(par,x,s){-loglik_laplace(x,s,exp(par[1])/(1+exp(par[1])),
                                                 exp(par[2]))},
               method="L-BFGS-B",
               lower = lo, upper = hi, x = x, s = s, control=control)
@@ -87,7 +87,7 @@ mle_laplace.logscale.grad <- function(x, s,control=NULL) {
   startpar  <- c(0,log(2/(sigmamax^2+sigmamin^2)))
 
   uu <- optim(startpar,
-              function(par,x,s){-loglik.laplace(x,s,exp(par[1])/(1+exp(par[1])),
+              function(par,x,s){-loglik_laplace(x,s,exp(par[1])/(1+exp(par[1])),
                                                 exp(par[2]))},
               gr= function(par,x,s){grad_negloglik.logscale(x,s,exp(par[1])/(1+exp(par[1])),
                                                             exp(par[2]))},
