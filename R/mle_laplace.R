@@ -56,8 +56,8 @@ mle_laplace.logscale <- function(x, s,control=NULL) {
     sigmamax = 2 * sqrt(max(x^2 - s^2))
   }
 
-  lo  <-  c(-5,log(1/sigmamax^2))
-  hi  <-  c(5,log(1/sigmamin^2))
+  lo  <-  c(-10,log(1/sigmamax^2))
+  hi  <-  c(10,log(1/sigmamin^2))
   startpar  <- c(0,log(2/(sigmamax^2+sigmamin^2)))
 
   uu <- optim(startpar,
@@ -82,8 +82,8 @@ mle_laplace.logscale.grad <- function(x, s,control=NULL) {
     sigmamax = 2 * sqrt(max(x^2 - s^2))
   }
 
-  lo  <-  c(-5,log(1/sigmamax^2))
-  hi  <-  c(5,log(1/sigmamin^2))
+  lo  <-  c(-10,log(1/sigmamax^2))
+  hi  <-  c(10,log(1/sigmamin^2))
   startpar  <- c(0,log(2/(sigmamax^2+sigmamin^2)))
 
   uu <- optim(startpar,
