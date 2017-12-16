@@ -2,7 +2,7 @@
 #' @details Does simple mle (currently using optim)
 #' Compared with the original wandafromx this function dispenses with the
 #' complication of the thresholds
-wandafromx.mle <- function(x, s) {
+wandafromx.mle <- function(x, s,control=NULL) {
 
   # get some reasonable limits on sigma (standard deviation of laplace, or 1/sqrt(a))
   sigmamin = min(s)/10
@@ -17,13 +17,14 @@ wandafromx.mle <- function(x, s) {
   startpar  <- c(0.5,2/(sigmamax^2+sigmamin^2))
 
   uu <- optim(startpar, function(par,x,s){-loglik.laplace(x,s,par[1],par[2])}, method="L-BFGS-B",
-                lower = lo, upper = hi, x = x, s = s)
+                lower = lo, upper = hi, x = x, s = s, control=control)
+  message(paste(uu$counts))
   uu <- uu$par
 
   return(list(w=uu[1], a=uu[2]))
 }
 
-wandafromx.mle.grad <- function(x, s) {
+wandafromx.mle.grad <- function(x, s, control=NULL) {
 
   # get some reasonable limits on sigma (standard deviation of laplace, or 1/sqrt(a))
   sigmamin = min(s)/10
@@ -38,8 +39,9 @@ wandafromx.mle.grad <- function(x, s) {
   startpar  <- c(0.5,2/(sigmamax^2+sigmamin^2))
 
   uu <- optim(startpar, function(par,x,s){-loglik.laplace(x,s,par[1],par[2])},
-              gr= function(par,x,s){grad_negloglik.laplace(x,s,par[1],par[2])}, method="L-BFGS-B",
-              lower = lo, upper = hi, x = x, s = s)
+              gr= function(par,x,s){grad_negloglik(x,s,par[1],par[2])}, method="L-BFGS-B",
+              lower = lo, upper = hi, x = x, s = s, control=control)
+  message(paste(uu$counts))
   uu <- uu$par
 
   return(list(w=uu[1], a=uu[2]))

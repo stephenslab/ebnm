@@ -7,30 +7,31 @@ grad_negloglik_w = function(x,s,w,a){
 }
 
 grad_negloglik_a = function(x,s,w,a){
-  vloglik = vloglik.laplace(x,s,w,a)
-  gradg = grad_g(x,s,a)
-  -w * sum(gradg/exp(vloglik))
+  lf = dnorm(x,0,s,log=TRUE)
+  lg = logg.laplace(x,s,a)
+  f_over_g = exp(lf-lg)
+  -w * sum(grad_lg(x,s,a)/((1-w)*f_over_g+w))
 }
 
 grad_negloglik  = function(x,s,w,a){
   c(grad_negloglik_w(x,s,w,a),grad_negloglik_a(x,s,w,a))
 }
 
-set.seed(1)
-x = rnorm(100)
-s = rgamma(100,1,1)
-w=0.7
-a=4.2
-grad_negloglik_w(x,s,w,a)
-#[1] -35.20593
-numDeriv::grad(function(w){-loglik.laplace(x,s,w,a)},w)
-#[1] -35.20593
-
-
-grad_negloglik(x,s,w,a)
-numDeriv::grad(function(w){-loglik.laplace(x,s,w,a)},w)
-numDeriv::grad(function(a){-loglik.laplace(x,s,w,a)},a)
-
+# set.seed(1)
+# x = rnorm(100)
+# s = rgamma(100,1,1)
+# w=0.7
+# a=4.2
+# grad_negloglik_w(x,s,w,a)
+# #[1] -35.20593
+# numDeriv::grad(function(w){-loglik.laplace(x,s,w,a)},w)
+# #[1] -35.20593
+#
+#
+# grad_negloglik(x,s,w,a)
+# numDeriv::grad(function(w){-loglik.laplace(x,s,w,a)},w)
+# numDeriv::grad(function(a){-loglik.laplace(x,s,w,a)},a)
+#
 
 lg1 = function(x,s,a){ -a*x + pnorm((x-s^2*a)/s,log=TRUE)}
 grad_lg1 = function(x,s,a){
@@ -47,8 +48,6 @@ grad_lg = function(x,s,a){
   1/a + a*s^2 + weight*grad_lg1(x,s,a) + (1-weight)*grad_lg2(x,s,a)
 }
 
-grad_lg(x,s,0.5)
-numDeriv::grad(function(a){logg.laplace(x,s,a)},0.5)
 
 grad_g = function(x,s,a){
   g = exp(logg.laplace(x,s,a))

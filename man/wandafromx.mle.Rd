@@ -4,7 +4,7 @@
 \alias{wandafromx.mle}
 \title{Compute mle of w and a for data (x,s)}
 \usage{
-wandafromx.mle(x, s)
+wandafromx.mle(x, s, control = NULL)
 }
 \details{
 Does simple mle (currently using optim)
