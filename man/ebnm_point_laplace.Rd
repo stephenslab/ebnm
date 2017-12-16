@@ -4,12 +4,19 @@
 \alias{ebnm_point_laplace}
 \title{Solve the Empirical Bayes Normal Means problem with point-laplace prior}
 \usage{
-ebnm_point_laplace(x, s = 1)
+ebnm_point_laplace(x, s = 1, g = NULL, fixg = FALSE)
 }
 \arguments{
 \item{x}{a vector of observations}
 
 \item{s}{a vector of standard deviations (or scalar if all equal)}
+
+\item{g}{The prior distribution (list with elements pi0,a). Usually this is unspecified (NULL) and
+estimated from the data. However, it can be used in conjuction with fixg=TRUE
+to specify the g to use (e.g. useful in simulations to do computations with the "true" g).
+Or, if g is specified but fixg=FALSE, the g specifies the initial value of g used before optimization.}
+
+\item{fixg}{If TRUE, don't estimate g but use the specified g.}
 }
 \value{
 a list with elements result, fitted_g, and loglik

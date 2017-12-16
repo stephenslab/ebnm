@@ -20,7 +20,7 @@ wandafromx.mle <- function(x, s,control=NULL) {
                 lower = lo, upper = hi, x = x, s = s, control=control)
   uu <- uu$par
 
-  return(list(w=uu[1], a=uu[2]))
+  return(list(pi0=1-uu[1], a=uu[2]))
 }
 
 wandafromx.mle.grad <- function(x, s, control=NULL) {
@@ -42,7 +42,7 @@ wandafromx.mle.grad <- function(x, s, control=NULL) {
               lower = lo, upper = hi, x = x, s = s, control=control)
   uu <- uu$par
 
-  return(list(w=uu[1], a=uu[2]))
+  return(list(pi0=1-uu[1], a=uu[2]))
 }
 
 #do optimization of parameters on log scale
@@ -67,7 +67,7 @@ wandafromx.mle.logscale <- function(x, s,control=NULL) {
               lower = lo, upper = hi, x = x, s = s, control=control)
   uu <- uu$par
 
-  return(list(w=exp(uu[1])/(1+exp(uu[1])), a=exp(uu[2])))
+  return(list(pi0=1/(1+exp(uu[1])), a=exp(uu[2])))
 }
 
 
@@ -95,7 +95,7 @@ wandafromx.mle.logscale.grad <- function(x, s,control=NULL) {
               lower = lo, upper = hi, x = x, s = s, control=control)
   uu <- uu$par
 
-  return(list(w=exp(uu[1])/(1+exp(uu[1])), a=exp(uu[2])))
+  return(list(pi0=1/(1+exp(uu[1])), a=exp(uu[2])))
 }
 
 
