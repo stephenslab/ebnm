@@ -1,61 +1,60 @@
 # gradient of negative likelihood with respect to w=(1-pi0)
-grad_w = function(x,s,w,a){
+grad_negloglik_w = function(x,s,w,a){
   l = vloglik.laplace(x,s,w,a)
   lf = dnorm(x,0,s,log=TRUE)
   lg = logg.laplace(x,s,a)
-  lfac = pmax(lf,lg)
-  lnum = lfac + log(exp(lf-lfac)-exp(lg-lfac)) #numerator
-  ldenom = l
-  sum(exp(lnum-ldenom))
+  sum(exp(lf-l)-exp(lg-l))
 }
 
-# Testing:
-# negloglik.w = function(w){
-#   -loglik.laplace(x,s,w,a)
-# }
-# x=1
-# s=1
-# a=0.5
-# > numDeriv::grad(negloglik.w,0.5)
-# [1] 0.4691994
-# > grad_w(x,s,0.5,a)
-# [1] 0.4691994
+grad_negloglik_a = function(x,s,w,a){
+  vloglik = vloglik.laplace(x,s,w,a)
+  gradg = grad_g(x,s,a)
+  -w * sum(gradg/exp(vloglik))
+}
+
+grad_negloglik  = function(x,s,w,a){
+  c(grad_negloglik_w(x,s,w,a),grad_negloglik_a(x,s,w,a))
+}
+
+set.seed(1)
+x = rnorm(100)
+s = rgamma(100,1,1)
+w=0.7
+a=4.2
+grad_negloglik_w(x,s,w,a)
+#[1] -35.20593
+numDeriv::grad(function(w){-loglik.laplace(x,s,w,a)},w)
+#[1] -35.20593
+
+
+grad_negloglik(x,s,w,a)
+numDeriv::grad(function(w){-loglik.laplace(x,s,w,a)},w)
+numDeriv::grad(function(a){-loglik.laplace(x,s,w,a)},a)
 
 
 lg1 = function(x,s,a){ -a*x + pnorm((x-s^2*a)/s,log=TRUE)}
 grad_lg1 = function(x,s,a){
-  -x -s*dnorm(x/s-s*a)/pnorm(x/s-s*a)
+  -x -s*exp(dnorm(x/s-s*a,log=TRUE)-pnorm(x/s-s*a,log=TRUE))
 }
 
 lg2 = function(x,s,a){a*x + pnorm((x+s^2*a)/s,lower.tail = FALSE,log=TRUE)}
 grad_lg2= function(x,s,a){
-  x - s*dnorm(x/s+s*a)/pnorm(x/s+s*a,lower.tail=FALSE)
+  x - s*exp(dnorm(x/s+s*a,log=TRUE)-pnorm(x/s+s*a,lower.tail=FALSE,log=TRUE))
 }
 
 grad_lg = function(x,s,a){
-  1/a + a*s^2 +
-    (grad_lg1(x,s,a)*exp(lg1(x,s,a)) + grad_lg2(x,s,a)*exp(lg2(x,s,a))) /
-    (exp(lg1(x,s,a))+exp(lg2(x,s,a)))
+  weight = 1/(1+exp(lg2(x,s,a)-lg1(x,s,a)))
+  1/a + a*s^2 + weight*grad_lg1(x,s,a) + (1-weight)*grad_lg2(x,s,a)
 }
 
 grad_lg(x,s,0.5)
 numDeriv::grad(function(a){logg.laplace(x,s,a)},0.5)
 
-#grad_lg2(x,s,0.5)
-#numDeriv::grad(lg2,0.5)
-
-
-# test
-#> x
-# [1] -1
-# > a
-# [1] 0.5
-# > w
-# [1] 0.5
-#> grad_lg1(0.5)
-#[1] -0.9386772
-#> numDeriv::grad(lg1,0.5)
-#[1] -0.9386772
+grad_g = function(x,s,a){
+  g = exp(logg.laplace(x,s,a))
+  return(g*(1/a + a*s^2) + 0.5*a*exp(0.5*a^2*s^2)*
+           (grad_lg1(x,s,a)*exp(lg1(x,s,a)) + grad_lg2(x,s,a)*exp(lg2(x,s,a))))
+}
 
 
 # could be useful...
