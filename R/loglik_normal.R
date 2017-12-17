@@ -3,7 +3,7 @@
 
 # This is the log of density of normal(0,1/a) convolved with normal(0,s)
 logg_normal = function(x,s,a){
-  dnorm(x,0,s+sqrt(1/a),log=TRUE)
+  dnorm(x,0,sqrt(s^2+1/a),log=TRUE)
 }
 
 # return log((1-w)f + wg) as a vector
