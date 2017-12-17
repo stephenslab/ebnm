@@ -31,7 +31,7 @@ ebnm_point_normal <- function (x,s=1,g=NULL,fixg=FALSE) {
 
   # Estimate g from data
   if(!fixg){
-    g <- mle_normal.logscale(x, s)
+    g <- mle_normal_logscale_grad(x, s)
   }
 
 	w=1-g$pi0
