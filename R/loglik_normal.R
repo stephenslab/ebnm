@@ -9,9 +9,9 @@ logg_normal = function(x,s,a){
 # return log((1-w)f + wg) as a vector
 # deal with case w=1 and w=0 separately for stability
 vloglik_normal = function(x,s,w,a){
-  if(w==0){return(dnorm(x,0,s,log=TRUE))}
+  if(w<=0){return(dnorm(x,0,s,log=TRUE))}
   lg = logg_normal(x,s,a)
-  if(w==1){return(lg)}
+  if(w>=1){return(lg)}
 
   lf = dnorm(x,0,s,log=TRUE)
   lfac = pmax(lg,lf)

@@ -1,22 +1,22 @@
 # gradient of negative likelihood with respect to w=(1-pi0)
-grad_negloglik_w = function(x,s,w,a){
+grad_negloglik_laplace_w = function(x,s,w,a){
   l = vloglik_laplace(x,s,w,a)
-  lf = dnorm(x,0,s,log=TRUE)
+  lf = dnorm(x/s,log=TRUE)
   lg = logg_laplace(x,s,a)
   sum(exp(lf-l)-exp(lg-l))
 }
 
-grad_negloglik_a = function(x,s,w,a){
-  lf = dnorm(x,0,s,log=TRUE)
+grad_negloglik_laplace_a = function(x,s,w,a){
+  lf = dnorm(x/s,log=TRUE)
   lg = logg_laplace(x,s,a)
   f_over_g = exp(lf-lg)
   -w * sum(grad_lg(x,s,a)/((1-w)*f_over_g+w))
 }
 
 # combines the two above
-grad_negloglik  = function(x,s,w,a){
+grad_negloglik_laplace  = function(x,s,w,a){
   l = vloglik_laplace(x,s,w,a)
-  lf = dnorm(x,0,s,log=TRUE)
+  lf = dnorm(x/s,log=TRUE)
   lg = logg_laplace(x,s,a)
   grad_w = sum(exp(lf-l)-exp(lg-l))
 
@@ -29,8 +29,8 @@ grad_negloglik  = function(x,s,w,a){
 
 
 # computes gradient with respect to logit(w) and log(a)
-grad_negloglik.logscale  = function(x,s,w,a){
-  grad = grad_negloglik(x,s,w,a)
+grad_negloglik_logscale_laplace  = function(x,s,w,a){
+  grad = grad_negloglik_laplace(x,s,w,a)
   grad[1] = grad[1] * (w*(1-w))
   grad[2] = grad[2] * a
   return(grad)
@@ -41,13 +41,13 @@ grad_negloglik.logscale  = function(x,s,w,a){
 # s = rgamma(100,1,1)
 # w=0.7
 # a=4.2
-# grad_negloglik_w(x,s,w,a)
+# grad_negloglik_laplace_w(x,s,w,a)
 # #[1] -35.20593
 # numDeriv::grad(function(w){-loglik_laplace(x,s,w,a)},w)
 # #[1] -35.20593
 #
 #
-# grad_negloglik(x,s,w,a)
+# grad_negloglik_laplace(x,s,w,a)
 # numDeriv::grad(function(w){-loglik_laplace(x,s,w,a)},w)
 # numDeriv::grad(function(a){-loglik_laplace(x,s,w,a)},a)
 #

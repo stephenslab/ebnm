@@ -4,10 +4,19 @@
 \alias{mle_laplace}
 \title{Compute mle of w and a for data (x,s) under point laplace prior}
 \usage{
-mle_laplace(x, s, control = NULL)
+mle_laplace(x, s, startpar = NULL, control = NULL)
+}
+\arguments{
+\item{x}{observations}
+
+\item{s}{standard deviations}
+
+\item{startpar}{initialization}
+
+\item{control}{list of parameters to be passed to optim
+Compared with the original wandafromx this function dispenses with the
+complication of the thresholds}
 }
 \details{
 Does simple mle (currently using optim)
-Compared with the original wandafromx this function dispenses with the
-complication of the thresholds
 }

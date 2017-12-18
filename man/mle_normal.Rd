@@ -4,7 +4,7 @@
 \alias{mle_normal}
 \title{Compute mle of w and a for data (x,s) under point normal prior}
 \usage{
-mle_normal(x, s, control = NULL)
+mle_normal(x, s, startpar = NULL, control = NULL)
 }
 \details{
 Does simple mle (currently using optim)
