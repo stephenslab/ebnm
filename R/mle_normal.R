@@ -18,9 +18,9 @@ mle_normal <- function(x, s, startpar = NULL, control=NULL) {
 
   uu <- optim(startpar, function(par,x,s){-loglik_normal(x,s,par[1],par[2])}, method="L-BFGS-B",
                 lower = lo, upper = hi, x = x, s = s, control=control)
-  uu <- uu$par
+  uu_par <- uu$par
 
-  return(list(pi0=1-uu[1], a=uu[2]))
+  return(list(pi0=1-uu_par[1], a=uu_par[2], val = uu$value))
 }
 
 
@@ -45,9 +45,9 @@ mle_normal_logscale <- function(x, s,startpar=NULL,control=NULL) {
               function(par,x,s){-loglik_normal(x,s,exp(par[1])/(1+exp(par[1])),
                                                 exp(par[2]))},
               method="L-BFGS-B",x = x, s = s, control=control)
-  uu <- uu$par
+  uu_par <- uu$par
 
-  return(list(pi0=1/(1+exp(uu[1])), a=exp(uu[2])))
+  return(list(pi0=1/(1+exp(uu_par[1])), a=exp(uu_par[2]), val= uu$value))
 }
 
 
@@ -92,9 +92,9 @@ mle_normal_logscale_grad <- function(x, s,startpar = NULL, control=NULL) {
                     method="L-BFGS-B",lower=lo, upper=hi, x = x, s = s, control=control))
   }
 
-  uu <- uu$par
+  uu_par <- uu$par
 
-  return(list(pi0=1/(1+exp(uu[1])), a=exp(uu[2])))
+  return(list(pi0=1/(1+exp(uu_par[1])), a=exp(uu_par[2]), val = uu$value))
 }
 
 

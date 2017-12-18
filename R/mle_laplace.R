@@ -24,9 +24,9 @@ mle_laplace <- function(x, s,startpar=NULL,control=NULL) {
 
   uu <- optim(startpar, function(par,x,s){-loglik_laplace(x,s,par[1],par[2])}, method="L-BFGS-B",
                 lower = lo, upper = hi, x = x, s = s, control=control)
-  uu <- uu$par
+  uu_par <- uu$par
 
-  return(list(pi0=1-uu[1], a=uu[2]))
+  return(list(pi0=1-uu_par[1], a=uu_par[2], val=uu$value))
 }
 
 mle_laplace_grad <- function(x, s, startpar=NULL,control=NULL) {
@@ -47,9 +47,9 @@ mle_laplace_grad <- function(x, s, startpar=NULL,control=NULL) {
   uu <- optim(startpar, function(par,x,s){-loglik_laplace(x,s,par[1],par[2])},
               gr= function(par,x,s){grad_negloglik(x,s,par[1],par[2])}, method="L-BFGS-B",
               lower = lo, upper = hi, x = x, s = s, control=control)
-  uu <- uu$par
+  uu_par <- uu$par
 
-  return(list(pi0=1-uu[1], a=uu[2]))
+  return(list(pi0=1-uu_par[1], a=uu_par[2], val=uu$value))
 }
 
 #do optimization of parameters on log scale
@@ -78,9 +78,9 @@ mle_laplace_logscale <- function(x, s,startpar=NULL,control=NULL) {
                                                 exp(par[2]))},
               method="L-BFGS-B",
               lower = lo, upper = hi, x = x, s = s, control=control)
-  uu <- uu$par
+  uu_par <- uu$par
 
-  return(list(pi0=1/(1+exp(uu[1])), a=exp(uu[2])))
+  return(list(pi0=1/(1+exp(uu_par[1])), a=exp(uu_par[2]), val=uu$value))
 }
 
 
@@ -113,9 +113,9 @@ mle_laplace_logscale_grad <- function(x, s,startpar=NULL,control=NULL) {
                                                             exp(par[2]))},
               method="L-BFGS-B",
               lower = lo, upper = hi, x = x, s = s, control=control)
-  uu <- uu$par
+  uu_par <- uu$par
 
-  return(list(pi0=1/(1+exp(uu[1])), a=exp(uu[2])))
+  return(list(pi0=1/(1+exp(uu_par[1])), a=exp(uu_par[2]), val=uu$value))
 }
 
 

@@ -11,7 +11,6 @@
 #' estimated from the data. However, it can be used in conjuction with fixg=TRUE
 #' to specify the g to use (e.g. useful in simulations to do computations with the "true" g).
 #' Or, if g is specified but fixg=FALSE, the g specifies the initial value of g used before optimization.
-#'
 #' @param fixg If TRUE, don't estimate g but use the specified g.
 #'
 #' @return a list with elements result, fitted_g, and loglik
