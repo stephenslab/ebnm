@@ -78,7 +78,7 @@ mle_normal_logscale_grad <- function(x, s,startpar = NULL, control=NULL) {
   #if optimization fails, try again with some limits; this should not really
   #happen but in preliminary testing sometimes we say optim complain of infinite
   # values, possibly because of extreme values of the parameters?
-  if(class(uu)=="try_error"){
+  if(class(uu)=="try-error"){
     n = length(x)
     minvar = (min(s)/10)^2
 
@@ -90,6 +90,10 @@ mle_normal_logscale_grad <- function(x, s,startpar = NULL, control=NULL) {
                     gr= function(par,x,s){grad_negloglik_logscale_normal(x,s,1- (1/(1+exp(par[1]))),
                                                                          exp(par[2]))},
                     method="L-BFGS-B",lower=lo, upper=hi, x = x, s = s, control=control))
+  }
+  if(class(uu)=="try-error"){
+    saveRDS(list(startpar=startpar,x=x,s=s,control=control),"temp_debug.RDS")
+    stop("optim failed to converge; debug information saved to temp_debug.RDS")
   }
 
   uu_par <- uu$par

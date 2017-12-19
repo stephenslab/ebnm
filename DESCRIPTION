@@ -1,7 +1,7 @@
 Package: ebnm
 Type: Package
 Title: Fit Empirical Bayes Normal Means Model
-Version: 0.1.0
+Version: 0.1.1
 Author: Matthew Stephens
 Maintainer: <mstephens@uchicago.edu>
 Description: Provides functions to fit the normal means problem using Empirical Bayes.

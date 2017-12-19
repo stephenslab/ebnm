@@ -25,7 +25,7 @@ a list with elements result, fitted_g, and loglik
 Given vectors of data x, and standard errors s, solve EBNM problem with "point-normal" prior
 (i.e. a mixture of point mass at 0 and normal distribution).
 That is the prior is pi0 \delta_0 + (1-pi0)N(0,1/a) where N is the normal
-distribution, and (pi0,a) are esimated by marginal maximum likelihood.
+distribution, and (pi0,a) are estimated by marginal maximum likelihood.
 }
 \examples{
 mu = c(rep(0,1000), rexp(1000)) # means
