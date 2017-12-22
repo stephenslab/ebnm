@@ -1,7 +1,7 @@
 #' @title Solve the Empirical Bayes Normal Means problem with point-laplace prior
 #' @details Given vectors of data x, and standard errors s, solve EBNM problem with "point-laplace" prior
 #' (i.e. a mixture of point mass at 0 and Laplace distribution).
-#' That is the prior is pi0 \delta_0 + (1-pi0)DExp(a) where Dexp is the double exponential
+#' That is the prior is \eqn{pi0 \delta_0 + (1-pi0)DExp(a)} where Dexp is the double exponential
 #' (Laplace) distribution, and (pi0,a) are esimated by marginal maximum likelihood. The model and code are based on
 #' EbayesThresh by Johnstone and Silverman, but simplified by removing thresholding, and
 #' improved numerical stability.

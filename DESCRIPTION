@@ -16,8 +16,10 @@ License: GPL (>=3)
 LazyData: true
 NeedsCompilation: no
 Depends: R (>= 3.3.0)
-Suggests: testthat, 
-          ashr
+Suggests: 
+    testthat, 
+    ashr,
+    knitr
 URL: https://github.com/stephenslab/ebnm
 BugReports: https://github.com/stephenslab/ebnm/issues
 RoxygenNote: 6.0.1

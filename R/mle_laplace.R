@@ -5,7 +5,8 @@
 #' @param startpar initialization
 #' @param control list of parameters to be passed to optim
 #' Compared with the original wandafromx this function dispenses with the
-#' complication of the thresholds
+#' complication of the thresholds.
+#' @importFrom stats optim
 mle_laplace <- function(x, s,startpar=NULL,control=NULL) {
 
   # get some reasonable limits on sigma (standard deviation of normal, or 1/sqrt(a))
@@ -29,6 +30,7 @@ mle_laplace <- function(x, s,startpar=NULL,control=NULL) {
   return(list(pi0=1-uu_par[1], a=uu_par[2], val=uu$value))
 }
 
+#' @importFrom stats optim
 mle_laplace_grad <- function(x, s, startpar=NULL,control=NULL) {
 
   # get some reasonable limits on sigma (standard deviation of normal, or 1/sqrt(a))
@@ -52,7 +54,9 @@ mle_laplace_grad <- function(x, s, startpar=NULL,control=NULL) {
   return(list(pi0=1-uu_par[1], a=uu_par[2], val=uu$value))
 }
 
-#do optimization of parameters on log scale
+# Do optimization of parameters on log scale.
+#
+#' @importFrom stats optim
 mle_laplace_logscale <- function(x, s,startpar=NULL,control=NULL) {
 
   maxvar = max(x^2 - s^2) #get upper bound on variance estimate
@@ -85,6 +89,8 @@ mle_laplace_logscale <- function(x, s,startpar=NULL,control=NULL) {
 
 
 #do optimization of parameters on log scale
+#
+#' @importFrom stats optim
 mle_laplace_logscale_grad <- function(x, s,startpar=NULL,control=NULL) {
 
   maxvar = max(x^2 - s^2) #get upper bound on variance estimate

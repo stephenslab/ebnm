@@ -15,7 +15,7 @@ mle_laplace(x, s, startpar = NULL, control = NULL)
 
 \item{control}{list of parameters to be passed to optim
 Compared with the original wandafromx this function dispenses with the
-complication of the thresholds}
+complication of the thresholds.}
 }
 \details{
 Does simple mle (currently using optim)

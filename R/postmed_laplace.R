@@ -2,6 +2,7 @@
 #  Find the posterior median for the Laplace prior for
 #   given x (observations), s (sd), w and a.
 #
+#' @importFrom stats dnorm
 postmed_laplace <- function(x, s, w, a) {
 
   if(w==0){return(rep(0,length(x)))}
@@ -25,8 +26,11 @@ postmed_laplace <- function(x, s, w, a) {
 	return(muhat)
 }
 
-# this computes the log of the (1/w+beta) function used in computations of postmed
-# it may not be the most efficient way. But it does it stably
+# this computes the log of the (1/w+beta) function used in
+# computations of postmed it may not be the most efficient way. But it
+# does it stably
+#
+#' @importFrom stats dnorm
 log_inverse_w_plus_beta = function(w,x,s,a){
   lg = logg_laplace(x,s,a)
   lf = dnorm(x,0,s,log=TRUE)

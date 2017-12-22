@@ -2,12 +2,16 @@
 # More numerically stable than the original approach in negloglik_normal.R
 
 # This is the log of density of normal(0,1/a) convolved with normal(0,s)
+#
+#' @importFrom stats dnorm
 logg_normal = function(x,s,a){
   dnorm(x,0,sqrt(s^2+1/a),log=TRUE)
 }
 
 # return log((1-w)f + wg) as a vector
 # deal with case w=1 and w=0 separately for stability
+#
+#' @importFrom stats dnorm
 vloglik_normal = function(x,s,w,a){
   if(w<=0){return(dnorm(x,0,s,log=TRUE))}
   lg = logg_normal(x,s,a)

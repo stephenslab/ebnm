@@ -11,6 +11,8 @@ logg_laplace = function(x,s,a){
 
 # return log((1-w)f + wg) as a vector
 # deal with case w=1 and w=0 separately for stability
+#
+#' @importFrom stats optim
 vloglik_laplace = function(x,s,w,a){
   if(w==0){return(dnorm(x/s,log=TRUE))}
   lg = logg_laplace(x,s,a)
