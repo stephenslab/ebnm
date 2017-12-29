@@ -21,6 +21,9 @@ Or, if g is specified but fixg=FALSE, the g specifies the initial value of g use
 \value{
 a list with elements result, fitted_g, and loglik
 }
+\description{
+Paragraph-length description goes here.
+}
 \details{
 Given vectors of data x, and standard errors s, solve EBNM problem with "point-laplace" prior
 (i.e. a mixture of point mass at 0 and Laplace distribution).

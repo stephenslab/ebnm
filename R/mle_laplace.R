@@ -1,4 +1,5 @@
 #' @title Compute mle of w and a for data (x,s) under point laplace prior
+#' @description Paragraph-length description goes here.
 #' @details Does simple mle (currently using optim)
 #' @param x observations
 #' @param s standard deviations
@@ -47,8 +48,9 @@ mle_laplace_grad <- function(x, s, startpar=NULL,control=NULL) {
     startpar  <- c(0.5,2/(sigmamax^2+sigmamin^2))
   }
   uu <- optim(startpar, function(par,x,s){-loglik_laplace(x,s,par[1],par[2])},
-              gr= function(par,x,s){grad_negloglik(x,s,par[1],par[2])}, method="L-BFGS-B",
-              lower = lo, upper = hi, x = x, s = s, control=control)
+              gr= function(par,x,s){grad_negloglik_laplace(x,s,par[1],par[2])},
+              method="L-BFGS-B",lower = lo, upper = hi, x = x, s = s,
+              control=control)
   uu_par <- uu$par
 
   return(list(pi0=1-uu_par[1], a=uu_par[2], val=uu$value))

@@ -1,4 +1,6 @@
 #' @title Solve the Empirical Bayes Normal Means problem with point-laplace prior
+#' @description Paragraph-length description goes here.
+#' 
 #' @details Given vectors of data x, and standard errors s, solve EBNM problem with "point-laplace" prior
 #' (i.e. a mixture of point mass at 0 and Laplace distribution).
 #' That is the prior is \eqn{pi0 \delta_0 + (1-pi0)DExp(a)} where Dexp is the double exponential
@@ -23,7 +25,7 @@
 #'
 #' @export
 ebnm_point_laplace <- function (x,s=1,g=NULL,fixg=FALSE) {
-  #could consider makign more stable this way? But might have to be careful with log-likelihood
+  #could consider making more stable this way? But might have to be careful with log-likelihood
   #m_sdev <- mean(s)
   #s <- s/m_sdev
   #x <- x/m_sdev

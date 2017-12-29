@@ -6,6 +6,9 @@
 \usage{
 mle_normal(x, s, startpar = NULL, control = NULL)
 }
+\description{
+Paragraph-length description goes here.
+}
 \details{
 Does simple mle (currently using optim)
 }

@@ -54,18 +54,25 @@ grad_negloglik_logscale_laplace  = function(x,s,w,a){
 # numDeriv::grad(function(w){-loglik_laplace(x,s,w,a)},w)
 # numDeriv::grad(function(a){-loglik_laplace(x,s,w,a)},a)
 #
-#' @importFrom stats dnorm
 #' @importFrom stats pnorm
-lg1 = function(x,s,a){ -a*x + pnorm((x-s^2*a)/s,log=TRUE)}
-grad_lg1 = function(x,s,a){
-  -x -s*exp(dnorm(x/s-s*a,log=TRUE)-pnorm(x/s-s*a,log=TRUE))
-}
+lg1 = function(x,s,a){ -a*x + pnorm((x-s^2*a)/s,log.p = TRUE)}
 
 #' @importFrom stats dnorm
 #' @importFrom stats pnorm
-lg2 = function(x,s,a){a*x + pnorm((x+s^2*a)/s,lower.tail = FALSE,log=TRUE)}
-grad_lg2= function(x,s,a){
-  x - s*exp(dnorm(x/s+s*a,log=TRUE)-pnorm(x/s+s*a,lower.tail=FALSE,log=TRUE))
+grad_lg1 = function(x,s,a){
+  -x -s*exp(dnorm(x/s-s*a,log = TRUE) - pnorm(x/s-s*a,log.p = TRUE))
+}
+
+#' @importFrom stats pnorm
+lg2 = function(x,s,a){
+  a*x + pnorm((x+s^2*a)/s,lower.tail = FALSE,log.p = TRUE)
+}
+
+#' @importFrom stats pnorm
+#' @importFrom stats dnorm
+grad_lg2 = function(x,s,a){
+  x - s*exp(dnorm(x/s+s*a,log = TRUE) -
+            pnorm(x/s+s*a,lower.tail=FALSE,log.p = TRUE))
 }
 
 grad_lg = function(x,s,a){
@@ -73,13 +80,11 @@ grad_lg = function(x,s,a){
   1/a + a*s^2 + weight*grad_lg1(x,s,a) + (1-weight)*grad_lg2(x,s,a)
 }
 
-
 grad_g = function(x,s,a){
   g = exp(logg_laplace(x,s,a))
   return(g*(1/a + a*s^2) + 0.5*a*exp(0.5*a^2*s^2)*
            (grad_lg1(x,s,a)*exp(lg1(x,s,a)) + grad_lg2(x,s,a)*exp(lg2(x,s,a))))
 }
-
 
 # could be useful...
 #To save myself some work, I am calling the methods through the package optimrx

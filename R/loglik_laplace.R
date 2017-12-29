@@ -3,8 +3,8 @@
 
 # This is the log of g, Laplace(a) convolved with normal, eqn (2.2) in Kan Xu's MS paper
 logg_laplace = function(x,s,a){
-  lg1 = -a*x + pnorm((x-s^2*a)/s,log=TRUE)
-  lg2 = a*x + pnorm((x+s^2*a)/s,lower.tail = FALSE,log=TRUE)
+  lg1 = -a*x + pnorm((x-s^2*a)/s,log.p = TRUE)
+  lg2 = a*x + pnorm((x+s^2*a)/s,lower.tail = FALSE,log.p = TRUE)
   lfac = pmax(lg1,lg2) # avoid numeric issues by removing a log factor
   log(0.5) + log(a) + (a^2 * s^2)/2 + lfac + log(exp(lg1-lfac) + exp(lg2-lfac))
 }

@@ -1,8 +1,10 @@
+#' @importFrom ashr my_etruncnorm
+#' @importFrom ashr my_e2truncnorm
 compute_summary_results_laplace = function(x,s,w,a){
   wpost <- wpost_laplace(x,s,w,a)
   l=lambda(x,s,a)
-  PosteriorMean = wpost* (l * ashr:::my_etruncnorm(0,Inf,x-s^2*a,s) + (1-l)*ashr:::my_etruncnorm(-Inf,0,x+s^2*a,s))
-  PosteriorMean2 = wpost* (l * ashr:::my_e2truncnorm(0,Inf,x-s^2*a,s) + (1-l)*ashr:::my_e2truncnorm(-Inf,0,x+s^2*a,s))
+  PosteriorMean = wpost* (l * my_etruncnorm(0,Inf,x-s^2*a,s) + (1-l)*my_etruncnorm(-Inf,0,x+s^2*a,s))
+  PosteriorMean2 = wpost* (l * my_e2truncnorm(0,Inf,x-s^2*a,s) + (1-l)*my_e2truncnorm(-Inf,0,x+s^2*a,s))
   return(data.frame(PosteriorMean=PosteriorMean,PosteriorMean2=PosteriorMean2))
 }
 
@@ -23,8 +25,8 @@ wpost_laplace <- function(x, s, w, a)
 # computes the lambda function equation (2.7) from Kan Xu's thesis, which is posterior probability of being negative
 # given a non-zero effect
 lambda = function(x,s,a){
-  lm1 = -a*x  + pnorm(x/s - s*a,log=TRUE)
-  lm2 =  a*x +  pnorm(x/s + s*a,log=TRUE,lower.tail = FALSE)
+  lm1 = -a*x  + pnorm(x/s - s*a,log.p = TRUE)
+  lm2 =  a*x +  pnorm(x/s + s*a,log.p = TRUE,lower.tail = FALSE)
   m = pmax(lm1,lm2)
   lm1 = lm1-m
   lm2 = lm2-m

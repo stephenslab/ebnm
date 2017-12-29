@@ -2,6 +2,9 @@
 
 export(ebnm_point_laplace)
 export(ebnm_point_normal)
+importFrom(ashr,my_e2truncnorm)
+importFrom(ashr,my_etruncnorm)
 importFrom(stats,dnorm)
 importFrom(stats,optim)
 importFrom(stats,pnorm)
+importFrom(stats,qnorm)

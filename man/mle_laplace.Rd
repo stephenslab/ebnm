@@ -17,6 +17,9 @@ mle_laplace(x, s, startpar = NULL, control = NULL)
 Compared with the original wandafromx this function dispenses with the
 complication of the thresholds.}
 }
+\description{
+Paragraph-length description goes here.
+}
 \details{
 Does simple mle (currently using optim)
 }

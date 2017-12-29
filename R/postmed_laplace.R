@@ -3,6 +3,7 @@
 #   given x (observations), s (sd), w and a.
 #
 #' @importFrom stats dnorm
+#' @importFrom stats qnorm
 postmed_laplace <- function(x, s, w, a) {
 
   if(w==0){return(rep(0,length(x)))}

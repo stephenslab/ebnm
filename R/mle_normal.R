@@ -1,5 +1,10 @@
 #' @title Compute mle of w and a for data (x,s) under point normal prior
+#' @description Paragraph-length description goes here.
 #' @details Does simple mle (currently using optim)
+#' @param x observations
+#' @param s standard deviations
+#' @param startpar initialization
+#' @param control list of parameters to be passed to optim
 #' @importFrom stats optim
 mle_normal <- function(x, s, startpar = NULL, control=NULL) {
 
