@@ -130,3 +130,13 @@ ebnm:::mle_laplace_logscale(1e6*xnn,1e6*s)
 ebnm:::mle_laplace_logscale_grad(xnn,s)
 ebnm:::mle_laplace_logscale_grad(1e6*xnn,1e6*s)
 ```
+
+## Session info
+
+This code chunk gives information about the computing environment,
+including the version of R and the packages, used to generate the
+results above.
+
+```{r}
+sessionInfo()
+```

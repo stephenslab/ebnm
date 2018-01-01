@@ -47,6 +47,16 @@ x.ebnm = ebnm_point_normal(x,1)
 plot(mu,ashr::get_pm(x.ebnm)) # plot posterior mean against true values
 ```
 
+## How to build the webpages
+
+Run the following commands in R from the [vignettes](vignettes)
+directory:
+
+```R
+library(rmarkdown)
+render("opt_normal.Rmd",output_dir = "../docs")
+```
+
 ## Credits 
 
 The `ebnm_point_laplace` function is derived from ideas and code in the *EbayesThresh* package
