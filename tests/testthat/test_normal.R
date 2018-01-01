@@ -9,8 +9,9 @@ test_that("postmean gives same result as ashr",{
   ash.res = ashr::ash(x,s,outputlevel = 5,method = "shrink",
                       g = ashr::normalmix(c(pi0,1-pi0),c(0,0),c(0,sqrt(1/a))),
                       fixg = TRUE)
-  expect_equal(ebnm.res$result$PosteriorMean,ash.res$flash_data$postmean)
-  expect_equal(ebnm.res$result$PosteriorMean2,ash.res$flash_data$postmean2)
-  expect_equal(ebnm.res$loglik,ash.res$flash_data$penloglik)
-
+  expect_equal(ebnm.res$result$PosteriorMean,
+               ash.res$flash_data$postmean,tol = 1e-6)
+  expect_equal(ebnm.res$result$PosteriorMean2,
+               ash.res$flash_data$postmean2, tol = 1e-6)
+  expect_equal(ebnm.res$loglik,ash.res$flash_data$penloglik,tol = 1e-6)
 })

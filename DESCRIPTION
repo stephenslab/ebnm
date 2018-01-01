@@ -1,7 +1,7 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 0.1.6
+Version: 0.1.7
 Date: 2018-01-01
 Title: Fit Empirical Bayes Normal Means Model
 Author: Matthew Stephens
@@ -23,7 +23,8 @@ Suggests:
     testthat, 
     knitr,
     rmarkdown,
-    microbenchmark
+    microbenchmark,
+    numDeriv
 URL: https://github.com/stephenslab/ebnm
 BugReports: https://github.com/stephenslab/ebnm/issues
 RoxygenNote: 6.0.1
