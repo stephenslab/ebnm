@@ -6,6 +6,15 @@
 \usage{
 mle_normal(x, s, startpar = NULL, control = NULL)
 }
+\arguments{
+\item{x}{observations}
+
+\item{s}{standard deviations}
+
+\item{startpar}{initialization}
+
+\item{control}{list of parameters to be passed to optim}
+}
 \description{
 Paragraph-length description goes here.
 }
