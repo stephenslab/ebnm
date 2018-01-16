@@ -10,6 +10,7 @@ compute_summary_results_normal = function(x,s,w,a){
 #
 #  Calculate the posterior weight for non-zero effect
 #
+#' @importFrom stats dnorm
 wpost_normal <- function(x, s, w, a)
 {
   if(w==0){return(rep(0,length(x)))}

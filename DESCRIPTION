@@ -1,16 +1,32 @@
 Package: ebnm
-Type: Package
-Title: Fit Empirical Bayes Normal Means Model
-Version: 0.1.2
-Author: Matthew Stephens
-Maintainer: <mstephens@uchicago.edu>
-Description: Provides functions to fit the normal means problem using Empirical Bayes.
-    The goal is for these functions to be simple, fast and stable. 
-    Currently two models are implemented: the point-normal and point-laplace priors.
-    The point-normal is considerably faster. See functions `ebnm_point_normal`, `ebnm_point_laplace`.
-License: GPL
 Encoding: UTF-8
+Type: Package
+Version: 0.1-8
+Date: 2018-01-16
+Title: Fit Empirical Bayes Normal Means Model
+Author: Matthew Stephens
+Maintainer: Matthew Stephens <mstephens@uchicago.edu>
+Description: Provides functions to fit the normal means problem using
+    Empirical Bayes. The goal is for these functions to be simple,
+    fast and stable. Currently two models are implemented: the
+    point-normal and point-laplace priors. The point-normal is
+    considerably faster. See functions ebnm_point_normal,
+    ebnm_point_laplace.
+License: GPL (>=3)
 LazyData: true
+NeedsCompilation: no
+Depends: R (>= 3.3.0)
+Imports:
+    stats,
+    ashr (>= 2.2-2)
+Suggests: 
+    testthat, 
+    knitr,
+    rmarkdown,
+    microbenchmark,
+    numDeriv
+URL: https://github.com/stephenslab/ebnm
+BugReports: https://github.com/stephenslab/ebnm/issues
 RoxygenNote: 6.0.1
-Suggests: testthat, 
-          ashr
+VignetteBuilder: knitr
+Remotes: stephens999/ashr

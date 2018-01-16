@@ -1,5 +1,11 @@
 #' @title Compute mle of w and a for data (x,s) under point normal prior
+#' @description Paragraph-length description goes here.
 #' @details Does simple mle (currently using optim)
+#' @param x observations
+#' @param s standard deviations
+#' @param startpar initialization
+#' @param control list of parameters to be passed to optim
+#' @importFrom stats optim
 mle_normal <- function(x, s, startpar = NULL, control=NULL) {
 
   # get some reasonable limits on sigma (standard deviation of normal, or 1/sqrt(a))
@@ -26,6 +32,8 @@ mle_normal <- function(x, s, startpar = NULL, control=NULL) {
 
 
 #do optimization of parameters on log scale
+#
+#' @importFrom stats optim
 mle_normal_logscale <- function(x, s,startpar=NULL,control=NULL) {
 
   maxvar = max(x^2 - s^2) #get upper bound on variance estimate
@@ -52,6 +60,8 @@ mle_normal_logscale <- function(x, s,startpar=NULL,control=NULL) {
 
 
 #do optimization of parameters on log scale
+#
+#' @importFrom stats optim
 mle_normal_logscale_grad <- function(x, s,startpar = NULL, control=NULL) {
 
   maxvar = max(x^2 - s^2) #get upper bound on variance estimate

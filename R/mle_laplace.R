@@ -1,11 +1,13 @@
 #' @title Compute mle of w and a for data (x,s) under point laplace prior
+#' @description Paragraph-length description goes here.
 #' @details Does simple mle (currently using optim)
 #' @param x observations
 #' @param s standard deviations
 #' @param startpar initialization
 #' @param control list of parameters to be passed to optim
 #' Compared with the original wandafromx this function dispenses with the
-#' complication of the thresholds
+#' complication of the thresholds.
+#' @importFrom stats optim
 mle_laplace <- function(x, s,startpar=NULL,control=NULL) {
 
   # get some reasonable limits on sigma (standard deviation of normal, or 1/sqrt(a))
@@ -29,6 +31,7 @@ mle_laplace <- function(x, s,startpar=NULL,control=NULL) {
   return(list(pi0=1-uu_par[1], a=uu_par[2], val=uu$value))
 }
 
+#' @importFrom stats optim
 mle_laplace_grad <- function(x, s, startpar=NULL,control=NULL) {
 
   # get some reasonable limits on sigma (standard deviation of normal, or 1/sqrt(a))
@@ -45,14 +48,17 @@ mle_laplace_grad <- function(x, s, startpar=NULL,control=NULL) {
     startpar  <- c(0.5,2/(sigmamax^2+sigmamin^2))
   }
   uu <- optim(startpar, function(par,x,s){-loglik_laplace(x,s,par[1],par[2])},
-              gr= function(par,x,s){grad_negloglik(x,s,par[1],par[2])}, method="L-BFGS-B",
-              lower = lo, upper = hi, x = x, s = s, control=control)
+              gr= function(par,x,s){grad_negloglik_laplace(x,s,par[1],par[2])},
+              method="L-BFGS-B",lower = lo, upper = hi, x = x, s = s,
+              control=control)
   uu_par <- uu$par
 
   return(list(pi0=1-uu_par[1], a=uu_par[2], val=uu$value))
 }
 
-#do optimization of parameters on log scale
+# Do optimization of parameters on log scale.
+#
+#' @importFrom stats optim
 mle_laplace_logscale <- function(x, s,startpar=NULL,control=NULL) {
 
   maxvar = max(x^2 - s^2) #get upper bound on variance estimate
@@ -85,6 +91,8 @@ mle_laplace_logscale <- function(x, s,startpar=NULL,control=NULL) {
 
 
 #do optimization of parameters on log scale
+#
+#' @importFrom stats optim
 mle_laplace_logscale_grad <- function(x, s,startpar=NULL,control=NULL) {
 
   maxvar = max(x^2 - s^2) #get upper bound on variance estimate
