@@ -73,7 +73,7 @@ mle_normal_logscale_grad <- function(x, s,startpar = NULL, control=NULL) {
                                                exp(par[2]))},
               gr= function(par,x,s){grad_negloglik_logscale_normal(x,s,1- (1/(1+exp(par[1]))),
                                                             exp(par[2]))},
-              method="L-BFGS-B",x = x, s = s, control=control))
+              method="L-BFGS-B",x = x, s = s, control=control), silent=TRUE)
 
   #if optimization fails, try again with some limits; this should not really
   #happen but in preliminary testing sometimes we say optim complain of infinite
