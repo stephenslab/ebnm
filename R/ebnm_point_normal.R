@@ -1,6 +1,6 @@
 #' @title Solve the Empirical Bayes Normal Means problem with point-normal prior
 #' @description Paragraph-length description goes here.
-#' 
+#'
 #' @details Given vectors of data x, and standard errors s, solve EBNM problem with "point-normal" prior
 #' (i.e. a mixture of point mass at 0 and normal distribution).
 #' That is the prior is \eqn{pi0 \delta_0 + (1-pi0)N(0,1/a)} where N is the normal
@@ -12,6 +12,7 @@
 #' to specify the g to use (e.g. useful in simulations to do computations with the "true" g).
 #' Or, if g is specified but fixg=FALSE, the g specifies the initial value of g used before optimization.
 #' @param fixg If TRUE, don't estimate g but use the specified g.
+#' @param norm normalization factor to divide x and s by before running optimization (should not affect results, but improves numerical stability when x and s are tiny)
 #'
 #' @return a list with elements result, fitted_g, and loglik
 #' @examples
@@ -22,11 +23,12 @@
 #' ashr::get_pm(x.ebnm) # posterior mean
 #'
 #' @export
-ebnm_point_normal <- function (x,s=1,g=NULL,fixg=FALSE) {
+ebnm_point_normal <- function (x,s=1,g=NULL,fixg=FALSE, norm = mean(s)) {
   #could consider makign more stable this way? But might have to be careful with log-likelihood
-  #m_sdev <- mean(s)
-  #s <- s/m_sdev
-  #x <- x/m_sdev
+
+  s <- s/norm
+  x <- x/norm
+
   if(is.null(g) & fixg){stop("must specify g if fixg=TRUE")}
   if(!is.null(g) & !fixg){stop("option to intialize from g not yet implemented")}
 
@@ -41,8 +43,12 @@ ebnm_point_normal <- function (x,s=1,g=NULL,fixg=FALSE) {
 	loglik = loglik_normal(x,s,w,a)
 	result = compute_summary_results_normal(x,s,w,a)
 
-	#postmean <- postmean * m_sdev
-	#postmean2 <- postmean2 * m_sdev^2
+	# adjust results back to original scale
+	result$PosteriorMean <- result$PosteriorMean * norm
+	result$PosteriorMean2 <- result$PosteriorMean2 * norm^2
+	g$a <- g$a / (norm^2)
+	loglik = loglik - length(x)*log(norm)
+
 
 	retlist <- list(result=result, fitted_g = g, loglik = loglik)
 
