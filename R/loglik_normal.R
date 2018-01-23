@@ -19,7 +19,10 @@ vloglik_normal = function(x,s,w,a){
 
   lf = dnorm(x,0,s,log=TRUE)
   lfac = pmax(lg,lf)
-  return(lfac + log((1-w)*exp(lf-lfac) + w*exp(lg-lfac)))
+  result = lfac + log((1-w)*exp(lf-lfac) + w*exp(lg-lfac))
+  result[is.infinite(lf)] = log(1-w) # handles the case where s=0, so we get infinite density
+
+  return(result)
 }
 
 loglik_normal = function(x,s,w,a){

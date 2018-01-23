@@ -24,9 +24,11 @@ grad_negloglik_a_normal = function(x,s,w,a){
 #
 #' @importFrom stats dnorm
 grad_negloglik_normal  = function(x,s,w,a){
+  s[s==0]=1e-16 # avoid numeric problems when s=0
   l = vloglik_normal(x,s,w,a)
   lf = dnorm(x,0,s,log=TRUE)
   lg = dnorm(x,0,sqrt(s^2+1/a),log=TRUE)
+
   grad_w = sum(exp(lf-l)-exp(lg-l))
 
   g_over_l = exp(lg-l)

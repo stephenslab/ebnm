@@ -10,6 +10,8 @@ mle_normal <- function(x, s, startpar = NULL, control=NULL) {
 
   # get some reasonable limits on sigma (standard deviation of normal, or 1/sqrt(a))
   sigmamin = min(s)/10
+  if(sigmamin<1e-8){sigmamin=1e-8}
+
   if (all(x^2 <= s^2)) {
     sigmamax = 8 * sigmamin
   } else {
@@ -91,6 +93,7 @@ mle_normal_logscale_grad <- function(x, s,startpar = NULL, control=NULL) {
   if(class(uu)=="try-error"){
     n = length(x)
     minvar = (min(s)/10)^2
+    if(minvar<1e-8){minvar=1e-8}
 
     lo  <-  c(log(1/n),-log(maxvar))
     hi  <-  c(log(n),-log(minvar))
