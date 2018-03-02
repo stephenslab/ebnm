@@ -5,8 +5,6 @@ test_that("sampler gives reasonable results", {
   x = mu + rnorm(50,0,s)
 
   res = ebnm_point_normal(x,s, output=c("summary_results", "fitted_g", "post_sampler"))
-  w <- 1 - res$fitted_g$pi0
-  a <- res$fitted_g$a
 
   samp <- res$post_sampler(100)
   expect_equal(colMeans(samp), res$result$PosteriorMean, tolerance = 0.1)
