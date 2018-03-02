@@ -14,8 +14,10 @@
 #' to specify the g to use (e.g. useful in simulations to do computations with the "true" g).
 #' Or, if g is specified but fixg=FALSE, the g specifies the initial value of g used before optimization.
 #' @param fixg If TRUE, don't estimate g but use the specified g.
+#' @param output List of values to be returned. Defaults to "result" (summary results), "fitted_g"
+#' (the fitted prior), and loglik.
 #'
-#' @return a list with elements result, fitted_g, and loglik
+#' @return a list with elements specified by output parameter
 #' @examples
 #' mu = c(rep(0,1000), rexp(1000)) # means
 #' s = rgamma(2000,1,1) #standard errors

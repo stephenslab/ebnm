@@ -12,9 +12,13 @@
 #' to specify the g to use (e.g. useful in simulations to do computations with the "true" g).
 #' Or, if g is specified but fixg=FALSE, the g specifies the initial value of g used before optimization.
 #' @param fixg If TRUE, don't estimate g but use the specified g.
-#' @param norm normalization factor to divide x and s by before running optimization (should not affect results, but improves numerical stability when x and s are tiny)
+#' @param norm normalization factor to divide x and s by before running optimization (should not affect
+#' results, but improves numerical stability when x and s are tiny).
+#' @param output List of values to be returned. Defaults to "result" (summary results), "fitted_g"
+#' (the fitted prior), and loglik. Other options include "post_sampler" (a function that takes a single
+#' parameter nsamp, the number of posterior samples to return per observation).
 #'
-#' @return a list with elements result, fitted_g, and loglik
+#' @return a list with elements specified by output parameter
 #' @examples
 #' mu = c(rep(0,1000), rexp(1000)) # means
 #' s = rgamma(2000,1,1) #standard errors
