@@ -64,7 +64,7 @@ ebnm_point_normal <- function (x, s=1, g=NULL, fixg=FALSE, norm=mean(s), output=
 	  retlist <- c(retlist, list(loglik=loglik))
 	}
 	if ("post_sampler" %in% output) {
-	  retlist <- c(retlist, function(nsamp) {
+	  retlist <- c(retlist, post_sampler = function(nsamp) {
 	    norm * post_sampler_normal(x, s, w, a, nsamp)
 	  })
 	}
