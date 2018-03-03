@@ -4,7 +4,8 @@
 \alias{ebnm_point_normal}
 \title{Solve the Empirical Bayes Normal Means problem with point-normal prior}
 \usage{
-ebnm_point_normal(x, s = 1, g = NULL, fixg = FALSE, norm = mean(s))
+ebnm_point_normal(x, s = 1, g = NULL, fixg = FALSE, norm = mean(s),
+  output = NULL)
 }
 \arguments{
 \item{x}{a vector of observations}
@@ -18,10 +19,15 @@ Or, if g is specified but fixg=FALSE, the g specifies the initial value of g use
 
 \item{fixg}{If TRUE, don't estimate g but use the specified g.}
 
-\item{norm}{normalization factor to divide x and s by before running optimization (should not affect results, but improves numerical stability when x and s are tiny)}
+\item{norm}{normalization factor to divide x and s by before running optimization (should not affect
+results, but improves numerical stability when x and s are tiny).}
+
+\item{output}{List of values to be returned. Defaults to "result" (summary results), "fitted_g"
+(the fitted prior), and loglik. Other options include "post_sampler" (a function that takes a single
+parameter nsamp, the number of posterior samples to return per observation).}
 }
 \value{
-a list with elements result, fitted_g, and loglik
+a list with elements specified by output parameter
 }
 \description{
 Paragraph-length description goes here.
