@@ -4,7 +4,7 @@
 \alias{ebnm_point_laplace}
 \title{Solve the Empirical Bayes Normal Means problem with point-laplace prior}
 \usage{
-ebnm_point_laplace(x, s = 1, g = NULL, fixg = FALSE)
+ebnm_point_laplace(x, s = 1, g = NULL, fixg = FALSE, output = NULL)
 }
 \arguments{
 \item{x}{a vector of observations}
@@ -17,9 +17,12 @@ to specify the g to use (e.g. useful in simulations to do computations with the 
 Or, if g is specified but fixg=FALSE, the g specifies the initial value of g used before optimization.}
 
 \item{fixg}{If TRUE, don't estimate g but use the specified g.}
+
+\item{output}{List of values to be returned. Defaults to "result" (summary results), "fitted_g"
+(the fitted prior), and loglik.}
 }
 \value{
-a list with elements result, fitted_g, and loglik
+a list with elements specified by output parameter
 }
 \description{
 Paragraph-length description goes here.
