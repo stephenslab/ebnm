@@ -12,9 +12,13 @@
 #' to specify the g to use (e.g. useful in simulations to do computations with the "true" g).
 #' Or, if g is specified but fixg=FALSE, the g specifies the initial value of g used before optimization.
 #' @param fixg If TRUE, don't estimate g but use the specified g.
-#' @param norm normalization factor to divide x and s by before running optimization (should not affect results, but improves numerical stability when x and s are tiny)
+#' @param norm normalization factor to divide x and s by before running optimization (should not affect
+#' results, but improves numerical stability when x and s are tiny).
+#' @param output List of values to be returned. Defaults to "result" (summary results), "fitted_g"
+#' (the fitted prior), and loglik. Other options include "post_sampler" (a function that takes a single
+#' parameter nsamp, the number of posterior samples to return per observation).
 #'
-#' @return a list with elements result, fitted_g, and loglik
+#' @return a list with elements specified by output parameter
 #' @examples
 #' mu = c(rep(0,1000), rexp(1000)) # means
 #' s = rgamma(2000,1,1) #standard errors
@@ -23,9 +27,10 @@
 #' ashr::get_pm(x.ebnm) # posterior mean
 #'
 #' @export
-ebnm_point_normal <- function (x,s=1,g=NULL,fixg=FALSE, norm = mean(s)) {
-  #could consider makign more stable this way? But might have to be careful with log-likelihood
+ebnm_point_normal <- function (x, s=1, g=NULL, fixg=FALSE, norm=mean(s), output=NULL) {
+  output = set_output(output)
 
+  # Scale for stability, but need to be careful with log-likelihood
   s <- s/norm
   x <- x/norm
 
@@ -37,21 +42,32 @@ ebnm_point_normal <- function (x,s=1,g=NULL,fixg=FALSE, norm = mean(s)) {
     g <- mle_normal_logscale_grad(x, s)
   }
 
-	w=1-g$pi0
-	a=g$a
+	w <- 1 - g$pi0
+	a <- g$a
 
-	loglik = loglik_normal(x,s,w,a)
-	result = compute_summary_results_normal(x,s,w,a)
+	retlist <- list()
 
-	# adjust results back to original scale
-	result$PosteriorMean <- result$PosteriorMean * norm
-	result$PosteriorMean2 <- result$PosteriorMean2 * norm^2
-	g$a <- g$a / (norm^2)
-	loglik = loglik - length(x)*log(norm)
-
-
-	retlist <- list(result=result, fitted_g = g, loglik = loglik)
-
+	# Compute return values, taking care to adjust results back to original scale
+  if ("summary_results" %in% output) {
+    result <- compute_summary_results_normal(x,s,w,a)
+    result$PosteriorMean <- result$PosteriorMean * norm
+    result$PosteriorMean2 <- result$PosteriorMean2 * norm^2
+    retlist <- c(retlist, list(result=result))
+  }
+	if ("fitted_g" %in% output) {
+	  g$a <- g$a / (norm^2)
+	  retlist <- c(retlist, list(fitted_g=g))
+	}
+	if ("loglik" %in% output) {
+	  loglik <- loglik_normal(x,s,w,a)
+	  loglik <- loglik - length(x)*log(norm)
+	  retlist <- c(retlist, list(loglik=loglik))
+	}
+	if ("post_sampler" %in% output) {
+	  retlist <- c(retlist, list(post_sampler = function(nsamp) {
+	    norm * post_sampler_normal(x, s, w, a, nsamp)
+	  }))
+	}
 
 	return(retlist)
 }

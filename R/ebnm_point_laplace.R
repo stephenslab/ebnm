@@ -1,6 +1,6 @@
 #' @title Solve the Empirical Bayes Normal Means problem with point-laplace prior
 #' @description Paragraph-length description goes here.
-#' 
+#'
 #' @details Given vectors of data x, and standard errors s, solve EBNM problem with "point-laplace" prior
 #' (i.e. a mixture of point mass at 0 and Laplace distribution).
 #' That is the prior is \eqn{pi0 \delta_0 + (1-pi0)DExp(a)} where Dexp is the double exponential
@@ -14,8 +14,10 @@
 #' to specify the g to use (e.g. useful in simulations to do computations with the "true" g).
 #' Or, if g is specified but fixg=FALSE, the g specifies the initial value of g used before optimization.
 #' @param fixg If TRUE, don't estimate g but use the specified g.
+#' @param output List of values to be returned. Defaults to "result" (summary results), "fitted_g"
+#' (the fitted prior), and loglik.
 #'
-#' @return a list with elements result, fitted_g, and loglik
+#' @return a list with elements specified by output parameter
 #' @examples
 #' mu = c(rep(0,1000), rexp(1000)) # means
 #' s = rgamma(2000,1,1) #standard errors
@@ -24,11 +26,14 @@
 #' ashr::get_pm(x.ebnm) # posterior mean
 #'
 #' @export
-ebnm_point_laplace <- function (x,s=1,g=NULL,fixg=FALSE) {
+ebnm_point_laplace <- function (x, s=1, g=NULL, fixg=FALSE, output=NULL) {
+  output = set_output(output)
+
   #could consider making more stable this way? But might have to be careful with log-likelihood
   #m_sdev <- mean(s)
   #s <- s/m_sdev
   #x <- x/m_sdev
+
   if(is.null(g) & fixg){stop("must specify g if fixg=TRUE")}
   if(!is.null(g) & !fixg){stop("option to intialize from g not yet implemented")}
 
@@ -37,17 +42,28 @@ ebnm_point_laplace <- function (x,s=1,g=NULL,fixg=FALSE) {
     g <- mle_laplace(x, s)
   }
 
-	w=1-g$pi0
-	a=g$a
+	w <- 1 - g$pi0
+	a <- g$a
 
-	loglik = loglik_laplace(x,s,w,a)
-	result = compute_summary_results_laplace(x,s,w,a)
+	retlist <- list()
 
-	#postmean <- postmean * m_sdev
-	#postmean2 <- postmean2 * m_sdev^2
-
-	retlist <- list(result=result, fitted_g = g, loglik = loglik)
-
+	# Compute return values
+	if ("summary_results" %in% output) {
+	  result <- compute_summary_results_laplace(x, s, w, a)
+	  #postmean <- postmean * m_sdev
+	  #postmean2 <- postmean2 * m_sdev^2
+	  retlist <- c(retlist, list(result=result))
+	}
+	if ("fitted_g" %in% output) {
+	  retlist <- c(retlist, list(fitted_g=g))
+	}
+	if ("loglik" %in% output) {
+	  loglik <- loglik_laplace(x, s, w, a)
+	  retlist <- c(retlist, list(loglik=loglik))
+	}
+	if ("post_sampler" %in% output) {
+	  stop("Posterior sampler not yet implemented for point-laplace prior.")
+	}
 
 	return(retlist)
 }
