@@ -1,14 +1,38 @@
 # ebnm: Fit the Empirical Bayes Normal Means (EBNM) problem
 
-The `ebnm` package provides functions to solve the EBNM problem. 
+The `ebnm` pa
+ckage provides functions to solve the (heteroskedastic) Empirical Bayes
+Normal Means (EBNM) problem, which is as follows.
+ Observations $x=(x_1,\dots,x_n)$ are assumed to be independent with
+$$x_j | \theta_j \sim N(\theta_j, s_j^2)$$
+where the standard deviations $s_j$ are assumed known and the means $\theta_j$ are to be estimated.
 
+In addition, the $\theta_j$ are assumed to be independent and identically distributed,
+$$\theta_j \sim g() \in G$$ for some pre-specified family $G$.
+
+Solving the EBNM problem involves two steps:
+
+	- estimate $g$ by maximizing the likelihood. That is, $\hat{g} = \arg\max_{g \in G} p(x_1,\dots,x_n | g)$.
+
+	- compute (summaries of) the posterior distributions $p(\theta_j | \hat{g}, x)$.
+	
 Currently two functions are provided: `ebnm_point_normal` and `ebnm_point_laplace`
 which solve the EBNM with a "point-normal" and "point-Laplace" prior respectively.
-That is, the prior is a mixture
-of a point mass at 0 and a normal or Laplace distribution. 
+
+That is, `ebnm_point_normal` solves EBNM with 
+$$g(\cdot) = \pi_0 \delta_0(\cdot) + (1-\pi_0) N(\cdot; 0,1/a)$$ 
+where $\delta_0$ denotes a point mass at 0, and $N(\cdot; \mu,\sigma^2)$ denotes
+the density of a normal distribution with mean $\mu$ and variance $\sigma^2$. (So $a$ is the inverse-variance, or precision.)
+
+And `ebnm_point_laplacel` solves EBNM with 
+$$g(\cdot) = \pi_0 \delta_0(\cdot) + (1-\pi_0) DExp(\cdot; a)$$ 
+where $\delta_0$ denotes a point mass at 0, and $DExp(\cdot; \lambda)$ denotes
+the density of a double exponential (Laplace) distribution with rate parameter $\lamdba$.
+
+In both cases the parameters $\pi_0$ and $a$ are to be estimated.
 
 The goal is for the methods to be fast and numerically stable. 
-The normal version is considerably faster (and probably more stable).
+The `ebnm_point_normal` function is considerably faster (and probably more stable).
 
 
 ## License
@@ -41,6 +65,7 @@ library(ebnm)
 
 Try an example
 ```R
+set.seed(1)
 mu = c(rep(0,500),rnorm(500)) # true means
 x = mu + rnorm(1000) #observations with standard error 1
 x.ebnm = ebnm_point_normal(x,1)
