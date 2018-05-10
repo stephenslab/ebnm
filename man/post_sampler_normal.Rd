@@ -17,3 +17,6 @@ post_sampler_normal(x, s, w, a, nsamp)
 
 \item{nsamp}{number of samples to return per observation}
 }
+\description{
+Sample from the posterior for data (x,s) under point normal prior
+}

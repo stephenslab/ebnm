@@ -5,7 +5,7 @@
 \title{Solve the Empirical Bayes Normal Means problem with point-normal prior}
 \usage{
 ebnm_point_normal(x, s = 1, g = NULL, fixg = FALSE, norm = mean(s),
-  output = NULL)
+  output = c("result", "fitted_g", "loglik"))
 }
 \arguments{
 \item{x}{a vector of observations}
@@ -22,20 +22,21 @@ Or, if g is specified but fixg=FALSE, the g specifies the initial value of g use
 \item{norm}{normalization factor to divide x and s by before running optimization (should not affect
 results, but improves numerical stability when x and s are tiny).}
 
-\item{output}{List of values to be returned. Defaults to "result" (summary results), "fitted_g"
-(the fitted prior), and loglik. Other options include "post_sampler" (a function that takes a single
+\item{output}{vector of strings indicating what values to be returned.
+Options include: "result" (summary results), "fitted_g" (the fitted prior), "loglik", and
+"post_sampler" (a function that can be used to produce posterior samples; takes a single
 parameter nsamp, the number of posterior samples to return per observation).}
 }
 \value{
 a list with elements specified by output parameter
 }
 \description{
-Paragraph-length description goes here.
+This function solves the Empirical Bayes Normal Means problem with point-normal prior.
 }
 \details{
-Given vectors of data x, and standard errors s, solve EBNM problem with "point-normal" prior
-(i.e. a mixture of point mass at 0 and normal distribution).
-That is the prior is \eqn{pi0 \delta_0 + (1-pi0)N(0,1/a)} where N is the normal
+Given vectors of data x, and standard errors s, solve the EBNM problem with "point-normal" prior
+That is, the model is $x_j \sim N(\theta_j,s_j^2)$, with $s_j$ given, and $\theta_j \sim g$
+where $g$ is a mixture of point mass at 0 and normal distribution: \eqn{pi0 \delta_0 + (1-pi0)N(0,1/a)} where N is the normal
 distribution, and (pi0,a) are estimated by marginal maximum likelihood.
 }
 \examples{
