@@ -30,15 +30,19 @@
 ebnm_point_normal <- function (x, s=1, g=NULL, fixg=FALSE, norm=mean(s), output=NULL) {
   output = set_output(output)
 
+  if(is.null(g) & fixg){stop("must specify g if fixg=TRUE")}
+  if(!is.null(g) & !fixg){stop("option to intialize from g not yet implemented")}
+
+  if (fixg) {
+    norm = 1 # If g is fixed, don't scale
+  }
+
   # Scale for stability, but need to be careful with log-likelihood
   s <- s/norm
   x <- x/norm
 
-  if(is.null(g) & fixg){stop("must specify g if fixg=TRUE")}
-  if(!is.null(g) & !fixg){stop("option to intialize from g not yet implemented")}
-
   # Estimate g from data
-  if(!fixg){
+  if (!fixg) {
     g <- mle_normal_logscale_grad(x, s)
   }
 
