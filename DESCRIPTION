@@ -1,8 +1,8 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 0.1-11
-Date: 2018-01-16
+Version: 0.1-12
+Date: 2018-07-11
 Title: Fit Empirical Bayes Normal Means Model
 Author: Matthew Stephens, Jason Willwerscheid
 Maintainer: Matthew Stephens <mstephens@uchicago.edu>
