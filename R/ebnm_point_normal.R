@@ -61,6 +61,7 @@
 #' ashr::get_pm(x.ebnm) # posterior mean
 #'
 #' @export
+#'
 ebnm_point_normal <- function (x,
                                s = 1,
                                g = NULL,
@@ -80,7 +81,7 @@ ebnm_point_normal <- function (x,
   if (!is.null(g$a) && (g$a <= 0)) {
     stop("Invalid choice of g$a")
   }
-  if (!is.null(g$pi0) && (g$pi0 < 0 || g$pi0 > 0)) {
+  if (!is.null(g$pi0) && (g$pi0 < 0 || g$pi0 > 1)) {
     stop("Invalid choice of g$pi0")
   }
 
