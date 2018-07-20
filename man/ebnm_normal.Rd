@@ -4,8 +4,8 @@
 \alias{ebnm_normal}
 \title{Solve the EBNM problem with normal prior}
 \usage{
-ebnm_normal(x, s = 1, norm = mean(s), output = c("result", "fitted_g",
-  "loglik"), control = NULL)
+ebnm_normal(x, s = 1, norm = mean(s), control = NULL,
+  output = c("result", "fitted_g", "loglik"))
 }
 \arguments{
 \item{x}{A vector of observations.}
@@ -17,6 +17,9 @@ equal).}
 by before running optimization (this should not affect results, but
 it improves numerical stability when \code{x} and \code{s} are
 tiny).}
+
+\item{control}{A list of control parameters to be passed to
+\code{optim}.}
 
 \item{output}{A vector of strings indicating which values are to be
 returned. Options include:
@@ -31,9 +34,6 @@ returned. Options include:
     \code{nsamp}, the number of posterior samples to return per
     observation.}
  }}
-
-\item{control}{A list of control parameters to be passed to
-\code{optim}.}
 }
 \value{
 A list with elements specified by parameter \code{output}.

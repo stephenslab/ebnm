@@ -158,8 +158,8 @@ ebnm_point_normal <- function (x,
 ebnm_normal <- function (x,
                          s = 1,
                          norm = mean(s),
-                         output = c("result", "fitted_g", "loglik"),
-                         control = NULL) {
+                         control = NULL,
+                         output = c("result", "fitted_g", "loglik")) {
   ebnm_point_normal(x = x,
                     s = s,
                     g = list(pi0 = 0),
