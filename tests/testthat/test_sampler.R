@@ -6,7 +6,7 @@ test_that("sampler gives reasonable results", {
 
   res = ebnm_point_normal(x,s, output=c("result", "fitted_g", "post_sampler"))
 
-  samp <- res$post_sampler(100)
+  samp <- res$post_sampler(1000)
   expect_equal(colMeans(samp), res$result$PosteriorMean, tolerance = 0.1)
   expect_equal(colMeans(samp^2), res$result$PosteriorMean2, tolerance = 0.1)
 })
