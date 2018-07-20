@@ -24,4 +24,17 @@ test_that("postmean gives same result as ashr",{
   g = list(pi0 = 0, a = 0.5)
   ebnm.res3 = ebnm_point_normal(x, s, g, fixg=T)
   expect_identical(ebnm.res3$fitted_g, g)
+
+  # check fixing pi0
+  g = list(pi0 = 0.2, a = 0.5)
+  ebnm.res4 = ebnm_point_normal(x, s, g, fix_pi0 = TRUE)
+  expect_identical(ebnm.res4$fitted_g$pi0, g$pi0)
+  expect_false(ebnm.res4$fitted_g$a == g$a)
+  g = list(pi0 = 0)
+  ebnm.res5 = ebnm_point_normal(x, s, g, fix_pi0 = TRUE)
+  ebnm.res6 = ebnm_normal(x, s)
+  expect_identical(ebnm.res5, ebnm.res6)
+
+  # test control parameter
+  ebnm.res7 = ebnm_point_normal(x, s, control=list(factr=1000))
 })

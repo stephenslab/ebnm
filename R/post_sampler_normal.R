@@ -1,9 +1,18 @@
-#' @title Sample from the posterior for data (x,s) under point normal prior
-#' @param x observations
-#' @param s standard deviations
-#' @param w weight of non-null component in fitted prior
-#' @param a variance of non-null component in fitted prior
-#' @param nsamp number of samples to return per observation
+# @title Sample from the posterior under point-normal prior
+#
+# @inheritParams ebnm_point_normal
+#
+# @param w The weight of the non-null component in the fitted prior.
+#
+# @param a The variance of the non-null component in the fitted prior.
+#
+# @param nsamp The number of samples to return per observation.
+#
+# @return An nsamp by length(x) matrix containing samples from the
+#   posterior, with each row corresponding to a single sample.
+#
+#' @importFrom stats rbinom rnorm
+#'
 post_sampler_normal <- function(x, s, w, a, nsamp) {
   wpost <- wpost_normal(x, s, w, a)
   pmean_cond <- pmean_cond_normal(x, s, a)
