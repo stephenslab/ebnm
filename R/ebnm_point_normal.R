@@ -58,7 +58,7 @@
 #'
 #' @examples
 #' mu = c(rep(0, 1000), rexp(1000)) # means
-#' s = rgamma(2000, 1, 1) #standard errors
+#' s = rgamma(2000, 1, 1) # standard errors
 #' x = mu + rnorm(2000, 0, s) # observations
 #' x.ebnm = ebnm_point_normal(x, s)
 #' ashr::get_pm(x.ebnm) # posterior mean
@@ -72,7 +72,7 @@ ebnm_point_normal <- function (x,
                                fix_pi0 = FALSE,
                                norm = mean(s),
                                control = NULL,
-                               output = c("result","fitted_g","loglik")) {
+                               output = c("result", "fitted_g", "loglik")) {
   output <- set_output(output)
 
   if (fixg && is.null(g)) {
@@ -114,18 +114,18 @@ ebnm_point_normal <- function (x,
     result <- compute_summary_results_normal(x, s, w, a)
     result$PosteriorMean <- result$PosteriorMean * norm
     result$PosteriorMean2 <- result$PosteriorMean2 * norm^2
-    retlist <- c(retlist, list(result=result))
+    retlist <- c(retlist, list(result = result))
   }
 
 	if ("fitted_g" %in% output) {
 	  fitted_g = list(pi0 = g$pi0, a = g$a / norm^2)
-	  retlist <- c(retlist, list(fitted_g=fitted_g))
+	  retlist <- c(retlist, list(fitted_g = fitted_g))
 	}
 
 	if ("loglik" %in% output) {
 	  loglik <- loglik_normal(x, s, w, a)
 	  loglik <- loglik - length(x) * log(norm)
-	  retlist <- c(retlist, list(loglik=loglik))
+	  retlist <- c(retlist, list(loglik = loglik))
 	}
 
 	if ("post_sampler" %in% output) {
@@ -158,7 +158,7 @@ ebnm_point_normal <- function (x,
 ebnm_normal <- function (x,
                          s = 1,
                          norm = mean(s),
-                         output = c("result","fitted_g","loglik"),
+                         output = c("result", "fitted_g", "loglik"),
                          control = NULL) {
   ebnm_point_normal(x = x,
                     s = s,

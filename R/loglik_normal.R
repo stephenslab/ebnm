@@ -6,7 +6,7 @@
 #' @importFrom stats dnorm
 #'
 logg_normal = function(x, s, a) {
-  dnorm(x, 0, sqrt(s^2 + 1/a), log=TRUE)
+  dnorm(x, 0, sqrt(s^2 + 1/a), log = TRUE)
 }
 
 

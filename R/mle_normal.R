@@ -11,8 +11,6 @@
 #
 # @param control List of parameters to be passed to \code{optim}.
 #
-#' @importFrom stats optim
-#'
 mle_normal_logscale_grad <- function(x, s, g, control) {
   # Do optimization of parameters on log scale (the parameters are
   # -logit(pi0) and log(a)).
@@ -84,7 +82,8 @@ mle_normal_logscale_fixed_pi0 <- function(x, s, g, control) {
   return(list(pi0 = g$pi0, a = exp(uu$par[1]), val = uu$value))
 }
 
-
+#' @importFrom stats optim
+#'
 optimize_it <- function(startpar, fn, gr, control, hilo) {
   uu <- try(optim(startpar, fn, gr, method = "BFGS",
                   control = control),
