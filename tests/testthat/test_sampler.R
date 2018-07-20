@@ -4,7 +4,7 @@ test_that("sampler gives reasonable results", {
   s = rgamma(50,1,1)
   x = mu + rnorm(50,0,s)
 
-  res = ebnm_point_normal(x,s, output=c("summary_results", "fitted_g", "post_sampler"))
+  res = ebnm_point_normal(x,s, output=c("result", "fitted_g", "post_sampler"))
 
   samp <- res$post_sampler(100)
   expect_equal(colMeans(samp), res$result$PosteriorMean, tolerance = 0.1)
