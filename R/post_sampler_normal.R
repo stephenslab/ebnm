@@ -11,7 +11,7 @@
 # @return An nsamp by length(x) matrix containing samples from the
 #   posterior, with each row corresponding to a single sample.
 #
-#' @importFrom stats rbinom, rnorm
+#' @importFrom stats rbinom rnorm
 #'
 post_sampler_normal <- function(x, s, w, a, nsamp) {
   wpost <- wpost_normal(x, s, w, a)

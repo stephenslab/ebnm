@@ -70,7 +70,7 @@ Given vectors of data \code{x} and standard errors \code{s},
 }
 \examples{
 mu = c(rep(0, 1000), rexp(1000)) # means
-s = rgamma(2000, 1, 1) #standard errors
+s = rgamma(2000, 1, 1) # standard errors
 x = mu + rnorm(2000, 0, s) # observations
 x.ebnm = ebnm_point_normal(x, s)
 ashr::get_pm(x.ebnm) # posterior mean
