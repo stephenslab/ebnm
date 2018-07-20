@@ -5,8 +5,8 @@
 \title{Solve the EBNM problem with point-normal prior}
 \usage{
 ebnm_point_normal(x, s = 1, g = NULL, fixg = FALSE, fix_pi0 = FALSE,
-  norm = mean(s), output = c("result", "fitted_g", "loglik"),
-  control = NULL)
+  norm = mean(s), control = NULL, output = c("result", "fitted_g",
+  "loglik"))
 }
 \arguments{
 \item{x}{A vector of observations.}
@@ -34,6 +34,9 @@ then both \code{pi0} and \code{a} are fixed at the supplied values.}
 by before running optimization (this should not affect results, but
 it improves numerical stability when \code{x} and \code{s} are
 tiny).}
+
+\item{control}{A list of control parameters to be passed to
+\code{optim}.}
 
 \item{output}{A vector of strings indicating which values are to be
 returned. Options include:

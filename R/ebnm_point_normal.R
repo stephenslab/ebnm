@@ -37,6 +37,9 @@
 #'   it improves numerical stability when \code{x} and \code{s} are
 #'   tiny).
 #'
+#' @param control A list of control parameters to be passed to
+#'   \code{optim}.
+#'
 #' @param output A vector of strings indicating which values are to be
 #' returned. Options include:
 #' \describe{
@@ -68,8 +71,8 @@ ebnm_point_normal <- function (x,
                                fixg = FALSE,
                                fix_pi0 = FALSE,
                                norm = mean(s),
-                               output = c("result","fitted_g","loglik"),
-                               control = NULL) {
+                               control = NULL,
+                               output = c("result","fitted_g","loglik")) {
   output <- set_output(output)
 
   if (fixg && is.null(g)) {
@@ -134,6 +137,7 @@ ebnm_point_normal <- function (x,
 	return(retlist)
 }
 
+
 # Wrapper function for N(0, 1/a) prior (no pointmass).
 #
 #' @title Solve the EBNM problem with normal prior
@@ -161,6 +165,6 @@ ebnm_normal <- function (x,
                     g = list(pi0 = 0),
                     fix_pi0 = TRUE,
                     norm = norm,
-                    output = output,
-                    control = control)
+                    control = control,
+                    output = output)
 }

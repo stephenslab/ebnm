@@ -31,6 +31,9 @@ returned. Options include:
     \code{nsamp}, the number of posterior samples to return per
     observation.}
  }}
+
+\item{control}{A list of control parameters to be passed to
+\code{optim}.}
 }
 \value{
 A list with elements specified by parameter \code{output}.
