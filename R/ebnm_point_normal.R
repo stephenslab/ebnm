@@ -88,7 +88,14 @@ ebnm_point_normal <- function (x,
     stop("Invalid choice of g$pi0")
   }
 
+  if (any(is.infinite(s))) {
+    stop("Standard errors cannot be infinite")
+  }
+
   # Scale for stability, but need to be careful with log-likelihood:
+  if (norm == 0) {
+    norm <- 1
+  }
   s <- s / norm
   x <- x / norm
   if (!is.null(g) && !is.null(g$a)) {
@@ -118,7 +125,7 @@ ebnm_point_normal <- function (x,
   }
 
 	if ("fitted_g" %in% output) {
-	  fitted_g = list(pi0 = g$pi0, a = g$a / norm^2)
+	  fitted_g <- list(pi0 = g$pi0, a = g$a / norm^2)
 	  retlist <- c(retlist, list(fitted_g = fitted_g))
 	}
 

@@ -13,7 +13,7 @@
 #
 mle_normal_logscale_grad <- function(x, s, g, control) {
   # Do optimization of parameters on log scale (the parameters are
-  # -logit(pi0) and log(a)).
+  #   -logit(pi0) and log(a)).
 
   maxvar <- max(x^2 - s^2) # Get upper bound on variance estimate.
 
@@ -23,8 +23,9 @@ mle_normal_logscale_grad <- function(x, s, g, control) {
   }
 
   # Set default starting point. This point is chosen based on the model
-  # where there is a single non-null value, based on the intuition that
-  # this is the case that is "hardest" to get right.
+  #   where there is a single non-null value, based on the intuition that
+  #   this is the case that is "hardest" to get right.
+  #
   # if (is.null(startpar)) {
   #   startpar  <- c(log(1/length(x)),-log(maxvar))
   # }
@@ -82,6 +83,7 @@ mle_normal_logscale_fixed_pi0 <- function(x, s, g, control) {
   return(list(pi0 = g$pi0, a = exp(uu$par[1]), val = uu$value))
 }
 
+
 #' @importFrom stats optim
 #'
 optimize_it <- function(startpar, fn, gr, control, hilo) {
@@ -112,9 +114,9 @@ optimize_it <- function(startpar, fn, gr, control, hilo) {
 # optimization fails.
 #
 mle_normal_hilo <- function(x, s, fix_pi0) {
-  maxvar = max(x^2 - s^2)
+  maxvar <- max(x^2 - s^2)
 
-  minvar = (min(s) / 10)^2
+  minvar <- (min(s) / 10)^2
   if (minvar < 1e-8) {
     minvar <- 1e-8
   }
