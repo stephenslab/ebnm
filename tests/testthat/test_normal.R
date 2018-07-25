@@ -1,8 +1,8 @@
 test_that("postmean gives same result as ashr",{
-  n=100
+  n = 100
   set.seed(1)
   s = rgamma(n,1,1)
-  x=rnorm(n,0,1+s)
+  x = rnorm(n,0,1+s)
   ebnm.res = ebnm_point_normal(x,s)
   pi0 = ebnm.res$fitted_g$pi0
   a = ebnm.res$fitted_g$a
@@ -37,4 +37,14 @@ test_that("postmean gives same result as ashr",{
 
   # test control parameter
   ebnm.res7 = ebnm_point_normal(x, s, control=list(factr=1000))
+
+  # test infinite and zero SEs
+  x = c(rep(0, 5), rep(1, 5))
+  s = rep(1, 10)
+  s[10] = Inf
+  expect_error(ebnm_point_normal(x, s))
+  s[5] = s[10] = 0
+  ebnm.res8 = ebnm_point_normal(x, s)
+  expect_equal(ebnm.res8$result$PosteriorMean[c(5, 10)], x[c(5, 10)])
+  expect_equal(ebnm.res8$result$PosteriorMean2[c(5, 10)], x[c(5, 10)]^2)
 })
