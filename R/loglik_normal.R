@@ -1,10 +1,8 @@
 # Functions to compute the log likelihood under the normal prior.
 
-
 loglik_normal = function(x, s, w, a) {
   sum(vloglik_normal(x, s, w, a))
 }
-
 
 # Return log((1 - w)f + wg) as a vector (deal with cases w = 1 and w = 0
 #   separately for stability).
