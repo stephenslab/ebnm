@@ -111,37 +111,37 @@ ebnm_point_normal <- function (x,
     }
   }
 
-	w <- 1 - g$pi0
-	a <- g$a
+  w <- 1 - g$pi0
+  a <- g$a
 
-	# Compute return values, taking care to adjust back to original scale:
-	retlist <- list()
+  # Compute return values, taking care to adjust back to original scale:
+  retlist <- list()
 
-	if ("result" %in% output) {
+  if ("result" %in% output) {
     result <- compute_summary_results_normal(x, s, w, a)
     result$PosteriorMean <- result$PosteriorMean * norm
     result$PosteriorMean2 <- result$PosteriorMean2 * norm^2
     retlist <- c(retlist, list(result = result))
   }
 
-	if ("fitted_g" %in% output) {
-	  fitted_g <- list(pi0 = g$pi0, a = g$a / norm^2)
-	  retlist <- c(retlist, list(fitted_g = fitted_g))
-	}
+  if ("fitted_g" %in% output) {
+    fitted_g <- list(pi0 = g$pi0, a = g$a / norm^2)
+    retlist <- c(retlist, list(fitted_g = fitted_g))
+  }
 
-	if ("loglik" %in% output) {
-	  loglik <- loglik_normal(x, s, w, a)
-	  loglik <- loglik - length(x) * log(norm)
-	  retlist <- c(retlist, list(loglik = loglik))
-	}
+  if ("loglik" %in% output) {
+    loglik <- loglik_normal(x, s, w, a)
+    loglik <- loglik - length(x) * log(norm)
+    retlist <- c(retlist, list(loglik = loglik))
+  }
 
-	if ("post_sampler" %in% output) {
-	  retlist <- c(retlist, list(post_sampler = function(nsamp) {
-	    post_sampler_normal(x, s, w, a, nsamp) * norm
-	  }))
-	}
+  if ("post_sampler" %in% output) {
+    retlist <- c(retlist, list(post_sampler = function(nsamp) {
+      post_sampler_normal(x, s, w, a, nsamp) * norm
+    }))
+  }
 
-	return(retlist)
+  return(retlist)
 }
 
 
