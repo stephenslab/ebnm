@@ -70,7 +70,7 @@ ebnm_point_normal <- function (x,
                                g = NULL,
                                fixg = FALSE,
                                fix_pi0 = FALSE,
-                               norm = mean(s),
+                               norm = NULL,
                                control = NULL,
                                output = c("result", "fitted_g", "loglik")) {
   output <- set_output(output)
@@ -88,14 +88,20 @@ ebnm_point_normal <- function (x,
     stop("Invalid choice of g$pi0")
   }
 
-  if (any(is.infinite(s))) {
-    stop("Standard errors cannot be infinite")
+  if (sum(is.finite(s)) == 0) {
+    stop("Impossible to fit g when all standard errors are infinite")
   }
 
   # Scale for stability, but need to be careful with log-likelihood:
-  if (norm == 0) {
-    norm <- 1
+  pos_idx <- (is.finite(s) & s > 0)
+  if (is.null(norm)) {
+    if (sum(pos_idx) == 0) {
+      norm <- 1
+    } else {
+      norm <- mean(s[pos_idx])
+    }
   }
+
   s <- s / norm
   x <- x / norm
   if (!is.null(g) && !is.null(g$a)) {
@@ -103,11 +109,18 @@ ebnm_point_normal <- function (x,
   }
 
   # Estimate g from data:
+
   if (!fixg) {
     if (fix_pi0) {
-      g <- mle_normal_logscale_fixed_pi0(x, s, g, control)
+      g <- mle_normal_logscale_fixed_pi0(x[is.finite(s)],
+                                         s[is.finite(s)],
+                                         g,
+                                         control)
     } else {
-      g <- mle_normal_logscale_grad(x, s, g, control)
+      g <- mle_normal_logscale_grad(x[is.finite(s)],
+                                    s[is.finite(s)],
+                                    g,
+                                    control)
     }
   }
 
@@ -130,8 +143,8 @@ ebnm_point_normal <- function (x,
   }
 
   if ("loglik" %in% output) {
-    loglik <- loglik_normal(x, s, w, a)
-    loglik <- loglik - length(x) * log(norm)
+    loglik <- loglik_normal(x[is.finite(s)], s[is.finite(s)], w, a)
+    loglik <- loglik - sum(is.finite(s)) * log(norm)
     retlist <- c(retlist, list(loglik = loglik))
   }
 
