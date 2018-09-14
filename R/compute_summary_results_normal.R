@@ -27,9 +27,10 @@ wpost_normal <- function(x, s, w, a) {
   lf <- dnorm(x, 0, s, log = TRUE)
   wpost <- w / (w + (1 - w) * exp(lf - lg))
 
-  # Deal with zero sds:
+  # Deal with zero and infinite sds:
   wpost[s == 0 & x == 0] <- 0
   wpost[s == 0 & x != 0] <- 1
+  wpost[is.infinite(s)] <- w
 
   return(wpost)
 }
@@ -45,5 +46,8 @@ pmean_cond_normal <- function(x, s, a) {
 #  Calculate the posterior variance for non-zero effect
 #
 pvar_cond_normal <- function(s, a) {
-  return(s^2 / (1 + s^2 * a))
+  pvar_cond <- s^2 / (1 + s^2 * a)
+  pvar_cond[is.infinite(s)] <- 1 / a
+
+  return(pvar_cond)
 }

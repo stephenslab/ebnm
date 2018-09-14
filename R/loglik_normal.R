@@ -25,7 +25,7 @@ vloglik_normal = function(x, s, w, a) {
 
   # Deal with zero sds:
   result[s == 0 & x == 0] <- log(1 - w)
-  result[s == 0 & x != 0] <- log(w) + lg
+  result[s == 0 & x != 0] <- log(w) + lg[s == 0 & x != 0]
 
   return(result)
 }
