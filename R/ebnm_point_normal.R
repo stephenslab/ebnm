@@ -88,7 +88,7 @@ ebnm_point_normal <- function (x,
     stop("Invalid choice of g$pi0")
   }
 
-  if (sum(is.finite(s)) == 0) {
+  if (all(is.infinite(s))) {
     stop("Impossible to fit g when all standard errors are infinite")
   }
 
@@ -108,19 +108,20 @@ ebnm_point_normal <- function (x,
     g$a <- g$a * norm^2
   }
 
-  # Estimate g from data:
+  # Don't use data with infinite SEs when estimating g:
+  if (any(is.infinite(s))) {
+    x_subset <- x[is.finite(s)]
+    s_subset <- s[is.finite(s)]
+  } else {
+    x_subset <- x
+    s_subset <- s
+  }
 
   if (!fixg) {
     if (fix_pi0) {
-      g <- mle_normal_logscale_fixed_pi0(x[is.finite(s)],
-                                         s[is.finite(s)],
-                                         g,
-                                         control)
+      g <- mle_normal_logscale_fixed_pi0(x_subset, s_subset, g, control)
     } else {
-      g <- mle_normal_logscale_grad(x[is.finite(s)],
-                                    s[is.finite(s)],
-                                    g,
-                                    control)
+      g <- mle_normal_logscale_grad(x_subset, s_subset, g, control)
     }
   }
 
@@ -143,8 +144,8 @@ ebnm_point_normal <- function (x,
   }
 
   if ("loglik" %in% output) {
-    loglik <- loglik_normal(x[is.finite(s)], s[is.finite(s)], w, a)
-    loglik <- loglik - sum(is.finite(s)) * log(norm)
+    loglik <- loglik_normal(x_subset, s_subset, w, a)
+    loglik <- loglik - length(x_subset) * log(norm)
     retlist <- c(retlist, list(loglik = loglik))
   }
 
