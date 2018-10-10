@@ -13,7 +13,7 @@
 #
 #' @importFrom stats rbinom rnorm
 #'
-post_sampler_normal <- function(x, s, w, a, nsamp) {
+post_sampler_point_normal <- function(x, s, w, a, nsamp) {
   wpost <- wpost_normal(x, s, w, a)
   pmean_cond <- pmean_cond_normal(x, s, a)
   pvar_cond <- pvar_cond_normal(s, a)

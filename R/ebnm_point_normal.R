@@ -119,9 +119,9 @@ ebnm_point_normal <- function (x,
 
   if (!fixg) {
     if (fix_pi0) {
-      g <- mle_normal_logscale_fixed_pi0(x_subset, s_subset, g, control)
+      g <- mle_point_normal_logscale_fixed_pi0(x_subset, s_subset, g, control)
     } else {
-      g <- mle_normal_logscale_grad(x_subset, s_subset, g, control)
+      g <- mle_point_normal_logscale_grad(x_subset, s_subset, g, control)
     }
   }
 
@@ -132,7 +132,7 @@ ebnm_point_normal <- function (x,
   retlist <- list()
 
   if ("result" %in% output) {
-    result <- compute_summary_results_normal(x, s, w, a)
+    result <- compute_summary_results_point_normal(x, s, w, a)
     result$PosteriorMean <- result$PosteriorMean * norm
     result$PosteriorMean2 <- result$PosteriorMean2 * norm^2
     retlist <- c(retlist, list(result = result))
@@ -144,14 +144,14 @@ ebnm_point_normal <- function (x,
   }
 
   if ("loglik" %in% output) {
-    loglik <- loglik_normal(x_subset, s_subset, w, a)
+    loglik <- loglik_point_normal(x_subset, s_subset, w, a)
     loglik <- loglik - length(x_subset) * log(norm)
     retlist <- c(retlist, list(loglik = loglik))
   }
 
   if ("post_sampler" %in% output) {
     retlist <- c(retlist, list(post_sampler = function(nsamp) {
-      post_sampler_normal(x, s, w, a, nsamp) * norm
+      post_sampler_point_normal(x, s, w, a, nsamp) * norm
     }))
   }
 

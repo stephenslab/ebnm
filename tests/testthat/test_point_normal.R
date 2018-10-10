@@ -32,7 +32,7 @@ test_that("postmean gives same result as ashr",{
   expect_false(ebnm.res4$fitted_g$a == g$a)
   g = list(pi0 = 0)
   ebnm.res5 = ebnm_point_normal(x, s, g, fix_pi0 = TRUE)
-  ebnm.res6 = ebnm_normal(x, s)
+  ebnm.res6 = ebnm_point_normal(x, s)
   expect_identical(ebnm.res5, ebnm.res6)
 
   # test control parameter
