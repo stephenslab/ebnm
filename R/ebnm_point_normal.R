@@ -93,8 +93,8 @@ ebnm_point_normal <- function (x,
   }
 
   # Scale for stability, but need to be careful with log-likelihood:
-  pos_idx <- (is.finite(s) & s > 0)
   if (is.null(norm)) {
+    pos_idx <- (is.finite(s) & s > 0)
     if (sum(pos_idx) == 0) {
       norm <- 1
     } else {

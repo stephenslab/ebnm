@@ -32,16 +32,16 @@ mle_point_normal_logscale_grad <- function(x, s, g, control) {
 
   fn <- function(par) {
     -loglik_point_normal(x,
-                   s,
-                   w = 1 - (1/(1 + exp(par[1]))),
-                   a = exp(par[2]))
+                         s,
+                         w = 1 - (1/(1 + exp(par[1]))),
+                         a = exp(par[2]))
   }
 
   gr <- function(par) {
     grad_negloglik_logscale_point_normal(x,
-                                   s,
-                                   w = 1 - (1/(1 + exp(par[1]))),
-                                   a = exp(par[2]))
+                                         s,
+                                         w = 1 - (1/(1 + exp(par[1]))),
+                                         a = exp(par[2]))
   }
 
   startpar <- c(0, 0) # default
