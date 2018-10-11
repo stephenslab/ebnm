@@ -78,7 +78,7 @@ mle_point_normal_logscale_fixed_pi0 <- function(x, s, g, control) {
   }
 
   uu <- optimize_it(startpar, fn, gr, control,
-                    mle_point_normal_hilo(x, s, fix_pi0 = TRUE))
+                    mle_point_normal_hilo(x, s, fix_pi0 = TRUE), x, s)
 
   return(list(pi0 = g$pi0, a = exp(uu$par[1]), val = uu$value))
 }
@@ -86,7 +86,7 @@ mle_point_normal_logscale_fixed_pi0 <- function(x, s, g, control) {
 
 #' @importFrom stats optim
 #'
-optimize_it <- function(startpar, fn, gr, control, hilo) {
+optimize_it <- function(startpar, fn, gr, control, hilo, x, s) {
   uu <- try(optim(startpar, fn, gr, method = "BFGS",
                   control = control),
             silent=TRUE)
