@@ -4,9 +4,9 @@
 \alias{ebnm_point_normal}
 \title{Solve the EBNM problem with point-normal prior}
 \usage{
-ebnm_point_normal(x, s = 1, g = NULL, fixg = FALSE, fix_pi0 = FALSE,
-  norm = mean(s), control = NULL, output = c("result", "fitted_g",
-  "loglik"))
+ebnm_point_normal(x, s = 1, g = NULL, fixg = FALSE,
+  fix_pi0 = FALSE, norm = NULL, control = NULL,
+  output = c("result", "fitted_g", "loglik"))
 }
 \arguments{
 \item{x}{A vector of observations.}

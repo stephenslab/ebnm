@@ -11,7 +11,7 @@
 #
 # @param control List of parameters to be passed to \code{optim}.
 #
-mle_normal_logscale_grad <- function(x, s, g, control) {
+mle_point_normal_logscale_grad <- function(x, s, g, control) {
   # Do optimization of parameters on log scale (the parameters are
   #   -logit(pi0) and log(a)).
 
@@ -31,14 +31,14 @@ mle_normal_logscale_grad <- function(x, s, g, control) {
   # }
 
   fn <- function(par) {
-    -loglik_normal(x,
+    -loglik_point_normal(x,
                    s,
                    w = 1 - (1/(1 + exp(par[1]))),
                    a = exp(par[2]))
   }
 
   gr <- function(par) {
-    grad_negloglik_logscale_normal(x,
+    grad_negloglik_logscale_point_normal(x,
                                    s,
                                    w = 1 - (1/(1 + exp(par[1]))),
                                    a = exp(par[2]))
@@ -53,7 +53,7 @@ mle_normal_logscale_grad <- function(x, s, g, control) {
   }
 
   uu <- optimize_it(startpar, fn, gr, control,
-                    mle_normal_hilo(x, s, fix_pi0 = FALSE))
+                    mle_point_normal_hilo(x, s, fix_pi0 = FALSE))
 
   return(list(pi0 = 1 / (1 + exp(uu$par[1])),
               a = exp(uu$par[2]),
@@ -61,14 +61,14 @@ mle_normal_logscale_grad <- function(x, s, g, control) {
 }
 
 
-mle_normal_logscale_fixed_pi0 <- function(x, s, g, control) {
+mle_point_normal_logscale_fixed_pi0 <- function(x, s, g, control) {
 
   fn <- function(par) {
-    -loglik_normal(x, s, 1 - g$pi0, a = exp(par[1]))
+    -loglik_point_normal(x, s, 1 - g$pi0, a = exp(par[1]))
   }
 
   gr <- function(par) {
-    grad_negloglik_logscale_normal(x, s, 1 - g$pi0, a = exp(par[1]))[2]
+    grad_negloglik_logscale_point_normal(x, s, 1 - g$pi0, a = exp(par[1]))[2]
   }
 
   if (!is.null(g$a)) {
@@ -78,7 +78,7 @@ mle_normal_logscale_fixed_pi0 <- function(x, s, g, control) {
   }
 
   uu <- optimize_it(startpar, fn, gr, control,
-                    mle_normal_hilo(x, s, fix_pi0 = TRUE))
+                    mle_point_normal_hilo(x, s, fix_pi0 = TRUE))
 
   return(list(pi0 = g$pi0, a = exp(uu$par[1]), val = uu$value))
 }
@@ -113,7 +113,7 @@ optimize_it <- function(startpar, fn, gr, control, hilo) {
 # Get upper and lower bounds for optim in case the first attempt at
 # optimization fails.
 #
-mle_normal_hilo <- function(x, s, fix_pi0) {
+mle_point_normal_hilo <- function(x, s, fix_pi0) {
   maxvar <- max(x^2 - s^2)
 
   minvar <- (min(s) / 10)^2

@@ -1,4 +1,4 @@
-compute_summary_results_normal = function(x, s, w, a){
+compute_summary_results_point_normal = function(x, s, w, a){
   wpost <- wpost_normal(x, s, w, a)
   pmean_cond <- pmean_cond_normal(x, s, a)
   pvar_cond <- pvar_cond_normal(s, a)
