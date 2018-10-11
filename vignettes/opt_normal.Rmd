@@ -2,11 +2,7 @@
 title: "Optimization tests"
 author: "Matthew Stephens"
 date: "December 17, 2017"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{ebnm demo}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+output: html
 ---
 
 ```{r setup, include=FALSE}
