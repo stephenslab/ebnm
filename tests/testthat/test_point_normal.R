@@ -41,10 +41,12 @@ test_that("postmean gives same result as ashr",{
   # test infinite and zero SEs
   x = c(rep(0, 5), rep(1, 5))
   s = rep(1, 10)
+  s[6] = 0
   s[10] = Inf
-  expect_error(ebnm_point_normal(x, s))
-  s[5] = s[10] = 0
   ebnm.res8 = ebnm_point_normal(x, s)
-  expect_equal(ebnm.res8$result$PosteriorMean[c(5, 10)], x[c(5, 10)])
-  expect_equal(ebnm.res8$result$PosteriorMean2[c(5, 10)], x[c(5, 10)]^2)
+  expect_equal(ebnm.res8$result$PosteriorMean[6], x[6])
+  expect_equal(ebnm.res8$result$PosteriorMean2[6], x[6]^2)
+  expect_equal(ebnm.res8$result$PosteriorMean[10], 0)
+  expect_equal(ebnm.res8$result$PosteriorMean2[10],
+               1 / ebnm.res8$fitted_g$a * (1 - ebnm.res8$fitted_g$pi0))
 })
