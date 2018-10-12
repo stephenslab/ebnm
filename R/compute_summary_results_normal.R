@@ -1,5 +1,5 @@
 compute_summary_results_normal = function(x, s, mu, a){
-  pmean_cond <- pmean_cond_normal_mu(x, s, a)
+  pmean_cond <- pmean_cond_normal_mu(x, s, mu, a)
   pvar_cond <- pvar_cond_normal_mu(s, a)
   
   PosteriorMean <- pmean_cond
