@@ -46,7 +46,7 @@ mle_normal_logscale_grad <- function(x, s, g, control) {
   }
   
   uu <- optimize_it_mu(startpar, fn, gr, control,
-                    mle_point_normal_hilo(x, s, fix_mu = FALSE))
+                    mle_point_normal_hilo(x, s, fix_mu = FALSE), x, s)
   
   return(list(mu = uu$par[1],
               a = exp(uu$par[2]),
