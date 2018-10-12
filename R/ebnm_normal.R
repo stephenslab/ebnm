@@ -64,13 +64,13 @@
 #' @export
 #'
 ebnm_normal <- function (x,
-                               s = 1,
-                               g = NULL,
-                               fixg = FALSE,
-                               fix_mu = FALSE,
-                               norm = NULL,
-                               control = NULL,
-                               output = c("result", "fitted_g", "loglik")) {
+                         s = 1,
+                         g = NULL,
+                         fixg = FALSE,
+                         fix_mu = FALSE,
+                         norm = NULL,
+                         control = NULL,
+                         output = c("result", "fitted_g", "loglik")) {
   output <- set_output(output)
   
   if (fixg && is.null(g)) {
