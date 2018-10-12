@@ -1,7 +1,6 @@
 #
 # Computes gradient of negloglik with respect to mu and log(a)
 #
-#' @importFrom stats dnorm
 grad_negloglik_logscale_normal = function(x, s, mu, a) {
   vinv = (1 / (s^2 + 1/a))
   
