@@ -2,6 +2,6 @@
 # a is the precision, like everywhere else
 
 #' @importFrom stats dnorm
-loglik_normal = function(x, s, ,u, a) {
+loglik_normal = function(x, s, mu, a) {
   sum(dnorm(x, mu, sqrt(s^2 + 1/a), log = TRUE))
 }
