@@ -16,9 +16,9 @@ test_that("postmean gives same result as ashr",{
   expect_equal(ebnm.res$loglik,ash.res$flash_data$penloglik,tol = 1e-6)
 
   ebnm.res2 = ebnm_point_normal(x,s,norm=1)
-  expect_equal(ebnm.res2$loglik,ebnm.res$loglik)
-  expect_equal(ebnm.res2$result,ebnm.res$result)
-  expect_equal(ebnm.res2$fitted_g$a,ebnm.res$fitted_g$a)
+  expect_equal(ebnm.res2$loglik, ebnm.res$loglik, tol=1e-4)
+  expect_equal(ebnm.res2$result, ebnm.res$result, tol=1e-4)
+  expect_equal(ebnm.res2$fitted_g$a, ebnm.res$fitted_g$a, tol=1e-4)
 
   # check that fixing g works as intended
   g = list(pi0 = 0, a = 0.5)
