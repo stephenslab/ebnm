@@ -89,16 +89,25 @@ optimize_it_mu <- function(startpar, fn, gr, control, hilo, x, s) {
   # complain of infinite values, possibly because of extreme values of
   # the parameters?
   
-  #if (class(uu) == "try-error") {
-  #  uu <- try(optim(startpar, fn, gr, method = "L-BFGS-B",
-  #                lower = hilo$lo, upper = hilo$hi, control = control))
-  #}
+  if (class(uu) == "try-error") {
+    uu <- try(optim(startpar, fn, gr, method = "L-BFGS-B",
+                  lower = hilo$lo, upper = hilo$hi, control = control))
+  }
   
   if (class(uu) == "try-error") {
     saveRDS(list(startpar = startpar, x = x, s = s, control = control),
             "temp_debug.RDS")
     stop(paste("optim failed to converge; debug information saved to",
                "temp_debug.RDS"))
+  }
+  
+  # check corner case where sigma^2 = 0 <=> log(a) = Inf, mu = sum(x_j / s_j^2) / sum(1 / s_j^2)
+  mu_0 <- weighted.mean(x, 1/s^2) # solution for mu when sigma^2 = 0
+  val_0 <- -loglik_normal(x, s, mu_0, Inf) # negloglik at this corner case
+  
+  if (val_0 < uu$value) { # if corner solution has smaller negloglik than optimizaed solution
+    uu$par <- c(mu_0, Inf)
+    uu$value <- val_0
   }
   
   return(uu)
@@ -108,23 +117,23 @@ optimize_it_mu <- function(startpar, fn, gr, control, hilo, x, s) {
 # Get upper and lower bounds for optim in case the first attempt at
 # optimization fails.
 #
-#mle_normal_hilo <- function(x, s, fix_mu) {
-#  maxvar <- max(x^2 - s^2)
-#  
-#  minvar <- (min(s) / 10)^2
-#  if (minvar < 1e-8) {
-#    minvar <- 1e-8
-#  }
-#  
-#  # Bounds for log(a):
-#  lo <- -log(maxvar)
-#  hi <- -log(minvar)
-#  
-#  if (!fix_mu) {
-#    n <- length(x)
-#    lo <- c(min(x) - 6*max(s), lo)
-#    hi <- c(max(x) + 6*max(s), hi)
-#  }
-#  
-#  return(list(lo = lo, hi = hi))
-#}
+mle_normal_hilo <- function(x, s, fix_mu) {
+  maxvar <- max(x^2 - s^2)
+  
+  minvar <- (min(s) / 10)^2
+  if (minvar < 1e-8) {
+    minvar <- 1e-8
+  }
+  
+  # Bounds for log(a):
+  lo <- -log(maxvar)
+  hi <- -log(minvar)
+  
+  if (!fix_mu) {
+    n <- length(x)
+    lo <- c(min(x) - 6*max(s), lo)
+    hi <- c(max(x) + 6*max(s), hi)
+  }
+  
+  return(list(lo = lo, hi = hi))
+}
