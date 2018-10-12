@@ -1,10 +1,12 @@
 #
-# Computes gradient of negloglik with respect to mu and t:=log(a)
+# Computes gradient of negloglik with respect to mu and log(a)
 #
 #' @importFrom stats dnorm
-grad_negloglik_logscale_normal = function(x, s, mu, t) {
-  grad_mu = -sum((x - mu) / (exp(-t) + s^2))
-  grad_t = -0.5 * exp(-t) * sum((1 / (exp(-t) + s^2)) * (1 - (((x - mu)^2) / (exp(-t) + s^2))))
+grad_negloglik_logscale_normal = function(x, s, mu, a) {
+  vinv = (1 / (s^2 + 1/a))
+  
+  grad_mu = -sum((x - mu) / vinv)
+  grad_t = 0.5 * (1/a^2) * sum(((x - mu) / vinv)^2 - vinv)
   grad = c(grad_mu, grad_t)
   return(grad)
 }
