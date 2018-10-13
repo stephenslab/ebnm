@@ -102,12 +102,18 @@ optimize_it_mu <- function(startpar, fn, gr, control, hilo, x, s) {
   }
   
   # check corner case where sigma^2 = 0 <=> log(a) = Inf, mu = sum(x_j / s_j^2) / sum(1 / s_j^2)
-  mu_0 <- weighted.mean(x, 1/s^2) # solution for mu when sigma^2 = 0
-  val_0 <- -loglik_normal(x, s, mu_0, Inf) # negloglik at this corner case
-  
-  if (val_0 < uu$value) { # if corner solution has smaller negloglik than optimizaed solution
-    uu$par <- c(mu_0, Inf)
-    uu$value <- val_0
+  # CAUTION: if >=2 of the s_j=0, then the likelihood is 0 when sigma^2 = 0, 
+  #          UNLESS all x_j s.t. s_j=0 are the same, and x_j = mu
+  #          To deal with this, I just set -loglik to be Inf if any s_j=0, otherwise if all the 
+  #          x_j s.t. s_j=0 are the same, then -loglik would be -Inf, which isn't very helpful
+  if (all(s > 0)) {
+    mu_0 <- weighted.mean(x, 1/s^2) # solution for mu when sigma^2 = 0
+    val_0 <- -loglik_normal(x, s, mu_0, Inf) # negloglik at this corner case
+    
+    if (val_0 < uu$value) { # if corner solution has smaller negloglik than optimizaed solution
+      uu$par <- c(mu_0, Inf)
+      uu$value <- val_0
+    }
   }
   
   return(uu)
