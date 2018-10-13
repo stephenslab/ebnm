@@ -19,7 +19,12 @@ pmean_cond_normal_mu <- function(x, s, mu, a) {
     return(rep(mu, length(x)))
   }
   
-  return(sapply(1:length(x), function(l) ifelse(s[l] == 0, x[l], weighted.mean(c(x[l], mu), c(1/s[l]^2, a)))))
+  reg_s_ind = is.finite(s) & s > 0
+  pm = x # initialize, case s_j=0
+  pm[is.infinite(s)] = mu # case s_j=Inf
+  pm[reg_s_ind] = (x[reg_s_ind] + (s[reg_s_ind]^2) * a * mu) / (1 + (s[reg_s_ind]^2) * a)
+
+  return(pm)
 }
 
 #
