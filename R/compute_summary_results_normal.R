@@ -19,16 +19,19 @@ pmean_cond_normal_mu <- function(x, s, mu, a) {
     return(rep(mu, length(x)))
   }
   
-  reg_s_ind = is.finite(s) & s > 0
+  s2 = s * rep(1, length(x)) # new variable which properly recycles s with correct length
+  
+  reg_s_ind = is.finite(s2) & (s2 > 0)
   pm = x # initialize, case s_j=0
-  pm[is.infinite(s)] = mu # case s_j=Inf
-  pm[reg_s_ind] = (x[reg_s_ind] + (s[reg_s_ind]^2) * a * mu) / (1 + (s[reg_s_ind]^2) * a)
+  pm[is.infinite(s2)] = mu # case s_j=Inf
+  pm[reg_s_ind] = (x[reg_s_ind] + (s2[reg_s_ind]^2) * a * mu) / (1 + (s2[reg_s_ind]^2) * a)
 
   return(pm)
 }
 
 #
 #  Calculate the posterior variance for non-zero effect
+#  Note: don't need to worry about vector recycling here, taken care of when forming the dataframe above
 #
 pvar_cond_normal_mu <- function(s, a) {
   pvar_cond <- rep(1 / a, length(s))
