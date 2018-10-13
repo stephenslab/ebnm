@@ -71,7 +71,7 @@ mle_normal_logscale_fixed_mu <- function(x, s, g, control) {
   }
   
   uu <- optimize_it_mu(startpar, fn, gr, control,
-                    mle_point_normal_hilo(x, s, fix_mu = TRUE), x, s)
+                    mle_normal_hilo(x, s, fix_mu = TRUE), x, s)
   
   return(list(mu = g$mu, a = exp(uu$par[1]), val = uu$value))
 }
