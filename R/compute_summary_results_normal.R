@@ -15,10 +15,11 @@ compute_summary_results_normal = function(x, s, mu, a){
 #  Calculate the posterior mean effect
 #
 pmean_cond_normal_mu <- function(x, s, mu, a) {
-  if (is.infinite(a)) { # if prior precision is infinite, posterior is proir mean
+  if (is.infinite(a)) { # if prior precision is infinite, posterior is proir mean (if s_j=0, still defer to prior)
     return(rep(mu, length(x)))
   }
-  return((x + (s^2) * a * mu) / (1 + s^2 * a))
+  
+  return(sapply(1:length(x), function(l) ifelse(s[l] == 0, x[l], weighted.mean(c(x[l], mu), c(1/s[l]^2, a)))))
 }
 
 #
