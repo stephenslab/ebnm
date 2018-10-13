@@ -26,7 +26,7 @@ pmean_cond_normal_mu <- function(x, s, mu, a) {
 #
 pvar_cond_normal_mu <- function(s, a) {
   pvar_cond <- rep(1 / a, length(s))
-  pvar_cond[!is.infinite(s)] <- s^2 / (1 + s^2 * a)
+  pvar_cond[is.finite(s)] <- s[is.finite(s)]^2 / (1 + s[is.finite(s)]^2 * a)
   
   return(pvar_cond)
 }
