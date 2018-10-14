@@ -147,7 +147,7 @@ ebnm_normal <- function (x,
   
   if ("post_sampler" %in% output) {
     retlist <- c(retlist, list(post_sampler = function(nsamp) {
-      post_sampler_point_normal(x, s, mu, a, nsamp) * norm
+      post_sampler_normal(x, s, mu, a, nsamp) * norm
     }))
   }
   
