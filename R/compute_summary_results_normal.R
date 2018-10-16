@@ -16,6 +16,9 @@ compute_summary_results_normal = function(x, s, mu, a){
 #
 pmean_cond_normal_mu <- function(x, s, mu, a) {
   if (is.infinite(a)) { # if prior precision is infinite, posterior is proir mean (if s_j=0, still defer to prior)
+    if (any(s == 0)) { # if prior precision infinite, but some s_j=0
+      warning("Prior precision found to be infinite, but at least one s_j=0. Deferring to prior in this case")
+    }
     return(rep(mu, length(x)))
   }
   
