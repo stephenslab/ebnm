@@ -55,7 +55,7 @@
 #' @return A list with elements specified by parameter \code{output}.
 #'
 #' @examples
-#' theta = rnorm(1000, 3, 1) # means
+#' theta = rnorm(2000, 3, 1) # means
 #' s = rgamma(2000, 1, 1) # standard errors
 #' x = theta + rnorm(2000, 0, s) # observations
 #' x.ebnm = ebnm_normal(x, s)
