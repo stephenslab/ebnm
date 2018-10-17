@@ -37,7 +37,9 @@ mle_normal_logscale_grad <- function(x, s, g, control) {
                                    a = exp(par[2]))
   }
   
-  startpar <- c(mean(x), -log(min(max(1, var(x) - mean(s^2)), 10))) # default
+  s2 = s * rep(1, length(x)) # new variable which properly recycles s with correct length
+  startpar <- c(weighted.mean(x[s2 > 0], 1/s2[s2 > 0]^2), 
+                -log(min(max(1, var(x) - mean(s^2)), 10))) # default
   if (!is.null(g$mu)) {
     startpar[1] <- g$mu
   }
