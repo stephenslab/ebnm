@@ -1,11 +1,11 @@
 # ebnm: Fit the Empirical Bayes Normal Means (EBNM) problem
 
-The `ebnm` pa
-ckage provides functions to solve the (heteroskedastic) Empirical Bayes
-Normal Means (EBNM) problem, which is as follows.
- Observations $x=(x_1,\dots,x_n)$ are assumed to be independent with
-$$x_j | \theta_j \sim N(\theta_j, s_j^2)$$
-where the standard deviations $s_j$ are assumed known and the means $\theta_j$ are to be estimated.
+The `ebnm` package provides functions to solve the (heteroskedastic)
+Empirical Bayes Normal Means (EBNM) problem, which is as follows.
+Observations $x=(x_1,\dots,x_n)$ are assumed to be independent with
+$$x_j | \theta_j \sim N(\theta_j, s_j^2)$$ where the standard
+deviations $s_j$ are assumed known and the means $\theta_j$ are to be
+estimated.
 
 In addition, the $\theta_j$ are assumed to be independent and identically distributed,
 $$\theta_j \sim g() \in G$$ for some pre-specified family $G$.
