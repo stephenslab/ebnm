@@ -96,8 +96,10 @@ optimize_it <- function(startpar, fn, gr, control, hilo, x, s) {
   # complain of infinite values, possibly because of extreme values of
   # the parameters?
 
-  uu <- try(optim(startpar, fn, gr, method = "L-BFGS-B",
-                  lower = hilo$lo, upper = hilo$hi, control = control))
+  if (class(uu) == "try-error") {
+    uu <- try(optim(startpar, fn, gr, method = "L-BFGS-B",
+                    lower = hilo$lo, upper = hilo$hi, control = control))
+  }
 
   if (class(uu) == "try-error") {
     saveRDS(list(startpar = startpar, x = x, s = s, control = control),
