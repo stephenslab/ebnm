@@ -59,7 +59,7 @@ mle_point_normal_logscale_grad <- function(x, s, g, control) {
   }
 
   uu <- optimize_it(startpar, fn, gr, control,
-                    mle_point_normal_hilo(x, s, fix_pi0 = FALSE))
+                    mle_point_normal_hilo(x, s, fix_pi0 = FALSE, fix_mu = FALSE))
 
   return(list(pi0 = 1 / (1 + exp(uu$par[1])),
               a = exp(uu$par[2]),
@@ -87,7 +87,7 @@ mle_point_normal_logscale_fixed_pi0 <- function(x, s, g, control) {
   }
 
   uu <- optimize_it(startpar, fn, gr, control,
-                    mle_point_normal_hilo(x, s, fix_pi0 = TRUE), x, s)
+                    mle_point_normal_hilo(x, s, fix_pi0 = TRUE, fix_mu = FALSE), x, s)
 
   return(list(pi0 = g$pi0, a = exp(uu$par[1], mu = uu$par[2]), val = uu$value))
 }
@@ -111,7 +111,7 @@ mle_point_normal_logscale_fixed_mu <- function(x, s, g, control) {
   }
   
   uu <- optimize_it(startpar, fn, gr, control,
-                    mle_point_normal_hilo(x, s, fix_mu = TRUE), x, s)
+                    mle_point_normal_hilo(x, s, fix_pi0 = FALSE, fix_mu = TRUE), x, s)
   
   return(list(pi0 = 1 / (1 + exp(uu$par[1])), a = exp(uu$par[2]), mu = g$mu, val = uu$value))
 }
