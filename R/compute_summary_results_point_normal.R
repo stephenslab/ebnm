@@ -39,7 +39,7 @@ wpost_normal <- function(x, s, w, a, mu) {
 #  Calculate the posterior mean for non-null effect
 #
 pmean_cond_normal <- function(x, s, a, mu) {
-  if (is.infinite(a)) { # if prior precision is infinite, posterior is proir mean (if s_j=0, still defer to prior)
+  if (is.infinite(a)) { # if prior precision is infinite, posterior is prior mean (if s_j=0, still defer to prior)
     if (any(s == 0)) { # if prior precision infinite, but some s_j=0
       warning("Prior precision found to be infinite, but at least one s_j=0. Deferring to prior in this case")
     }
