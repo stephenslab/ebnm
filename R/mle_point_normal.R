@@ -44,7 +44,7 @@ mle_point_normal_logscale_grad <- function(x, s, g, control) {
                                          a = exp(par[2]))
   }
 
-  startpar <- c(0, 0) # default
+  startpar <- c(0, -log(mean(x^2))) # default
   if (!is.null(g$pi0)) {
     startpar[1] <- log(1 / g$pi0 - 1)
   }
