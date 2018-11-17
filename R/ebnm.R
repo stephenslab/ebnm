@@ -102,20 +102,19 @@ ebnm <- function(x,
   
   # make sure prior_type and output are correctly specified
   if (!(prior_type %in% c("point_normal", "point_laplace"))) {
-    stop("Argument 'prior_type' must be one of 'point_normal' or 'point_laplace")
+    stop("Argument 'prior_type' must be one of 'point_normal' or 'point_laplace'")
   }
   if (any(!(output %in% c("result", "fitted_g", "loglik", "post_sampler")))) {
     stop("Argument 'output' must consist of 'result', 'fitted_g', 'loglik', and/or 'post_sampler'")
   }
   
-  # currently, estimating mu not supported for point_laplace
-  if ((prior_type == "point_laplace") && !fix_mu) {
-    warning("Prior 'point_laplace' currently does not support estimating 'mu'. Fixing 'mu' to be 0")
-  }
-  
+  # run ebnm with specified inputs
   if (prior_type == "point_normal") {
     retlist = ebnm_point_normal(x, s, g, fixg, fix_pi0, fix_mu, norm, control, output)
   } else {
+    if (!fix_mu) { # currently, estimating mu not supported for point_laplace
+      warning("Prior 'point_laplace' currently does not support estimating 'mu'. Fixing 'mu' to be 0")
+    }
     if (!is.null(g)) {
       if (names(g) == "mu") { # if only mu supplied
         g = NULL

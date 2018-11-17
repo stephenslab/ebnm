@@ -48,7 +48,7 @@ ebnm_point_laplace <- function (x, s=1, g=NULL, fixg=FALSE, output=NULL) {
 	retlist <- list()
 
 	# Compute return values
-	if ("summary_results" %in% output) {
+	if ("result" %in% output) {
 	  result <- compute_summary_results_laplace(x, s, w, a)
 	  #postmean <- postmean * m_sdev
 	  #postmean2 <- postmean2 * m_sdev^2
