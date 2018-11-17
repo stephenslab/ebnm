@@ -47,7 +47,7 @@ mle_point_normal_logscale_grad <- function(x, s, g, control) {
                                          mu = par[3])
   }
 
-  startpar <- c(0, 0, mean(x)) # default
+  startpar <- c(0, -log(mean(x^2)), mean(x)) # default
   if (!is.null(g$pi0)) {
     startpar[1] <- log(1 / g$pi0 - 1)
   }
@@ -78,7 +78,7 @@ mle_point_normal_logscale_fixed_pi0 <- function(x, s, g, control) {
     grad_negloglik_logscale_point_normal(x, s, 1 - g$pi0, a = exp(par[1]), mu = par[2])[2:3]
   }
 
-  startpar <- c(0, mean(x)) # default
+  startpar <- c(-log(mean(x^2)), mean(x)) # default
   if (!is.null(g$a)) {
     startpar[1] <- log(g$a)
   }
@@ -102,7 +102,7 @@ mle_point_normal_logscale_fixed_mu <- function(x, s, g, control) {
     grad_negloglik_logscale_point_normal(x, s, w = 1 - (1/(1 + exp(par[1]))), a = exp(par[2]), g$mu)[1:2]
   }
   
-  startpar <- c(0, 0) # default
+  startpar <- c(0, -log(mean(x^2))) # default
   if (!is.null(g$pi0)) {
     startpar[1] <- log(1 / g$pi0 - 1)
   }
@@ -126,7 +126,7 @@ mle_point_normal_logscale_fixed_pi0_and_mu <- function(x, s, g, control) {
     grad_negloglik_logscale_point_normal(x, s, w = 1 - g$pi0, a = exp(par[1]), g$mu)[2]
   }
   
-  startpar <- 0 # default
+  startpar <- -log(mean(x^2)) # default
   if (!is.null(g$a)) {
     startpar <- log(g$a)
   }
