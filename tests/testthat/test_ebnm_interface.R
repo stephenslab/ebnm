@@ -1,3 +1,5 @@
+context("'ebnm' interface function")
+
 test_that("'ebnm' calls give same results as 'ebnm_point_normal' or 'ebnm_point_laplace' calls",{
   n = 100
   set.seed(1)
