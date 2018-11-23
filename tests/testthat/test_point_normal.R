@@ -53,7 +53,7 @@ test_that("fixing pi0 works as intended", {
 test_that("fixing mu works as intended", {
   g <- list(pi0 = 0.2, a = 0.5, mu = 0)
   ebnm.res6 <- ebnm_point_normal(x, s, g, fix_mu = TRUE)
-  
+
   expect_identical(ebnm.res6$fitted_g$mu, g$mu)
   expect_false(ebnm.res6$fitted_g$a == g$a)
   expect_false(ebnm.res6$fitted_g$pi0 == g$pi0)
@@ -62,7 +62,7 @@ test_that("fixing mu works as intended", {
 test_that("fixing pi0 and mu together works as intended", {
   g <- list(pi0 = 0.2, a = 0.5, mu = 0)
   ebnm.res7 <- ebnm_point_normal(x, s, g, fix_pi0 = TRUE, fix_mu = TRUE)
-  
+
   expect_identical(ebnm.res7$fitted_g$pi0, g$pi0)
   expect_identical(ebnm.res7$fitted_g$mu, g$mu)
   expect_false(ebnm.res7$fitted_g$a == g$a)
@@ -81,7 +81,7 @@ test_that("infinite and zero SEs give expected results", {
   expect_equal(ebnm.res8$result$PosteriorMean[10], 0)
   expect_equal(ebnm.res8$result$PosteriorMean2[10],
                1 / ebnm.res8$fitted_g$a * (1 - ebnm.res8$fitted_g$pi0))
-  
+
   # now, don't fix mu
   ebnm.res9 = ebnm_point_normal(x, s)
   expect_equal(ebnm.res9$result$PosteriorMean[6], x[6])

@@ -93,15 +93,15 @@ mle_point_normal_logscale_fixed_pi0 <- function(x, s, g, control) {
 }
 
 mle_point_normal_logscale_fixed_mu <- function(x, s, g, control) {
-  
+
   fn <- function(par) {
     -loglik_point_normal(x, s, w = 1 - (1/(1 + exp(par[1]))), a = exp(par[2]), g$mu)
   }
-  
+
   gr <- function(par) {
     grad_negloglik_logscale_point_normal(x, s, w = 1 - (1/(1 + exp(par[1]))), a = exp(par[2]), g$mu)[1:2]
   }
-  
+
   startpar <- c(0, -log(mean(x^2))) # default
   if (!is.null(g$pi0)) {
     startpar[1] <- log(1 / g$pi0 - 1)
@@ -109,31 +109,31 @@ mle_point_normal_logscale_fixed_mu <- function(x, s, g, control) {
   if (!is.null(g$a)) {
     startpar[2] <- log(g$a)
   }
-  
+
   uu <- optimize_it(startpar, fn, gr, control,
                     mle_point_normal_hilo(x, s, fix_pi0 = FALSE, fix_mu = TRUE), x, s)
-  
+
   return(list(pi0 = 1 / (1 + exp(uu$par[1])), a = exp(uu$par[2]), mu = g$mu, val = uu$value))
 }
 
 mle_point_normal_logscale_fixed_pi0_and_mu <- function(x, s, g, control) {
-  
+
   fn <- function(par) {
     -loglik_point_normal(x, s, w = 1 - g$pi0, a = exp(par[1]), g$mu)
   }
-  
+
   gr <- function(par) {
     grad_negloglik_logscale_point_normal(x, s, w = 1 - g$pi0, a = exp(par[1]), g$mu)[2]
   }
-  
+
   startpar <- -log(mean(x^2)) # default
   if (!is.null(g$a)) {
     startpar <- log(g$a)
   }
-  
+
   uu <- optimize_it(startpar, fn, gr, control,
                     mle_point_normal_hilo(x, s, fix_pi0 = TRUE, fix_mu = TRUE), x, s)
-  
+
   return(list(pi0 = g$pi0, a = exp(uu$par[1]), mu = g$mu, val = uu$value))
 }
 
@@ -186,7 +186,7 @@ mle_point_normal_hilo <- function(x, s, fix_pi0, fix_mu) {
     lo <- c(log(1/n), lo)
     hi <- c(log(n), hi)
   }
-  
+
   if (!fix_mu) {
     lo <- c(lo, min(x) - 3*max(s) - 3*max(abs(x)))
     hi <- c(hi, max(x) + 3*max(s) + 3*max(abs(x)))
