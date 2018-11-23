@@ -8,7 +8,7 @@
 #'  \deqn{x_j \sim N(\theta_j, s_j^2),} where \eqn{s_j} are given and
 #'   \eqn{\theta_j \sim g}, with \eqn{g} a mixture of a point mass at
 #'   \eqn{\mu} and a normal distribution: \deqn{\theta_j \sim \pi_0 \delta_\mu
-#'   + (1 - \pi_0)N(\mu, 1/a).} \eqn{\pi_0}, \eqn{a}, and \eqn{\mu} are estimated 
+#'   + (1 - \pi_0)N(\mu, 1/a).} \eqn{\pi_0}, \eqn{a}, and \eqn{\mu} are estimated
 #'   by marginal maximum likelihood.
 #'
 #' @param x A vector of observations.
@@ -16,7 +16,7 @@
 #' @param s A vector of standard deviations (or a scalar if all are
 #'   equal).
 #'
-#' @param g The prior distribution (a list with elements \code{pi0}, 
+#' @param g The prior distribution (a list with elements \code{pi0},
 #'   \code{a}, and \code{mu}). Usually this is unspecified (\code{NULL}) and estimated
 #'   from the data. However, it can be used in conjuction with
 #'   \code{fixg = TRUE} to specify the prior to use (useful, for example,
@@ -28,15 +28,15 @@
 #'   estimating it.
 #'
 #' @param fix_pi0 If \code{TRUE}, \code{g$pi0} is fixed at the supplied
-#'   value and \code{g$a} and \code{g$mu} are estimated from the data. 
-#'   \code{fixg = TRUE} overrides \code{fix_pi0 = TRUE}. That is, if both 
-#'   are \code{TRUE} then all of \code{pi0} and \code{a} and \code{mu} are fixed 
+#'   value and \code{g$a} and \code{g$mu} are estimated from the data.
+#'   \code{fixg = TRUE} overrides \code{fix_pi0 = TRUE}. That is, if both
+#'   are \code{TRUE} then all of \code{pi0} and \code{a} and \code{mu} are fixed
 #'   at the supplied values.
-#'   
+#'
 #' @param fix_mu If \code{TRUE}, \code{g$mu} is fixed at the supplied
-#'   value and \code{g$a} and \code{g$pi0} is estimated from the data. 
-#'   \code{fixg = TRUE} overrides \code{fix_mu = TRUE}. That is, if both are 
-#'   \code{TRUE} then all of \code{pi0} and \code{a} and \code{mu} fixed at 
+#'   value and \code{g$a} and \code{g$pi0} is estimated from the data.
+#'   \code{fixg = TRUE} overrides \code{fix_mu = TRUE}. That is, if both are
+#'   \code{TRUE} then all of \code{pi0} and \code{a} and \code{mu} fixed at
 #'   the supplied values.
 #'
 #' @param norm The normalization factor to divide \code{x} and \code{s}
@@ -74,10 +74,10 @@
 #'
 ebnm_point_normal <- function (x,
                                s = 1,
-                               g = NULL,
+                               g = list(mu = 0),
                                fixg = FALSE,
                                fix_pi0 = FALSE,
-                               fix_mu = FALSE,
+                               fix_mu = TRUE,
                                norm = NULL,
                                control = NULL,
                                output = c("result", "fitted_g", "loglik")) {
@@ -88,9 +88,6 @@ ebnm_point_normal <- function (x,
   }
   if (fix_pi0 && is.null(g$pi0)) {
     stop("Must specify g$pi0 if fix_pi0 = TRUE")
-  }
-  if (fix_mu && is.null(g$mu)) {
-    stop("Must specify g$mu if fix_mu = TRUE")
   }
   if (!is.null(g$a) && (g$a <= 0)) {
     stop("Invalid choice of g$a")
