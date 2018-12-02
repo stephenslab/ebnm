@@ -45,7 +45,7 @@ mle_point_normal_logscale_grad <- function(x, s, g, control) {
   }
 
   startpar <- c(0, -log(mean(x^2))) # default
-  if (!is.null(g$pi0)) {
+  if (!is.null(g$pi0) && g$pi0 > 0 && g$pi0 < 1) {
     startpar[1] <- log(1 / g$pi0 - 1)
   }
   if (!is.null(g$a)) {
