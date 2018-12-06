@@ -1,16 +1,16 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 0.1-16
+Version: 0.1-17
 Date: 2018-10-11
 Title: Fit Empirical Bayes Normal Means Model
-Author: Matthew Stephens, Jason Willwerscheid
+Author: Matthew Stephens, Jason Willwerscheid, Andrew Goldstein
 Maintainer: Matthew Stephens <mstephens@uchicago.edu>
 Description: Provides functions to fit the normal means problem using
     Empirical Bayes. The goal is for these functions to be simple,
     fast and stable. Currently two models are implemented: the
     point-normal and point-laplace priors. The point-normal is
-    considerably faster. See functions ebnm_point_normal,
+    considerably faster. See functions ebnm, ebnm_point_normal,
     ebnm_point_laplace.
 License: GPL (>=3)
 LazyData: true
