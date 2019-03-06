@@ -1,4 +1,4 @@
-#' @describeIn ebnm
+#' @describeIn ebnm Solve the EBNM problem using a point-laplace prior.
 #'
 #' @export
 #'

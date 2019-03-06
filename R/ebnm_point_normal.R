@@ -1,4 +1,4 @@
-#' @describeIn ebnm
+#' @describeIn ebnm Solve the EBNM problem using a point-normal prior.
 #'
 #' @export
 #'
@@ -10,7 +10,7 @@ ebnm_point_normal <- function (x,
                                fix_mu = TRUE,
                                norm = NULL,
                                control = NULL,
-                               output = c("result", "fitted_g", "loglik")) {
+                               output = NULL) {
   output <- set_output(output)
 
   if (fixg && is.null(g)) {

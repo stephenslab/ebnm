@@ -9,13 +9,13 @@
 \usage{
 ebnm(x, s = 1, prior_type = "point_normal", g = list(mu = 0),
   fixg = FALSE, fix_pi0 = FALSE, fix_mu = TRUE, norm = NULL,
-  control = NULL, output = c("result", "fitted_g", "loglik"))
+  control = NULL, output = NULL)
 
 ebnm_point_laplace(x, s = 1, g = NULL, fixg = FALSE, output = NULL)
 
 ebnm_point_normal(x, s = 1, g = list(mu = 0), fixg = FALSE,
   fix_pi0 = FALSE, fix_mu = TRUE, norm = NULL, control = NULL,
-  output = c("result", "fitted_g", "loglik"))
+  output = NULL)
 }
 \arguments{
 \item{x}{A vector of observations.}
@@ -44,7 +44,8 @@ and \code{fix_mu}.}
 
 \item{fix_pi0}{If \code{TRUE}, fix \code{g$pi0} at the specified value.
 \code{g$a} will be estimated from the data and \code{g$mu} will be fixed
-or estimated according to the setting of parameter \code{fix_mu}.}
+or estimated according to the setting of parameter \code{fix_mu}. This
+option has not yet been implemented for the point-laplace prior.}
 
 \item{fix_mu}{If \code{TRUE}, fix \code{g$mu} at the specified value.
 \code{g$a} will be estimated and \code{g$mu} will be fixed or estimated
@@ -59,21 +60,22 @@ small.}
 \item{control}{A list of control parameters to be passed to \code{optim}.}
 
 \item{output}{A character vector indicating which values are to be returned.
-Options include:
-\describe{
-  \item{\code{"result"}}{Summary results (posterior means \eqn{E \theta_j}
-    and posterior values of \eqn{E \theta_j^2}).}
-  \item{\code{"fitted_g"}}{The fitted prior (a list with elements \code{pi0}
-    and \code{a}).}
-  \item{\code{"loglik"}}{The optimal log likelihood attained.}
-  \item{\code{"post_sampler"}}{A function that can be used to produce
-    samples from the posterior. It takes a single parameter \code{nsamp},
-    the number of posterior samples to return per observation.}
- }}
+Default values are set by function \code{ebnm:::set_output}. Options
+include:
+  \describe{
+    \item{\code{"result"}}{Summary results (posterior means \eqn{E \theta_j}
+      and posterior values of \eqn{E \theta_j^2}).}
+    \item{\code{"fitted_g"}}{The fitted prior (a list with elements
+      \code{pi0}, \code{a}, and \code{mu}).}
+    \item{\code{"loglik"}}{The optimal log likelihood attained.}
+    \item{\code{"post_sampler"}}{A function that can be used to produce
+      samples from the posterior. It takes a single parameter \code{nsamp},
+      the number of posterior samples to return per observation.}
+   }}
 }
 \description{
-Solves the Empirical Bayes Normal Means problem with a
-  point-normal or point-laplace prior.
+Solves the Empirical Bayes Normal Means problem using either a point-normal
+  or a point-laplace prior.
 }
 \details{
 Given vectors of data \code{x} and standard errors \code{s},
@@ -81,16 +83,16 @@ Given vectors of data \code{x} and standard errors \code{s},
   model is \deqn{x_j \sim N(\theta_j, s_j^2),} where \eqn{s_j} are given and
   \eqn{\theta_j \sim g}, with \eqn{g} either a mixture of a point mass at
   \eqn{\mu} and a normal distribution: \deqn{\theta_j \sim \pi_0 \delta_\mu
-  + (1 - \pi_0)N(\mu, 1/a)} or a mixture of a point mass at zero and a laplace
-  distribution: \deqn{\theta_j \sim \pi_0 \delta_0 + (1 - \pi_0)DExp(a).}
-  \eqn{\pi_0}, \eqn{a}, and \eqn{\mu} are estimated by marginal maximum
-  likelihood.
+  + (1 - \pi_0)N(\mu, 1/a)} or a mixture of a point mass at zero and a
+  laplace distribution: \deqn{\theta_j \sim \pi_0 \delta_0 +
+  (1 - \pi_0)DExp(a).} \eqn{\pi_0}, \eqn{a}, and \eqn{\mu} are estimated by
+  marginal maximum likelihood.
 }
 \section{Functions}{
 \itemize{
-\item \code{ebnm_point_laplace}:
+\item \code{ebnm_point_laplace}: Solve the EBNM problem using a point-laplace prior.
 
-\item \code{ebnm_point_normal}:
+\item \code{ebnm_point_normal}: Solve the EBNM problem using a point-normal prior.
 }}
 
 \examples{
