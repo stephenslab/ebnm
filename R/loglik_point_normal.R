@@ -1,4 +1,4 @@
-# Functions to compute the log likelihood under the normal prior.
+# Functions to compute the log likelihood under the point-normal prior.
 
 loglik_point_normal = function(x, s, w, a, mu) {
   sum(vloglik_point_normal(x, s, w, a, mu))

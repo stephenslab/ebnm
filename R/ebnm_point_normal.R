@@ -14,20 +14,20 @@ ebnm_point_normal <- function (x,
   output <- set_output(output)
 
   if (fixg && is.null(g)) {
-    stop("Must specify g if fixg = TRUE")
+    stop("Must specify g if fixg = TRUE.")
   }
   if (fix_pi0 && is.null(g$pi0)) {
-    stop("Must specify g$pi0 if fix_pi0 = TRUE")
+    stop("Must specify g$pi0 if fix_pi0 = TRUE.")
   }
   if (!is.null(g$a) && (g$a <= 0)) {
-    stop("Invalid choice of g$a")
+    stop("Invalid choice of g$a.")
   }
   if (!is.null(g$pi0) && (g$pi0 < 0 || g$pi0 > 1)) {
-    stop("Invalid choice of g$pi0")
+    stop("Invalid choice of g$pi0.")
   }
 
   if (all(is.infinite(s))) {
-    stop("Impossible to fit g when all standard errors are infinite")
+    stop("Impossible to fit g when all standard errors are infinite.")
   }
 
   # Scale for stability, but need to be careful with log-likelihood:
@@ -59,15 +59,8 @@ ebnm_point_normal <- function (x,
   }
 
   if (!fixg) {
-    if (fix_pi0 & fix_mu) {
-      g <- mle_point_normal_logscale_fixed_pi0_and_mu(x_subset, s_subset, g, control)
-    } else if (fix_pi0 & !fix_mu) {
-      g <- mle_point_normal_logscale_fixed_pi0(x_subset, s_subset, g, control)
-    } else if (!fix_pi0 & fix_mu) {
-      g <- mle_point_normal_logscale_fixed_mu(x_subset, s_subset, g, control)
-    } else {
-      g <- mle_point_normal_logscale_grad(x_subset, s_subset, g, control)
-    }
+    g <- mle_point_normal_logscale_grad(x_subset, s_subset, g, control,
+                                        fix_pi0, fix_mu)
   }
 
   w <- 1 - g$pi0
