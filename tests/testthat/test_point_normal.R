@@ -43,7 +43,7 @@ test_that("fixing g works as intended", {
 
 test_that("fixing pi0 works as intended", {
   g <- list(pi0 = 0.2, a = 0.5, mu = 0)
-  ebnm.res5 <- ebnm_point_normal(x, s, g, fix_pi0 = TRUE)
+  ebnm.res5 <- ebnm_point_normal(x, s, g, fix_pi0 = TRUE, fix_mu = FALSE)
 
   expect_identical(ebnm.res5$fitted_g$pi0, g$pi0)
   expect_false(ebnm.res5$fitted_g$a == g$a)
@@ -98,7 +98,8 @@ test_that("removing null component gives reasonable estimates for mu and a", {
   theta = rnorm(n, mu, 1 / sqrt(a))
   s = rgamma(n, 1, 1)
   x = rnorm(n, theta, s)
-  ebnm.res10 = ebnm_point_normal(x, s, g = list(pi0 = 0), fix_pi0 = T)
+  ebnm.res10 = ebnm_point_normal(x, s, g = list(pi0 = 0), fix_pi0 = TRUE,
+                                 fix_mu = FALSE)
   expect_equal(ebnm.res10$fitted_g$mu, mu, tol = .25)
   expect_equal(ebnm.res10$fitted_g$a, a, tol = .02)
 })
