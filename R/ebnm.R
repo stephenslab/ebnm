@@ -58,14 +58,15 @@
 #'   Default values are set by function \code{ebnm:::set_output}. Options
 #'   include:
 #'     \describe{
-#'       \item{\code{"result"}}{Summary results (posterior means \eqn{E \theta_j}
-#'         and posterior values of \eqn{E \theta_j^2}).}
+#'       \item{\code{"result"}}{Summary results (posterior means
+#'         \eqn{E \theta_j} and posterior values of \eqn{E \theta_j^2}).}
 #'       \item{\code{"fitted_g"}}{The fitted prior (a list with elements
 #'         \code{pi0}, \code{a}, and \code{mu}).}
 #'       \item{\code{"loglik"}}{The optimal log likelihood attained.}
 #'       \item{\code{"post_sampler"}}{A function that can be used to produce
-#'         samples from the posterior. It takes a single parameter \code{nsamp},
-#'         the number of posterior samples to return per observation.}
+#'         samples from the posterior. It takes a single parameter
+#'         \code{nsamp}, the number of posterior samples to return per
+#'         observation.}
 #'      }
 #'
 #' @examples
@@ -79,7 +80,7 @@
 #'
 ebnm <- function(x,
                  s = 1,
-                 prior_type = "point_normal",
+                 prior_type = c("point_normal", "point_laplace"),
                  g = list(mu = 0),
                  fixg = FALSE,
                  fix_pi0 = FALSE,
@@ -89,41 +90,39 @@ ebnm <- function(x,
                  output = NULL) {
 
   output <- set_output(output)
+  prior_type <- match.arg(prior_type)
 
-  # make sure s is either of length 1 or the same length of x
   if (!(length(s) %in% c(1, length(x)))) {
-    stop("Argument 's' must have either length 1, or the same length of argument 'x'.")
+    stop("Argument 's' must have either length 1 or the same length as ",
+         "argument 'x'.")
   }
 
-  # make sure prior_type and output are correctly specified
-  if (!(prior_type %in% c("point_normal", "point_laplace"))) {
-    stop("Argument 'prior_type' must be one of 'point_normal' or 'point_laplace'")
-  }
-  if (any(!(output %in% c("result", "fitted_g", "loglik", "post_sampler")))) {
-    stop("Argument 'output' must consist of 'result', 'fitted_g', 'loglik', and/or 'post_sampler'")
+  if (!all(output %in% c("result", "fitted_g", "loglik", "post_sampler"))) {
+    stop("Argument 'output' must consist of 'result', 'fitted_g', 'loglik', ",
+         "and/or 'post_sampler'.")
   }
 
   # run ebnm with specified inputs
   if (prior_type == "point_normal") {
-    retlist = ebnm_point_normal(x, s, g, fixg, fix_pi0, fix_mu, norm, control, output)
+    retlist <- ebnm_point_normal(x, s, g, fixg, fix_pi0, fix_mu, norm, control,
+                                 output)
   } else {
-    if (!fix_mu) { # currently, estimating mu not supported for point_laplace
-      warning("Prior 'point_laplace' currently does not support estimating 'mu'. Fixing 'mu' to be 0")
+    if (!fix_mu) {
+      warning("Prior 'point_laplace' currently does not support estimating ",
+              "'mu'. Fixing 'mu' to be 0.")
     }
     if (!is.null(g)) {
       if (names(g) == "mu") { # if only mu supplied
-        g = NULL
-      } else{
-        g$mu = NULL
+        g <- NULL
+      } else {
+        g$mu <- NULL
       }
     }
-    retlist = ebnm_point_laplace(x, s, g, fixg, output)
+    retlist <- ebnm_point_laplace(x, s, g, fixg, output)
     if ("fitted_g" %in% output) {
-      retlist$fitted_g$mu = 0
+      retlist$fitted_g$mu <- 0
     }
   }
 
   return(retlist)
-
 }
-
