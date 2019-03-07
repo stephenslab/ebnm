@@ -4,7 +4,7 @@
 #'
 ebnm_point_normal <- function (x,
                                s = 1,
-                               g = list(mu = 0),
+                               g = list(),
                                fixg = FALSE,
                                fix_pi0 = FALSE,
                                fix_mu = TRUE,
@@ -12,28 +12,20 @@ ebnm_point_normal <- function (x,
                                control = NULL,
                                output = NULL) {
   output <- set_output(output)
+  check_args(x, s, g, fixg, output)
 
-  if (fixg && is.null(g)) {
-    stop("Must specify g if fixg = TRUE.")
+  # If mu is fixed but unspecified, fix it at zero.
+  if ((fixg || fix_mu) && is.null(g$mu)) {
+    g$mu <- 0
   }
   if (fix_pi0 && is.null(g$pi0)) {
     stop("Must specify g$pi0 if fix_pi0 = TRUE.")
   }
-  if (!is.null(g$a) && (g$a <= 0)) {
-    stop("Invalid choice of g$a.")
-  }
-  if (!is.null(g$pi0) && (g$pi0 < 0 || g$pi0 > 1)) {
-    stop("Invalid choice of g$pi0.")
-  }
-
-  if (all(is.infinite(s))) {
-    stop("Impossible to fit g when all standard errors are infinite.")
-  }
 
   # Scale for stability, but need to be careful with log-likelihood:
   if (is.null(norm)) {
-    pos_idx <- (is.finite(s) & s > 0)
-    if (sum(pos_idx) == 0) {
+    pos_idx <- which(is.finite(s) & s > 0)
+    if (length(pos_idx) == 0) {
       norm <- 1
     } else {
       norm <- mean(s[pos_idx])
@@ -42,10 +34,10 @@ ebnm_point_normal <- function (x,
 
   s <- s / norm
   x <- x / norm
-  if (!is.null(g) && !is.null(g$mu)) {
+  if (!is.null(g$mu)) {
     g$mu <- g$mu / norm
   }
-  if (!is.null(g) && !is.null(g$a)) {
+  if (!is.null(g$a)) {
     g$a <- g$a * norm^2
   }
 
