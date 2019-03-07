@@ -7,15 +7,14 @@
 \alias{ebnm_point_normal}
 \title{Solve the EBNM problem}
 \usage{
-ebnm(x, s = 1, prior_type = "point_normal", g = list(mu = 0),
-  fixg = FALSE, fix_pi0 = FALSE, fix_mu = TRUE, norm = NULL,
-  control = NULL, output = NULL)
+ebnm(x, s = 1, prior_type = c("point_normal", "point_laplace"),
+  g = list(), fixg = FALSE, fix_pi0 = FALSE, fix_mu = TRUE,
+  norm = NULL, control = NULL, output = NULL)
 
-ebnm_point_laplace(x, s = 1, g = NULL, fixg = FALSE, output = NULL)
+ebnm_point_laplace(x, s = 1, g = list(), fixg = FALSE, output = NULL)
 
-ebnm_point_normal(x, s = 1, g = list(mu = 0), fixg = FALSE,
-  fix_pi0 = FALSE, fix_mu = TRUE, norm = NULL, control = NULL,
-  output = NULL)
+ebnm_point_normal(x, s = 1, g = list(), fixg = FALSE, fix_pi0 = FALSE,
+  fix_mu = TRUE, norm = NULL, control = NULL, output = NULL)
 }
 \arguments{
 \item{x}{A vector of observations.}
@@ -31,12 +30,11 @@ ebnm_point_normal(x, s = 1, g = list(mu = 0), fixg = FALSE,
 }}
 
 \item{g}{The prior distribution (a list with elements \code{pi0}, \code{a},
-and \code{mu}). Usually this is left unspecified (\code{NULL}) and
-estimated from the data. However, it can be used in conjuction with
-\code{fixg = TRUE} to fix the prior (useful, for example, to do
-computations with the "true" \code{g}). If \code{g} is specified but
-\code{fixg = FALSE}, \code{g} specifies the initial value of \code{g}
-used during optimization.}
+and \code{mu}). Usually this is left unspecified and estimated from the
+data. However, it can be used in conjuction with \code{fixg = TRUE} to
+fix the prior (useful, for example, to do computations with the "true"
+\code{g}). If \code{g} is specified but \code{fixg = FALSE}, \code{g}
+specifies the initial value of \code{g} used during optimization.}
 
 \item{fixg}{If \code{TRUE}, fix \code{g} at the specified value instead of
 estimating it. This overrides any settings of parameters \code{fix_pi0}
@@ -47,10 +45,11 @@ and \code{fix_mu}.}
 or estimated according to the setting of parameter \code{fix_mu}. This
 option has not yet been implemented for the point-laplace prior.}
 
-\item{fix_mu}{If \code{TRUE}, fix \code{g$mu} at the specified value.
-\code{g$a} will be estimated and \code{g$mu} will be fixed or estimated
-depending on the setting of parameter \code{fix_pi0}. This option is only
-available for the point-normal prior.}
+\item{fix_mu}{If \code{TRUE}, fix \code{g$mu} at the specified value (or
+at zero if \code{g$mu} has not been specified). \code{g$a} will be
+estimated and \code{g$mu} will be fixed or estimated depending on the
+setting of parameter \code{fix_pi0}. This option is only available for
+the point-normal prior.}
 
 \item{norm}{The normalization factor to divide \code{x} and \code{s}
 by before running optimization. This should not affect results, but
@@ -63,14 +62,15 @@ small.}
 Default values are set by function \code{ebnm:::set_output}. Options
 include:
   \describe{
-    \item{\code{"result"}}{Summary results (posterior means \eqn{E \theta_j}
-      and posterior values of \eqn{E \theta_j^2}).}
+    \item{\code{"result"}}{Summary results (posterior means
+      \eqn{E \theta_j} and posterior values of \eqn{E \theta_j^2}).}
     \item{\code{"fitted_g"}}{The fitted prior (a list with elements
       \code{pi0}, \code{a}, and \code{mu}).}
     \item{\code{"loglik"}}{The optimal log likelihood attained.}
     \item{\code{"post_sampler"}}{A function that can be used to produce
-      samples from the posterior. It takes a single parameter \code{nsamp},
-      the number of posterior samples to return per observation.}
+      samples from the posterior. It takes a single parameter
+      \code{nsamp}, the number of posterior samples to return per
+      observation.}
    }}
 }
 \description{
