@@ -1,7 +1,10 @@
-# Functions to compute MLE under point-normal prior.
+# Functions to compute MLE under point-normal prior. Essentially a wrapper
+#   to optim.
 
 mle_point_normal_logscale_grad <- function(x, s, g, control, fix_pi0, fix_mu) {
-  # Optimization functions.
+  # Optimization functions. "par" is the set of variables that is being
+  #   optimized: -logit(pi0) (if fix_pi0 is FALSE), log(a), and mu (if fix_mu
+  #   is FALSE).
   fn <- function(par) {
     return(-loglik_point_normal(x,
                                 s,
@@ -15,7 +18,7 @@ mle_point_normal_logscale_grad <- function(x, s, g, control, fix_pi0, fix_mu) {
                                                 w = w_from_par(par, g, fix_pi0),
                                                 a = a_from_par(par, fix_pi0),
                                                 mu = mu_from_par(par, g, fix_pi0, fix_mu))
-    # Remove values that aren't being optimized over.
+    # Remove variables that aren't being optimized.
     return(ret[c(!fix_pi0, TRUE, !fix_mu)])
   }
 
@@ -68,10 +71,6 @@ mle_point_normal_logscale_grad <- function(x, s, g, control, fix_pi0, fix_mu) {
   return(retlist)
 }
 
-
-# Get w, a, and pi0 from par (the variables over which we're optimizing).
-#   The parameters are -logit(pi0), log(a), and mu (regular scale), but we
-#   need to be careful about the indexing because pi0 and mu can be fixed.
 w_from_par <- function(par, g, fix_pi0) {
   if (fix_pi0)
     return(1 - g$pi0)
