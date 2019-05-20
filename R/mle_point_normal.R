@@ -98,8 +98,7 @@ mu_from_par <- function(par, g, fix_pi0, fix_mu) {
 #' @importFrom stats optim
 #'
 optimize_it <- function(startpar, fn, gr, control, hilo, x, s) {
-  uu <- try(optim(startpar, fn, gr, method = "BFGS",
-                  control = control),
+  uu <- try(lbfgsb3c::lbfgsb3c(startpar, fn, gr, control = control),
             silent=TRUE)
 
   # If optimization fails, try again with some limits; this should not
@@ -108,8 +107,8 @@ optimize_it <- function(startpar, fn, gr, control, hilo, x, s) {
   # the parameters?
 
   if (class(uu) == "try-error") {
-    uu <- try(optim(startpar, fn, gr, method = "L-BFGS-B",
-                    lower = hilo$lo, upper = hilo$hi, control = control))
+    uu <- try(lbfgsb3c::lbfgsb3c(startpar, fn, gr,
+                                 lower = hilo$lo, upper = hilo$hi, control = control))
   }
 
   # If optimization fails twice, save debug information and give up.
