@@ -24,8 +24,10 @@ vloglik_point_normal = function(x, s, w, a, mu) {
   result <- lfac + log((1 - w) * exp(lf - lfac) + w * exp(lg - lfac))
 
   # Deal with zero sds:
-  result[s == 0 & x == mu] <- log(1 - w)
-  result[s == 0 & x != mu] <- log(w) + lg[s == 0 & x != mu]
+  if (any(s == 0)) {
+    result[s == 0 & x == mu] <- log(1 - w)
+    result[s == 0 & x != mu] <- log(w) + lg[s == 0 & x != mu]
+  }
 
   return(result)
 }
