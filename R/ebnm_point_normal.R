@@ -10,7 +10,8 @@ ebnm_point_normal <- function (x,
                                fix_mu = TRUE,
                                norm = NULL,
                                control = NULL,
-                               output = NULL) {
+                               output = NULL,
+                               use_cpp = FALSE) {
   output <- set_output(output)
   check_args(x, s, g, fixg, output)
 
@@ -22,67 +23,47 @@ ebnm_point_normal <- function (x,
     stop("Must specify g$pi0 if fix_pi0 = TRUE.")
   }
 
-  # Scale for stability, but need to be careful with log-likelihood:
-  if (is.null(norm)) {
-    pos_idx <- which(is.finite(s) & s > 0)
-    if (length(pos_idx) == 0) {
-      norm <- 1
-    } else {
-      norm <- mean(s[pos_idx])
-    }
-  }
-
-  s <- s / norm
-  x <- x / norm
-  if (!is.null(g$mu)) {
-    g$mu <- g$mu / norm
-  }
-  if (!is.null(g$a)) {
-    g$a <- g$a * norm^2
-  }
-
-  # Don't use data with infinite SEs when estimating g:
+  x_optset <- x
+  s_optset <- s
+  # Don't use data with infinite SEs when estimating g.
   if (any(is.infinite(s))) {
-    x_subset <- x[is.finite(s)]
-    s_subset <- s[is.finite(s)]
-  } else {
-    x_subset <- x
-    s_subset <- s
+    x_optset <- x[is.finite(s)]
+    s_optset <- s[is.finite(s)]
   }
 
   if (!fixg) {
-    g <- mle_point_normal_logscale_grad(x_subset, s_subset, g, control,
-                                        fix_pi0, fix_mu)
+    if (use_cpp) {
+      g <- cpp_mle_point_normal(x_optset, s_optset, g, control, fix_pi0, fix_mu)
+    } else {
+      g <- mle_point_normal_logscale_grad(x_optset, s_optset, g, control,
+                                          fix_pi0, fix_mu)
+    }
   }
 
   w <- 1 - g$pi0
   a <- g$a
   mu <- g$mu
 
-  # Compute return values, taking care to adjust back to original scale:
   retlist <- list()
-
   if ("result" %in% output) {
     result <- compute_summary_results_point_normal(x, s, w, a, mu)
-    result$PosteriorMean <- result$PosteriorMean * norm
-    result$PosteriorMean2 <- result$PosteriorMean2 * norm^2
     retlist <- c(retlist, list(result = result))
   }
-
   if ("fitted_g" %in% output) {
-    fitted_g <- list(pi0 = g$pi0, a = g$a / norm^2, mu = g$mu * norm)
+    fitted_g <- list(pi0 = g$pi0, a = g$a, mu = g$mu)
     retlist <- c(retlist, list(fitted_g = fitted_g))
   }
-
   if ("loglik" %in% output) {
-    loglik <- loglik_point_normal(x_subset, s_subset, w, a, mu)
-    loglik <- loglik - length(x_subset) * log(norm)
+    if (!fixg) {
+      loglik <- -g$val
+    } else {
+      loglik <- loglik_point_normal(x_optset, s_optset, w, a, mu)
+    }
     retlist <- c(retlist, list(loglik = loglik))
   }
-
   if ("post_sampler" %in% output) {
     retlist <- c(retlist, list(post_sampler = function(nsamp) {
-      post_sampler_point_normal(x, s, w, a, mu, nsamp) * norm
+      post_sampler_point_normal(x, s, w, a, mu, nsamp)
     }))
   }
 
