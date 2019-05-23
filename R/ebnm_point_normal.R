@@ -50,7 +50,7 @@ ebnm_point_normal <- function (x,
 
   retlist <- list()
   if ("result" %in% output) {
-    result <- compute_summary_results_point_normal(x, s, w, a, mu)
+    result <- summary_results_point_normal(x, s, w, a, mu)
     retlist <- c(retlist, list(result = result))
   }
   if ("fitted_g" %in% output) {
