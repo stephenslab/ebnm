@@ -7,8 +7,8 @@ ebnm_point_normal <- function (x,
                                g = list(),
                                fixg = FALSE,
                                fix_pi0 = FALSE,
+                               fix_a = FALSE,
                                fix_mu = TRUE,
-                               norm = NULL, #not used
                                control = NULL,
                                output = NULL,
                                use_cpp = FALSE) {
@@ -37,10 +37,10 @@ ebnm_point_normal <- function (x,
   if (!fixg) {
     if (use_cpp) {
       g <- cpp_mle_point_normal(x_optset, s_optset, g, control,
-                                fix_pi0, FALSE, fix_mu)
+                                fix_pi0, fix_a, fix_mu)
     } else {
       g <- mle_point_normal(x_optset, s_optset, g, control,
-                            fix_pi0, FALSE, fix_mu)
+                            fix_pi0, fix_a, fix_mu)
     }
   }
 

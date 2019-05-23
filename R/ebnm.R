@@ -92,7 +92,8 @@ ebnm <- function(x,
 
   if (prior_type == "point_normal") {
     retlist <- ebnm_point_normal(x, s, g, fixg,
-                                 fix_pi0, fix_mu, norm, control, output)
+                                 fix_pi0, fix_a = FALSE, fix_mu,
+                                 control, output)
   } else {
     if (!fix_mu || (!is.null(g$mu) && g$mu != 0)) {
       stop("Currently, 'mu' must be fixed at zero for 'point_laplace' ",
