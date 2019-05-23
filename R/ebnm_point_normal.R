@@ -8,7 +8,7 @@ ebnm_point_normal <- function (x,
                                fixg = FALSE,
                                fix_pi0 = FALSE,
                                fix_mu = TRUE,
-                               norm = NULL,
+                               norm = NULL, #not used
                                control = NULL,
                                output = NULL,
                                use_cpp = FALSE) {
@@ -22,10 +22,13 @@ ebnm_point_normal <- function (x,
   if (fix_pi0 && is.null(g$pi0)) {
     stop("Must specify g$pi0 if fix_pi0 = TRUE.")
   }
+  if (!fix_mu && any(s == 0)) {
+    stop("SEs cannot be zero when mu is to be estimated.")
+  }
 
   x_optset <- x
   s_optset <- s
-  # Don't use data with infinite SEs when estimating g.
+  # Don't use observations with infinite SEs when estimating g.
   if (any(is.infinite(s))) {
     x_optset <- x[is.finite(s)]
     s_optset <- s[is.finite(s)]
@@ -33,10 +36,11 @@ ebnm_point_normal <- function (x,
 
   if (!fixg) {
     if (use_cpp) {
-      g <- cpp_mle_point_normal(x_optset, s_optset, g, control, fix_pi0, fix_mu)
+      g <- cpp_mle_point_normal(x_optset, s_optset, g, control,
+                                fix_pi0, FALSE, fix_mu)
     } else {
-      g <- mle_point_normal_logscale_grad(x_optset, s_optset, g, control,
-                                          fix_pi0, fix_mu)
+      g <- mle_point_normal(x_optset, s_optset, g, control,
+                            fix_pi0, FALSE, fix_mu)
     }
   }
 
@@ -55,7 +59,7 @@ ebnm_point_normal <- function (x,
   }
   if ("loglik" %in% output) {
     if (!fixg) {
-      loglik <- -g$val
+      loglik <- g$val
     } else {
       loglik <- loglik_point_normal(x_optset, s_optset, w, a, mu)
     }
