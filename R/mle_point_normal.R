@@ -207,7 +207,7 @@ pn_hilo <- function(x, s, fix_pi0, fix_a, fix_mu) {
   }
 
   if (!fix_a) {
-    maxvar <- max(x^2)
+    maxvar <- (max(x) - min(x))^2
     minvar <- (min(s) / 10)^2
     if (minvar < 1e-8) {
       minvar <- 1e-8

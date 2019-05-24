@@ -2,16 +2,16 @@
 #'
 #' @export
 #'
-ebnm_point_normal <- function (x,
-                               s = 1,
-                               g = list(),
-                               fixg = FALSE,
-                               fix_pi0 = FALSE,
-                               fix_a = FALSE,
-                               fix_mu = TRUE,
-                               control = NULL,
-                               output = NULL,
-                               use_cpp = FALSE) {
+ebnm_point_normal <- function(x,
+                              s = 1,
+                              g = list(),
+                              fixg = FALSE,
+                              fix_pi0 = FALSE,
+                              fix_a = FALSE,
+                              fix_mu = TRUE,
+                              control = NULL,
+                              output = NULL,
+                              use_cpp = FALSE) {
   output <- set_output(output)
   check_args(x, s, g, fixg, output)
 
@@ -34,8 +34,13 @@ ebnm_point_normal <- function (x,
     s_optset <- s[is.finite(s)]
   }
 
+  # Estimate g.
   if (!fixg) {
-    if (use_cpp) {
+    if (fix_pi0 && g$pi0 == 1) {
+      g <- mle_point_only(x_optset, s_optset, g, fix_a, fix_mu)
+    } else if (fix_pi0 && g$pi0 == 0) {
+      g <- mle_normal(x_optset, s_optset, g, control, fix_a, fix_mu)
+    } else if (use_cpp) {
       g <- cpp_mle_point_normal(x_optset, s_optset, g, control,
                                 fix_pi0, fix_a, fix_mu)
     } else {
@@ -72,4 +77,24 @@ ebnm_point_normal <- function (x,
   }
 
   return(retlist)
+}
+
+ebnm_normal <- function(x,
+                        s = 1,
+                        g = list(),
+                        fixg = FALSE,
+                        fix_a = FALSE,
+                        fix_mu = TRUE,
+                        control = NULL,
+                        output = NULL) {
+  g$pi0 <- 0
+  return(ebnm_point_normal(x,
+                           s,
+                           g,
+                           fixg,
+                           fix_pi0 = TRUE,
+                           fix_a,
+                           fix_mu,
+                           control,
+                           output))
 }
