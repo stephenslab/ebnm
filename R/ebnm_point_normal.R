@@ -10,8 +10,7 @@ ebnm_point_normal <- function(x,
                               fix_a = FALSE,
                               fix_mu = TRUE,
                               control = NULL,
-                              output = NULL,
-                              use_cpp = FALSE) {
+                              output = NULL) {
   output <- set_output(output)
   check_args(x, s, g, fixg, output)
 
@@ -40,9 +39,6 @@ ebnm_point_normal <- function(x,
       g <- mle_point_only(x_optset, s_optset, g, fix_a, fix_mu)
     } else if (fix_pi0 && g$pi0 == 0) {
       g <- mle_normal(x_optset, s_optset, g, control, fix_a, fix_mu)
-    } else if (use_cpp) {
-      g <- cpp_mle_point_normal(x_optset, s_optset, g, control,
-                                fix_pi0, fix_a, fix_mu)
     } else {
       g <- mle_point_normal(x_optset, s_optset, g, control,
                             fix_pi0, fix_a, fix_mu)
