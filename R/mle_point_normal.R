@@ -23,7 +23,7 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
     which.x.nz <- which(x[which.s0] != 0)
     n0 <- length(which.s0) - length(which.x.nz)
     n1 <- length(which.x.nz)
-    sum1 <- sum(x[which.x.nz]^2)
+    sum1 <- sum(x[which.s0[which.x.nz]]^2)
     x <- x[-which.s0]
     s <- s[-which.s0]
   } else {
@@ -41,13 +41,12 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
     z <- NULL
   }
 
-  optres <- try(optim(startpar, pn_fn, pn_gr,
-                      fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
-                      alpha = alpha, beta = beta, mu = mu,
-                      n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
-                      x = x, s2 = s2, z = z,
-                      method = "L-BFGS-B", control = control),
-                silent = TRUE)
+  optres <- optim(startpar, pn_fn, pn_gr,
+                  fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
+                  alpha = alpha, beta = beta, mu = mu,
+                  n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
+                  x = x, s2 = s2, z = z,
+                  method = "L-BFGS-B", control = control)
 
   # TODO: is this necessary?
   if (optres$convergence != 0) {

@@ -23,17 +23,6 @@ test_that("compute_summary_results gives same results as ashr", {
   expect_equal(ebnm.res$loglik,ash.res$flash_data$penloglik, tol = 1e-6)
 })
 
-test_that("setting norm parameter does not change results", {
-  ebnm.res2 <- ebnm_point_normal(x, s)
-  ebnm.res3 <- ebnm_point_normal(x, s, norm = 1)
-
-  expect_equal(ebnm.res2$loglik, ebnm.res3$loglik, tol = 1e-4)
-  expect_equal(ebnm.res2$result, ebnm.res3$result, tol = 1e-4)
-  expect_equal(ebnm.res2$fitted_g$a, ebnm.res3$fitted_g$a, tol = 1e-4)
-  expect_equal(ebnm.res2$fitted_g$pi0, ebnm.res3$fitted_g$pi0, tol = 1e-4)
-  expect_equal(ebnm.res2$fitted_g$mu, ebnm.res3$fitted_g$mu, tol = 1e-4)
-})
-
 test_that("fixing g works as intended", {
   g <- list(pi0 = 0, a = 0.5, mu = 0)
   ebnm.res4 <- ebnm_point_normal(x, s, g, fixg = TRUE)

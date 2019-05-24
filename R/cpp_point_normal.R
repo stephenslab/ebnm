@@ -19,7 +19,7 @@ cpp_mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
     which.x.nz <- which(x[which.s0] != 0)
     env[["n0"]] <- length(which.s0) - length(which.x.nz)
     env[["n1"]] <- length(which.x.nz)
-    env[["sum1"]] <- sum(x[which.x.nz]^2)
+    env[["sum1"]] <- sum(x[which.s0[which.x.nz]]^2)
     x <- x[-which.s0]
     s <- s[-which.s0]
   } else {
