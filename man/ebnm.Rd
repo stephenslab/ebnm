@@ -5,16 +5,22 @@
 \alias{ebnm}
 \alias{ebnm_point_laplace}
 \alias{ebnm_point_normal}
+\alias{ebnm_normal}
 \title{Solve the EBNM problem}
 \usage{
 ebnm(x, s = 1, prior_type = c("point_normal", "point_laplace"),
   g = list(), fixg = FALSE, fix_pi0 = FALSE, fix_mu = TRUE,
   norm = NULL, control = NULL, output = NULL)
 
-ebnm_point_laplace(x, s = 1, g = list(), fixg = FALSE, output = NULL)
+ebnm_point_laplace(x, s = 1, g = list(), fixg = FALSE,
+  output = NULL)
 
-ebnm_point_normal(x, s = 1, g = list(), fixg = FALSE, fix_pi0 = FALSE,
-  fix_mu = TRUE, norm = NULL, control = NULL, output = NULL)
+ebnm_point_normal(x, s = 1, g = list(), fixg = FALSE,
+  fix_pi0 = FALSE, fix_a = FALSE, fix_mu = TRUE, control = NULL,
+  output = NULL, use_cpp = FALSE)
+
+ebnm_normal(x, s = 1, g = list(), fixg = FALSE, fix_a = FALSE,
+  fix_mu = TRUE, control = NULL, output = NULL)
 }
 \arguments{
 \item{x}{A vector of observations.}
@@ -93,6 +99,8 @@ Given vectors of data \code{x} and standard errors \code{s},
 \item \code{ebnm_point_laplace}: Solve the EBNM problem using a point-laplace prior.
 
 \item \code{ebnm_point_normal}: Solve the EBNM problem using a point-normal prior.
+
+\item \code{ebnm_normal}: Solve the EBNM problem using a normal prior.
 }}
 
 \examples{

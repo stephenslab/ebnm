@@ -79,6 +79,10 @@ ebnm_point_normal <- function(x,
   return(retlist)
 }
 
+#' @describeIn ebnm Solve the EBNM problem using a normal prior.
+#'
+#' @export
+#'
 ebnm_normal <- function(x,
                         s = 1,
                         g = list(),

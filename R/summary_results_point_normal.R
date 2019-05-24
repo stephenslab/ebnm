@@ -10,8 +10,7 @@ summary_results_point_normal = function(x, s, w, a, mu){
                     PosteriorMean2 = PosteriorMean2))
 }
 
-#
-#  Calculate the posterior weight for non-null effect
+#  Calculate posterior weights for non-null effects.
 #
 #' @importFrom stats dnorm
 #'
@@ -39,9 +38,7 @@ wpost_normal <- function(x, s, w, a, mu) {
   return(wpost)
 }
 
-#
-#  Calculate the posterior mean for non-null effect
-#
+# Calculate posterior means for non-null effects.
 pmean_cond_normal <- function(x, s, a, mu) {
   pm <- (x + (s^2) * a * mu) / (1 + (s^2) * a)
 
@@ -52,9 +49,7 @@ pmean_cond_normal <- function(x, s, a, mu) {
   return(pm)
 }
 
-#
-#  Calculate the posterior variance for non-null effect
-#
+# Calculate posterior variances for non-null effects.
 pvar_cond_normal <- function(s, a) {
   pvar_cond <- s^2 / (1 + s^2 * a)
 

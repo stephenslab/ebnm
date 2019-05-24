@@ -1,7 +1,7 @@
 # Functions to compute the log likelihood under the point-normal prior.
 
 loglik_point_normal = function(x, s, w, a, mu) {
-  sum(vloglik_point_normal(x, s, w, a, mu))
+  return(sum(vloglik_point_normal(x, s, w, a, mu)))
 }
 
 # Return log((1 - w)f + wg) as a vector (deal with cases w = 1 and w = 0
