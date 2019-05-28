@@ -1,7 +1,7 @@
 #' Solve the EBNM problem
 #'
-#' Solves the Empirical Bayes Normal Means problem using either a point-normal
-#'   or a point-laplace prior.
+#' Solves the Empirical Bayes Normal Means problem using a point-normal,
+#'   point-laplace, or normal prior.
 #'
 #' @details Given vectors of data \code{x} and standard errors \code{s},
 #'   solve the EBNM problem with a point-normal or point-laplace prior. The
@@ -23,6 +23,8 @@
 #'       normal distribution.}
 #'     \item{\code{"point_laplace"}}{Prior is a mixture of a point mass and a
 #'       laplace distribution.}
+#'     \item{\code{"normal"}}{Prior is a normal distribution (with no point
+#'       mass).}
 #'   }
 #'
 #' @param g The prior distribution (a list with elements \code{pi0}, \code{a},
@@ -33,24 +35,12 @@
 #'   specifies the initial value of \code{g} used during optimization.
 #'
 #' @param fixg If \code{TRUE}, fix \code{g} at the specified value instead of
-#'   estimating it. This overrides any settings of parameters \code{fix_pi0}
-#'   and \code{fix_mu}.
+#'   estimating it. This overrides any settings of parameters \code{fix_pi0},
+#'   \code{fix_a}, and \code{fix_mu}.
 #'
-#' @param fix_pi0 If \code{TRUE}, fix \code{g$pi0} at the specified value.
-#'   \code{g$a} will be estimated from the data and \code{g$mu} will be fixed
-#'   or estimated according to the setting of parameter \code{fix_mu}. This
-#'   option has not yet been implemented for the point-laplace prior.
-#'
-#' @param fix_mu If \code{TRUE}, fix \code{g$mu} at the specified value (or
-#'   at zero if \code{g$mu} has not been specified). \code{g$a} will be
-#'   estimated and \code{g$mu} will be fixed or estimated depending on the
-#'   setting of parameter \code{fix_pi0}. This option is only available for
-#'   the point-normal prior.
-#'
-#' @param norm The normalization factor to divide \code{x} and \code{s}
-#'   by before running optimization. This should not affect results, but
-#'   it can improve numerical stability when \code{x} and \code{s} are very
-#'   small.
+#' @param fix_pi0,fix_a,fix_mu For a point-normal prior, any combination of
+#'   \code{pi0}, \code{a}, and \code{mu} can be fixed. This functionality has
+#'   not yet been implemented for the point-laplace prior.
 #'
 #' @param control A list of control parameters to be passed to \code{optim}.
 #'
@@ -67,41 +57,43 @@
 #'         samples from the posterior. It takes a single parameter
 #'         \code{nsamp}, the number of posterior samples to return per
 #'         observation.}
+#'       \item{\code{"lfsr"}}{A vector of local false sign rates.}
 #'      }
 #'
 #' @examples
-#' theta = c(rep(0, 1000), rexp(1000)) # means
-#' s = rgamma(2000, 1, 1) # standard errors
-#' x = theta + rnorm(2000, 0, s) # observations
-#' x.ebnm = ebnm(x, s, "point_normal")
-#' ashr::get_pm(x.ebnm) # posterior mean
+#' theta <- c(rep(0, 1000), rexp(1000)) # means
+#' s <- rgamma(2000, 1, 1) # standard errors
+#' x <- theta + rnorm(2000, 0, s) # observations
+#' x.ebnm <- ebnm(x, s, "point_normal")
+#' pm <- x.ebnm$PosteriorMean
 #'
 #' @export
 #'
 ebnm <- function(x,
                  s = 1,
-                 prior_type = c("point_normal", "point_laplace"),
+                 prior_type = c("point_normal", "point_laplace", "normal"),
                  g = list(),
                  fixg = FALSE,
                  fix_pi0 = FALSE,
                  fix_a = FALSE,
                  fix_mu = TRUE,
-                 norm = NULL,
                  control = NULL,
                  output = NULL) {
   prior_type <- match.arg(prior_type)
 
   if (prior_type == "point_normal") {
-    retlist <- ebnm_point_normal(x, s, g, fixg,
-                                 fix_pi0, fix_a, fix_mu,
+    retlist <- ebnm_point_normal(x, s, g, fixg, fix_pi0, fix_a, fix_mu,
                                  control, output)
+  } else if (prior_type == "normal") {
+    retlist <- ebnm_normal(x, s, g, fixg, fix_a, fix_mu, control, output)
   } else {
     if (!fix_mu || (!is.null(g$mu) && g$mu != 0)) {
       stop("Currently, 'mu' must be fixed at zero for 'point_laplace' ",
            " priors.")
     }
-    if (fix_a) {
-      stop("Currently, 'a' cannot be fixed for 'point_laplace' priors.")
+    if (!fixg && ((fix_pi0 && !fix_a) || (fix_a && !fix_pi0))) {
+      stop("Currently, 'a' and 'pi0' must either both be fixed or both ",
+           " be unfixed for 'point_laplace' priors.")
     }
     retlist <- ebnm_point_laplace(x, s, g, fixg, output)
   }

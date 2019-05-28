@@ -8,16 +8,16 @@
 \alias{ebnm_normal}
 \title{Solve the EBNM problem}
 \usage{
-ebnm(x, s = 1, prior_type = c("point_normal", "point_laplace"),
-  g = list(), fixg = FALSE, fix_pi0 = FALSE, fix_mu = TRUE,
-  norm = NULL, control = NULL, output = NULL)
+ebnm(x, s = 1, prior_type = c("point_normal", "point_laplace",
+  "normal"), g = list(), fixg = FALSE, fix_pi0 = FALSE,
+  fix_a = FALSE, fix_mu = TRUE, control = NULL, output = NULL)
 
 ebnm_point_laplace(x, s = 1, g = list(), fixg = FALSE,
   output = NULL)
 
 ebnm_point_normal(x, s = 1, g = list(), fixg = FALSE,
   fix_pi0 = FALSE, fix_a = FALSE, fix_mu = TRUE, control = NULL,
-  output = NULL, use_cpp = FALSE)
+  output = NULL)
 
 ebnm_normal(x, s = 1, g = list(), fixg = FALSE, fix_a = FALSE,
   fix_mu = TRUE, control = NULL, output = NULL)
@@ -33,6 +33,8 @@ ebnm_normal(x, s = 1, g = list(), fixg = FALSE, fix_a = FALSE,
     normal distribution.}
   \item{\code{"point_laplace"}}{Prior is a mixture of a point mass and a
     laplace distribution.}
+  \item{\code{"normal"}}{Prior is a normal distribution (with no point
+    mass).}
 }}
 
 \item{g}{The prior distribution (a list with elements \code{pi0}, \code{a},
@@ -43,24 +45,12 @@ fix the prior (useful, for example, to do computations with the "true"
 specifies the initial value of \code{g} used during optimization.}
 
 \item{fixg}{If \code{TRUE}, fix \code{g} at the specified value instead of
-estimating it. This overrides any settings of parameters \code{fix_pi0}
-and \code{fix_mu}.}
+estimating it. This overrides any settings of parameters \code{fix_pi0},
+\code{fix_a}, and \code{fix_mu}.}
 
-\item{fix_pi0}{If \code{TRUE}, fix \code{g$pi0} at the specified value.
-\code{g$a} will be estimated from the data and \code{g$mu} will be fixed
-or estimated according to the setting of parameter \code{fix_mu}. This
-option has not yet been implemented for the point-laplace prior.}
-
-\item{fix_mu}{If \code{TRUE}, fix \code{g$mu} at the specified value (or
-at zero if \code{g$mu} has not been specified). \code{g$a} will be
-estimated and \code{g$mu} will be fixed or estimated depending on the
-setting of parameter \code{fix_pi0}. This option is only available for
-the point-normal prior.}
-
-\item{norm}{The normalization factor to divide \code{x} and \code{s}
-by before running optimization. This should not affect results, but
-it can improve numerical stability when \code{x} and \code{s} are very
-small.}
+\item{fix_pi0, fix_a, fix_mu}{For a point-normal prior, any combination of
+\code{pi0}, \code{a}, and \code{mu} can be fixed. This functionality has
+not yet been implemented for the point-laplace prior.}
 
 \item{control}{A list of control parameters to be passed to \code{optim}.}
 
@@ -77,11 +67,12 @@ include:
       samples from the posterior. It takes a single parameter
       \code{nsamp}, the number of posterior samples to return per
       observation.}
+    \item{\code{"lfsr"}}{A vector of local false sign rates.}
    }}
 }
 \description{
-Solves the Empirical Bayes Normal Means problem using either a point-normal
-  or a point-laplace prior.
+Solves the Empirical Bayes Normal Means problem using a point-normal,
+  point-laplace, or normal prior.
 }
 \details{
 Given vectors of data \code{x} and standard errors \code{s},
@@ -104,10 +95,10 @@ Given vectors of data \code{x} and standard errors \code{s},
 }}
 
 \examples{
-theta = c(rep(0, 1000), rexp(1000)) # means
-s = rgamma(2000, 1, 1) # standard errors
-x = theta + rnorm(2000, 0, s) # observations
-x.ebnm = ebnm(x, s, "point_normal")
-ashr::get_pm(x.ebnm) # posterior mean
+theta <- c(rep(0, 1000), rexp(1000)) # means
+s <- rgamma(2000, 1, 1) # standard errors
+x <- theta + rnorm(2000, 0, s) # observations
+x.ebnm <- ebnm(x, s, "point_normal")
+pm <- x.ebnm$PosteriorMean
 
 }
