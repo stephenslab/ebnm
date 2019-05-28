@@ -22,7 +22,8 @@ ebnm_point_normal <- function(x,
     stop("Must specify g$pi0 if fix_pi0 = TRUE.")
   }
   if (!fix_mu && any(s == 0)) {
-    stop("SEs cannot be zero when mu is to be estimated.")
+    stop("mu cannot be estimated when some SEs are zero (the gradient is ",
+         "not differentiable).")
   }
 
   x_optset <- x

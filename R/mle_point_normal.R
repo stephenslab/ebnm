@@ -20,10 +20,10 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
 
   if (any(s == 0)) {
     which.s0 <- which(s == 0)
-    which.x.nz <- which(x[which.s0] != 0)
+    which.x.nz <- which(x[which.s0] != mu)
     n0 <- length(which.s0) - length(which.x.nz)
     n1 <- length(which.x.nz)
-    sum1 <- sum(x[which.s0[which.x.nz]]^2)
+    sum1 <- sum((x[which.s0[which.x.nz]] - mu)^2)
     x <- x[-which.s0]
     s <- s[-which.s0]
   } else {
@@ -37,31 +37,34 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
 
   if (fix_mu) {
     z <- (x - mu)^2 / s2
+    sum.z <- sum(z)
   } else {
     z <- NULL
+    sum.z <- NULL
   }
 
-  optres <- optim(startpar, pn_fn, pn_gr,
-                  fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
-                  alpha = alpha, beta = beta, mu = mu,
-                  n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
-                  x = x, s2 = s2, z = z,
-                  method = "L-BFGS-B", control = control)
+  optres <- try(optim(startpar, pn_fn, pn_gr,
+                      fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
+                      alpha = alpha, beta = beta, mu = mu,
+                      n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
+                      x = x, s2 = s2, z = z, sum.z = sum.z,
+                      method = "L-BFGS-B", control = control),
+                silent = TRUE)
 
   # TODO: is this necessary?
-  if (optres$convergence != 0) {
+  if (inherits(optres, "try-error")) {
     hilo <- pn_hilo(x, s, fix_pi0, fix_a, fix_mu)
     optres <- optim(startpar, pn_fn, pn_gr,
                     fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
                     alpha = alpha, beta = beta, mu = mu,
                     n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
-                    x = x, s2 = s2, z = z,
+                    x = x, s2 = s2, z = z, sum.z = sum.z,
                     method = "L-BFGS-B", control = control,
                     lower = hilo$lo, upper = hilo$hi)
   }
 
   retlist <- pn_g_from_optpar(optres$par, g, fix_pi0, fix_a, fix_mu)
-  retlist$val <- pn_llik_from_optval(optres$value, n1, n2, s2, z)
+  retlist$val <- pn_llik_from_optval(optres$value, n1, n2, s2)
 
   return(retlist)
 }
@@ -99,7 +102,7 @@ pn_startpar <- function(x, s, g, fix_pi0, fix_a, fix_mu) {
 
 # Negative log likelihood.
 pn_fn <- function(par, fix_pi0, fix_a, fix_mu, alpha, beta, mu,
-                  n0, n1, sum1, n2, x, s2, z) {
+                  n0, n1, sum1, n2, x, s2, z, sum.z) {
   i <- 1
   if (!fix_pi0) {
     alpha <- par[i]
@@ -112,13 +115,14 @@ pn_fn <- function(par, fix_pi0, fix_a, fix_mu, alpha, beta, mu,
   if (!fix_mu) {
     mu <- par[i]
     z <- (x - mu)^2 / s2
+    sum.z <- sum(z)
   }
 
   y <- (z / (1 + s2 * exp(-beta)) - log(1 + exp(beta) / s2)) / 2
   C <- pmax(y, alpha)
 
   nllik <- n0 * log(1 + exp(-alpha)) + (n1 + n2) * (log(1 + exp(alpha)))
-  nllik <- nllik + n1 * beta / 2 + sum1 * exp(-beta) / 2
+  nllik <- nllik + n1 * beta / 2 + sum1 * exp(-beta) / 2 + sum.z / 2
   nllik <- nllik - sum(log(exp(y - C) + exp(alpha - C)) + C)
 
   return(nllik)
@@ -126,7 +130,7 @@ pn_fn <- function(par, fix_pi0, fix_a, fix_mu, alpha, beta, mu,
 
 # Gradient of the negative log likelihood.
 pn_gr <- function(par, fix_pi0, fix_a, fix_mu, alpha, beta, mu,
-                  n0, n1, sum1, n2, x, s2, z) {
+                  n0, n1, sum1, n2, x, s2, z, sum.z) {
   i <- 1
   if (!fix_pi0) {
     alpha <- par[i]
@@ -157,7 +161,8 @@ pn_gr <- function(par, fix_pi0, fix_a, fix_mu, alpha, beta, mu,
   }
 
   if (!fix_mu) {
-    grad <- c(grad, -sum(tmp1 * (x - mu) / (1 + exp(alpha - y)) / s2))
+    tmp <- sum((mu - x) / s2)
+    grad <- c(grad, tmp + sum(tmp1 * (x - mu) / (1 + exp(alpha - y)) / s2))
   }
 
   return(grad)
@@ -191,8 +196,8 @@ pn_g_from_optpar <- function(optpar, g, fix_pi0, fix_a, fix_mu) {
   return(opt_g)
 }
 
-pn_llik_from_optval <- function(optval, n1, n2, s2, z) {
-  return(-optval - 0.5 * ((n1 + n2) * log(2 * pi) + sum(log(s2)) + sum(z)))
+pn_llik_from_optval <- function(optval, n1, n2, s2) {
+  return(-optval - 0.5 * ((n1 + n2) * log(2 * pi) + sum(log(s2))))
 }
 
 # Upper and lower bounds for optim in case the first attempt fails.
