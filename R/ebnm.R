@@ -89,11 +89,11 @@ ebnm <- function(x,
   } else {
     if (!fix_mu || (!is.null(g$mu) && g$mu != 0)) {
       stop("Currently, 'mu' must be fixed at zero for 'point_laplace' ",
-           " priors.")
+           "priors.")
     }
     if (!fixg && ((fix_pi0 && !fix_a) || (fix_a && !fix_pi0))) {
       stop("Currently, 'a' and 'pi0' must either both be fixed or both ",
-           " be unfixed for 'point_laplace' priors.")
+           "be unfixed for 'point_laplace' priors.")
     }
     retlist <- ebnm_point_laplace(x, s, g, fixg, output)
   }
