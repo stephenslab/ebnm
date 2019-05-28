@@ -1,17 +1,21 @@
 #' @importFrom stats pnorm
 #'
-summary_results_point_normal = function(x, s, w, a, mu) {
+summary_results_point_normal = function(x, s, w, a, mu, output) {
   wpost <- wpost_normal(x, s, w, a, mu)
   pmean_cond <- pmean_cond_normal(x, s, a, mu)
   pvar_cond <- pvar_cond_normal(s, a)
 
-  PosteriorMean <- wpost * pmean_cond + (1 - wpost) * mu
-  PosteriorMean2 <- wpost * (pmean_cond^2 + pvar_cond) + (1 - wpost) * (mu^2)
-  LFSR <- (1 - wpost) + wpost * pnorm(0, abs(pmean_cond), sqrt(pvar_cond))
+  res <- list()
+  if ("result" %in% output) {
+    res$PosteriorMean <- wpost * pmean_cond + (1 - wpost) * mu
+    res$PosteriorMean2 <- wpost * (pmean_cond^2 + pvar_cond) + (1 - wpost) * (mu^2)
 
-  return(data.frame(PosteriorMean = PosteriorMean,
-                    PosteriorMean2 = PosteriorMean2,
-                    LFSR = LFSR))
+  }
+  if ("lfsr" %in% output) {
+    res$lfsr <- (1 - wpost) + wpost * pnorm(0, abs(pmean_cond), sqrt(pvar_cond))
+  }
+
+  return(res)
 }
 
 #  Calculate posterior weights for non-null effects.

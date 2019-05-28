@@ -126,8 +126,8 @@ check_args <- function(x, s, g, fixg, output) {
     stop("Invalid choice of g$pi0.")
   }
 
-  if (!all(output %in% c("result", "fitted_g", "loglik", "post_sampler"))) {
+  if (!all(output %in% c("result", "fitted_g", "loglik", "post_sampler", "lfsr"))) {
     stop("Argument 'output' must consist of 'result', 'fitted_g', 'loglik', ",
-         "and/or 'post_sampler'.")
+         "'post_sampler', and/or 'lfsr'.")
   }
 }
