@@ -38,7 +38,7 @@ ebnm_point_normal <- function(x,
     if (fix_pi0 && g$pi0 == 1) {
       g <- mle_point_only(x_optset, s_optset, g, fix_a, fix_mu)
     } else if (fix_pi0 && g$pi0 == 0) {
-      g <- mle_normal(x_optset, s_optset, g, control, fix_a, fix_mu)
+      g <- mle_normal(x_optset, s_optset, g, fix_a, fix_mu)
     } else {
       g <- mle_point_normal(x_optset, s_optset, g, control,
                             fix_pi0, fix_a, fix_mu)
@@ -85,7 +85,6 @@ ebnm_normal <- function(x,
                         fixg = FALSE,
                         fix_a = FALSE,
                         fix_mu = TRUE,
-                        control = NULL,
                         output = NULL) {
   g$pi0 <- 0
   return(ebnm_point_normal(x,
@@ -95,6 +94,6 @@ ebnm_normal <- function(x,
                            fix_pi0 = TRUE,
                            fix_a,
                            fix_mu,
-                           control,
+                           control = NULL,
                            output))
 }

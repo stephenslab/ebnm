@@ -19,7 +19,7 @@ mle_point_only <- function(x, s, g, fix_a, fix_mu) {
 }
 
 # pi0 = 0, so G is the family of normal distributions N(\mu, 1 / a).
-mle_normal <- function(x, s, g, control, fix_a, fix_mu) {
+mle_normal <- function(x, s, g, fix_a, fix_mu) {
   if (fix_a) {
     # If a is fixed, the problem is equivalent to the "point only" problem.
     g <- mle_point_only(x, sqrt(s^2 + 1 / a), g, fix_a, fix_mu)
