@@ -1,6 +1,6 @@
 #' @importFrom stats pnorm
 #'
-summary_results_point_normal = function(x, s, w, a, mu){
+summary_results_point_normal = function(x, s, w, a, mu) {
   wpost <- wpost_normal(x, s, w, a, mu)
   pmean_cond <- pmean_cond_normal(x, s, a, mu)
   pvar_cond <- pvar_cond_normal(s, a)
@@ -16,8 +16,6 @@ summary_results_point_normal = function(x, s, w, a, mu){
 
 #  Calculate posterior weights for non-null effects.
 #
-#' @importFrom stats dnorm
-#'
 wpost_normal <- function(x, s, w, a, mu) {
   if (w == 0) {
     return(rep(0, length(x)))
@@ -27,14 +25,15 @@ wpost_normal <- function(x, s, w, a, mu) {
     return(rep(1, length(x)))
   }
 
-  lg <- dnorm(x, mu, sqrt(s^2 + 1/a), log = TRUE)
-  lf <- dnorm(x, mu, s, log = TRUE)
-  wpost <- w / (w + (1 - w) * exp(lf - lg))
+  llik.diff <- 0.5 * log(1 + 1 / (a * s^2))
+  llik.diff <- llik.diff - 0.5 * (x - mu)^2 / (s^2 * (a * s^2 + 1))
+  wpost <- w / (w + (1 - w) * exp(llik.diff))
 
   if (any(s == 0)) {
     wpost[s == 0 & x == mu] <- 0
     wpost[s == 0 & x != mu] <- 1
   }
+
   if (any(is.infinite(s))) {
     wpost[is.infinite(s)] <- w
   }
@@ -44,7 +43,7 @@ wpost_normal <- function(x, s, w, a, mu) {
 
 # Calculate posterior means for non-null effects.
 pmean_cond_normal <- function(x, s, a, mu) {
-  pm <- (x + (s^2) * a * mu) / (1 + (s^2) * a)
+  pm <- (x + s^2 * a * mu) / (1 + s^2 * a)
 
   if (any(is.infinite(s))) {
     pm[is.infinite(s)] <- mu
