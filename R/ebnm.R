@@ -84,6 +84,7 @@ ebnm <- function(x,
                  g = list(),
                  fixg = FALSE,
                  fix_pi0 = FALSE,
+                 fix_a = FALSE,
                  fix_mu = TRUE,
                  norm = NULL,
                  control = NULL,
@@ -92,12 +93,15 @@ ebnm <- function(x,
 
   if (prior_type == "point_normal") {
     retlist <- ebnm_point_normal(x, s, g, fixg,
-                                 fix_pi0, fix_a = FALSE, fix_mu,
+                                 fix_pi0, fix_a, fix_mu,
                                  control, output)
   } else {
     if (!fix_mu || (!is.null(g$mu) && g$mu != 0)) {
       stop("Currently, 'mu' must be fixed at zero for 'point_laplace' ",
            " priors.")
+    }
+    if (fix_a) {
+      stop("Currently, 'a' cannot be fixed for 'point_laplace' priors.")
     }
     retlist <- ebnm_point_laplace(x, s, g, fixg, output)
   }
