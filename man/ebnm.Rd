@@ -20,7 +20,7 @@ ebnm_point_normal(x, s = 1, g = list(), fixg = FALSE,
   output = NULL)
 
 ebnm_normal(x, s = 1, g = list(), fixg = FALSE, fix_a = FALSE,
-  fix_mu = TRUE, control = NULL, output = NULL)
+  fix_mu = TRUE, output = NULL)
 }
 \arguments{
 \item{x}{A vector of observations.}
