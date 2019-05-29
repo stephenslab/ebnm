@@ -21,9 +21,12 @@ ebnm_point_normal <- function(x,
   if (fix_pi0 && is.null(g$pi0)) {
     stop("Must specify g$pi0 if fix_pi0 = TRUE.")
   }
+  if (fix_a && is.null(g$a)) {
+    stop("Must specify g$a if fix_a = TRUE.")
+  }
   if (!fix_mu && any(s == 0)) {
-    stop("mu cannot be estimated when some SEs are zero (the gradient is ",
-         "not differentiable).")
+    stop("mu cannot be estimated if any SE is zero (the gradient does ",
+         "not exist).")
   }
 
   x_optset <- x
