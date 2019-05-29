@@ -52,7 +52,8 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
                 silent = TRUE)
 
   # TODO: is this necessary?
-  if (inherits(optres, "try-error")) {
+  if (inherits(optres, "try-error") || optres$convergence != 0) {
+    warning("First optimization attempt failed. Retrying with bounds.")
     hilo <- pn_hilo(x, s, fix_pi0, fix_a, fix_mu)
     optres <- optim(startpar, pn_fn, pn_gr,
                     fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
