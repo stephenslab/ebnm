@@ -201,7 +201,7 @@ pn_llik_from_optval <- function(optval, n1, n2, s2) {
   if (length(s2) == 1) {
     sum.log.s2 <- n2 * log(s2)
   } else {
-    sum.log.s2 <- sum(log.s2)
+    sum.log.s2 <- sum(log(s2))
   }
   return(-optval - 0.5 * ((n1 + n2) * log(2 * pi) + sum.log.s2))
 }
