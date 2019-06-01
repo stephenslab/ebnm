@@ -19,13 +19,13 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
   }
 
   if (any(s == 0)) {
-    which.s0 <- which(s == 0)
-    which.x.nz <- which(x[which.s0] != mu)
-    n0 <- length(which.s0) - length(which.x.nz)
-    n1 <- length(which.x.nz)
-    sum1 <- sum((x[which.s0[which.x.nz]] - mu)^2)
-    x <- x[-which.s0]
-    s <- s[-which.s0]
+    which_s0 <- which(s == 0)
+    which_x_nz <- which(x[which_s0] != mu)
+    n0 <- length(which_s0) - length(which_x_nz)
+    n1 <- length(which_x_nz)
+    sum1 <- sum((x[which_s0[which_x_nz]] - mu)^2)
+    x <- x[-which_s0]
+    s <- s[-which_s0]
   } else {
     n0 <- 0
     n1 <- 0
@@ -43,33 +43,11 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
     sum_z <- NULL
   }
 
-  optres <- nlm(nlm_pn_fn, startpar,
+  optres <- nlm(pn_nlm_fn, startpar,
                 fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
                 alpha = alpha, beta = beta, mu = mu,
                 n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
                 x = x, s2 = s2, z = z, sum_z = sum_z)
-
-  # optres <- try(optim(startpar, pn_fn, pn_gr,
-  #                     fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
-  #                     alpha = alpha, beta = beta, mu = mu,
-  #                     n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
-  #                     x = x, s2 = s2, z = z, sum.z = sum.z,
-  #                     method = "L-BFGS-B", control = control),
-  #               silent = TRUE)
-  #
-  # # TODO: is this necessary?
-  # if (inherits(optres, "try-error") || optres$convergence != 0) {
-  #   warning("First optimization attempt failed. Retrying with bounds.")
-  #   hilo <- pn_hilo(x, s, fix_pi0, fix_a, fix_mu)
-  #   optres <- optim(startpar, pn_fn, pn_gr,
-  #                   fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
-  #                   alpha = alpha, beta = beta, mu = mu,
-  #                   n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
-  #                   x = x, s2 = s2, z = z, sum.z = sum.z,
-  #                   method = "L-BFGS-B", control = control,
-  #                   lower = hilo$lo, upper = hilo$hi)
-  # }
-
   retlist <- pn_g_from_optpar(optres$estimate, g, fix_pi0, fix_a, fix_mu)
   retlist$val <- pn_llik_from_optval(optres$minimum, n1, n2, s2)
 
@@ -107,74 +85,6 @@ pn_startpar <- function(x, s, g, fix_pi0, fix_a, fix_mu) {
   return(startpar)
 }
 
-# Negative log likelihood.
-pn_fn <- function(par, fix_pi0, fix_a, fix_mu, alpha, beta, mu,
-                  n0, n1, sum1, n2, x, s2, z, sum.z) {
-  i <- 1
-  if (!fix_pi0) {
-    alpha <- par[i]
-    i <- i + 1
-  }
-  if (!fix_a) {
-    beta <- par[i]
-    i <- i + 1
-  }
-  if (!fix_mu) {
-    mu <- par[i]
-    z <- (x - mu)^2 / s2
-    sum.z <- sum(z)
-  }
-
-  y <- (z / (1 + s2 * exp(-beta)) - log(1 + exp(beta) / s2)) / 2
-  C <- pmax(y, alpha)
-
-  nllik <- n0 * log(1 + exp(-alpha)) + (n1 + n2) * (log(1 + exp(alpha)))
-  nllik <- nllik + n1 * beta / 2 + sum1 * exp(-beta) / 2 + sum.z / 2
-  nllik <- nllik - sum(log(exp(y - C) + exp(alpha - C)) + C)
-
-  return(nllik)
-}
-
-# Gradient of the negative log likelihood.
-pn_gr <- function(par, fix_pi0, fix_a, fix_mu, alpha, beta, mu,
-                  n0, n1, sum1, n2, x, s2, z, sum.z) {
-  i <- 1
-  if (!fix_pi0) {
-    alpha <- par[i]
-    i <- i + 1
-  }
-  if (!fix_a) {
-    beta <- par[i]
-    i <- i + 1
-  }
-  if (!fix_mu) {
-    mu <- par[i]
-    z <- (x - mu)^2 / s2
-  }
-
-  tmp1 <- 1 / (1 + s2 * exp(-beta))
-  tmp2 <- 1 / (1 + exp(beta) / s2)
-  y <- (z * tmp1 + log(tmp2)) / 2
-
-  grad <- numeric(0)
-  if (!fix_pi0) {
-    tmp <- -n0 / (1 + exp(alpha)) + (n1 + n2) / (1 + exp(-alpha))
-    grad <- c(grad, tmp - sum(1 / (1 + exp(y - alpha))))
-  }
-
-  if (!fix_a) {
-    tmp <- n1 / 2 - exp(-beta) * sum1 / 2
-    grad <- c(grad, tmp - sum((z * tmp1 * tmp2 - tmp1) / (1 + exp(alpha - y))) / 2)
-  }
-
-  if (!fix_mu) {
-    tmp <- sum((mu - x) / s2)
-    grad <- c(grad, tmp + sum(tmp1 * (x - mu) / (1 + exp(alpha - y)) / s2))
-  }
-
-  return(grad)
-}
-
 # Pull pi0, a, and mu out of the optimization results.
 pn_g_from_optpar <- function(optpar, g, fix_pi0, fix_a, fix_mu) {
   opt_g <- list()
@@ -203,31 +113,11 @@ pn_g_from_optpar <- function(optpar, g, fix_pi0, fix_a, fix_mu) {
   return(opt_g)
 }
 
-# Upper and lower bounds for optim in case the first attempt fails.
-pn_hilo <- function(x, s, fix_pi0, fix_a, fix_mu) {
-  lo <- numeric(0)
-  hi <- numeric(0)
-
-  if (!fix_pi0) {
-    n <- length(x)
-    lo <- c(lo, log(1 / n))
-    hi <- c(hi, log(n))
+pn_llik_from_optval <- function(optval, n1, n2, s2) {
+  if (length(s2) == 1) {
+    sum.log.s2 <- n2 * log(s2)
+  } else {
+    sum.log.s2 <- sum(log(s2))
   }
-
-  if (!fix_a) {
-    maxvar <- (max(x) - min(x))^2
-    minvar <- (min(s) / 10)^2
-    if (minvar < 1e-8) {
-      minvar <- 1e-8
-    }
-    lo <- c(lo, log(minvar))
-    hi <- c(hi, log(maxvar))
-  }
-
-  if (!fix_mu) {
-    lo <- c(lo, min(x) - 3 * max(s) - 3 * max(abs(x)))
-    hi <- c(hi, max(x) + 3 * max(s) + 3 * max(abs(x)))
-  }
-
-  return(list(lo = lo, hi = hi))
+  return(-optval - 0.5 * ((n1 + n2) * log(2 * pi) + sum.log.s2))
 }
