@@ -37,35 +37,41 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
 
   if (fix_mu) {
     z <- (x - mu)^2 / s2
-    sum.z <- sum(z)
+    sum_z <- sum(z)
   } else {
     z <- NULL
-    sum.z <- NULL
+    sum_z <- NULL
   }
 
-  optres <- try(optim(startpar, pn_fn, pn_gr,
-                      fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
-                      alpha = alpha, beta = beta, mu = mu,
-                      n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
-                      x = x, s2 = s2, z = z, sum.z = sum.z,
-                      method = "L-BFGS-B", control = control),
-                silent = TRUE)
+  optres <- nlm(nlm_pn_fn, startpar,
+                fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
+                alpha = alpha, beta = beta, mu = mu,
+                n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
+                x = x, s2 = s2, z = z, sum_z = sum_z)
 
-  # TODO: is this necessary?
-  if (inherits(optres, "try-error") || optres$convergence != 0) {
-    warning("First optimization attempt failed. Retrying with bounds.")
-    hilo <- pn_hilo(x, s, fix_pi0, fix_a, fix_mu)
-    optres <- optim(startpar, pn_fn, pn_gr,
-                    fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
-                    alpha = alpha, beta = beta, mu = mu,
-                    n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
-                    x = x, s2 = s2, z = z, sum.z = sum.z,
-                    method = "L-BFGS-B", control = control,
-                    lower = hilo$lo, upper = hilo$hi)
-  }
+  # optres <- try(optim(startpar, pn_fn, pn_gr,
+  #                     fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
+  #                     alpha = alpha, beta = beta, mu = mu,
+  #                     n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
+  #                     x = x, s2 = s2, z = z, sum.z = sum.z,
+  #                     method = "L-BFGS-B", control = control),
+  #               silent = TRUE)
+  #
+  # # TODO: is this necessary?
+  # if (inherits(optres, "try-error") || optres$convergence != 0) {
+  #   warning("First optimization attempt failed. Retrying with bounds.")
+  #   hilo <- pn_hilo(x, s, fix_pi0, fix_a, fix_mu)
+  #   optres <- optim(startpar, pn_fn, pn_gr,
+  #                   fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
+  #                   alpha = alpha, beta = beta, mu = mu,
+  #                   n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
+  #                   x = x, s2 = s2, z = z, sum.z = sum.z,
+  #                   method = "L-BFGS-B", control = control,
+  #                   lower = hilo$lo, upper = hilo$hi)
+  # }
 
-  retlist <- pn_g_from_optpar(optres$par, g, fix_pi0, fix_a, fix_mu)
-  retlist$val <- pn_llik_from_optval(optres$value, n1, n2, s2)
+  retlist <- pn_g_from_optpar(optres$estimate, g, fix_pi0, fix_a, fix_mu)
+  retlist$val <- pn_llik_from_optval(optres$minimum, n1, n2, s2)
 
   return(retlist)
 }
@@ -195,15 +201,6 @@ pn_g_from_optpar <- function(optpar, g, fix_pi0, fix_a, fix_mu) {
   }
 
   return(opt_g)
-}
-
-pn_llik_from_optval <- function(optval, n1, n2, s2) {
-  if (length(s2) == 1) {
-    sum.log.s2 <- n2 * log(s2)
-  } else {
-    sum.log.s2 <- sum(log(s2))
-  }
-  return(-optval - 0.5 * ((n1 + n2) * log(2 * pi) + sum.log.s2))
 }
 
 # Upper and lower bounds for optim in case the first attempt fails.
