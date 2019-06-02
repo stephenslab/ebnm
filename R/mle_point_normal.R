@@ -43,11 +43,29 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
     sum_z <- NULL
   }
 
-  optres <- nlm(pn_nlm_fn, startpar,
-                fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
-                alpha = alpha, beta = beta, mu = mu,
-                n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
-                x = x, s2 = s2, z = z, sum_z = sum_z)
+  fn_params <- list(fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
+                    alpha = alpha, beta = beta, mu = mu,
+                    n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
+                    x = x, s2 = s2, z = z, sum_z = sum_z)
+
+  optres <- try(do.call(nlm, c(list(pn_nlm_fn, startpar),
+                               fn_params, list(use_analyticals = TRUE),
+                               control)),
+                silent = TRUE)
+
+  # Sometimes nlm thinks that the gradient is being calculated incorrectly.
+  #   Usually, we're close to a local optimum in such cases. Reducing the
+  #   number of significant digits to 8 (the default is 12) typically solves
+  #   the problem.
+  if (inherits(optres, "try-error")) {
+    control <- modifyList(control, list(ndigit = 8))
+    optres <- do.call(nlm, c(list(pn_nlm_fn, startpar),
+                             fn_params, list(use_analyticals = FALSE),
+                             control))
+  }
+
+  # TODO: is a second fallback needed?
+
   retlist <- pn_g_from_optpar(optres$estimate, g, fix_pi0, fix_a, fix_mu)
   retlist$val <- pn_llik_from_optval(optres$minimum, n1, n2, s2)
 
