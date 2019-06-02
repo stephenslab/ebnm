@@ -9,7 +9,7 @@ ebnm_point_normal <- function(x,
                               fix_pi0 = FALSE,
                               fix_a = FALSE,
                               fix_mu = TRUE,
-                              control = NULL,
+                              control = list(),
                               output = NULL) {
   output <- set_output(output)
   check_args(x, s, g, fixg, output)
@@ -98,6 +98,6 @@ ebnm_normal <- function(x,
                            fix_pi0 = TRUE,
                            fix_a,
                            fix_mu,
-                           control = NULL,
+                           control = list(),
                            output))
 }

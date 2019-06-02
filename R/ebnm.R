@@ -77,7 +77,7 @@ ebnm <- function(x,
                  fix_pi0 = FALSE,
                  fix_a = FALSE,
                  fix_mu = TRUE,
-                 control = NULL,
+                 control = list(),
                  output = NULL) {
   prior_type <- match.arg(prior_type)
 

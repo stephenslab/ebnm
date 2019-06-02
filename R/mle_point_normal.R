@@ -48,9 +48,7 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
                     n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
                     x = x, s2 = s2, z = z, sum_z = sum_z)
 
-  optres <- try(do.call(nlm, c(list(pn_nlm_fn, startpar),
-                               fn_params, list(use_analyticals = TRUE),
-                               control)),
+  optres <- try(do.call(nlm, c(list(pn_nlm_fn, startpar), fn_params, control)),
                 silent = TRUE)
 
   # Sometimes nlm thinks that the gradient is being calculated incorrectly.
@@ -58,10 +56,10 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
   #   number of significant digits to 8 (the default is 12) typically solves
   #   the problem.
   if (inherits(optres, "try-error")) {
+    warning("First optimization attempt failed. Retrying with fewer ",
+            "significant digits.")
     control <- modifyList(control, list(ndigit = 8))
-    optres <- do.call(nlm, c(list(pn_nlm_fn, startpar),
-                             fn_params, list(use_analyticals = FALSE),
-                             control))
+    optres <- do.call(nlm, c(list(pn_nlm_fn, startpar), fn_params, control))
   }
 
   # TODO: is a second fallback needed?

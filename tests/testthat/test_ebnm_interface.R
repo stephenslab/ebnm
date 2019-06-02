@@ -75,6 +75,12 @@ test_that("point_normal works with a and pi0 fixed", {
                tolerance = 0.1)
 })
 
+test_that("control parameter works", {
+  ebnm.res = ebnm(x, s)
+  ebnm.res.ctrl = ebnm(x, s, control = list(ndigit = 12))
+  expect_equal(ebnm.res, ebnm.res.ctrl)
+})
+
 test_that("point_laplace works", {
   ebnm.res = ebnm(x, s, "point_laplace")
   ebnm.pl.res = ebnm_point_laplace(x, s)
