@@ -1,7 +1,7 @@
 context("Point normal sampler")
 
 set.seed(1)
-mu <- c(rep(0, 50), rexp(50))
+mu <- c(rep(0, 25), rexp(25))
 s <- rgamma(50, 1, 1)
 x <- mu + rnorm(50, 0, s)
 
