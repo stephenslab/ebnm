@@ -53,16 +53,21 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
 
   # Sometimes nlm thinks that the gradient is being calculated incorrectly.
   #   Usually, we're close to a local optimum in such cases. Reducing the
-  #   number of significant digits to 8 (the default is 12) typically solves
+  #   number of significant digits to 8 (the default is 12) often solves
   #   the problem.
   if (inherits(optres, "try-error")) {
     warning("First optimization attempt failed. Retrying with fewer ",
             "significant digits.")
     control <- modifyList(control, list(ndigit = 8))
-    optres <- do.call(nlm, c(list(pn_nlm_fn, startpar), fn_params, control))
+    optres <- try(do.call(nlm, c(list(pn_nlm_fn, startpar), fn_params, control)),
+                  silent = TRUE)
   }
 
-  # TODO: is a second fallback needed?
+  if (inherits(optres, "try-error")) {
+    stop("Re-attempt at optimization failed, possibly due to one or more ",
+         "very small standard errors. The smallest nonzero standard error ",
+         "seen during optimization was ", signif(min(s), 2), ".")
+  }
 
   retlist <- pn_g_from_optpar(optres$estimate, g, fix_pi0, fix_a, fix_mu)
   retlist$val <- pn_llik_from_optval(optres$minimum, n1, n2, s2)
