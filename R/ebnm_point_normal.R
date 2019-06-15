@@ -1,78 +1,103 @@
-#' @title Solve the Empirical Bayes Normal Means problem with point-normal prior
-#' @description This function solves the Empirical Bayes Normal Means problem with point-normal prior.
-#'
-#' @details Given vectors of data x, and standard errors s, solve the EBNM problem with "point-normal" prior
-#' That is, the model is $x_j \sim N(\theta_j,s_j^2)$, with $s_j$ given, and $\theta_j \sim g$
-#' where $g$ is a mixture of point mass at 0 and normal distribution: \eqn{pi0 \delta_0 + (1-pi0)N(0,1/a)} where N is the normal
-#' distribution, and (pi0,a) are estimated by marginal maximum likelihood.
-#' @param x a vector of observations
-#' @param s a vector of standard deviations (or scalar if all equal)
-#' @param g The prior distribution (list with elements pi0,a). Usually this is unspecified (NULL) and
-#' estimated from the data. However, it can be used in conjuction with fixg=TRUE
-#' to specify the g to use (e.g. useful in simulations to do computations with the "true" g).
-#' Or, if g is specified but fixg=FALSE, the g specifies the initial value of g used before optimization.
-#' @param fixg If TRUE, don't estimate g but use the specified g.
-#' @param norm normalization factor to divide x and s by before running optimization (should not affect
-#' results, but improves numerical stability when x and s are tiny).
-#' @param output vector of strings indicating what values to be returned.
-#' Options include: "result" (summary results), "fitted_g" (the fitted prior), "loglik", and
-#' "post_sampler" (a function that can be used to produce posterior samples; takes a single
-#' parameter nsamp, the number of posterior samples to return per observation).
-#'
-#' @return a list with elements specified by output parameter
-#' @examples
-#' mu = c(rep(0,1000), rexp(1000)) # means
-#' s = rgamma(2000,1,1) #standard errors
-#' x = mu + rnorm(2000,0,s) # observations
-#' x.ebnm = ebnm_point_normal(x,s)
-#' ashr::get_pm(x.ebnm) # posterior mean
+#' @describeIn ebnm Solve the EBNM problem using a point-normal prior.
 #'
 #' @export
-ebnm_point_normal <- function (x, s=1, g=NULL, fixg=FALSE, norm=mean(s), output=c("result","fitted_g","loglik")) {
-  output = set_output(output)
+#'
+ebnm_point_normal <- function(x,
+                              s = 1,
+                              g = list(),
+                              fixg = FALSE,
+                              fix_pi0 = FALSE,
+                              fix_a = FALSE,
+                              fix_mu = TRUE,
+                              control = NULL,
+                              output = NULL) {
+  output <- set_output(output)
+  check_args(x, s, g, fixg, output)
 
-  if(is.null(g) & fixg){stop("must specify g if fixg=TRUE")}
-  if(!is.null(g) & !fixg){stop("option to intialize from g not yet implemented")}
-
-  if (fixg) {
-    norm = 1 # If g is fixed, don't scale
+  # If mu is fixed but unspecified, fix it at zero.
+  if ((fixg || fix_mu) && is.null(g$mu)) {
+    g$mu <- 0
+  }
+  if (fix_pi0 && is.null(g$pi0)) {
+    stop("Must specify g$pi0 if fix_pi0 = TRUE.")
+  }
+  if (fix_a && is.null(g$a)) {
+    stop("Must specify g$a if fix_a = TRUE.")
+  }
+  if (!fix_mu && any(s == 0)) {
+    stop("mu cannot be estimated if any SE is zero (the gradient does ",
+         "not exist).")
   }
 
-  # Scale for stability, but need to be careful with log-likelihood
-  s <- s/norm
-  x <- x/norm
+  x_optset <- x
+  s_optset <- s
+  # Don't use observations with infinite SEs when estimating g.
+  if (any(is.infinite(s))) {
+    x_optset <- x[is.finite(s)]
+    s_optset <- s[is.finite(s)]
+  }
 
-  # Estimate g from data
+  # Estimate g.
   if (!fixg) {
-    g <- mle_normal_logscale_grad(x, s)
+    if (fix_pi0 && g$pi0 == 1) {
+      g <- mle_point_only(x_optset, s_optset, g, fix_a, fix_mu)
+    } else if (fix_pi0 && g$pi0 == 0) {
+      g <- mle_normal(x_optset, s_optset, g, fix_a, fix_mu)
+    } else {
+      g <- mle_point_normal(x_optset, s_optset, g, control,
+                            fix_pi0, fix_a, fix_mu)
+    }
   }
 
-	w <- 1 - g$pi0
-	a <- g$a
+  w <- 1 - g$pi0
+  a <- g$a
+  mu <- g$mu
 
-	retlist <- list()
-
-	# Compute return values, taking care to adjust results back to original scale
-  if ("result" %in% output) {
-    result <- compute_summary_results_normal(x,s,w,a)
-    result$PosteriorMean <- result$PosteriorMean * norm
-    result$PosteriorMean2 <- result$PosteriorMean2 * norm^2
-    retlist <- c(retlist, list(result=result))
+  retlist <- list()
+  if ("result" %in% output || "lfsr" %in% output) {
+    result <- summary_results_point_normal(x, s, w, a, mu, output)
+    retlist <- c(retlist, list(result = result))
   }
-	if ("fitted_g" %in% output) {
-	  fitted_g = list(pi0 = g$pi0, a = g$a/(norm^2))
-	  retlist <- c(retlist, list(fitted_g=fitted_g))
-	}
-	if ("loglik" %in% output) {
-	  loglik <- loglik_normal(x,s,w,a)
-	  loglik <- loglik - length(x)*log(norm)
-	  retlist <- c(retlist, list(loglik=loglik))
-	}
-	if ("post_sampler" %in% output) {
-	  retlist <- c(retlist, list(post_sampler = function(nsamp) {
-	    norm * post_sampler_normal(x, s, w, a, nsamp)
-	  }))
-	}
+  if ("fitted_g" %in% output) {
+    fitted_g <- list(pi0 = g$pi0, a = g$a, mu = g$mu)
+    retlist <- c(retlist, list(fitted_g = fitted_g))
+  }
+  if ("loglik" %in% output) {
+    if (!fixg) {
+      loglik <- g$val
+    } else {
+      loglik <- loglik_point_normal(x_optset, s_optset, w, a, mu)
+    }
+    retlist <- c(retlist, list(loglik = loglik))
+  }
+  if ("post_sampler" %in% output) {
+    retlist <- c(retlist, list(post_sampler = function(nsamp) {
+      post_sampler_point_normal(x, s, w, a, mu, nsamp)
+    }))
+  }
 
-	return(retlist)
+  return(retlist)
+}
+
+#' @describeIn ebnm Solve the EBNM problem using a normal prior.
+#'
+#' @export
+#'
+ebnm_normal <- function(x,
+                        s = 1,
+                        g = list(),
+                        fixg = FALSE,
+                        fix_a = FALSE,
+                        fix_mu = TRUE,
+                        output = NULL) {
+  g$pi0 <- 0
+  return(ebnm_point_normal(x,
+                           s,
+                           g,
+                           fixg,
+                           fix_pi0 = TRUE,
+                           fix_a,
+                           fix_mu,
+                           control = NULL,
+                           output))
 }
