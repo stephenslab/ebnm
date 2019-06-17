@@ -42,22 +42,18 @@ test_that("Output parameter works", {
 })
 
 test_that("compute_summary_results gives same results as ashr", {
-  pn.res <- ebnm_point_normal(x, s, output = output_all())
-  ash.res <- ashr::ash(x, s, method = "shrink",
-                      g = pn.res$fitted_g,
-                      fixg = TRUE)
+  output <- c("result", "lfsr", "fitted_g")
+  pn.res <- ebnm_point_normal(x, s, output = output)
+  ash.res <- ebnm_ash(x, s, g_init = pn.res$fitted_g, fix_g = TRUE,
+                      output = output, method = "shrink")
 
-  expect_equal(pn.res$result$PosteriorMean,
-               ash.res$result$PosteriorMean,
+  expect_equal(pn.res$result$PosteriorMean, ash.res$result$PosteriorMean,
                tol = 1e-6)
-  expect_equal(pn.res$result$PosteriorMean2,
-               ash.res$result$PosteriorMean^2 + ash.res$result$PosteriorSD^2,
+  expect_equal(pn.res$result$PosteriorMean2, ash.res$result$PosteriorMean2,
                tol = 1e-6)
-  expect_equal(pn.res$result$lfsr,
-               ash.res$result$lfsr,
+  expect_equal(pn.res$result$lfsr, ash.res$result$lfsr,
                tol = 1e-6)
-  expect_equal(pn.res$loglik,
-               ash.res$loglik,
+  expect_equal(pn.res$loglik, ash.res$loglik,
                tol = 1e-6)
 })
 

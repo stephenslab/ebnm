@@ -86,8 +86,10 @@ ebnm <- function(x,
     retlist <- ebnm_point_normal(x, s, g_init, fix_g, output, ...)
   } else if (prior_type == "normal") {
     retlist <- ebnm_normal(x, s, g_init, fix_g, output, ...)
-  } else {
+  } else if (prior_type == "point_laplace") {
     retlist <- ebnm_point_laplace(x, s, g_init, fix_g, output, ...)
+  } else if (prior_type == "ash") {
+    retlist <- ebnm_ash(x, s, g_init, fix_g, output, ...)
   }
 
   return(retlist)
