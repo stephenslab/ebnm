@@ -4,29 +4,92 @@
 #'
 ebnm_point_normal <- function(x,
                               s = 1,
-                              g = list(),
-                              fixg = FALSE,
-                              fix_pi0 = FALSE,
-                              fix_a = FALSE,
-                              fix_mu = TRUE,
-                              control = NULL,
-                              output = NULL) {
-  output <- set_output(output)
-  check_args(x, s, g, fixg, output)
+                              g_init = NULL,
+                              fix_g = FALSE,
+                              output = output_default(),
+                              mode = 0,
+                              sd = "estimate",
+                              control = NULL) {
+  return(ebnm_pn_workhorse(x = x,
+                           s = s,
+                           g_init = g_init,
+                           fix_g = fix_g,
+                           output = output,
+                           mode = mode,
+                           sd = sd,
+                           control = control,
+                           pointmass = TRUE))
+}
 
-  # If mu is fixed but unspecified, fix it at zero.
-  if ((fixg || fix_mu) && is.null(g$mu)) {
-    g$mu <- 0
+# The workhorse function is used by both ebnm_point_normal and ebnm_normal.
+#
+#' @importFrom ashr normalmix
+#'
+ebnm_pn_workhorse <- function(x,
+                              s,
+                              g_init,
+                              fix_g,
+                              output,
+                              mode,
+                              sd,
+                              control,
+                              pointmass) {
+
+  if (!is.null(g_init)) {
+    if (!inherits(g_init, "normalmix")) {
+      stop("g_init must be NULL or an object of class ashr::normalmix.")
+    }
+
+    ncomp <- length(g_init$pi)
+    if ((ncomp == 0) || (ncomp > 2)) {
+      stop("g_init does not have the correct number of components.")
+    }
+    g <- list(pi0 = g_init$pi[1],
+              a = 1 / g_init$sd[ncomp]^2,
+              mu = g_init$mean[1])
+  } else {
+    g <- list()
   }
-  if (fix_pi0 && is.null(g$pi0)) {
-    stop("Must specify g$pi0 if fix_pi0 = TRUE.")
+
+  if (pointmass) {
+    fix_pi0 <- fix_g
+  } else {
+    fix_pi0 <- TRUE
+    g$pi0 <- 0
   }
-  if (fix_a && is.null(g$a)) {
-    stop("Must specify g$a if fix_a = TRUE.")
+
+  # Allow partial matching for mode and sd.
+  if (identical(pmatch(mode, "estimate"), 1L)) {
+    fix_mu <- fix_g
+  } else if (is.numeric(mode) && (length(mode) == 1)) {
+    if (!is.null(g$mu) && !isTRUE(all.equal(g$mu, mode))) {
+      stop("If mode and g_init$mean are both supplied, they must agree.")
+    }
+    fix_mu <- TRUE
+    g$mu <- mode
+  } else {
+    stop("Invalid argument to mode.")
   }
+
   if (!fix_mu && any(s == 0)) {
-    stop("mu cannot be estimated if any SE is zero (the gradient does ",
+    stop("The mode cannot be estimated if any SE is zero (the gradient does ",
          "not exist).")
+  }
+
+  if (identical(pmatch(sd, "estimate"), 1L)) {
+    fix_a <- fix_g
+  } else if (is.numeric(sd) && (length(sd) == 1) && (sd > 0)) {
+    if (!is.null(g$a) && !isTRUE(all.equal(g$a, 1 / sd^2))) {
+      stop("If sd and g_init$sd are both supplied, they must agree.")
+    }
+    fix_a <- TRUE
+    g$a <- 1 / sd^2
+  } else {
+    stop("Invalid argument to sd.")
+  }
+
+  if (fix_pi0 && fix_mu && fix_a) {
+    fix_g <- TRUE
   }
 
   x_optset <- x
@@ -38,38 +101,51 @@ ebnm_point_normal <- function(x,
   }
 
   # Estimate g.
-  if (!fixg) {
+  if (!fix_g) {
     if (fix_pi0 && g$pi0 == 1) {
-      g <- mle_point_only(x_optset, s_optset, g, fix_a, fix_mu)
+      g <- mle_point_only(x_optset, s_optset, g,
+                          fix_a, fix_mu)
     } else if (fix_pi0 && g$pi0 == 0) {
-      g <- mle_normal(x_optset, s_optset, g, fix_a, fix_mu)
+      g <- mle_normal(x_optset, s_optset, g,
+                      fix_a, fix_mu)
     } else {
       g <- mle_point_normal(x_optset, s_optset, g, control,
                             fix_pi0, fix_a, fix_mu)
     }
   }
 
-  w <- 1 - g$pi0
+  pi0 <- g$pi0
+  w <- 1 - pi0
   a <- g$a
   mu <- g$mu
 
   retlist <- list()
+
   if ("result" %in% output || "lfsr" %in% output) {
     result <- summary_results_point_normal(x, s, w, a, mu, output)
     retlist <- c(retlist, list(result = result))
   }
+
   if ("fitted_g" %in% output) {
-    fitted_g <- list(pi0 = g$pi0, a = g$a, mu = g$mu)
+    if (pi0 == 0) {
+      fitted_g <- normalmix(pi = 1, mean = mu, sd = sqrt(1 / a))
+    } else {
+      fitted_g <- normalmix(pi = c(pi0, w),
+                            mean = rep(mu, 2),
+                            sd = c(0, sqrt(1 / a)))
+    }
     retlist <- c(retlist, list(fitted_g = fitted_g))
   }
+
   if ("loglik" %in% output) {
-    if (!fixg) {
+    if (!fix_g) {
       loglik <- g$val
     } else {
       loglik <- loglik_point_normal(x_optset, s_optset, w, a, mu)
     }
     retlist <- c(retlist, list(loglik = loglik))
   }
+
   if ("post_sampler" %in% output) {
     retlist <- c(retlist, list(post_sampler = function(nsamp) {
       post_sampler_point_normal(x, s, w, a, mu, nsamp)
@@ -77,27 +153,4 @@ ebnm_point_normal <- function(x,
   }
 
   return(retlist)
-}
-
-#' @describeIn ebnm Solve the EBNM problem using a normal prior.
-#'
-#' @export
-#'
-ebnm_normal <- function(x,
-                        s = 1,
-                        g = list(),
-                        fixg = FALSE,
-                        fix_a = FALSE,
-                        fix_mu = TRUE,
-                        output = NULL) {
-  g$pi0 <- 0
-  return(ebnm_point_normal(x,
-                           s,
-                           g,
-                           fixg,
-                           fix_pi0 = TRUE,
-                           fix_a,
-                           fix_mu,
-                           control = NULL,
-                           output))
 }

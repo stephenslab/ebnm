@@ -122,4 +122,3 @@ test_that("pn_gr returns correct gradient when some SEs are zero", {
   expect_equal(grad_alpha, -grad_alpha_from_optim)
   expect_equal(grad_beta, -grad_beta_from_optim)
 })
-

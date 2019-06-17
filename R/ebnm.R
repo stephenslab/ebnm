@@ -29,12 +29,12 @@
 #'
 #' @param g The prior distribution (a list with elements \code{pi0}, \code{a},
 #'   and \code{mu}). Usually this is left unspecified and estimated from the
-#'   data. However, it can be used in conjuction with \code{fixg = TRUE} to
+#'   data. However, it can be used in conjuction with \code{fix_g = TRUE} to
 #'   fix the prior (useful, for example, to do computations with the "true"
-#'   \code{g}). If \code{g} is specified but \code{fixg = FALSE}, \code{g}
+#'   \code{g}). If \code{g} is specified but \code{fix_g = FALSE}, \code{g}
 #'   specifies the initial value of \code{g} used during optimization.
 #'
-#' @param fixg If \code{TRUE}, fix \code{g} at the specified value instead of
+#' @param fix_g If \code{TRUE}, fix \code{g} at the specified value instead of
 #'   estimating it. This overrides any settings of parameters \code{fix_pi0},
 #'   \code{fix_a}, and \code{fix_mu}.
 #'
@@ -71,59 +71,53 @@
 #'
 ebnm <- function(x,
                  s = 1,
-                 prior_type = c("point_normal", "point_laplace", "normal"),
-                 g = list(),
-                 fixg = FALSE,
-                 fix_pi0 = FALSE,
-                 fix_a = FALSE,
-                 fix_mu = TRUE,
-                 control = NULL,
-                 output = NULL) {
+                 g_init = NULL,
+                 fix_g = FALSE,
+                 output = output_default(),
+                 prior_type = c("point_normal",
+                                "normal",
+                                "point_laplace",
+                                "ash"),
+                 ...) {
   prior_type <- match.arg(prior_type)
+  check_args(x, s, g_init, fix_g, output)
 
   if (prior_type == "point_normal") {
-    retlist <- ebnm_point_normal(x, s, g, fixg, fix_pi0, fix_a, fix_mu,
-                                 control, output)
+    retlist <- ebnm_point_normal(x, s, g_init, fix_g, output, ...)
   } else if (prior_type == "normal") {
-    retlist <- ebnm_normal(x, s, g, fixg, fix_a, fix_mu, output)
+    retlist <- ebnm_normal(x, s, g_init, fix_g, output, ...)
   } else {
-    if (!fix_mu || (!is.null(g$mu) && g$mu != 0)) {
-      stop("Currently, 'mu' must be fixed at zero for 'point_laplace' ",
-           "priors.")
-    }
-    if (!fixg && ((fix_pi0 && !fix_a) || (fix_a && !fix_pi0))) {
-      stop("Currently, 'a' and 'pi0' must either both be fixed or both ",
-           "be unfixed for 'point_laplace' priors.")
-    }
-    retlist <- ebnm_point_laplace(x, s, g, fixg, output)
+    retlist <- ebnm_point_laplace(x, s, g_init, fix_g, output, ...)
   }
 
   return(retlist)
 }
 
-# Argument checks shared by main exported functions (ebnm, ebnm_point_normal,
-#   and ebnm_point_laplace).
-check_args <- function(x, s, g, fixg, output) {
+output_default <- function() {
+  return(c("result", "fitted_g", "loglik"))
+}
+
+#' @export
+output_all <- function() {
+  return(c("result", "fitted_g", "loglik", "post_sampler", "lfsr"))
+}
+
+check_args <- function(x, s, g_init, fix_g, output) {
   if (!(length(s) %in% c(1, length(x)))) {
     stop("Argument 's' must have either length 1 or the same length as ",
          "argument 'x'.")
   }
+
   if (all(is.infinite(s))) {
     stop("Standard errors cannot all be infinite.")
   }
 
-  if (fixg && (is.null(g$a) || is.null(g$pi0))) {
-    stop("Must specify g$pi0 and g$a if fixg = TRUE.")
-  }
-  if (!is.null(g$a) && (g$a <= 0)) {
-    stop("Invalid choice of g$a.")
-  }
-  if (!is.null(g$pi0) && (g$pi0 < 0 || g$pi0 > 1)) {
-    stop("Invalid choice of g$pi0.")
+  if (fix_g && is.null(g_init)) {
+    stop("If g is fixed, then an initial g must be provided.")
   }
 
-  if (!all(output %in% c("result", "fitted_g", "loglik", "post_sampler", "lfsr"))) {
-    stop("Argument 'output' must consist of 'result', 'fitted_g', 'loglik', ",
-         "'post_sampler', and/or 'lfsr'.")
+  if (!all(output %in% output_all())) {
+    stop("Invalid argument to output. See function output_all() for a list ",
+         "of valid outputs.")
   }
 }

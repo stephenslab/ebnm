@@ -1,83 +1,40 @@
-context("'ebnm' interface function")
+context("Point Laplace")
 
-n = 1000
+n <- 1000
 set.seed(1)
-s = rnorm(n, 1, 0.1)
-x = c(rnorm(n / 2, 0, 10 + s), rnorm(n / 2, 0, s))
+s <- rnorm(n, 1, 0.1)
+x <- c(rexp(n / 2, rate = 0.1), rep(0, n / 2)) + rnorm(n, sd = s)
 
-true_pi0 = 0.5
-true_a = 0.01
-true_mu = 0
+true_pi0 <- 0.5
+true_scale <- 10
+true_g <- laplacemix(pi = c(true_pi0, 1 - true_pi0),
+                     mean = rep(0, 2),
+                     scale = c(0, true_scale))
 
-test_that("point_normal works with nothing fixed", {
-  ebnm.res = ebnm(x, s, "point_normal", fix_mu = FALSE)
-  ebnm.pn.res = ebnm_point_normal(x, s, fix_mu = FALSE)
-  expect_equal(ebnm.res, ebnm.pn.res)
-  expect_equal(ebnm.res$fitted_g, list(pi0 = true_pi0, a = true_a, mu = true_mu),
-               tolerance = 0.1)
+test_that("Basic functionality works", {
+  pl.res <- ebnm(x, s, prior_type = "point_laplace")
+  pl.res2 <- ebnm_point_laplace(x, s)
+  expect_identical(pl.res, pl.res2)
+  expect_equal(pl.res$fitted_g, true_g, tolerance = 0.1)
 })
 
-test_that("point_normal works with pi0 fixed", {
-  ebnm.res = ebnm(x, s, "point_normal", g = list(pi0 = true_pi0),
-                  fix_pi0 = TRUE, fix_mu = FALSE)
-  ebnm.pn.res = ebnm_point_normal(x, s, g = list(pi0 = true_pi0),
-                                  fix_pi0 = TRUE, fix_mu = FALSE)
-  expect_equal(ebnm.res, ebnm.pn.res)
-  expect_equal(ebnm.res$fitted_g, list(pi0 = true_pi0, a = true_a, mu = true_mu),
-               tolerance = 0.1)
+test_that("Fixing g works", {
+  pl.res <- ebnm_point_laplace(x, s, g_init = true_g, fix_g = TRUE)
+  expect_identical(pl.res$fitted_g, true_g)
 })
 
-test_that("point_normal works with pi0 fixed", {
-  ebnm.res = ebnm(x, s, "point_normal", g = list(a = true_a),
-                  fix_a = TRUE, fix_mu = FALSE)
-  ebnm.pn.res = ebnm_point_normal(x, s, g = list(a = true_a),
-                                  fix_a = TRUE, fix_mu = FALSE)
-  expect_equal(ebnm.res, ebnm.pn.res)
-  expect_equal(ebnm.res$fitted_g, list(pi0 = true_pi0, a = true_a, mu = true_mu),
-               tolerance = 0.1)
+test_that("Output parameter works", {
+  pl.res <- ebnm_point_laplace(x, s, output = "fitted_g")
+  expect_identical(names(pl.res), "fitted_g")
 })
 
-test_that("point_normal works with mu fixed", {
-  ebnm.res = ebnm(x, s, "point_normal")
-  ebnm.pn.res = ebnm_point_normal(x, s)
-  expect_equal(ebnm.res, ebnm.pn.res)
-  expect_equal(ebnm.res$fitted_g, list(pi0 = true_pi0, a = true_a, mu = true_mu),
-               tolerance = 0.1)
-})
+test_that("Infinite and zero SEs give expected results", {
+  x <- c(rep(0, 5), rep(1, 5))
+  s <- rep(1, 10)
+  s[6] <- 0
 
-test_that("point_normal works with pi0 and mu fixed", {
-  ebnm.res = ebnm(x, s, "point_normal", g = list(pi0 = true_pi0, mu = true_mu),
-                  fix_pi0 = TRUE, fix_mu = TRUE)
-  ebnm.pn.res = ebnm_point_normal(x, s, g = list(pi0 = true_pi0, mu = true_mu),
-                                  fix_pi0 = TRUE, fix_mu = TRUE)
-  expect_equal(ebnm.res, ebnm.pn.res)
-  expect_equal(ebnm.res$fitted_g, list(pi0 = true_pi0, a = true_a, mu = true_mu),
-               tolerance = 0.1)
-})
+  pl.res <- ebnm_point_laplace(x, s)
 
-test_that("point_normal works with a and mu fixed", {
-  ebnm.res = ebnm(x, s, "point_normal", g = list(a = true_a, mu = true_mu),
-                  fix_a = TRUE, fix_mu = TRUE)
-  ebnm.pn.res = ebnm_point_normal(x, s, g = list(a = true_a, mu = true_mu),
-                                  fix_a = TRUE, fix_mu = TRUE)
-  expect_equal(ebnm.res, ebnm.pn.res)
-  expect_equal(ebnm.res$fitted_g, list(pi0 = true_pi0, a = true_a, mu = true_mu),
-               tolerance = 0.1)
-})
-
-test_that("point_normal works with a and pi0 fixed", {
-  ebnm.res = ebnm(x, s, "point_normal", g = list(a = true_a, pi0 = true_pi0),
-                  fix_a = TRUE, fix_pi0 = TRUE, fix_mu = FALSE)
-  ebnm.pn.res = ebnm_point_normal(x, s, g = list(a = true_a, pi0 = true_pi0),
-                                  fix_a = TRUE, fix_pi0 = TRUE, fix_mu = FALSE)
-  expect_equal(ebnm.res, ebnm.pn.res)
-  expect_equal(ebnm.res$fitted_g, list(pi0 = true_pi0, a = true_a, mu = true_mu),
-               tolerance = 0.1)
-})
-
-test_that("point_laplace works", {
-  ebnm.res = ebnm(x, s, "point_laplace")
-  ebnm.pl.res = ebnm_point_laplace(x, s)
-  ebnm.pl.res$fitted_g$mu = 0 # have to manually add this for test.
-  expect_equal(ebnm.res, ebnm.pl.res)
+  expect_equal(pl.res$result$PosteriorMean[6], x[6])
+  expect_equal(pl.res$result$PosteriorMean2[6], x[6]^2)
 })
