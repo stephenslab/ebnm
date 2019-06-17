@@ -1,5 +1,7 @@
 #' @describeIn ebnm Solve the EBNM problem using an ash prior.
 #'
+#' @importFrom ashr ash
+#'
 #' @export
 #'
 ebnm_ash = function(x,
@@ -14,12 +16,12 @@ ebnm_ash = function(x,
     ash_output <- c(ash_output, "PosteriorMean", "PosteriorSD")
   }
 
-  res <- ashr::ash(betahat = as.vector(x),
-                   sebetahat = as.vector(s),
-                   g = g_init,
-                   fixg = fix_g,
-                   outputlevel = ash_output,
-                   ...)
+  res <- ash(betahat = as.vector(x),
+             sebetahat = as.vector(s),
+             g = g_init,
+             fixg = fix_g,
+             outputlevel = ash_output,
+             ...)
 
   if ("result" %in% output) {
     res$result$betahat <- NULL

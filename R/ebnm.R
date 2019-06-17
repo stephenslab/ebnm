@@ -1,7 +1,7 @@
 #' Solve the EBNM problem
 #'
-#' Solves the Empirical Bayes Normal Means problem using a point-normal,
-#'   point-laplace, or normal prior.
+#' Solves the Empirical Bayes Normal Means problem using a specified class of
+#'   priors.
 #'
 #' @details Given vectors of data \code{x} and standard errors \code{s},
 #'   solve the EBNM problem with a point-normal or point-laplace prior. The
@@ -17,36 +17,18 @@
 #'
 #' @param s A vector of standard deviations (or a scalar if all are equal).
 #'
-#' @param prior_type The type of prior to estimate. Options include:
-#'   \describe{
-#'     \item{\code{"point_normal"}}{Prior is a mixture of a point mass and a
-#'       normal distribution.}
-#'     \item{\code{"point_laplace"}}{Prior is a mixture of a point mass and a
-#'       laplace distribution.}
-#'     \item{\code{"normal"}}{Prior is a normal distribution (with no point
-#'       mass).}
-#'   }
-#'
-#' @param g The prior distribution (a list with elements \code{pi0}, \code{a},
-#'   and \code{mu}). Usually this is left unspecified and estimated from the
-#'   data. However, it can be used in conjuction with \code{fix_g = TRUE} to
-#'   fix the prior (useful, for example, to do computations with the "true"
-#'   \code{g}). If \code{g} is specified but \code{fix_g = FALSE}, \code{g}
-#'   specifies the initial value of \code{g} used during optimization.
+#' @param g_init The prior distribution. Usually this is left unspecified and
+#'   estimated from the data. However, it can be used in conjuction with
+#'   \code{fix_g = TRUE} to fix the prior (useful, for example, to do
+#'   computations with the "true" \code{g}). If \code{g_init} is specified but
+#'   \code{fix_g = FALSE}, \code{g_init} specifies the initial value of \code{g}
+#'   used during optimization.
 #'
 #' @param fix_g If \code{TRUE}, fix \code{g} at the specified value instead of
-#'   estimating it. This overrides any settings of parameters \code{fix_pi0},
-#'   \code{fix_a}, and \code{fix_mu}.
-#'
-#' @param fix_pi0,fix_a,fix_mu For a point-normal prior, any combination of
-#'   \code{pi0}, \code{a}, and \code{mu} can be fixed. This functionality has
-#'   not yet been implemented for the point-laplace prior.
-#'
-#' @param control A list of control parameters to be passed to \code{optim}.
+#'   estimating it.
 #'
 #' @param output A character vector indicating which values are to be returned.
-#'   Default values are set by function \code{ebnm:::set_output}. Options
-#'   include:
+#'   Options include:
 #'     \describe{
 #'       \item{\code{"result"}}{Summary results (posterior means
 #'         \eqn{E \theta_j} and posterior values of \eqn{E \theta_j^2}).}
@@ -60,12 +42,14 @@
 #'       \item{\code{"lfsr"}}{A vector of local false sign rates.}
 #'      }
 #'
+#' @param prior_type The type of prior to estimate. See "Functions" below.
+#'
 #' @examples
 #' theta <- c(rep(0, 1000), rexp(1000)) # means
 #' s <- rgamma(2000, 1, 1) # standard errors
 #' x <- theta + rnorm(2000, 0, s) # observations
-#' x.ebnm <- ebnm(x, s, "point_normal")
-#' pm <- x.ebnm$PosteriorMean
+#' x.ebnm <- ebnm_point_normal(x, s)
+#' pm <- x.ebnm$result$PosteriorMean
 #'
 #' @export
 #'
@@ -95,6 +79,7 @@ ebnm <- function(x,
   return(retlist)
 }
 
+#' @export
 output_default <- function() {
   return(c("result", "fitted_g", "loglik"))
 }
