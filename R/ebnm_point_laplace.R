@@ -4,10 +4,19 @@
 #'
 ebnm_point_laplace <- function (x,
                                 s = 1,
+                                mode = 0,
+                                scale = "estimate",
                                 g_init = NULL,
                                 fix_g = FALSE,
                                 output = output_default()) {
 
+  if (mode != 0) {
+    stop("Option to estimate mode not yet implemented for 'point_laplace' ",
+         "priors.")
+  }
+  if (!identical(pmatch(scale, "estimate"), 1L)) {
+    stop("Option to fix scale not yet implemented for 'point_laplace' priors.")
+  }
   if (!is.null(g_init) && !fix_g) {
     stop("Option to intialize from g not yet implemented for 'point_laplace' ",
          "priors.")

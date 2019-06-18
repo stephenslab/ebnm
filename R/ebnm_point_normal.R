@@ -6,19 +6,19 @@
 #'
 ebnm_point_normal <- function(x,
                               s = 1,
+                              mode = 0,
+                              scale = "estimate",
                               g_init = NULL,
                               fix_g = FALSE,
                               output = output_default(),
-                              mode = 0,
-                              sd = "estimate",
                               control = NULL) {
   return(ebnm_pn_workhorse(x = x,
                            s = s,
+                           mode = mode,
+                           scale = scale,
                            g_init = g_init,
                            fix_g = fix_g,
                            output = output,
-                           mode = mode,
-                           sd = sd,
                            control = control,
                            pointmass = TRUE))
 }
@@ -33,7 +33,7 @@ ebnm_pn_workhorse <- function(x,
                               fix_g,
                               output,
                               mode,
-                              sd,
+                              scale,
                               control,
                               pointmass) {
 
@@ -60,7 +60,7 @@ ebnm_pn_workhorse <- function(x,
     g$pi0 <- 0
   }
 
-  # Allow partial matching for mode and sd.
+  # Allow partial matching for mode and scale.
   if (identical(pmatch(mode, "estimate"), 1L)) {
     fix_mu <- fix_g
   } else if (is.numeric(mode) && (length(mode) == 1)) {
@@ -79,16 +79,16 @@ ebnm_pn_workhorse <- function(x,
          "not exist).")
   }
 
-  if (identical(pmatch(sd, "estimate"), 1L)) {
+  if (identical(pmatch(scale, "estimate"), 1L)) {
     fix_a <- fix_g
-  } else if (is.numeric(sd) && (length(sd) == 1) && (sd > 0)) {
-    if (!is.null(g$a) && !isTRUE(all.equal(g$a, 1 / sd^2))) {
-      stop("If sd and g_init$sd are both supplied, they must agree.")
+  } else if (is.numeric(scale) && (length(scale) == 1) && (scale > 0)) {
+    if (!is.null(g$a) && !isTRUE(all.equal(g$a, 1 / scale^2))) {
+      stop("If scale and g_init$sd are both supplied, they must agree.")
     }
     fix_a <- TRUE
-    g$a <- 1 / sd^2
+    g$a <- 1 / scale^2
   } else {
-    stop("Invalid argument to sd.")
+    stop("Invalid argument to scale.")
   }
 
   if (fix_pi0 && fix_mu && fix_a) {

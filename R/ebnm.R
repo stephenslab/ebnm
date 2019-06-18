@@ -55,6 +55,8 @@
 #'
 ebnm <- function(x,
                  s = 1,
+                 mode = 0,
+                 scale = "estimate",
                  g_init = NULL,
                  fix_g = FALSE,
                  output = output_default(),
@@ -67,13 +69,13 @@ ebnm <- function(x,
   check_args(x, s, g_init, fix_g, output)
 
   if (prior_type == "point_normal") {
-    retlist <- ebnm_point_normal(x, s, g_init, fix_g, output, ...)
+    retlist <- ebnm_point_normal(x, s, mode, scale, g_init, fix_g, output, ...)
   } else if (prior_type == "normal") {
-    retlist <- ebnm_normal(x, s, g_init, fix_g, output, ...)
+    retlist <- ebnm_normal(x, s, mode, scale, g_init, fix_g, output, ...)
   } else if (prior_type == "point_laplace") {
-    retlist <- ebnm_point_laplace(x, s, g_init, fix_g, output, ...)
+    retlist <- ebnm_point_laplace(x, s, mode, scale, g_init, fix_g, output, ...)
   } else if (prior_type == "ash") {
-    retlist <- ebnm_ash(x, s, g_init, fix_g, output, ...)
+    retlist <- ebnm_ash(x, s, mode, scale, g_init, fix_g, output, ...)
   }
 
   return(retlist)

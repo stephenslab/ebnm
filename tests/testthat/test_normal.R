@@ -23,7 +23,7 @@ test_that("Mode estimation works", {
 })
 
 test_that("Fixing the sd works", {
-  norm.res <- ebnm_normal(x, s, sd = true_sd)
+  norm.res <- ebnm_normal(x, s, scale = true_sd)
   expect_equal(norm.res$fitted_g, true_g, tolerance = 0.1)
   expect_identical(norm.res$fitted_g$sd, true_sd)
 })

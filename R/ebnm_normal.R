@@ -4,18 +4,18 @@
 #'
 ebnm_normal <- function(x,
                         s = 1,
+                        mode = 0,
+                        scale = "estimate",
                         g_init = NULL,
                         fix_g = FALSE,
-                        output = output_default(),
-                        mode = 0,
-                        sd = "estimate") {
+                        output = output_default()) {
   return(ebnm_pn_workhorse(x = x,
                            s = s,
+                           mode = mode,
+                           scale = scale,
                            g_init = g_init,
                            fix_g = fix_g,
                            output = output,
-                           mode = mode,
-                           sd = sd,
                            control = NULL,
                            pointmass = FALSE))
 }

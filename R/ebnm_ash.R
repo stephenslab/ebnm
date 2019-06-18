@@ -6,6 +6,8 @@
 #'
 ebnm_ash = function(x,
                     s = 1,
+                    mode = 0,
+                    scale = "estimate",
                     g_init = NULL,
                     fix_g = FALSE,
                     output = output_default(),
@@ -16,12 +18,28 @@ ebnm_ash = function(x,
     ash_output <- c(ash_output, "PosteriorMean", "PosteriorSD")
   }
 
-  ash.res <- ash(betahat = as.vector(x),
-                 sebetahat = as.vector(s),
-                 g = g_init,
-                 fixg = fix_g,
-                 outputlevel = ash_output,
-                 ...)
+  ash_args <- list(betahat = as.vector(x),
+                   sebetahat = as.vector(s),
+                   mode = mode,
+                   mixsd = scale,
+                   g = g_init,
+                   fixg = fix_g,
+                   outputlevel = ash_output,
+                   ...)
+
+  # When g_init is used, mode and mixsd must be removed from args or else they
+  #   will throw errors when ashr checks arguments.
+  if (missing(mode)) {
+    ash_args$mode <- NULL
+  }
+  if (missing(scale)) {
+    ash_args$mixsd <- NULL
+  }
+  if (missing(g_init)) {
+    ash_args$g <- NULL
+  }
+
+  ash.res <- do.call(ash, ash_args)
 
   res <- list()
 

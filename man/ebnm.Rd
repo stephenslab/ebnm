@@ -9,21 +9,21 @@
 \alias{ebnm_point_normal}
 \title{Solve the EBNM problem}
 \usage{
-ebnm(x, s = 1, g_init = NULL, fix_g = FALSE,
-  output = output_default(), prior_type = c("point_normal", "normal",
-  "point_laplace", "ash"), ...)
+ebnm(x, s = 1, mode = 0, scale = "estimate", g_init = NULL,
+  fix_g = FALSE, output = output_default(),
+  prior_type = c("point_normal", "normal", "point_laplace", "ash"), ...)
 
 ebnm_ash(x, s = 1, g_init = NULL, fix_g = FALSE,
   output = output_default(), ...)
 
-ebnm_normal(x, s = 1, g_init = NULL, fix_g = FALSE,
-  output = output_default(), mode = 0, sd = "estimate")
+ebnm_normal(x, s = 1, mode = 0, scale = "estimate", g_init = NULL,
+  fix_g = FALSE, output = output_default())
 
-ebnm_point_laplace(x, s = 1, g_init = NULL, fix_g = FALSE,
-  output = output_default())
+ebnm_point_laplace(x, s = 1, mode = 0, scale = "estimate",
+  g_init = NULL, fix_g = FALSE, output = output_default())
 
-ebnm_point_normal(x, s = 1, g_init = NULL, fix_g = FALSE,
-  output = output_default(), mode = 0, sd = "estimate",
+ebnm_point_normal(x, s = 1, mode = 0, scale = "estimate",
+  g_init = NULL, fix_g = FALSE, output = output_default(),
   control = NULL)
 }
 \arguments{
