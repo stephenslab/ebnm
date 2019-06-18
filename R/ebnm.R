@@ -3,7 +3,9 @@
 #' Solves the Empirical Bayes Normal Means problem using a specified class of
 #'   priors.
 #'
-#' @details Given vectors of data \code{x} and standard errors \code{s},
+#' @details TODO: update me.
+#'
+#' Given vectors of data \code{x} and standard errors \code{s},
 #'   solve the EBNM problem with a point-normal or point-laplace prior. The
 #'   model is \deqn{x_j \sim N(\theta_j, s_j^2),} where \eqn{s_j} are given and
 #'   \eqn{\theta_j \sim g}, with \eqn{g} either a mixture of a point mass at
@@ -16,6 +18,15 @@
 #' @param x A vector of observations.
 #'
 #' @param s A vector of standard deviations (or a scalar if all are equal).
+#'
+#' @param mode The location of the mode for the class of priors. Set to
+#'   "estimate" to estimate it from the data.
+#'
+#' @param scale Fixes the scale of the prior. Corresponds to the standard
+#'   deviation of the normal component for normal and point-normal
+#'   distributions; the rate parameter of the Laplace component for
+#'   point-Laplace distributions; and parameter \code{mixsd} for adaptive
+#'   shrinkage priors. Set to "estimate" to estimate it from the data.
 #'
 #' @param g_init The prior distribution. Usually this is left unspecified and
 #'   estimated from the data. However, it can be used in conjuction with
@@ -34,15 +45,15 @@
 #'         \eqn{E \theta_j} and posterior values of \eqn{E \theta_j^2}).}
 #'       \item{\code{"fitted_g"}}{The fitted prior (a list with elements
 #'         \code{pi0}, \code{a}, and \code{mu}).}
+#'       \item{\code{"lfsr"}}{A vector of local false sign rates.}
 #'       \item{\code{"loglik"}}{The optimal log likelihood attained.}
 #'       \item{\code{"post_sampler"}}{A function that can be used to produce
 #'         samples from the posterior. It takes a single parameter
 #'         \code{nsamp}, the number of posterior samples to return per
 #'         observation.}
-#'       \item{\code{"lfsr"}}{A vector of local false sign rates.}
 #'      }
 #'
-#' @param prior_type The type of prior to estimate. See "Functions" below.
+#' @param prior_type The type of prior to estimate. See "Details" below.
 #'
 #' @examples
 #' theta <- c(rep(0, 1000), rexp(1000)) # means
