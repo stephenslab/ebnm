@@ -10,6 +10,6 @@ res <- ebnm_point_normal(x, s,
 samp <- res$post_sampler(1000)
 
 test_that("point-normal sampler gives reasonable results", {
-  expect_equal(colMeans(samp), res$result$PosteriorMean, tol = 0.1)
-  expect_equal(colMeans(samp^2), res$result$PosteriorMean2, tol = 0.1)
+  expect_equal(colMeans(samp), res$result$posterior_mean, tol = 0.1)
+  expect_equal(colMeans(samp^2), res$result$posterior_mean2, tol = 0.1)
 })

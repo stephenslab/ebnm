@@ -3,14 +3,14 @@
 compute_summary_results_laplace = function(x,s,w,a){
   wpost <- wpost_laplace(x,s,w,a)
   l=lambda(x,s,a)
-  PosteriorMean = wpost* (l * my_etruncnorm(0,Inf,x-s^2*a,s) + (1-l)*my_etruncnorm(-Inf,0,x+s^2*a,s))
-  PosteriorMean2 = wpost* (l * my_e2truncnorm(0,Inf,x-s^2*a,s) + (1-l)*my_e2truncnorm(-Inf,0,x+s^2*a,s))
-  return(data.frame(PosteriorMean=PosteriorMean,PosteriorMean2=PosteriorMean2))
+  posterior_mean = wpost* (l * my_etruncnorm(0,Inf,x-s^2*a,s) + (1-l)*my_etruncnorm(-Inf,0,x+s^2*a,s))
+  posterior_mean2 = wpost* (l * my_e2truncnorm(0,Inf,x-s^2*a,s) + (1-l)*my_e2truncnorm(-Inf,0,x+s^2*a,s))
+  return(data.frame(posterior_mean=posterior_mean,posterior_mean2=posterior_mean2))
 }
 
 #
 #  Calculate the posterior weight for non-zero effect
-#  
+#
 #' @importFrom stats dnorm
 wpost_laplace <- function(x, s, w, a)
 {

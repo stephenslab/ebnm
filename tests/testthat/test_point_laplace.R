@@ -35,6 +35,6 @@ test_that("Infinite and zero SEs give expected results", {
 
   pl.res <- ebnm_point_laplace(x, s)
 
-  expect_equal(pl.res$result$PosteriorMean[6], x[6])
-  expect_equal(pl.res$result$PosteriorMean2[6], x[6]^2)
+  expect_equal(pl.res$result$posterior_mean[6], x[6])
+  expect_equal(pl.res$result$posterior_mean2[6], x[6]^2)
 })

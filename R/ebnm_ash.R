@@ -16,23 +16,38 @@ ebnm_ash = function(x,
     ash_output <- c(ash_output, "PosteriorMean", "PosteriorSD")
   }
 
-  res <- ash(betahat = as.vector(x),
-             sebetahat = as.vector(s),
-             g = g_init,
-             fixg = fix_g,
-             outputlevel = ash_output,
-             ...)
+  ash.res <- ash(betahat = as.vector(x),
+                 sebetahat = as.vector(s),
+                 g = g_init,
+                 fixg = fix_g,
+                 outputlevel = ash_output,
+                 ...)
 
-  if ("result" %in% output) {
-    res$result$betahat <- NULL
-    res$result$sebetahat <- NULL
-    psd <- res$result$PosteriorSD
-    res$result$PosteriorSD <- NULL
-    res$result$PosteriorMean2 <- res$result$PosteriorMean^2 + psd^2
+  res <- list()
+
+  if ("result" %in% output || "lfsr" %in% output) {
+    res$result <- list()
+    if ("result" %in% output) {
+      pm <- ash.res$result$PosteriorMean
+      res$result$posterior_mean <- pm
+      res$result$posterior_mean2 <- pm^2 + ash.res$result$PosteriorSD^2
+    }
+    if ("lfsr" %in% output) {
+      res$result$lfsr <- ash.res$result$lfsr
+    }
+    res$result <- data.frame(res$result)
   }
 
-  if (!is.null(res$result)) {
-    res$result <- as.list(res$result)
+  if ("fitted_g" %in% output) {
+    res$fitted_g <- ash.res$fitted_g
+  }
+
+  if ("loglik" %in% output) {
+    res$loglik <- ash.res$loglik
+  }
+
+  if ("post_sampler" %in% output) {
+    res$post_sampler <- ash.res$post_sampler
   }
 
   return(res)

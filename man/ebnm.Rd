@@ -91,6 +91,6 @@ theta <- c(rep(0, 1000), rexp(1000)) # means
 s <- rgamma(2000, 1, 1) # standard errors
 x <- theta + rnorm(2000, 0, s) # observations
 x.ebnm <- ebnm_point_normal(x, s)
-pm <- x.ebnm$result$PosteriorMean
+pm <- x.ebnm$result$posterior_mean
 
 }

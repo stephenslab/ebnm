@@ -47,9 +47,9 @@ test_that("compute_summary_results gives same results as ashr", {
   ash.res <- ebnm_ash(x, s, g_init = pn.res$fitted_g, fix_g = TRUE,
                       output = output, method = "shrink")
 
-  expect_equal(pn.res$result$PosteriorMean, ash.res$result$PosteriorMean,
+  expect_equal(pn.res$result$posterior_mean, ash.res$result$posterior_mean,
                tol = 1e-6)
-  expect_equal(pn.res$result$PosteriorMean2, ash.res$result$PosteriorMean2,
+  expect_equal(pn.res$result$posterior_mean2, ash.res$result$posterior_mean2,
                tol = 1e-6)
   expect_equal(pn.res$result$lfsr, ash.res$result$lfsr,
                tol = 1e-6)
@@ -65,10 +65,10 @@ test_that("Infinite and zero SEs give expected results", {
 
   pn.res <- ebnm_point_normal(x, s)
 
-  expect_equal(pn.res$result$PosteriorMean[6], x[6])
-  expect_equal(pn.res$result$PosteriorMean2[6], x[6]^2)
-  expect_equal(pn.res$result$PosteriorMean[10], 0)
-  expect_equal(pn.res$result$PosteriorMean2[10],
+  expect_equal(pn.res$result$posterior_mean[6], x[6])
+  expect_equal(pn.res$result$posterior_mean2[6], x[6]^2)
+  expect_equal(pn.res$result$posterior_mean[10], 0)
+  expect_equal(pn.res$result$posterior_mean2[10],
                pn.res$fitted_g$sd[2]^2 * pn.res$fitted_g$pi[2])
 
   # Should get an error if mu is not fixed.

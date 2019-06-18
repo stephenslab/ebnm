@@ -64,6 +64,7 @@ ebnm_pn_workhorse <- function(x,
   if (identical(pmatch(mode, "estimate"), 1L)) {
     fix_mu <- fix_g
   } else if (is.numeric(mode) && (length(mode) == 1)) {
+    # Use all.equal to allow for numerical error.
     if (!is.null(g$mu) && !isTRUE(all.equal(g$mu, mode))) {
       stop("If mode and g_init$mean are both supplied, they must agree.")
     }
