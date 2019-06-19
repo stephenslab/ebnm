@@ -92,16 +92,6 @@ ebnm <- function(x,
   return(retlist)
 }
 
-#' @export
-output_default <- function() {
-  return(c("result", "fitted_g", "loglik"))
-}
-
-#' @export
-output_all <- function() {
-  return(c("result", "fitted_g", "loglik", "post_sampler", "lfsr"))
-}
-
 check_args <- function(x, s, g_init, fix_g, output) {
   if (!(length(s) %in% c(1, length(x)))) {
     stop("Argument 's' must have either length 1 or the same length as ",

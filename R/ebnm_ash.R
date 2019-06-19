@@ -1,4 +1,4 @@
-#' @describeIn ebnm Solve the EBNM problem using an ash prior.
+#' @describeIn ebnm Solves the EBNM problem using an ash prior.
 #'
 #' @importFrom ashr ash
 #'

@@ -1,4 +1,4 @@
-#' @describeIn ebnm Solve the EBNM problem using a normal prior.
+#' @describeIn ebnm Solves the EBNM problem using a normal prior.
 #'
 #' @export
 #'
