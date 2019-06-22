@@ -13,33 +13,41 @@ ebnm_ash = function(x,
                     output = output_default(),
                     ...) {
   ash_output <- output
+
   if ("result" %in% output) {
     ash_output <- setdiff(ash_output, "result")
     ash_output <- c(ash_output, "PosteriorMean", "PosteriorSD")
   }
 
-  ash_args <- list(betahat = as.vector(x),
+  # Ash will accept either mode and mixsd or g, but not both.
+  if (is.null(g_init)) {
+    if (identical(pmatch(mode, "estimate"), 1L)) {
+      mode <- "estimate"
+    }
+    if (identical(pmatch(scale, "estimate"), 1L)) {
+      scale <- NULL
+    }
+
+    ash.res <- ash(betahat = as.vector(x),
                    sebetahat = as.vector(s),
                    mode = mode,
                    mixsd = scale,
+                   fixg = fix_g,
+                   outputlevel = ash_output,
+                   ...)
+  } else {
+    if ((!missing(mode) && !is.null(mode))
+        || (!missing(scale) && !is.null(scale))) {
+      warning("mode and scale parameters are ignored when g_init is supplied.")
+    }
+
+    ash.res <- ash(betahat = as.vector(x),
+                   sebetahat = as.vector(s),
                    g = g_init,
                    fixg = fix_g,
                    outputlevel = ash_output,
                    ...)
-
-  # When g_init is used, mode and mixsd must be removed from args or else they
-  #   will throw errors when ashr checks arguments.
-  if (missing(mode)) {
-    ash_args$mode <- NULL
   }
-  if (missing(scale)) {
-    ash_args$mixsd <- NULL
-  }
-  if (missing(g_init)) {
-    ash_args$g <- NULL
-  }
-
-  ash.res <- do.call(ash, ash_args)
 
   res <- list()
 
