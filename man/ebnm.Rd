@@ -73,6 +73,9 @@ Options include:
 
 \item{prior_type}{The type of prior to estimate. See "Details" below.}
 
+\item{...}{Additional parameters to be passed along. \code{ebnm_ash} passes
+these parameters to \code{ashr::ash}.}
+
 \item{control}{A list of control parameters to be passed to \code{optim}.}
 }
 \description{

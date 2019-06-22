@@ -55,6 +55,9 @@
 #'
 #' @param prior_type The type of prior to estimate. See "Details" below.
 #'
+#' @param ... Additional parameters to be passed along. \code{ebnm_ash} passes
+#'   these parameters to \code{ashr::ash}.
+#'
 #' @examples
 #' theta <- c(rep(0, 1000), rexp(1000)) # means
 #' s <- rgamma(2000, 1, 1) # standard errors
