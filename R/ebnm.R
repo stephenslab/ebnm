@@ -55,8 +55,8 @@
 #'
 #' @param prior_type The type of prior to estimate. See "Details" below.
 #'
-#' @param ... Additional parameters to be passed along. \code{ebnm_ash} passes
-#'   these parameters to \code{ashr::ash}.
+#' @param ... Additional parameters to be passed along. All \code{ashr} prior
+#'   types pass these parameters to \code{ashr::ash}.
 #'
 #' @examples
 #' theta <- c(rep(0, 1000), rexp(1000)) # means
@@ -75,8 +75,13 @@ ebnm <- function(x,
                  fix_g = FALSE,
                  output = output_default(),
                  prior_type = c("point_normal",
-                                "normal",
                                 "point_laplace",
+                                "normal",
+                                "normal_scale_mixture",
+                                "unimodal",
+                                "unimodal_symmetric",
+                                "unimodal_nonnegative",
+                                "unimodal_nonpositive",
                                 "ash"),
                  ...) {
   prior_type <- match.arg(prior_type)
@@ -84,10 +89,29 @@ ebnm <- function(x,
 
   if (prior_type == "point_normal") {
     retlist <- ebnm_point_normal(x, s, mode, scale, g_init, fix_g, output, ...)
-  } else if (prior_type == "normal") {
-    retlist <- ebnm_normal(x, s, mode, scale, g_init, fix_g, output, ...)
   } else if (prior_type == "point_laplace") {
     retlist <- ebnm_point_laplace(x, s, mode, scale, g_init, fix_g, output, ...)
+  } else if (prior_type == "normal") {
+    retlist <- ebnm_normal(x, s, mode, scale, g_init, fix_g, output, ...)
+  } else if (prior_type == "normal_scale_mixture") {
+    retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
+                                  call = match.call(),
+                                  mixcompdist = "normal", ...)
+  } else if (prior_type == "unimodal") {
+    retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
+                                  call = match.call(),
+                                  mixcompdist = "halfuniform", ...)
+  } else if (prior_type == "unimodal_symmetric") {
+    retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
+                                  call = match.call(), ...)
+  } else if (prior_type == "unimodal_nonnegative") {
+    retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
+                                  call = match.call(),
+                                  mixcompdist = "+uniform", ...)
+  } else if (prior_type == "unimodal_nonpositive") {
+    retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
+                                  call = match.call(),
+                                  mixcompdist = "-uniform", ...)
   } else if (prior_type == "ash") {
     retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
                                   call = match.call(), ...)
