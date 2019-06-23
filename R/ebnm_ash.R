@@ -1,17 +1,39 @@
 #' @describeIn ebnm Solves the EBNM problem using an ash prior.
 #'
-#' @importFrom ashr ash
-#'
 #' @export
 #'
-ebnm_ash = function(x,
-                    s = 1,
-                    mode = 0,
-                    scale = "estimate",
-                    g_init = NULL,
-                    fix_g = FALSE,
-                    output = output_default(),
-                    ...) {
+ebnm_ash <- function(x,
+                     s = 1,
+                     mode = 0,
+                     scale = "estimate",
+                     g_init = NULL,
+                     fix_g = FALSE,
+                     output = output_default(),
+                     ...) {
+  return(ebnm_ash_workhorse(x = x,
+                            s = s,
+                            mode = mode,
+                            scale = scale,
+                            g_init = g_init,
+                            fix_g = fix_g,
+                            output = output,
+                            call = match.call(),
+                            ...))
+}
+
+# The workhorse function is used by all ebnm functions that call into ashr.
+#
+#' @importFrom ashr ash
+#'
+ebnm_ash_workhorse <- function(x,
+                               s,
+                               mode,
+                               scale,
+                               g_init,
+                               fix_g,
+                               output,
+                               call,
+                               ...) {
   ash_output <- output
 
   if ("result" %in% output) {
@@ -36,8 +58,7 @@ ebnm_ash = function(x,
                    outputlevel = ash_output,
                    ...)
   } else {
-    if ((!missing(mode) && !is.null(mode))
-        || (!missing(scale) && !is.null(scale))) {
+    if (!is.null(call$mode) || !is.null(call$scale)) {
       warning("mode and scale parameters are ignored when g_init is supplied.")
     }
 

@@ -89,17 +89,8 @@ ebnm <- function(x,
   } else if (prior_type == "point_laplace") {
     retlist <- ebnm_point_laplace(x, s, mode, scale, g_init, fix_g, output, ...)
   } else if (prior_type == "ash") {
-    # Ash will accept either mode and mixsd or g, but not both.
-    if (!is.null(g_init)) {
-      if ((!missing(mode) && !is.null(mode))
-          || (!missing(scale) && !is.null(scale))) {
-        warning("mode and scale parameters are ignored when g_init is supplied.")
-      }
-      mode <- NULL
-      scale <- NULL
-    }
-
-    retlist <- ebnm_ash(x, s, mode, scale, g_init, fix_g, output, ...)
+    retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
+                                  call = match.call(), ...)
   }
 
   return(retlist)
