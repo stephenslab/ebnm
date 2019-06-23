@@ -1,30 +1,53 @@
-#' @describeIn ebnm Solve the EBNM problem using a point-laplace prior.
+#' @describeIn ebnm Solves the EBNM problem using a point-laplace prior.
 #'
 #' @export
 #'
-ebnm_point_laplace <- function (x, s=1, g=list(), fixg=FALSE, output=NULL) {
-  output <- set_output(output)
-  check_args(x, s, g, fixg, output)
+ebnm_point_laplace <- function (x,
+                                s = 1,
+                                mode = 0,
+                                scale = "estimate",
+                                g_init = NULL,
+                                fix_g = FALSE,
+                                output = output_default()) {
 
-  if (!fixg && (length(g) > 0)) {
+  if (mode != 0) {
+    stop("Option to estimate mode not yet implemented for 'point_laplace' ",
+         "priors.")
+  }
+  if (!identical(pmatch(scale, "estimate"), 1L)) {
+    stop("Option to fix scale not yet implemented for 'point_laplace' priors.")
+  }
+  if (!is.null(g_init) && !fix_g) {
     stop("Option to intialize from g not yet implemented for 'point_laplace' ",
          "priors.")
   }
   if ("post_sampler" %in% output) {
-    stop("Posterior sampler not yet implemented for 'point-laplace' priors.")
+    stop("Posterior sampler not yet implemented for 'point_laplace' priors.")
+  }
+  if (any(is.infinite(s))) {
+    stop("Infinite SEs not yet implemented for 'point_laplace' priors.")
+  }
+  if (any(s == 0)) {
+    stop("Zero SEs not yet implemented for 'point_laplace' priors.")
   }
 
-  #could consider making more stable this way? But might have to be careful with log-likelihood
-  #m_sdev <- mean(s)
-  #s <- s/m_sdev
-  #x <- x/m_sdev
+  # TODO: could consider making more stable this way? But might have to be
+  #   careful with log-likelihood.
+  # m_sdev <- mean(s)
+  # s <- s / m_sdev
+  # x <- x / m_sdev
 
   # Estimate g from data
-  if (!fixg) {
-    g <- mle_laplace(x, s)
+  if (!fix_g) {
+    g <- mle_point_laplace(x, s)
+  } else {
+    if (!inherits(g_init, "laplacemix")) {
+      stop("g_init must be NULL or an object of class laplacemix.")
+    }
+    g <- list(pi0 = g_init$pi[1], a = 1 / g_init$scale[2])
   }
-  g$mu <- 0
 
+  pi0 <- g$pi0
 	w <- 1 - g$pi0
 	a <- g$a
 
@@ -32,18 +55,28 @@ ebnm_point_laplace <- function (x, s=1, g=list(), fixg=FALSE, output=NULL) {
 
 	# Compute return values
 	if ("result" %in% output) {
-	  result <- compute_summary_results_laplace(x, s, w, a)
-	  #postmean <- postmean * m_sdev
-	  #postmean2 <- postmean2 * m_sdev^2
+	  result <- summary_results_point_laplace(x, s, w, a)
 	  retlist <- c(retlist, list(result = result))
 	}
 	if ("fitted_g" %in% output) {
-	  retlist <- c(retlist, list(fitted_g = g))
+	  retlist <- c(retlist,
+	               list(fitted_g = laplacemix(pi = c(pi0, w),
+	                                          mean = rep(0, 2),
+	                                          scale = c(0, 1 / a))))
 	}
 	if ("loglik" %in% output) {
-	  loglik <- loglik_laplace(x, s, w, a)
+	  if (fix_g) {
+	    loglik <- loglik_point_laplace(x, s, w, a)
+	  } else {
+	    loglik <- -g$val
+	  }
 	  retlist <- c(retlist, list(loglik = loglik))
 	}
 
 	return(retlist)
+}
+
+# Constructor for laplacemix class.
+laplacemix <- function(pi, mean, scale) {
+  structure(data.frame(pi, mean, scale), class="laplacemix")
 }

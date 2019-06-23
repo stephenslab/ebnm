@@ -19,10 +19,11 @@ mle_point_only <- function(x, s, g, fix_a, fix_mu) {
 }
 
 # pi0 = 0, so G is the family of normal distributions N(\mu, 1 / a).
+#' @importFrom stats optimize
 mle_normal <- function(x, s, g, fix_a, fix_mu) {
   if (fix_a) {
     # If a is fixed, the problem is equivalent to the "point only" problem.
-    g <- mle_point_only(x, sqrt(s^2 + 1 / a), g, fix_a, fix_mu)
+    g <- mle_point_only(x, sqrt(s^2 + 1 / g$a), g, fix_a, fix_mu)
   } else if (length(s) == 1) {
     # If all SEs are identical, the solution has a simple closed form.
     if (!fix_mu) {
