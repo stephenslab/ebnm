@@ -107,11 +107,9 @@ ebnm_pn_workhorse <- function(x,
   # Estimate g.
   if (!fix_g) {
     if (fix_pi0 && g$pi0 == 1) {
-      g <- mle_point_only(x_optset, s_optset, g,
-                          fix_a, fix_mu)
+      g <- mle_point_only(x_optset, s_optset, g, fix_a, fix_mu)
     } else if (fix_pi0 && g$pi0 == 0) {
-      g <- mle_normal(x_optset, s_optset, g,
-                      fix_a, fix_mu)
+      g <- mle_normal(x_optset, s_optset, g, fix_a, fix_mu)
     } else {
       g <- mle_point_normal(x_optset, s_optset, g, control,
                             fix_pi0, fix_a, fix_mu)

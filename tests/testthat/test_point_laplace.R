@@ -27,14 +27,3 @@ test_that("Output parameter works", {
   pl.res <- ebnm_point_laplace(x, s, output = "fitted_g")
   expect_identical(names(pl.res), "fitted_g")
 })
-
-test_that("Infinite and zero SEs give expected results", {
-  x <- c(rep(0, 5), rep(1, 5))
-  s <- rep(1, 10)
-  s[6] <- 0
-
-  pl.res <- ebnm_point_laplace(x, s)
-
-  expect_equal(pl.res$result$posterior_mean[6], x[6])
-  expect_equal(pl.res$result$posterior_mean2[6], x[6]^2)
-})

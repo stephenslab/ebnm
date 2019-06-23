@@ -27,16 +27,19 @@ ebnm_point_laplace <- function (x,
   if (any(is.infinite(s))) {
     stop("Infinite SEs not yet implemented for 'point_laplace' priors.")
   }
+  if (any(s == 0)) {
+    stop("Zero SEs not yet implemented for 'point_laplace' priors.")
+  }
 
   # TODO: could consider making more stable this way? But might have to be
   #   careful with log-likelihood.
   # m_sdev <- mean(s)
-  # s <- s/m_sdev
-  # x <- x/m_sdev
+  # s <- s / m_sdev
+  # x <- x / m_sdev
 
   # Estimate g from data
   if (!fix_g) {
-    g <- mle_laplace(x, s)
+    g <- mle_point_laplace(x, s)
   } else {
     if (!inherits(g_init, "laplacemix")) {
       stop("g_init must be NULL or an object of class laplacemix.")
@@ -52,9 +55,7 @@ ebnm_point_laplace <- function (x,
 
 	# Compute return values
 	if ("result" %in% output) {
-	  result <- compute_summary_results_laplace(x, s, w, a)
-	  # postmean <- postmean * m_sdev
-	  # postmean2 <- postmean2 * m_sdev^2
+	  result <- summary_results_point_laplace(x, s, w, a)
 	  retlist <- c(retlist, list(result = result))
 	}
 	if ("fitted_g" %in% output) {
@@ -65,7 +66,7 @@ ebnm_point_laplace <- function (x,
 	}
 	if ("loglik" %in% output) {
 	  if (fix_g) {
-	    loglik <- loglik_laplace(x, s, w, a)
+	    loglik <- loglik_point_laplace(x, s, w, a)
 	  } else {
 	    loglik <- -g$val
 	  }

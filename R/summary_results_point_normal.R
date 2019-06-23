@@ -45,6 +45,7 @@ wpost_normal <- function(x, s, w, a, mu) {
 }
 
 # Calculate posterior means for non-null effects.
+#
 pmean_cond_normal <- function(x, s, a, mu) {
   pm <- (x + s^2 * a * mu) / (1 + s^2 * a)
 
@@ -56,6 +57,7 @@ pmean_cond_normal <- function(x, s, a, mu) {
 }
 
 # Calculate posterior variances for non-null effects.
+#
 pvar_cond_normal <- function(s, a) {
   pvar_cond <- s^2 / (1 + s^2 * a)
 
