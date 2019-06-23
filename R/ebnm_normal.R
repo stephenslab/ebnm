@@ -1,4 +1,5 @@
-#' @describeIn ebnm Solves the EBNM problem using a normal prior.
+#' @describeIn ebnm Solves the EBNM problem using a normal prior (with no
+#'   point mass).
 #'
 #' @export
 #'

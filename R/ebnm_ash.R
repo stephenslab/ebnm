@@ -1,4 +1,5 @@
-#' @describeIn ebnm Solves the EBNM problem using an ash prior.
+#' @describeIn ebnm A generic function for solving the EBNM problem using an
+#'   adaptive shrinkage (ash) prior.
 #'
 #' @export
 #'

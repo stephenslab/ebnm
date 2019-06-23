@@ -1,6 +1,7 @@
 #' @describeIn ebnm Solves the EBNM problem using a point-normal prior.
 #'
-#' @param control A list of control parameters to be passed to \code{optim}.
+#' @param control A list of control parameters to be passed to the optimization
+#'   function.
 #'
 #' @export
 #'

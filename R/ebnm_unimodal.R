@@ -1,4 +1,4 @@
-#' @describeIn ebnm Solves the EBNM problem using a mixture of half-uniforms.
+#' @describeIn ebnm Solves the EBNM problem using a unimodal distribution.
 #'
 #' @export
 #'
@@ -22,7 +22,8 @@ ebnm_unimodal <- function(x,
                             ...))
 }
 
-#' @describeIn ebnm Solves the EBNM problem using a mixture of uniforms.
+#' @describeIn ebnm Solves the EBNM problem using a symmetric unimodal
+#'   distribution.
 #'
 #' @export
 #'
@@ -46,7 +47,8 @@ ebnm_unimodal_symmetric <- function(x,
                             ...))
 }
 
-#' @describeIn ebnm Solves the EBNM problem using a +uniform mixture.
+#' @describeIn ebnm Solves the EBNM problem using a unimodal distribution with
+#'   support constrained to be greater than the mode.
 #'
 #' @export
 #'
@@ -70,7 +72,8 @@ ebnm_unimodal_nonnegative <- function(x,
                             ...))
 }
 
-#' @describeIn ebnm Solves the EBNM problem using a -uniform mixture.
+#' @describeIn ebnm Solves the EBNM problem using a unimodal distribution with
+#'   support constrained to be less than the mode.
 #'
 #' @export
 #'

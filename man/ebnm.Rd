@@ -60,14 +60,15 @@ output_all()
 
 \item{s}{A vector of standard deviations (or a scalar if all are equal).}
 
-\item{mode}{The location of the mode for the class of priors. Set to
-"estimate" to estimate it from the data.}
+\item{mode}{Fixes the location of the prior mode. Set to "estimate" to
+estimate it from the data.}
 
 \item{scale}{Fixes the scale of the prior. Corresponds to the standard
 deviation of the normal component for normal and point-normal
 distributions; the rate parameter of the Laplace component for
 point-Laplace distributions; and parameter \code{mixsd} for adaptive
-shrinkage priors. Set to "estimate" to estimate it from the data.}
+shrinkage priors (see \code{\link[ashr]{ash}}). Set to "estimate" to
+estimate it from the data.}
 
 \item{g_init}{The prior distribution. Usually this is left unspecified and
 estimated from the data. However, it can be used in conjuction with
@@ -82,27 +83,28 @@ estimating it.}
 \item{output}{A character vector indicating which values are to be returned.
 Options include:
   \describe{
-    \item{\code{"result"}}{Summary results (posterior means
-      \eqn{E \theta_j} and posterior values of \eqn{E \theta_j^2}).}
-    \item{\code{"fitted_g"}}{The fitted prior (a list with elements
-      \code{pi0}, \code{a}, and \code{mu}).}
-    \item{\code{"lfsr"}}{A vector of local false sign rates.}
+    \item{\code{"result"}}{Summary results (posterior first and second
+      moments).}
+    \item{\code{"fitted_g"}}{The fitted prior.}
     \item{\code{"loglik"}}{The optimal log likelihood attained.}
+    \item{\code{"lfsr"}}{A vector of local false sign rates.}
     \item{\code{"post_sampler"}}{A function that can be used to produce
       samples from the posterior. It takes a single parameter
       \code{nsamp}, the number of posterior samples to return per
       observation.}
    }}
 
-\item{prior_type}{The type of prior to estimate. See "Details" below.}
+\item{prior_type}{The class of distributions from which the prior is to be
+estimated. See "Details" below.}
 
-\item{...}{Additional parameters to be passed along. All \code{ashr} prior
-types pass these parameters to \code{ashr::ash}.}
+\item{...}{Additional parameters. All \code{ashr} prior types pass these
+parameters to \code{ashr::ash}.}
 
-\item{control}{A list of control parameters to be passed to \code{optim}.}
+\item{control}{A list of control parameters to be passed to the optimization
+function.}
 }
 \description{
-Solves the Empirical Bayes Normal Means problem using a specified class of
+Solves the empirical Bayes normal means problem using a specified class of
   priors.
 }
 \details{
@@ -120,9 +122,11 @@ Given vectors of data \code{x} and standard errors \code{s},
 }
 \section{Functions}{
 \itemize{
-\item \code{ebnm_ash}: Solves the EBNM problem using an ash prior.
+\item \code{ebnm_ash}: A generic function for solving the EBNM problem using an
+adaptive shrinkage (ash) prior.
 
-\item \code{ebnm_normal}: Solves the EBNM problem using a normal prior.
+\item \code{ebnm_normal}: Solves the EBNM problem using a normal prior (with no
+point mass).
 
 \item \code{ebnm_normal_scale_mixture}: Solves the EBNM problem using a scale mixture of normals.
 
@@ -130,13 +134,16 @@ Given vectors of data \code{x} and standard errors \code{s},
 
 \item \code{ebnm_point_normal}: Solves the EBNM problem using a point-normal prior.
 
-\item \code{ebnm_unimodal}: Solves the EBNM problem using a mixture of half-uniforms.
+\item \code{ebnm_unimodal}: Solves the EBNM problem using a unimodal distribution.
 
-\item \code{ebnm_unimodal_symmetric}: Solves the EBNM problem using a mixture of uniforms.
+\item \code{ebnm_unimodal_symmetric}: Solves the EBNM problem using a symmetric unimodal
+distribution.
 
-\item \code{ebnm_unimodal_nonnegative}: Solves the EBNM problem using a +uniform mixture.
+\item \code{ebnm_unimodal_nonnegative}: Solves the EBNM problem using a unimodal distribution with
+support constrained to be greater than the mode.
 
-\item \code{ebnm_unimodal_nonpositive}: Solves the EBNM problem using a -uniform mixture.
+\item \code{ebnm_unimodal_nonpositive}: Solves the EBNM problem using a unimodal distribution with
+support constrained to be less than the mode.
 
 \item \code{output_default}: Defines the default return values.
 

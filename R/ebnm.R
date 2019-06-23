@@ -1,6 +1,6 @@
 #' Solve the EBNM problem
 #'
-#' Solves the Empirical Bayes Normal Means problem using a specified class of
+#' Solves the empirical Bayes normal means problem using a specified class of
 #'   priors.
 #'
 #' @details TODO: update me.
@@ -19,14 +19,15 @@
 #'
 #' @param s A vector of standard deviations (or a scalar if all are equal).
 #'
-#' @param mode The location of the mode for the class of priors. Set to
-#'   "estimate" to estimate it from the data.
+#' @param mode Fixes the location of the prior mode. Set to "estimate" to
+#'   estimate it from the data.
 #'
 #' @param scale Fixes the scale of the prior. Corresponds to the standard
 #'   deviation of the normal component for normal and point-normal
 #'   distributions; the rate parameter of the Laplace component for
 #'   point-Laplace distributions; and parameter \code{mixsd} for adaptive
-#'   shrinkage priors. Set to "estimate" to estimate it from the data.
+#'   shrinkage priors (see \code{\link[ashr]{ash}}). Set to "estimate" to
+#'   estimate it from the data.
 #'
 #' @param g_init The prior distribution. Usually this is left unspecified and
 #'   estimated from the data. However, it can be used in conjuction with
@@ -41,22 +42,22 @@
 #' @param output A character vector indicating which values are to be returned.
 #'   Options include:
 #'     \describe{
-#'       \item{\code{"result"}}{Summary results (posterior means
-#'         \eqn{E \theta_j} and posterior values of \eqn{E \theta_j^2}).}
-#'       \item{\code{"fitted_g"}}{The fitted prior (a list with elements
-#'         \code{pi0}, \code{a}, and \code{mu}).}
-#'       \item{\code{"lfsr"}}{A vector of local false sign rates.}
+#'       \item{\code{"result"}}{Summary results (posterior first and second
+#'         moments).}
+#'       \item{\code{"fitted_g"}}{The fitted prior.}
 #'       \item{\code{"loglik"}}{The optimal log likelihood attained.}
+#'       \item{\code{"lfsr"}}{A vector of local false sign rates.}
 #'       \item{\code{"post_sampler"}}{A function that can be used to produce
 #'         samples from the posterior. It takes a single parameter
 #'         \code{nsamp}, the number of posterior samples to return per
 #'         observation.}
 #'      }
 #'
-#' @param prior_type The type of prior to estimate. See "Details" below.
+#' @param prior_type The class of distributions from which the prior is to be
+#'   estimated. See "Details" below.
 #'
-#' @param ... Additional parameters to be passed along. All \code{ashr} prior
-#'   types pass these parameters to \code{ashr::ash}.
+#' @param ... Additional parameters. All \code{ashr} prior types pass these
+#'   parameters to \code{ashr::ash}.
 #'
 #' @examples
 #' theta <- c(rep(0, 1000), rexp(1000)) # means
