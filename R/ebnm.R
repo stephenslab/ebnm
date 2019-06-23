@@ -104,6 +104,7 @@ ebnm <- function(x,
                                   mixcompdist = "halfuniform", ...)
   } else if (prior_type == "unimodal_symmetric") {
     retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
+                                  mixcompdist = "uniform",
                                   call = match.call(), ...)
   } else if (prior_type == "unimodal_nonnegative") {
     retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
