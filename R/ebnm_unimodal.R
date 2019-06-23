@@ -42,6 +42,7 @@ ebnm_unimodal_symmetric <- function(x,
                             fix_g = fix_g,
                             output = output,
                             call = match.call(),
+                            mixcompdist = "uniform",
                             ...))
 }
 
