@@ -134,9 +134,9 @@ Given vectors of data \code{x} and standard errors \code{s},
 
 \item \code{ebnm_unimodal_symmetric}: Solves the EBNM problem using a mixture of uniforms.
 
-\item \code{ebnm_unimodal_nonnegative}: Solves the EBNM problem using a uniform+ mixture.
+\item \code{ebnm_unimodal_nonnegative}: Solves the EBNM problem using a +uniform mixture.
 
-\item \code{ebnm_unimodal_nonpositive}: Solves the EBNM problem using a uniform- mixture.
+\item \code{ebnm_unimodal_nonpositive}: Solves the EBNM problem using a -uniform mixture.
 
 \item \code{output_default}: Defines the default return values.
 

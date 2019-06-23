@@ -45,7 +45,7 @@ ebnm_unimodal_symmetric <- function(x,
                             ...))
 }
 
-#' @describeIn ebnm Solves the EBNM problem using a uniform+ mixture.
+#' @describeIn ebnm Solves the EBNM problem using a +uniform mixture.
 #'
 #' @export
 #'
@@ -69,7 +69,7 @@ ebnm_unimodal_nonnegative <- function(x,
                             ...))
 }
 
-#' @describeIn ebnm Solves the EBNM problem using a uniform- mixture.
+#' @describeIn ebnm Solves the EBNM problem using a -uniform mixture.
 #'
 #' @export
 #'
