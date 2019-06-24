@@ -37,7 +37,7 @@ test_that("Initializing g works", {
 })
 
 test_that("Output parameter works", {
-  pl.res <- ebnm_point_laplace(x, s, output = "fitted_g")
+  pl.res <- ebnm_point_laplace(x, s, output = c("fitted_g"))
   expect_identical(names(pl.res), "fitted_g")
 })
 
@@ -47,11 +47,13 @@ test_that("Infinite and zero SEs give expected results", {
   # s[6] <- 0
   s[10] <- Inf
 
-  pn.res <- ebnm_point_laplace(x, s)
+  pn.res <- ebnm_point_laplace(x, s, output = output_all())
 
   # expect_equal(pn.res$result$posterior_mean[6], x[6])
   # expect_equal(pn.res$result$posterior_mean2[6], x[6]^2)
   expect_equal(pn.res$result$posterior_mean[10], 0)
   expect_equal(pn.res$result$posterior_mean2[10],
                2 * pn.res$fitted_g$scale[2]^2 * pn.res$fitted_g$pi[2])
+  expect_equal(pn.res$result$lfsr[10],
+               pn.res$fitted_g$pi[1] + pn.res$fitted_g$pi[2] / 2)
 })

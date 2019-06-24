@@ -20,10 +20,6 @@ ebnm_point_laplace <- function (x,
          "'point_laplace' priors.")
   }
 
-  if ("lfsr" %in% output) {
-    stop("Calculation of lfsr not yet implemented for 'point_laplace' priors.")
-  }
-
   if (!is.null(g_init)) {
     if (!inherits(g_init, "laplacemix")) {
       stop("g_init must be NULL or an object of class laplacemix.")
@@ -79,8 +75,8 @@ ebnm_point_laplace <- function (x,
 
 	retlist <- list()
 
-	if ("result" %in% output) {
-	  result <- summary_results_point_laplace(x, s, w, a)
+	if ("result" %in% output || "lfsr" %in% output) {
+	  result <- summary_results_point_laplace(x, s, w, a, output)
 	  retlist <- c(retlist, list(result = result))
 	}
 
