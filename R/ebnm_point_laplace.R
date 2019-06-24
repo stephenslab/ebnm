@@ -16,10 +16,6 @@ ebnm_point_laplace <- function (x,
   if (!identical(pmatch(scale, "estimate"), 1L)) {
     stop("Option to fix scale not yet implemented for 'point_laplace' priors.")
   }
-  if (!is.null(g_init) && !fix_g) {
-    stop("Option to intialize from g not yet implemented for 'point_laplace' ",
-         "priors.")
-  }
   if (any(is.infinite(s))) {
     stop("Infinite SEs not yet implemented for 'point_laplace' priors.")
   }
@@ -27,15 +23,23 @@ ebnm_point_laplace <- function (x,
     stop("Zero SEs not yet implemented for 'point_laplace' priors.")
   }
 
-  # TODO: could consider making more stable this way? But might have to be
-  #   careful with log-likelihood.
-  # m_sdev <- mean(s)
-  # s <- s / m_sdev
-  # x <- x / m_sdev
+  if (!is.null(g_init)) {
+    if (!inherits(g_init, "laplacemix")) {
+      stop("g_init must be NULL or an object of class laplacemix.")
+    }
 
-  # Estimate g from data
+    ncomp <- length(g_init$pi)
+    if (ncomp != 2) {
+      stop("g_init does not have the correct number of components.")
+    }
+    g <- list(pi0 = g_init$pi[1],
+              a = 1 / g_init$scale[2])
+  } else {
+    g <- list()
+  }
+
   if (!fix_g) {
-    g <- mle_point_laplace(x, s)
+    g <- mle_point_laplace(x, s, g)
   } else {
     if (!inherits(g_init, "laplacemix")) {
       stop("g_init must be NULL or an object of class laplacemix.")

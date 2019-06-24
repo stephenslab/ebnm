@@ -21,8 +21,13 @@ test_that("Basic functionality works", {
 
 test_that("Fixing g works", {
   pl.res2 <- ebnm_point_laplace(x, s, g_init = pl.res$fitted_g, fix_g = TRUE)
-  expect_identical(pl.res2$fitted_g, pl.res$fitted_g)
-  expect_equal(pl.res2$loglik, pl.res$loglik)
+  expect_identical(pl.res$fitted_g, pl.res2$fitted_g)
+  expect_equal(pl.res$loglik, pl.res2$loglik)
+})
+
+test_that("Initializing g works", {
+  pl.res2 <- ebnm_point_laplace(x, s, g_init = true_g)
+  expect_equal(pl.res$loglik, pl.res2$loglik)
 })
 
 test_that("Output parameter works", {

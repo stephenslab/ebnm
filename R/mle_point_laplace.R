@@ -2,8 +2,8 @@
 #
 #' @importFrom stats optim
 #'
-mle_point_laplace <- function(x, s, startpar = NULL, control = NULL) {
-  startpar <- pl_startpar(x, s)
+mle_point_laplace <- function(x, s, g, control = NULL) {
+  startpar <- pl_startpar(x, s, g)
 
   lf <- -0.5 * log(2 * pi * s^2) - 0.5 * x^2 / s^2
 
@@ -33,9 +33,22 @@ mle_point_laplace <- function(x, s, startpar = NULL, control = NULL) {
 }
 
 # Initial values.
-pl_startpar <- function(x, s) {
-  # Defaults for -logit(pi0) and log(a).
-  return(c(0, -log(mean(x^2))))
+pl_startpar <- function(x, s, g) {
+  startpar <- numeric(0)
+
+  if (!is.null(g$pi0) && g$pi0 > 0 && g$pi0 < 1) {
+    startpar <- c(startpar, log(1 / g$pi0 - 1))
+  } else {
+    startpar <- c(startpar, 0) # default for -logit(pi0)
+  }
+
+  if (!is.null(g$a)) {
+    startpar <- c(startpar, log(g$a))
+  } else {
+    startpar <- c(startpar, -0.5 * log(mean(x^2) / 2)) # default for log(a)
+  }
+
+  return(startpar)
 }
 
 pl_g_from_optpar <- function(par) {
