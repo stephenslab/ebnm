@@ -9,7 +9,6 @@ ebnm_point_laplace <- function (x,
                                 g_init = NULL,
                                 fix_g = FALSE,
                                 output = output_default()) {
-
   if (mode != 0) {
     stop("Option to estimate mode not yet implemented for 'point_laplace' ",
          "priors.")
@@ -20,9 +19,6 @@ ebnm_point_laplace <- function (x,
   if (!is.null(g_init) && !fix_g) {
     stop("Option to intialize from g not yet implemented for 'point_laplace' ",
          "priors.")
-  }
-  if ("post_sampler" %in% output) {
-    stop("Posterior sampler not yet implemented for 'point_laplace' priors.")
   }
   if (any(is.infinite(s))) {
     stop("Infinite SEs not yet implemented for 'point_laplace' priors.")
@@ -71,6 +67,12 @@ ebnm_point_laplace <- function (x,
 	    loglik <- g$val
 	  }
 	  retlist <- c(retlist, list(loglik = loglik))
+	}
+
+	if ("post_sampler" %in% output) {
+	  retlist <- c(retlist, list(post_sampler = function(nsamp) {
+	    post_sampler_point_laplace(x, s, w, a, nsamp)
+	  }))
 	}
 
 	return(retlist)

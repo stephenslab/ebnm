@@ -32,11 +32,11 @@ wpost_laplace <- function(x, s, w, a) {
 }
 
 # Computes the lambda function equation (2.7) from Kan Xu's thesis, which is
-#   the posterior probability of being negative given a non-zero effect.
+#   the posterior probability of being positive given a non-zero effect.
 #
 lambda <- function(x, s, a) {
-  lm1 <- -a * x  + pnorm(x/s - s * a, log.p = TRUE)
-  lm2 <-  a * x +  pnorm(x/s + s * a, log.p = TRUE, lower.tail = FALSE)
+  lm1 <- -a * x + pnorm(x / s - s * a, log.p = TRUE)
+  lm2 <-  a * x + pnorm(x / s + s * a, log.p = TRUE, lower.tail = FALSE)
   m <- pmax(lm1, lm2)
   lm1 <- lm1 - m
   lm2 <- lm2 - m
