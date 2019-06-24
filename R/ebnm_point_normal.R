@@ -41,7 +41,6 @@ ebnm_pn_workhorse <- function(x,
     if (!inherits(g_init, "normalmix")) {
       stop("g_init must be NULL or an object of class ashr::normalmix.")
     }
-
     ncomp <- length(g_init$pi)
     if ((ncomp == 0) || (ncomp > 2)) {
       stop("g_init does not have the correct number of components.")

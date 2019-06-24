@@ -15,10 +15,6 @@ ebnm_point_laplace <- function (x,
          "priors.")
   }
 
-  if (any(is.infinite(s))) {
-    stop("Infinite SEs not yet implemented for 'point_laplace' priors.")
-  }
-
   if (any(s == 0)) {
     stop("Zero SEs not yet implemented for 'point_laplace' priors.")
   }
@@ -27,7 +23,6 @@ ebnm_point_laplace <- function (x,
     if (!inherits(g_init, "laplacemix")) {
       stop("g_init must be NULL or an object of class laplacemix.")
     }
-
     ncomp <- length(g_init$pi)
     if (ncomp != 2) {
       stop("g_init does not have the correct number of components.")
@@ -38,6 +33,7 @@ ebnm_point_laplace <- function (x,
     g <- list()
   }
 
+  # Allow partial matching for scale.
   if (identical(pmatch(scale, "estimate"), 1L)) {
     fix_a <- fix_g
   } else if (is.numeric(scale) && (length(scale) == 1) && (scale > 0)) {
@@ -61,9 +57,9 @@ ebnm_point_laplace <- function (x,
   # Estimate g.
   if (!fix_g) {
     if (fix_a) {
-      g <- mle_point_laplace_fixa(x, s, g)
+      g <- mle_point_laplace_fixa(x_optset, s_optset, g)
     } else {
-      g <- mle_point_laplace(x, s, g, control)
+      g <- mle_point_laplace(x_optset, s_optset, g, control)
     }
   } else {
     if (!inherits(g_init, "laplacemix")) {
