@@ -24,7 +24,6 @@ vloglik_point_laplace = function(x, s, w, a) {
   return(lfac + log((1 - w) * exp(lf - lfac) + w * exp(lg - lfac)))
 }
 
-
 # This is the log of g, Laplace(a) convolved with normal, eqn (2.2) in Kan Xu's
 #   MS paper.
 #

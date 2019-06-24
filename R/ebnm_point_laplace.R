@@ -70,39 +70,39 @@ ebnm_point_laplace <- function (x,
   }
 
   pi0 <- g$pi0
-	w <- 1 - g$pi0
-	a <- g$a
+  w <- 1 - g$pi0
+  a <- g$a
 
-	retlist <- list()
+  retlist <- list()
 
-	if ("result" %in% output || "lfsr" %in% output) {
-	  result <- summary_results_point_laplace(x, s, w, a, output)
-	  retlist <- c(retlist, list(result = result))
-	}
+  if ("result" %in% output || "lfsr" %in% output) {
+    result <- summary_results_point_laplace(x, s, w, a, output)
+    retlist <- c(retlist, list(result = result))
+  }
 
-	if ("fitted_g" %in% output) {
-	  retlist <- c(retlist,
-	               list(fitted_g = laplacemix(pi = c(pi0, w),
-	                                          mean = rep(0, 2),
-	                                          scale = c(0, 1 / a))))
-	}
+  if ("fitted_g" %in% output) {
+    retlist <- c(retlist,
+                 list(fitted_g = laplacemix(pi = c(pi0, w),
+                                            mean = rep(0, 2),
+                                            scale = c(0, 1 / a))))
+  }
 
-	if ("loglik" %in% output) {
-	  if (fix_g) {
-	    loglik <- loglik_point_laplace(x, s, w, a)
-	  } else {
-	    loglik <- g$val
-	  }
-	  retlist <- c(retlist, list(loglik = loglik))
-	}
+  if ("loglik" %in% output) {
+    if (fix_g) {
+      loglik <- loglik_point_laplace(x, s, w, a)
+    } else {
+      loglik <- g$val
+    }
+    retlist <- c(retlist, list(loglik = loglik))
+  }
 
-	if ("post_sampler" %in% output) {
-	  retlist <- c(retlist, list(post_sampler = function(nsamp) {
-	    post_sampler_point_laplace(x, s, w, a, nsamp)
-	  }))
-	}
+  if ("post_sampler" %in% output) {
+    retlist <- c(retlist, list(post_sampler = function(nsamp) {
+      post_sampler_point_laplace(x, s, w, a, nsamp)
+    }))
+  }
 
-	return(retlist)
+  return(retlist)
 }
 
 # Constructor for laplacemix class.
