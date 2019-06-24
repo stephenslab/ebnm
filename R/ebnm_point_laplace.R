@@ -68,7 +68,7 @@ ebnm_point_laplace <- function (x,
 	  if (fix_g) {
 	    loglik <- loglik_point_laplace(x, s, w, a)
 	  } else {
-	    loglik <- -g$val
+	    loglik <- g$val
 	  }
 	  retlist <- c(retlist, list(loglik = loglik))
 	}

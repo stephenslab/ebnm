@@ -140,10 +140,10 @@ ebnm_pn_workhorse <- function(x,
   }
 
   if ("loglik" %in% output) {
-    if (!fix_g) {
-      loglik <- g$val
-    } else {
+    if (fix_g) {
       loglik <- loglik_point_normal(x_optset, s_optset, w, a, mu)
+    } else {
+      loglik <- g$val
     }
     retlist <- c(retlist, list(loglik = loglik))
   }
