@@ -1,5 +1,4 @@
-#' @importFrom ashr my_etruncnorm
-#' @importFrom ashr my_e2truncnorm
+#' @importFrom ashr my_etruncnorm my_e2truncnorm
 #'
 summary_results_point_laplace = function(x, s, w, a) {
   wpost <- wpost_laplace(x, s, w, a)
@@ -44,6 +43,8 @@ wpost_laplace <- function(x, s, w, a) {
 # Compute the lambda function equation (2.7) from Kan Xu's thesis, which is
 #   the posterior probability of being positive given a non-zero effect.
 #
+#' @importFrom stats pnorm
+#'
 lambda <- function(x, s, a) {
   lm1 <- -a * x + pnorm(x / s - s * a, log.p = TRUE)
   lm2 <-  a * x + pnorm(x / s + s * a, log.p = TRUE, lower.tail = FALSE)

@@ -7,6 +7,8 @@ loglik_point_laplace = function(x, s, w, a) {
 # Return log((1 - w)f + wg) as a vector (deal with cases w = 1 and w = 0
 #   separately for stability).
 #
+#' @importFrom stats dnorm
+#'
 vloglik_point_laplace = function(x, s, w, a) {
   if (w <= 0) {
     return(dnorm(x, sd = s, log = TRUE))
@@ -26,6 +28,8 @@ vloglik_point_laplace = function(x, s, w, a) {
 # This is the log of g, Laplace(a) convolved with normal, eqn (2.2) in Kan Xu's
 #   MS paper.
 #
+#' @importFrom stats pnorm
+#'
 logg_laplace = function(x, s, a) {
   lg1 <- -a * x + pnorm((x - s^2 * a) / s, log.p = TRUE)
   lg2 <-  a * x + pnorm((x + s^2 * a) / s, log.p = TRUE, lower.tail = FALSE)

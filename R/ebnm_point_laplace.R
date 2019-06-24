@@ -16,7 +16,12 @@ ebnm_point_laplace <- function (x,
   }
 
   if (any(s == 0)) {
-    stop("Zero SEs not yet implemented for 'point_laplace' priors.")
+    stop("Handling of SEs equal to zero not yet implemented for ",
+         "'point_laplace' priors.")
+  }
+
+  if ("lfsr" %in% output) {
+    stop("Calculation of lfsr not yet implemented for 'point_laplace' priors.")
   }
 
   if (!is.null(g_init)) {

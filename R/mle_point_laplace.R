@@ -1,6 +1,4 @@
-# Computes MLE for g under point-normal prior.
-#
-#' @importFrom stats optim
+#' @importFrom stats nlm
 #'
 mle_point_laplace <- function(x, s, g, control, fix_a) {
   startpar <- pl_startpar(x, s, g)
@@ -58,6 +56,7 @@ pl_startpar <- function(x, s, g) {
   return(startpar)
 }
 
+# Pull pi0 and a out of the optimization results.
 pl_g_from_optpar <- function(par) {
   return(list(pi0 = 1 / (1 + exp(par[1])), a = exp(par[2])))
 }

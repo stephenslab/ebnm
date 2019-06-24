@@ -1,6 +1,4 @@
-# Computes MLE for g under point-normal prior.
-#
-#' @importFrom stats optim
+#' @importFrom stats nlm
 #'
 mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
   startpar <- pn_startpar(x, s, g, fix_pi0, fix_a, fix_mu)

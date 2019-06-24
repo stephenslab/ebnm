@@ -33,7 +33,8 @@ ebnm_normal_scale_mixture(x, s = 1, mode = 0, scale = "estimate",
   g_init = NULL, fix_g = FALSE, output = output_default(), ...)
 
 ebnm_point_laplace(x, s = 1, mode = 0, scale = "estimate",
-  g_init = NULL, fix_g = FALSE, output = output_default())
+  g_init = NULL, fix_g = FALSE, output = output_default(),
+  control = NULL)
 
 ebnm_point_normal(x, s = 1, mode = 0, scale = "estimate",
   g_init = NULL, fix_g = FALSE, output = output_default(),

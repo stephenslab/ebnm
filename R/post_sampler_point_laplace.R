@@ -5,7 +5,8 @@
 # @return An nsamp by length(x) matrix containing samples from the
 #   posterior, with each row corresponding to a single sample.
 #
-#' @importFrom stats rbinom rnorm
+#' @importFrom stats rbinom
+#'
 #' @importFrom truncnorm rtruncnorm
 #'
 post_sampler_point_laplace <- function(x, s, w, a, nsamp) {
@@ -29,8 +30,7 @@ post_sampler_point_laplace <- function(x, s, w, a, nsamp) {
     rtruncnorm(nsamp, 0, Inf, mean, sd)
   }, mean = x - s^2 * a, sd = s)
 
-  samp <- matrix(nrow = nsamp, ncol = length(wpost))
-  samp[!is_nonnull] <- 0
+  samp <- matrix(0, nrow = nsamp, ncol = length(wpost))
   samp[is_nonnull & is_positive] <- positive_samp[is_nonnull & is_positive]
   samp[is_nonnull & !is_positive] <- negative_samp[is_nonnull & !is_positive]
 

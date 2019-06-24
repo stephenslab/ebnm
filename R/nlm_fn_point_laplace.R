@@ -1,3 +1,5 @@
+#' @importFrom stats pnorm
+#'
 pl_nlm_fn <- function(par, x, s, lf) {
   w <- 1 / (1 + exp(-par[1]))
   a <- exp(par[2])

@@ -44,13 +44,13 @@ ebnm_ash_workhorse <- function(x,
 
   # Ash will accept either mode and mixsd or g, but not both.
   if (is.null(g_init)) {
+    # Allow partial matching for mode and scale.
     if (identical(pmatch(mode, "estimate"), 1L)) {
       mode <- "estimate"
     }
     if (identical(pmatch(scale, "estimate"), 1L)) {
       scale <- NULL
     }
-
     ash.res <- ash(betahat = as.vector(x),
                    sebetahat = as.vector(s),
                    mode = mode,
@@ -62,7 +62,6 @@ ebnm_ash_workhorse <- function(x,
     if (!is.null(call$mode) || !is.null(call$scale)) {
       warning("mode and scale parameters are ignored when g_init is supplied.")
     }
-
     ash.res <- ash(betahat = as.vector(x),
                    sebetahat = as.vector(s),
                    g = g_init,

@@ -1,3 +1,7 @@
+# The scale of the slab is fixed, so only pi0 needs to be estimated.
+#
+#' @importFrom stats pnorm optimize
+#'
 mle_point_laplace_fixa <- function(x, s, g) {
   a <- g$a
 
