@@ -1,109 +1,76 @@
 context("Point normal")
 
-n <- 100
+n <- 1000
 set.seed(1)
-s <- rgamma(n, 1, 1)
-x <- rnorm(n, 0, s + 1)
+s <- rnorm(n, 1, 0.1)
+x <- c(rnorm(n / 2, 0, 10 + s), rnorm(n / 2, 0, s))
+
+true_pi0 <- 0.5
+true_mean <- 0
+true_sd <- 10
+true_g <- ashr::normalmix(pi = c(true_pi0, 1 - true_pi0),
+                         mean = rep(true_mean, 2),
+                         sd = c(0, true_sd))
+
+test_that("Basic functionality works", {
+  pn.res <- ebnm(x, s, prior_type = "point_normal")
+  pn.res2 <- ebnm_point_normal(x, s)
+  expect_identical(pn.res, pn.res2)
+  expect_equal(pn.res$fitted_g, true_g, tolerance = 0.1)
+})
+
+test_that("Mode estimation works", {
+  pn.res <- ebnm_point_normal(x, s, mode = "est")
+  expect_equal(pn.res$fitted_g, true_g, tolerance = 0.1)
+  expect_false(identical(pn.res$fitted_g$mean[1], true_mean))
+})
+
+test_that("Fixing the sd works", {
+  pn.res <- ebnm_point_normal(x, s, scale = true_sd)
+  expect_equal(pn.res$fitted_g, true_g, tolerance = 0.1)
+  expect_identical(pn.res$fitted_g$sd[2], true_sd)
+})
+
+test_that("Fixing g works", {
+  pn.res <- ebnm_point_normal(x, s, g_init = true_g, fix_g = TRUE)
+  expect_identical(pn.res$fitted_g, true_g)
+})
+
+test_that("Output parameter works", {
+  pn.res <- ebnm_point_normal(x, s, output = "post_sampler")
+  expect_identical(names(pn.res), "post_sampler")
+})
 
 test_that("compute_summary_results gives same results as ashr", {
-  ebnm.res <- ebnm_point_normal(x, s, g = list(mu = 0), fix_mu = TRUE,
-                                output = c("result", "lfsr", "fitted_g", "loglik"))
-  pi0 <- ebnm.res$fitted_g$pi0
-  a <- ebnm.res$fitted_g$a
-  ash.res <- ashr::ash(x, s, method = "shrink",
-                      g = ashr::normalmix(c(pi0, 1 - pi0),
-                                          c(0, 0),
-                                          c(0, sqrt(1 / a))),
-                      fixg = TRUE)
+  output <- c("result", "lfsr", "fitted_g")
+  pn.res <- ebnm_point_normal(x, s, output = output)
+  ash.res <- ebnm_ash(x, s, g_init = pn.res$fitted_g, fix_g = TRUE,
+                      output = output, method = "shrink")
 
-  expect_equal(ebnm.res$result$PosteriorMean,
-               ash.res$result$PosteriorMean,
+  expect_equal(pn.res$result$posterior_mean, ash.res$result$posterior_mean,
                tol = 1e-6)
-  expect_equal(ebnm.res$result$PosteriorMean2,
-               ash.res$result$PosteriorMean^2 + ash.res$result$PosteriorSD^2,
+  expect_equal(pn.res$result$posterior_mean2, ash.res$result$posterior_mean2,
                tol = 1e-6)
-  expect_equal(ebnm.res$result$lfsr,
-               ash.res$result$lfsr,
+  expect_equal(pn.res$result$lfsr, ash.res$result$lfsr,
                tol = 1e-6)
-  expect_equal(ebnm.res$loglik,
-               ash.res$loglik,
+  expect_equal(pn.res$loglik, ash.res$loglik,
                tol = 1e-6)
 })
 
-test_that("fixing g works as intended", {
-  g <- list(pi0 = 0, a = 0.5, mu = 0)
-  ebnm.res <- ebnm_point_normal(x, s, g, fixg = TRUE)
-
-  expect_identical(ebnm.res$fitted_g, g)
-})
-
-g <- list(pi0 = 0.2, a = 0.5, mu = 0)
-
-test_that("fixing pi0 works as intended", {
-  ebnm.res <- ebnm_point_normal(x, s, g, fix_pi0 = TRUE, fix_mu = FALSE)
-
-  expect_identical(ebnm.res$fitted_g$pi0, g$pi0)
-  expect_false(ebnm.res$fitted_g$a == g$a)
-  expect_false(ebnm.res$fitted_g$mu == g$mu)
-})
-
-test_that("fixing a works as intended", {
-  ebnm.res <- ebnm_point_normal(x, s, g, fix_a = TRUE, fix_mu = FALSE)
-
-  expect_identical(ebnm.res$fitted_g$a, g$a)
-  expect_false(ebnm.res$fitted_g$pi0 == g$pi0)
-  expect_false(ebnm.res$fitted_g$mu == g$mu)
-})
-
-test_that("fixing mu works as intended", {
-  ebnm.res <- ebnm_point_normal(x, s, g, fix_mu = TRUE)
-
-  expect_identical(ebnm.res$fitted_g$mu, g$mu)
-  expect_false(ebnm.res$fitted_g$a == g$a)
-  expect_false(ebnm.res$fitted_g$pi0 == g$pi0)
-})
-
-test_that("fixing pi0 and mu together works as intended", {
-  ebnm.res <- ebnm_point_normal(x, s, g, fix_pi0 = TRUE, fix_mu = TRUE)
-
-  expect_identical(ebnm.res$fitted_g$pi0, g$pi0)
-  expect_identical(ebnm.res$fitted_g$mu, g$mu)
-  expect_false(ebnm.res$fitted_g$a == g$a)
-})
-
-test_that("infinite and zero SEs give expected results", {
+test_that("Infinite and zero SEs give expected results", {
   x <- c(rep(0, 5), rep(1, 5))
   s <- rep(1, 10)
   s[6] <- 0
   s[10] <- Inf
 
-  # first, fix mu = 0
-  ebnm.res <- ebnm_point_normal(x, s, g = list(mu = 0), fix_mu = TRUE)
+  pn.res <- ebnm_point_normal(x, s)
 
-  expect_equal(ebnm.res$result$PosteriorMean[6], x[6])
-  expect_equal(ebnm.res$result$PosteriorMean2[6], x[6]^2)
-  expect_equal(ebnm.res$result$PosteriorMean[10], 0)
-  expect_equal(ebnm.res$result$PosteriorMean2[10],
-               1 / ebnm.res$fitted_g$a * (1 - ebnm.res$fitted_g$pi0))
+  expect_equal(pn.res$result$posterior_mean[6], x[6])
+  expect_equal(pn.res$result$posterior_mean2[6], x[6]^2)
+  expect_equal(pn.res$result$posterior_mean[10], 0)
+  expect_equal(pn.res$result$posterior_mean2[10],
+               pn.res$fitted_g$sd[2]^2 * pn.res$fitted_g$pi[2])
 
-  # now, don't fix mu
-  ebnm.res = ebnm_point_normal(x, s)
-  expect_equal(ebnm.res$result$PosteriorMean[6], x[6])
-  expect_equal(ebnm.res$result$PosteriorMean2[6], x[6]^2)
-  expect_equal(ebnm.res$result$PosteriorMean[10], ebnm.res$fitted_g$mu)
-  expect_equal(ebnm.res$result$PosteriorMean2[10],
-               (1 / ebnm.res$fitted_g$a * (1 - ebnm.res$fitted_g$pi0)) + ebnm.res$fitted_g$mu^2)
-})
-
-test_that("removing null component gives reasonable estimates for mu and a", {
-  n = 1000
-  mu = 3
-  a = 1/25
-  theta = rnorm(n, mu, 1 / sqrt(a))
-  s = rgamma(n, 1, 1)
-  x = rnorm(n, theta, s)
-  ebnm.res = ebnm_point_normal(x, s, g = list(pi0 = 0), fix_pi0 = TRUE,
-                                 fix_mu = FALSE)
-  expect_equal(ebnm.res$fitted_g$mu, mu, tol = .25)
-  expect_equal(ebnm.res$fitted_g$a, a, tol = .02)
+  # Should get an error if mu is not fixed.
+  expect_error(ebnm_point_normal(x, s, mode = "est"))
 })

@@ -1,49 +1,113 @@
-#' @describeIn ebnm Solve the EBNM problem using a point-laplace prior.
+#' @describeIn ebnm Solves the EBNM problem using a point-laplace prior.
 #'
 #' @export
 #'
-ebnm_point_laplace <- function (x, s=1, g=list(), fixg=FALSE, output=NULL) {
-  output <- set_output(output)
-  check_args(x, s, g, fixg, output)
+ebnm_point_laplace <- function (x,
+                                s = 1,
+                                mode = 0,
+                                scale = "estimate",
+                                g_init = NULL,
+                                fix_g = FALSE,
+                                output = output_default(),
+                                control = NULL) {
+  check_args(x, s, g_init, fix_g, output)
 
-  if (!fixg && (length(g) > 0)) {
-    stop("Option to intialize from g not yet implemented for 'point_laplace' ",
+  if (mode != 0) {
+    stop("Option to estimate mode not yet implemented for 'point_laplace' ",
          "priors.")
   }
+
+  if (any(s == 0)) {
+    stop("Handling of SEs equal to zero not yet implemented for ",
+         "'point_laplace' priors.")
+  }
+
+  if (!is.null(g_init)) {
+    if (!inherits(g_init, "laplacemix")) {
+      stop("g_init must be NULL or an object of class laplacemix.")
+    }
+    ncomp <- length(g_init$pi)
+    if (ncomp != 2) {
+      stop("g_init does not have the correct number of components.")
+    }
+    g <- list(pi0 = g_init$pi[1],
+              a = 1 / g_init$scale[2])
+  } else {
+    g <- list()
+  }
+
+  # Allow partial matching for scale.
+  if (identical(pmatch(scale, "estimate"), 1L)) {
+    fix_a <- fix_g
+  } else if (is.numeric(scale) && (length(scale) == 1) && (scale > 0)) {
+    if (!is.null(g$a) && !isTRUE(all.equal(g$a, 1 / scale))) {
+      stop("If scale and g_init$scale are both supplied, they must agree.")
+    }
+    fix_a <- TRUE
+    g$a <- 1 / scale
+  } else {
+    stop("Invalid argument to scale.")
+  }
+
+  x_optset <- x
+  s_optset <- s
+  # Don't use observations with infinite SEs when estimating g.
+  if (any(is.infinite(s))) {
+    x_optset <- x[is.finite(s)]
+    s_optset <- s[is.finite(s)]
+  }
+
+  # Estimate g.
+  if (!fix_g) {
+    if (fix_a) {
+      g <- mle_point_laplace_fixa(x_optset, s_optset, g)
+    } else {
+      g <- mle_point_laplace(x_optset, s_optset, g, control)
+    }
+  } else {
+    if (!inherits(g_init, "laplacemix")) {
+      stop("g_init must be NULL or an object of class laplacemix.")
+    }
+    g <- list(pi0 = g_init$pi[1], a = 1 / g_init$scale[2])
+  }
+
+  pi0 <- g$pi0
+  w <- 1 - g$pi0
+  a <- g$a
+
+  retlist <- list()
+
+  if ("result" %in% output || "lfsr" %in% output) {
+    result <- summary_results_point_laplace(x, s, w, a, output)
+    retlist <- c(retlist, list(result = result))
+  }
+
+  if ("fitted_g" %in% output) {
+    retlist <- c(retlist,
+                 list(fitted_g = laplacemix(pi = c(pi0, w),
+                                            mean = rep(0, 2),
+                                            scale = c(0, 1 / a))))
+  }
+
+  if ("loglik" %in% output) {
+    if (fix_g) {
+      loglik <- loglik_point_laplace(x, s, w, a)
+    } else {
+      loglik <- g$val
+    }
+    retlist <- c(retlist, list(loglik = loglik))
+  }
+
   if ("post_sampler" %in% output) {
-    stop("Posterior sampler not yet implemented for 'point-laplace' priors.")
+    retlist <- c(retlist, list(post_sampler = function(nsamp) {
+      post_sampler_point_laplace(x, s, w, a, nsamp)
+    }))
   }
 
-  #could consider making more stable this way? But might have to be careful with log-likelihood
-  #m_sdev <- mean(s)
-  #s <- s/m_sdev
-  #x <- x/m_sdev
+  return(retlist)
+}
 
-  # Estimate g from data
-  if (!fixg) {
-    g <- mle_laplace(x, s)
-  }
-  g$mu <- 0
-
-	w <- 1 - g$pi0
-	a <- g$a
-
-	retlist <- list()
-
-	# Compute return values
-	if ("result" %in% output) {
-	  result <- compute_summary_results_laplace(x, s, w, a)
-	  #postmean <- postmean * m_sdev
-	  #postmean2 <- postmean2 * m_sdev^2
-	  retlist <- c(retlist, list(result = result))
-	}
-	if ("fitted_g" %in% output) {
-	  retlist <- c(retlist, list(fitted_g = g))
-	}
-	if ("loglik" %in% output) {
-	  loglik <- loglik_laplace(x, s, w, a)
-	  retlist <- c(retlist, list(loglik = loglik))
-	}
-
-	return(retlist)
+# Constructor for laplacemix class.
+laplacemix <- function(pi, mean, scale) {
+  structure(data.frame(pi, mean, scale), class="laplacemix")
 }

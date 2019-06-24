@@ -1,134 +1,66 @@
-#' @title Compute mle of w and a for data (x,s) under point laplace prior
-#' @description Paragraph-length description goes here.
-#' @details Does simple mle (currently using optim)
-#' @param x observations
-#' @param s standard deviations
-#' @param startpar initialization
-#' @param control list of parameters to be passed to optim
-#' Compared with the original wandafromx this function dispenses with the
-#' complication of the thresholds.
-#' @importFrom stats optim
-mle_laplace <- function(x, s,startpar=NULL,control=NULL) {
+#' @importFrom stats nlm
+#'
+mle_point_laplace <- function(x, s, g, control, fix_a) {
+  startpar <- pl_startpar(x, s, g)
 
-  # get some reasonable limits on sigma (standard deviation of normal, or 1/sqrt(a))
-  sigmamin = min(s)/10
-  if (all(x^2 <= s^2)) {
-    sigmamax = 8 * sigmamin
+  lf <- calc_lf(x, s)
+
+  fn_params <- list(x = x, s = s, lf = lf)
+
+  optres <- try(do.call(nlm, c(list(pl_nlm_fn, startpar), fn_params, control)),
+                silent = TRUE)
+
+  if (inherits(optres, "try-error")) {
+    warning("First optimization attempt failed. Retrying with fewer ",
+            "significant digits.")
+    control <- modifyList(control, list(ndigit = 8))
+    optres <- try(do.call(nlm, c(list(pl_nlm_fn, startpar), fn_params, control)),
+                  silent = TRUE)
+  }
+
+  if (inherits(optres, "try-error")) {
+    stop("Re-attempt at optimization failed, possibly due to one or more ",
+         "very small standard errors. The smallest nonzero standard error ",
+         "seen during optimization was ", signif(min(s), 2), ".")
+  }
+
+  retlist <- pl_g_from_optpar(optres$estimate)
+  retlist$val <- -optres$minimum
+
+  # Check the solution pi0 = 1.
+  if (sum(lf) > retlist$val) {
+    retlist$pi0 <- 1
+    retlist$a <- 1
+    retlist$val <- sum(lf)
+  }
+
+  return(retlist)
+}
+
+# Initial values.
+pl_startpar <- function(x, s, g) {
+  startpar <- numeric(0)
+
+  if (!is.null(g$pi0) && g$pi0 > 0 && g$pi0 < 1) {
+    startpar <- c(startpar, log(1 / g$pi0 - 1))
   } else {
-    sigmamax = 2 * sqrt(max(x^2 - s^2))
+    startpar <- c(startpar, 0) # default for -logit(pi0)
   }
 
-  lo  <-  c(0,1/sigmamax^2)
-  hi  <-  c(1,1/sigmamin^2)
-  if(is.null(startpar)){
-    startpar  <- c(0.5,2/(sigmamax^2+sigmamin^2))
-  }
-
-  uu <- optim(startpar, function(par,x,s){-loglik_laplace(x,s,par[1],par[2])}, method="L-BFGS-B",
-                lower = lo, upper = hi, x = x, s = s, control=control)
-  uu_par <- uu$par
-
-  return(list(pi0=1-uu_par[1], a=uu_par[2], val=uu$value))
-}
-
-#' @importFrom stats optim
-mle_laplace_grad <- function(x, s, startpar=NULL,control=NULL) {
-
-  # get some reasonable limits on sigma (standard deviation of normal, or 1/sqrt(a))
-  sigmamin = min(s)/10
-  if (all(x^2 <= s^2)) {
-    sigmamax = 8 * sigmamin
+  if (!is.null(g$a)) {
+    startpar <- c(startpar, log(g$a))
   } else {
-    sigmamax = 2 * sqrt(max(x^2 - s^2))
+    startpar <- c(startpar, -0.5 * log(mean(x^2) / 2)) # default for log(a)
   }
 
-  lo  <-  c(0,1/sigmamax^2)
-  hi  <-  c(1,1/sigmamin^2)
-  if(is.null(startpar)){
-    startpar  <- c(0.5,2/(sigmamax^2+sigmamin^2))
-  }
-  uu <- optim(startpar, function(par,x,s){-loglik_laplace(x,s,par[1],par[2])},
-              gr= function(par,x,s){grad_negloglik_laplace(x,s,par[1],par[2])},
-              method="L-BFGS-B",lower = lo, upper = hi, x = x, s = s,
-              control=control)
-  uu_par <- uu$par
-
-  return(list(pi0=1-uu_par[1], a=uu_par[2], val=uu$value))
+  return(startpar)
 }
 
-# Do optimization of parameters on log scale.
-#
-#' @importFrom stats optim
-mle_laplace_logscale <- function(x, s,startpar=NULL,control=NULL) {
-
-  maxvar = max(x^2 - s^2) #get upper bound on variance estimate
-
-  if(maxvar<0){ #deal with case where everything is smaller than expected (null)
-    return(list(pi0=1, a=1)) # note that a is irrelevant if pi0=1
-  }
-
-
-  # set default starting point. This point is chosen based on the model
-  # where there is a single non-null value, based on the intuition that
-  # this is the case that is "hardest" to get right
-  if(is.null(startpar)){
-    startpar  <- c(log(1/length(x)),-log(maxvar))
-  }
-  n = length(x)
-  minvar = (min(s)/10)^2
-  lo  <-  c(log(1/n),-log(maxvar))
-  hi  <-  c(log(n),-log(minvar))
-
-  uu <- optim(startpar,
-              function(par,x,s){-loglik_laplace(x,s,exp(par[1])/(1+exp(par[1])),
-                                                exp(par[2]))},
-              method="L-BFGS-B",
-              lower = lo, upper = hi, x = x, s = s, control=control)
-  uu_par <- uu$par
-
-  return(list(pi0=1/(1+exp(uu_par[1])), a=exp(uu_par[2]), val=uu$value))
+# Pull pi0 and a out of the optimization results.
+pl_g_from_optpar <- function(par) {
+  return(list(pi0 = 1 / (1 + exp(par[1])), a = exp(par[2])))
 }
 
-
-#do optimization of parameters on log scale
-#
-#' @importFrom stats optim
-mle_laplace_logscale_grad <- function(x, s,startpar=NULL,control=NULL) {
-
-  maxvar = max(x^2 - s^2) #get upper bound on variance estimate
-
-  if(maxvar<0){ #deal with case where everything is smaller than expected (null)
-    return(list(pi0=1, a=1)) # note that a is irrelevant if pi0=1
-  }
-
-
-  # set default starting point. This point is chosen based on the model
-  # where there is a single non-null value, based on the intuition that
-  # this is the case that is "hardest" to get right
-  if(is.null(startpar)){
-    startpar  <- c(log(1/length(x)),-log(maxvar))
-  }
-  n = length(x)
-  minvar = (min(s)/10)^2
-  lo  <-  c(log(1/n),-log(maxvar))
-  hi  <-  c(log(n),-log(minvar))
-
-
-  uu <- optim(startpar,
-              function(par,x,s){-loglik_laplace(x,s,exp(par[1])/(1+exp(par[1])),
-                                                exp(par[2]))},
-              gr= function(par,x,s){grad_negloglik_logscale_laplace(x,s,exp(par[1])/(1+exp(par[1])),
-                                                            exp(par[2]))},
-              method="L-BFGS-B",
-              lower = lo, upper = hi, x = x, s = s, control=control)
-  uu_par <- uu$par
-
-  return(list(pi0=1/(1+exp(uu_par[1])), a=exp(uu_par[2]), val=uu$value))
+calc_lf <- function(x, s) {
+  return(-0.5 * log(2 * pi * s^2) - 0.5 * x^2 / s^2)
 }
-
-
-# x = rnorm(10000) + c(rep(0,5000),rexp(5000))
-# s = 1
-# microbenchmark::microbenchmark(wandafromx.mle_grad(x,s),times=10)
-# microbenchmark::microbenchmark(wandafromx.mle(x,s),times=10)
-# microbenchmark::microbenchmark(wandafromx.mle_logscale_grad(x,s),times=10)
