@@ -9,7 +9,7 @@ loglik_point_laplace = function(x, s, w, a) {
 #
 vloglik_point_laplace = function(x, s, w, a) {
   if (w <= 0) {
-    return(dnorm(x/s, log = TRUE))
+    return(dnorm(x, sd = s, log = TRUE))
   }
 
   lg <- logg_laplace(x, s, a)
@@ -17,7 +17,7 @@ vloglik_point_laplace = function(x, s, w, a) {
     return(lg)
   }
 
-  lf <- dnorm(x/s, log = TRUE)
+  lf <- dnorm(x, sd = s, log = TRUE)
   lfac <- pmax(lg, lf)
   return(lfac + log((1 - w) * exp(lf - lfac) + w * exp(lg - lfac)))
 }
@@ -27,9 +27,8 @@ vloglik_point_laplace = function(x, s, w, a) {
 #   MS paper.
 #
 logg_laplace = function(x, s, a) {
-  lg1 <- -a * x + pnorm((x - s^2 * a)/s, log.p = TRUE)
-  lg2 <-  a * x + pnorm((x + s^2 * a)/s, log.p = TRUE, lower.tail = FALSE)
+  lg1 <- -a * x + pnorm((x - s^2 * a) / s, log.p = TRUE)
+  lg2 <-  a * x + pnorm((x + s^2 * a) / s, log.p = TRUE, lower.tail = FALSE)
   lfac <- pmax(lg1, lg2)
-  return(log(0.5) + log(a) + (a^2 * s^2)/2 + lfac
-         + log(exp(lg1 - lfac) + exp(lg2 - lfac)))
+  return(log(a / 2) + s^2 * a^2 / 2 + lfac + log(exp(lg1 - lfac) + exp(lg2 - lfac)))
 }
