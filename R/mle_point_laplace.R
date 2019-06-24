@@ -29,6 +29,13 @@ mle_point_laplace <- function(x, s, g, control, fix_a) {
   retlist <- pl_g_from_optpar(optres$estimate)
   retlist$val <- -optres$minimum
 
+  # Check the solution pi0 = 1.
+  if (sum(lf) > retlist$val) {
+    retlist$pi0 <- 1
+    retlist$a <- 1
+    retlist$val <- sum(lf)
+  }
+
   return(retlist)
 }
 

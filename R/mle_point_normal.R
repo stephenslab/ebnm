@@ -75,6 +75,16 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
   retlist <- pn_g_from_optpar(optres$estimate, g, fix_pi0, fix_a, fix_mu)
   retlist$val <- pn_llik_from_optval(optres$minimum, n1, n2, s2)
 
+  # Check the solution pi0 = 1.
+  if (!fix_pi0 && fix_mu && n1 == 0) {
+    pi0_val <- pn_llik_from_optval(sum_z / 2, n1, n2, s2)
+    if (pi0_val > retlist$val) {
+      retlist$pi0 <- 1
+      retlist$a <- 1
+      retlist$val <- pi0_val
+    }
+  }
+
   return(retlist)
 }
 
