@@ -19,6 +19,12 @@ test_that("Basic functionality works", {
   expect_equal(pl.res$fitted_g, true_g, tolerance = 0.1)
 })
 
+test_that("Fixing the scale works", {
+  pl.res2 <- ebnm_point_laplace(x, s, scale = true_scale)
+  expect_equal(pl.res2$fitted_g, true_g, tolerance = 0.1)
+  expect_identical(pl.res2$fitted_g$scale[2], true_scale)
+})
+
 test_that("Fixing g works", {
   pl.res2 <- ebnm_point_laplace(x, s, g_init = pl.res$fitted_g, fix_g = TRUE)
   expect_identical(pl.res$fitted_g, pl.res2$fitted_g)

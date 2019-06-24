@@ -8,17 +8,17 @@ ebnm_point_laplace <- function (x,
                                 scale = "estimate",
                                 g_init = NULL,
                                 fix_g = FALSE,
-                                output = output_default()) {
+                                output = output_default(),
+                                control = NULL) {
   if (mode != 0) {
     stop("Option to estimate mode not yet implemented for 'point_laplace' ",
          "priors.")
   }
-  if (!identical(pmatch(scale, "estimate"), 1L)) {
-    stop("Option to fix scale not yet implemented for 'point_laplace' priors.")
-  }
+
   if (any(is.infinite(s))) {
     stop("Infinite SEs not yet implemented for 'point_laplace' priors.")
   }
+
   if (any(s == 0)) {
     stop("Zero SEs not yet implemented for 'point_laplace' priors.")
   }
@@ -38,8 +38,33 @@ ebnm_point_laplace <- function (x,
     g <- list()
   }
 
+  if (identical(pmatch(scale, "estimate"), 1L)) {
+    fix_a <- fix_g
+  } else if (is.numeric(scale) && (length(scale) == 1) && (scale > 0)) {
+    if (!is.null(g$a) && !isTRUE(all.equal(g$a, 1 / scale))) {
+      stop("If scale and g_init$scale are both supplied, they must agree.")
+    }
+    fix_a <- TRUE
+    g$a <- 1 / scale
+  } else {
+    stop("Invalid argument to scale.")
+  }
+
+  x_optset <- x
+  s_optset <- s
+  # Don't use observations with infinite SEs when estimating g.
+  if (any(is.infinite(s))) {
+    x_optset <- x[is.finite(s)]
+    s_optset <- s[is.finite(s)]
+  }
+
+  # Estimate g.
   if (!fix_g) {
-    g <- mle_point_laplace(x, s, g)
+    if (fix_a) {
+      g <- mle_point_laplace_fixa(x, s, g)
+    } else {
+      g <- mle_point_laplace(x, s, g, control)
+    }
   } else {
     if (!inherits(g_init, "laplacemix")) {
       stop("g_init must be NULL or an object of class laplacemix.")
@@ -53,17 +78,18 @@ ebnm_point_laplace <- function (x,
 
 	retlist <- list()
 
-	# Compute return values
 	if ("result" %in% output) {
 	  result <- summary_results_point_laplace(x, s, w, a)
 	  retlist <- c(retlist, list(result = result))
 	}
+
 	if ("fitted_g" %in% output) {
 	  retlist <- c(retlist,
 	               list(fitted_g = laplacemix(pi = c(pi0, w),
 	                                          mean = rep(0, 2),
 	                                          scale = c(0, 1 / a))))
 	}
+
 	if ("loglik" %in% output) {
 	  if (fix_g) {
 	    loglik <- loglik_point_laplace(x, s, w, a)
