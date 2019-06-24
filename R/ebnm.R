@@ -94,9 +94,8 @@ ebnm <- function(x,
   } else if (prior_type == "normal") {
     retlist <- ebnm_normal(x, s, mode, scale, g_init, fix_g, output, ...)
   } else if (prior_type == "normal_scale_mixture") {
-    retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
-                                  call = match.call(),
-                                  mixcompdist = "normal", ...)
+    retlist <- ebnm_normal_scale_mixture(x, s, mode, scale, g_init, fix_g,
+                                         output, ...)
   } else if (prior_type == "unimodal") {
     retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
                                   call = match.call(),
