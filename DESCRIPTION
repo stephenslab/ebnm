@@ -18,7 +18,8 @@ NeedsCompilation: no
 Depends: R (>= 3.3.0)
 Imports:
     stats,
-    ashr (>= 2.2-2)
+    ashr (>= 2.2-2),
+    truncnorm
 Suggests: 
     testthat, 
     knitr,
