@@ -86,7 +86,6 @@ ebnm <- function(x,
                                 "ash"),
                  ...) {
   prior_type <- match.arg(prior_type)
-  check_args(x, s, g_init, fix_g, output)
 
   if (prior_type == "point_normal") {
     retlist <- ebnm_point_normal(x, s, mode, scale, g_init, fix_g, output, ...)

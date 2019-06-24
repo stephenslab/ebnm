@@ -10,6 +10,8 @@ ebnm_point_laplace <- function (x,
                                 fix_g = FALSE,
                                 output = output_default(),
                                 control = NULL) {
+  check_args(x, s, g_init, fix_g, output)
+
   if (mode != 0) {
     stop("Option to estimate mode not yet implemented for 'point_laplace' ",
          "priors.")

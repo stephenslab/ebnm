@@ -35,8 +35,9 @@ ebnm_ash_workhorse <- function(x,
                                output,
                                call,
                                ...) {
-  ash_output <- output
+  check_args(x, s, g_init, fix_g, output)
 
+  ash_output <- output
   if ("result" %in% output) {
     ash_output <- setdiff(ash_output, "result")
     ash_output <- c(ash_output, "PosteriorMean", "PosteriorSD")

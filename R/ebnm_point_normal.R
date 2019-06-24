@@ -37,6 +37,8 @@ ebnm_pn_workhorse <- function(x,
                               scale,
                               control,
                               pointmass) {
+  check_args(x, s, g_init, fix_g, output)
+
   if (!is.null(g_init)) {
     if (!inherits(g_init, "normalmix")) {
       stop("g_init must be NULL or an object of class ashr::normalmix.")
