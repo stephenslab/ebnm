@@ -32,6 +32,7 @@ ebnm_normal_scale_mixture <- function(x,
 
   check_args(x, s, g_init, fix_g, output)
 
+  # Set the ash grid.
   if (!is.null(g_init)) {
     if (!inherits(g_init, "normalmix")) {
       stop("g_init must be NULL or an object of class ashr::normalmix.")
@@ -54,59 +55,52 @@ ebnm_normal_scale_mixture <- function(x,
   n_mixcomp <- length(scale)
   n_obs     <- length(x)
 
-  # Adapted from ashr:::estimate_mixprop. Rows correspond to observations;
-  #   columns, to mixture components.
+  # Estimate mixture proportions. Adapted from ashr:::estimate_mixprop.
   if (length(s) == 1) {
-    sigmavec <- s^2 + scale^2
-    llik_mat <- -0.5 * t(log(sigmavec) + outer(1 / sigmavec, (x - mode)^2))
-  } else {
-    sigmamat <- outer(s^2, scale^2, `+`)
-    llik_mat <- -0.5 * (log(sigmamat) + (x - mode)^2 / sigmamat)
+    s <- rep(s, n_obs)
   }
+  sigmamat   <- outer(s^2, scale^2, `+`)
+  llik_mat   <- -0.5 * (log(sigmamat) + (x - mode)^2 / sigmamat)
   llik_norms <- apply(llik_mat, 1, max)
-  llik_mat   <- llik_mat - llik_norms
+  L_mat      <- exp(llik_mat - llik_norms)
 
   if (fix_g) {
     fitted_g <- g_init
-    est_pi <- g_init$pi
+    pi_est <- g_init$pi
   } else {
     if (is.null(g_init)) {
-      x0 <- rep(1, n_mixcomp)
+      pi_init <- rep(1, n_mixcomp)
     } else {
-      x0 <- g_init$pi
+      pi_init <- g_init$pi
     }
 
-    L <- exp(llik_mat)
-    nonzero_cols <- (apply(L, 2, max) > 0)
+    nonzero_cols <- (apply(L_mat, 2, max) > 0)
     if (!all(nonzero_cols)) {
-      x0 <- x0[nonzero_cols]
-      L  <- L[, nonzero_cols, drop = FALSE]
+      pi_init <- pi_init[nonzero_cols]
+      L_mat  <- L_mat[, nonzero_cols, drop = FALSE]
     }
 
     control0 <- list(verbose = FALSE)
     control  <- modifyList(control0, control, keep.null = TRUE)
-    optres   <- mixsqp::mixsqp(L, x0 = x0, control = control)
+    optres   <- mixsqp::mixsqp(L = L_mat, x0 = pi_init, control = control)
 
-    est_pi <- rep(0, n_mixcomp)
-    est_pi[nonzero_cols] <- pmax(optres$x, 0)
-    est_pi <- est_pi / sum(est_pi)
-    fitted_g <- normalmix(pi = est_pi,
+    pi_est <- rep(0, n_mixcomp)
+    pi_est[nonzero_cols] <- pmax(optres$x, 0)
+    pi_est <- pi_est / sum(pi_est)
+    fitted_g <- normalmix(pi = pi_est,
                           mean = rep(mode, n_mixcomp),
                           sd = scale)
   }
 
+  # Compute results.
   retlist <- list()
 
   if (any(c("result", "lfsr", "post_sampler") %in% output)) {
-    comp_postprob <- t(exp(t(llik_mat) + log(est_pi)))
+    comp_postprob <- L_mat * matrix(pi_est, nrow = n_obs, ncol = n_mixcomp,
+                                      byrow = TRUE)
     comp_postprob <- comp_postprob / rowSums(comp_postprob)
-    if (length(s) == 1) {
-      comp_postmean  <- mode * s^2 + t(outer(scale^2, x) / sigmavec)
-      comp_postmean2 <- t(t(comp_postmean)^2 + s^2 * scale^2 / sigmavec)
-    } else {
-      comp_postmean  <- mode * s^2 + outer(x, scale^2) / sigmamat
-      comp_postmean2 <- comp_postmean^2 + outer(s^2, scale^2) / sigmamat
-    }
+    comp_postmean  <- mode * s^2 + outer(x, scale^2) / sigmamat
+    comp_postmean2 <- comp_postmean^2 + outer(s^2, scale^2) / sigmamat
 
     result <- list()
     if ("result" %in% output) {
@@ -134,7 +128,7 @@ ebnm_normal_scale_mixture <- function(x,
   }
 
   if ("loglik" %in% output) {
-    loglik <- sum(log(exp(llik_mat) %*% est_pi))
+    loglik <- sum(log(L_mat %*% pi_est))
     loglik <- loglik + sum(llik_norms) - n_obs * log(2 * pi) / 2
     retlist <- c(retlist, list(loglik = loglik))
   }
