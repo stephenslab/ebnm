@@ -53,6 +53,9 @@
 #'         observation.}
 #'      }
 #'
+#' @param control A list of control parameters to be passed to the optimization
+#'   function.
+#'
 #' @param prior_type The class of distributions from which the prior is to be
 #'   estimated. See "Details" below.
 #'
@@ -75,6 +78,7 @@ ebnm <- function(x,
                  g_init = NULL,
                  fix_g = FALSE,
                  output = output_default(),
+                 control = NULL,
                  prior_type = c("point_normal",
                                 "point_laplace",
                                 "normal",
@@ -87,34 +91,132 @@ ebnm <- function(x,
                  ...) {
   prior_type <- match.arg(prior_type)
 
+  return(ebnm_workhorse(x = x,
+                        s = s,
+                        mode = mode,
+                        scale = scale,
+                        g_init = g_init,
+                        fix_g = fix_g,
+                        output = output,
+                        control = control,
+                        prior_type = prior_type,
+                        call = match.call(),
+                        ...))
+}
+
+ebnm_workhorse <- function(x,
+                           s,
+                           mode,
+                           scale,
+                           g_init,
+                           fix_g,
+                           output,
+                           control,
+                           prior_type,
+                           call,
+                           ...) {
+  check_args(x, s, g_init, fix_g, output)
+  if (is.null(control)) {
+    control <- list()
+  }
+
   if (prior_type == "point_normal") {
-    retlist <- ebnm_point_normal(x, s, mode, scale, g_init, fix_g, output, ...)
+    retlist <- ebnm_pn_workhorse(x = x,
+                                 s = s,
+                                 mode = mode,
+                                 scale = scale,
+                                 g_init = g_init,
+                                 fix_g = fix_g,
+                                 output = output,
+                                 control = control,
+                                 pointmass = TRUE)
   } else if (prior_type == "point_laplace") {
-    retlist <- ebnm_point_laplace(x, s, mode, scale, g_init, fix_g, output, ...)
+    retlist <- ebnm_pl_workhorse(x = x,
+                                 s = s,
+                                 mode = mode,
+                                 scale = scale,
+                                 g_init = g_init,
+                                 fix_g = fix_g,
+                                 output = output,
+                                 control = control)
   } else if (prior_type == "normal") {
-    retlist <- ebnm_normal(x, s, mode, scale, g_init, fix_g, output, ...)
+    retlist <- ebnm_pn_workhorse(x = x,
+                                 s = s,
+                                 mode = mode,
+                                 scale = scale,
+                                 g_init = g_init,
+                                 fix_g = fix_g,
+                                 output = output,
+                                 control = control,
+                                 pointmass = FALSE)
   } else if (prior_type == "normal_scale_mixture") {
-    retlist <- ebnm_normal_scale_mixture(x, s, mode, scale, g_init, fix_g,
-                                         output, ...)
+    retlist <- ebnm_normal_mix_workhorse(x = x,
+                                         s = s,
+                                         mode = mode,
+                                         scale = scale,
+                                         g_init = g_init,
+                                         fix_g = fix_g,
+                                         output = output,
+                                         control = control)
   } else if (prior_type == "unimodal") {
-    retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
-                                  call = match.call(),
-                                  mixcompdist = "halfuniform", ...)
+    retlist <- ebnm_ash_workhorse(x = x,
+                                  s = s,
+                                  mode = mode,
+                                  scale = scale,
+                                  g_init = g_init,
+                                  fix_g = fix_g,
+                                  output = output,
+                                  control = control,
+                                  call = call,
+                                  mixcompdist = "halfuniform",
+                                  ...)
   } else if (prior_type == "unimodal_symmetric") {
-    retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
-                                  call = match.call(),
-                                  mixcompdist = "uniform", ...)
+    retlist <- ebnm_ash_workhorse(x = x,
+                                  s = s,
+                                  mode = mode,
+                                  scale = scale,
+                                  g_init = g_init,
+                                  fix_g = fix_g,
+                                  output = output,
+                                  control = control,
+                                  call = call,
+                                  mixcompdist = "uniform",
+                                  ...)
   } else if (prior_type == "unimodal_nonnegative") {
-    retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
-                                  call = match.call(),
-                                  mixcompdist = "+uniform", ...)
+    retlist <- ebnm_ash_workhorse(x = x,
+                                  s = s,
+                                  mode = mode,
+                                  scale = scale,
+                                  g_init = g_init,
+                                  fix_g = fix_g,
+                                  output = output,
+                                  control = control,
+                                  call = call,
+                                  mixcompdist = "+uniform",
+                                  ...)
   } else if (prior_type == "unimodal_nonpositive") {
-    retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
-                                  call = match.call(),
-                                  mixcompdist = "-uniform", ...)
+    retlist <- ebnm_ash_workhorse(x = x,
+                                  s = s,
+                                  mode = mode,
+                                  scale = scale,
+                                  g_init = g_init,
+                                  fix_g = fix_g,
+                                  output = output,
+                                  control = control,
+                                  call = call,
+                                  mixcompdist = "-uniform",
+                                  ...)
   } else if (prior_type == "ash") {
-    retlist <- ebnm_ash_workhorse(x, s, mode, scale, g_init, fix_g, output,
-                                  call = match.call(), ...)
+    retlist <- ebnm_ash_workhorse(x = x,
+                                  s = s,
+                                  mode = mode,
+                                  scale = scale,
+                                  g_init = g_init,
+                                  fix_g = fix_g,
+                                  output = output,
+                                  control = control,
+                                  call = call,
+                                  ...)
   }
 
   return(retlist)

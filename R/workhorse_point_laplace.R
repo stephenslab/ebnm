@@ -1,17 +1,11 @@
-#' @describeIn ebnm Solves the EBNM problem using a point-laplace prior.
-#'
-#' @export
-#'
-ebnm_point_laplace <- function (x,
-                                s = 1,
-                                mode = 0,
-                                scale = "estimate",
-                                g_init = NULL,
-                                fix_g = FALSE,
-                                output = output_default(),
-                                control = NULL) {
-  check_args(x, s, g_init, fix_g, output)
-
+ebnm_pl_workhorse <- function(x,
+                              s,
+                              mode,
+                              scale,
+                              g_init,
+                              fix_g,
+                              output,
+                              control) {
   if (mode != 0) {
     stop("Option to estimate mode not yet implemented for 'point_laplace' ",
          "priors.")

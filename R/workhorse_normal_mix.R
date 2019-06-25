@@ -1,20 +1,18 @@
-#' @describeIn ebnm Solves the EBNM problem using a scale mixture of normals.
-#'
 #' @importFrom ashr normalmix
+#' @importFrom mixsqp mixsqp
+#' @importFrom stats rnorm
 #'
-#' @export
-#'
-ebnm_normal_scale_mixture <- function(x,
-                                      s = 1,
-                                      mode = 0,
-                                      scale = "estimate",
-                                      g_init = NULL,
-                                      fix_g = FALSE,
-                                      output = output_default(),
-                                      control = list(),
-                                      pointmass = TRUE,
-                                      grid_mult = sqrt(2),
-                                      ...) {
+ebnm_normal_mix_workhorse <- function(x,
+                                      s,
+                                      mode,
+                                      scale,
+                                      g_init,
+                                      fix_g,
+                                      output,
+                                      control) {
+  pointmass <- TRUE
+  grid_mult <- sqrt(2)
+
   # If mode is "estimate" then just call into ashr.
   if (is.null(g_init) && identical(pmatch(mode, "estimate"), 1L)) {
     return(ebnm_ash_workhorse(x = x,
@@ -82,7 +80,7 @@ ebnm_normal_scale_mixture <- function(x,
 
     control0 <- list(verbose = FALSE)
     control  <- modifyList(control0, control, keep.null = TRUE)
-    optres   <- mixsqp::mixsqp(L = L_mat, x0 = pi_init, control = control)
+    optres   <- mixsqp(L = L_mat, x0 = pi_init, control = control)
 
     pi_est <- rep(0, n_mixcomp)
     pi_est[nonzero_cols] <- pmax(optres$x, 0)

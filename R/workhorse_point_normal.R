@@ -1,28 +1,4 @@
-#' @describeIn ebnm Solves the EBNM problem using a point-normal prior.
-#'
-#' @param control A list of control parameters to be passed to the optimization
-#'   function.
-#'
-#' @export
-#'
-ebnm_point_normal <- function(x,
-                              s = 1,
-                              mode = 0,
-                              scale = "estimate",
-                              g_init = NULL,
-                              fix_g = FALSE,
-                              output = output_default(),
-                              control = NULL) {
-  return(ebnm_pn_workhorse(x = x,
-                           s = s,
-                           mode = mode,
-                           scale = scale,
-                           g_init = g_init,
-                           fix_g = fix_g,
-                           output = output,
-                           control = control,
-                           pointmass = TRUE))
-}
+
 
 # The workhorse function is used by both ebnm_point_normal and ebnm_normal.
 #
@@ -30,15 +6,13 @@ ebnm_point_normal <- function(x,
 #'
 ebnm_pn_workhorse <- function(x,
                               s,
+                              mode,
+                              scale,
                               g_init,
                               fix_g,
                               output,
-                              mode,
-                              scale,
                               control,
                               pointmass) {
-  check_args(x, s, g_init, fix_g, output)
-
   if (!is.null(g_init)) {
     if (!inherits(g_init, "normalmix")) {
       stop("g_init must be NULL or an object of class ashr::normalmix.")
