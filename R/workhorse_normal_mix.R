@@ -1,3 +1,6 @@
+# This does basically the same thing as ashr::ash, but is re-organized to
+#   avoid doing any given matrix computation more than a single time.
+#
 #' @importFrom ashr normalmix
 #' @importFrom mixsqp mixsqp
 #' @importFrom stats optimize rnorm
