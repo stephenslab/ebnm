@@ -4,6 +4,7 @@
 #' @importFrom ashr normalmix
 #' @importFrom mixsqp mixsqp
 #' @importFrom stats optimize rnorm pnorm
+#' @importFrom utils modifyList
 #'
 ebnm_normal_mix_workhorse <- function(x,
                                       s,
