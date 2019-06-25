@@ -18,6 +18,8 @@ ebnm_pl_workhorse <- function(x,
 
   check_g_init(g_init,
                fix_g,
+               mode = mode,
+               scale = scale,
                pointmass = TRUE,
                call = call,
                class_name = "laplacemix",
