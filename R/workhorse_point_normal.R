@@ -1,5 +1,3 @@
-
-
 # The workhorse function is used by both ebnm_point_normal and ebnm_normal.
 #
 #' @importFrom ashr normalmix
