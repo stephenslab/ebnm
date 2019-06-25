@@ -4,26 +4,24 @@ ebnm_npmle <- function(x,
                        fix_g = FALSE,
                        output = output_default(),
                        ...) {
+  max_ncomp <- 20
+
   # Create ash grid.
   if (is.null(g_init)) {
-    if (any(is.infinite(s))) {
-      grid.x <- x[is.finite(s)]
-      grid.s <- s[is.finite(s)]
-    } else {
-      grid.x <- x
-      grid.s <- s
+    pts <- sort(x)
+    if (length(x) > max_ncomp) {
+      idx <- c(1, ceiling(length(x) / (max_ncomp - 1) * 1:(max_ncomp - 1)))
+      idx[max_ncomp] <- length(x)
+      pts <- pts[idx]
     }
-
-    n <- length(grid.x)
-    z <- qnorm(0.5 / n, lower.tail = FALSE)
-    grid.min    <- min(grid.x - z * grid.s)
-    grid.max    <- max(grid.x + z * grid.s)
-    grid.nseg   <- max(8, ceiling((grid.max - grid.min)
-                                  / (min(grid.s[grid.s > 0]) / 2)))
-    grid.seglen <- (grid.max - grid.min) / grid.nseg
-    g_init <- ashr::unimix(pi = rep(0, grid.nseg),
-                           a = grid.min + (0:(grid.nseg - 1)) * grid.seglen,
-                           b = grid.min + (1:grid.nseg) * grid.seglen)
+    ncomp <- length(pts)
+    mids <- (pts[1:(ncomp - 1)] + pts[2:ncomp]) / 2
+    mids <- c(pts[1] - (mids[1] - pts[1]),
+              mids,
+              pts[ncomp] + (pts[ncomp] - mids[ncomp - 1]))
+    g_init <- ashr::unimix(pi = rep(0, ncomp),
+                           a = mids[1:ncomp],
+                           b = mids[2:(ncomp + 1)])
   }
 
   return(ebnm_ash_workhorse(x = x,
