@@ -1,5 +1,10 @@
 # pi0 = 1, so G is the family of point masses \delta_0(\mu).
 mle_point_only <- function(x, s, g, fix_a, fix_mu) {
+  if (!fix_mu && any(s == 0)) {
+    stop("The mode cannot be estimated if any SE is zero (the gradient does ",
+         "not exist).")
+  }
+
   if (!fix_a) {
     # The value of a doesn't matter.
     g$a <- 1

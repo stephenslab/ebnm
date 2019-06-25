@@ -67,7 +67,4 @@ test_that("Infinite and zero SEs give expected results", {
   expect_equal(norm.res$result$posterior_mean[10], 0)
   expect_equal(norm.res$result$posterior_mean2[10],
                norm.res$fitted_g$sd^2)
-
-  # Should get an error if mu is not fixed.
-  expect_error(ebnm_normal(x, s, mode = "est"))
 })

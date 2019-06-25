@@ -12,66 +12,51 @@ ebnm_pn_workhorse <- function(x,
                               fix_g,
                               output,
                               control,
-                              pointmass) {
-  if (!is.null(g_init)) {
-    if (!inherits(g_init, "normalmix")) {
-      stop("g_init must be NULL or an object of class ashr::normalmix.")
-    }
-    ncomp <- length(g_init$pi)
-    if ((ncomp == 0) || (ncomp > 2)) {
-      stop("g_init does not have the correct number of components.")
-    }
-    g <- list(pi0 = g_init$pi[1],
-              a = 1 / g_init$sd[ncomp]^2,
-              mu = g_init$mean[1])
-  } else {
-    g <- list()
+                              pointmass,
+                              call) {
+  if (length(scale) != 1) {
+    stop("Argument 'scale' must be either 'estimate' or a scalar.")
   }
 
-  if (pointmass) {
-    fix_pi0 <- fix_g
-  } else {
-    fix_pi0 <- TRUE
-    g$pi0 <- 0
-  }
+  check_g_init(g_init,
+               fix_g,
+               pointmass = pointmass,
+               call = call,
+               class_name = "normalmix",
+               scale_name = "sd")
 
-  # Allow partial matching for mode and scale.
-  if (identical(pmatch(mode, "estimate"), 1L)) {
-    fix_mu <- fix_g
-  } else if (is.numeric(mode) && (length(mode) == 1)) {
-    # Use all.equal to allow for numerical error.
-    if (!is.null(g$mu) && !isTRUE(all.equal(g$mu, mode))) {
-      stop("If mode and g_init$mean are both supplied, they must agree.")
-    }
-    fix_mu <- TRUE
-    g$mu <- mode
-  } else {
-    stop("Invalid argument to mode.")
-  }
-
-  if (!fix_mu && any(s == 0)) {
-    stop("The mode cannot be estimated if any SE is zero (the gradient does ",
-         "not exist).")
-  }
-
-  if (identical(pmatch(scale, "estimate"), 1L)) {
-    fix_a <- fix_g
-  } else if (is.numeric(scale) && (length(scale) == 1) && (scale > 0)) {
-    if (!is.null(g$a) && !isTRUE(all.equal(g$a, 1 / scale^2))) {
-      stop("If scale and g_init$sd are both supplied, they must agree.")
-    }
-    fix_a <- TRUE
-    g$a <- 1 / scale^2
-  } else {
-    stop("Invalid argument to scale.")
-  }
+  fix_pi0 <- !pointmass
+  fix_a   <- !identical(scale, "estimate")
+  fix_mu  <- !identical(mode, "estimate")
 
   if (fix_pi0 && fix_mu && fix_a) {
     fix_g <- TRUE
   }
 
+  if (!is.null(g_init) && length(g_init$pi) == 1) {
+    g <- list(pi0 = 0,
+              a = 1 / g_init$sd^2,
+              mu = g_init$mean)
+  } else if (!is.null(g_init) && length(g_init$pi) == 2) {
+    g <- list(pi0 = g_init$pi[1],
+              a = 1 / g_init$sd[2]^2,
+              mu = g_init$mean[1])
+  } else {
+    g <- list()
+    if (fix_pi0) {
+      g$pi0 <- 0
+    }
+    if (fix_a) {
+      g$a <- 1 / scale^2
+    }
+    if (fix_mu) {
+      g$mu <- mode
+    }
+  }
+
   x_optset <- x
   s_optset <- s
+
   # Don't use observations with infinite SEs when estimating g.
   if (any(is.infinite(s))) {
     x_optset <- x[is.finite(s)]
@@ -85,15 +70,14 @@ ebnm_pn_workhorse <- function(x,
     } else if (fix_pi0 && g$pi0 == 0) {
       g <- mle_normal(x_optset, s_optset, g, fix_a, fix_mu)
     } else {
-      g <- mle_point_normal(x_optset, s_optset, g, control,
-                            fix_pi0, fix_a, fix_mu)
+      g <- mle_point_normal(x_optset, s_optset, g, control, fix_pi0, fix_a, fix_mu)
     }
   }
 
   pi0 <- g$pi0
-  w <- 1 - pi0
-  a <- g$a
-  mu <- g$mu
+  w   <- 1 - pi0
+  a   <- g$a
+  mu  <- g$mu
 
   retlist <- list()
 
@@ -129,4 +113,40 @@ ebnm_pn_workhorse <- function(x,
   }
 
   return(retlist)
+}
+
+# Used by both ebnm_pn_workhorse and ebnm_pl_workhorse.
+check_g_init <- function(g_init, fix_g, pointmass, call, class_name, scale_name) {
+  if (!is.null(g_init)) {
+    if (!inherits(g_init, class_name)) {
+      stop("g_init must be NULL or an object of class ", class_name, ".")
+    }
+
+    ncomp <- length(g_init$pi)
+    if (!(ncomp == 1 || (pointmass && ncomp == 2))) {
+      stop("g_init does not have the correct number of components.")
+    }
+    if (ncomp == 2 && g_init[[scale_name]][1] != 0) {
+      stop("The first component of g_init must be a point mass.")
+    }
+
+    if (fix_g && (!is.null(call$mode) || !is.null(call$scale))) {
+      warning("mode and scale parameters are ignored when g is fixed.")
+    }
+
+    if (!fix_g) {
+      # all.equal allows for numerical error:
+      if (!is.null(call$mode)
+          && !identical(call$mode, "estimate")
+          && !isTRUE(all.equal(g_init$mean[1], call$mode))) {
+        stop("If mode is fixed and g_init is supplied, they must agree.")
+      }
+      g_scale <- g_init[[scale_name]][ncomp]
+      if (!is.null(call$scale)
+          && !identical(call$scale, "estimate")
+          && !isTRUE(all.equal(g_scale, scale))) {
+        stop("If scale is fixed and g_init is supplied, they must agree.")
+      }
+    }
+  }
 }

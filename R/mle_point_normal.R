@@ -1,6 +1,11 @@
 #' @importFrom stats nlm
 #'
 mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
+  if (!fix_mu && any(s == 0)) {
+    stop("The mode cannot be estimated if any SE is zero (the gradient does ",
+         "not exist).")
+  }
+
   startpar <- pn_startpar(x, s, g, fix_pi0, fix_a, fix_mu)
 
   if (fix_pi0) {

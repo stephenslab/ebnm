@@ -1,5 +1,3 @@
-# The workhorse function is used by all ebnm functions that call into ashr.
-#
 #' @importFrom ashr ash
 #'
 ebnm_ash_workhorse <- function(x,
@@ -11,7 +9,9 @@ ebnm_ash_workhorse <- function(x,
                                output,
                                call,
                                ...) {
-  check_args(x, s, g_init, fix_g, output)
+  if (scale == "estimate") {
+    scale <- NULL
+  }
 
   ash_output <- output
   if ("result" %in% output) {
@@ -21,13 +21,6 @@ ebnm_ash_workhorse <- function(x,
 
   # Ash will accept either mode and mixsd or g, but not both.
   if (is.null(g_init)) {
-    # Allow partial matching for mode and scale.
-    if (identical(pmatch(mode, "estimate"), 1L)) {
-      mode <- "estimate"
-    }
-    if (identical(pmatch(scale, "estimate"), 1L)) {
-      scale <- NULL
-    }
     ash.res <- ash(betahat = as.vector(x),
                    sebetahat = as.vector(s),
                    mode = mode,
@@ -47,32 +40,33 @@ ebnm_ash_workhorse <- function(x,
                    ...)
   }
 
-  res <- list()
+  retlist <- list()
 
   if ("result" %in% output || "lfsr" %in% output) {
-    res$result <- list()
+    retlist$result <- list()
     if ("result" %in% output) {
-      pm <- ash.res$result$PosteriorMean
-      res$result$posterior_mean <- pm
-      res$result$posterior_mean2 <- pm^2 + ash.res$result$PosteriorSD^2
+      pm  <- ash.res$result$PosteriorMean
+      pm2 <- ash.res$result$PosteriorSD^2
+      retlist$result$posterior_mean  <- pm
+      retlist$result$posterior_mean2 <- pm^2 + pm2
     }
     if ("lfsr" %in% output) {
-      res$result$lfsr <- ash.res$result$lfsr
+      retlist$result$lfsr <- ash.res$result$lfsr
     }
-    res$result <- data.frame(res$result)
+    retlist$result <- data.frame(retlist$result)
   }
 
   if ("fitted_g" %in% output) {
-    res$fitted_g <- ash.res$fitted_g
+    retlist$fitted_g <- ash.res$fitted_g
   }
 
   if ("loglik" %in% output) {
-    res$loglik <- ash.res$loglik
+    retlist$loglik <- ash.res$loglik
   }
 
   if ("post_sampler" %in% output) {
-    res$post_sampler <- ash.res$post_sampler
+    retlist$post_sampler <- ash.res$post_sampler
   }
 
-  return(res)
+  return(retlist)
 }

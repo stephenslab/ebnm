@@ -1,6 +1,6 @@
 #' @importFrom ashr normalmix
 #' @importFrom mixsqp mixsqp
-#' @importFrom stats rnorm
+#' @importFrom stats optimize rnorm
 #'
 ebnm_normal_mix_workhorse <- function(x,
                                       s,
@@ -9,37 +9,42 @@ ebnm_normal_mix_workhorse <- function(x,
                                       g_init,
                                       fix_g,
                                       output,
-                                      control) {
-  pointmass <- TRUE
-  grid_mult <- sqrt(2)
-
-  # If mode is "estimate" then just call into ashr.
-  if (is.null(g_init) && identical(pmatch(mode, "estimate"), 1L)) {
-    return(ebnm_ash_workhorse(x = x,
-                              s = s,
-                              mode = mode,
-                              scale = scale,
-                              fixg = fixg,
-                              output = output,
-                              call = match.call(),
-                              mixcompdist = "normal",
-                              pointmass = pointmass,
-                              mult = grid_mult,
-                              ...))
-  }
-
-  check_args(x, s, g_init, fix_g, output)
-
-  # Set the ash grid.
+                                      control,
+                                      pointmass,
+                                      grid_mult,
+                                      call) {
   if (!is.null(g_init)) {
     if (!inherits(g_init, "normalmix")) {
-      stop("g_init must be NULL or an object of class ashr::normalmix.")
+      stop("g_init must be NULL or an object of class normalmix.")
     }
-    if (!identical(pmatch(scale, "estimate"), 1L)) {
-      warning("An initial g was supplied. Ignoring scale parameter.")
+    if (!is.null(call$mode) || !is.null(call$scale)) {
+      warning("mode and scale parameters are ignored when g_init is supplied.")
     }
+    mode  <- g_init$mean[1]
     scale <- g_init$sd
-  } else {
+  }
+
+  if (identical(mode, "estimate")) {
+    # Adapted from ash.estmode.
+    mode_opt_fn <- function(m) {
+      ebnm_res <- ebnm_normal_mix_workhorse(x = x,
+                                            s = s,
+                                            mode = m,
+                                            scale = scale,
+                                            g_init = NULL,
+                                            fix_g = FALSE,
+                                            output = "loglik",
+                                            control = control,
+                                            pointmass = pointmass,
+                                            grid_mult = grid_mult,
+                                            call = NULL)
+      return(ebnm_res$loglik)
+    }
+    mode_opt_res <- optimize(mode_opt_fn, c(min(x), max(x)), maximum = TRUE)
+    mode <- mode_opt_res$maximum
+  }
+
+  if (identical(scale, "estimate")) {
     # Adapted from ashr:::autoselect.mixsd.
     sigmamin <- min(s[s > 0]) / 10
     sigmamax <- max(8 * sigmamin, 2 * sqrt(max(x^2 - s^2, 0)))
@@ -53,7 +58,7 @@ ebnm_normal_mix_workhorse <- function(x,
   n_mixcomp <- length(scale)
   n_obs     <- length(x)
 
-  # Estimate mixture proportions. Adapted from ashr:::estimate_mixprop.
+  # Adapted from ashr:::estimate_mixprop.
   if (length(s) == 1) {
     s <- rep(s, n_obs)
   }
@@ -64,7 +69,7 @@ ebnm_normal_mix_workhorse <- function(x,
 
   if (fix_g) {
     fitted_g <- g_init
-    pi_est <- g_init$pi
+    pi_est   <- g_init$pi
   } else {
     if (is.null(g_init)) {
       pi_init <- rep(1, n_mixcomp)
@@ -75,7 +80,7 @@ ebnm_normal_mix_workhorse <- function(x,
     nonzero_cols <- (apply(L_mat, 2, max) > 0)
     if (!all(nonzero_cols)) {
       pi_init <- pi_init[nonzero_cols]
-      L_mat  <- L_mat[, nonzero_cols, drop = FALSE]
+      L_mat   <- L_mat[, nonzero_cols, drop = FALSE]
     }
 
     control0 <- list(verbose = FALSE)
@@ -94,9 +99,8 @@ ebnm_normal_mix_workhorse <- function(x,
   retlist <- list()
 
   if (any(c("result", "lfsr", "post_sampler") %in% output)) {
-    comp_postprob <- L_mat * matrix(pi_est, nrow = n_obs, ncol = n_mixcomp,
-                                      byrow = TRUE)
-    comp_postprob <- comp_postprob / rowSums(comp_postprob)
+    comp_postprob  <- L_mat * matrix(pi_est, n_obs, n_mixcomp, byrow = TRUE)
+    comp_postprob  <- comp_postprob / rowSums(comp_postprob)
     comp_postmean  <- mode * s^2 + outer(x, scale^2) / sigmamat
     comp_postmean2 <- comp_postmean^2 + outer(s^2, scale^2) / sigmamat
 

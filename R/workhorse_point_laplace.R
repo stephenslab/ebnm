@@ -5,42 +5,37 @@ ebnm_pl_workhorse <- function(x,
                               g_init,
                               fix_g,
                               output,
-                              control) {
-  if (mode != 0) {
-    stop("Option to estimate mode not yet implemented for 'point_laplace' ",
-         "priors.")
-  }
-
+                              control,
+                              call) {
   if (any(s == 0)) {
     stop("Handling of SEs equal to zero not yet implemented for ",
          "'point_laplace' priors.")
   }
 
-  if (!is.null(g_init)) {
-    if (!inherits(g_init, "laplacemix")) {
-      stop("g_init must be NULL or an object of class laplacemix.")
-    }
-    ncomp <- length(g_init$pi)
-    if (ncomp != 2) {
-      stop("g_init does not have the correct number of components.")
-    }
+  if (mode != 0) {
+    stop("Nonzero modes not yet implemented for 'point_laplace' priors.")
+  }
+
+  check_g_init(g_init,
+               fix_g,
+               pointmass = TRUE,
+               call = call,
+               class_name = "laplacemix",
+               scale_name = "scale")
+
+  fix_a <- !identical(scale, "estimate")
+
+  if (!is.null(g_init) && length(g_init$pi) == 1) {
+    g <- list(pi0 = 0,
+              a = 1 / g_init$scale)
+  } else if (!is.null(g_init) && length(g_init$pi) == 2) {
     g <- list(pi0 = g_init$pi[1],
               a = 1 / g_init$scale[2])
   } else {
     g <- list()
-  }
-
-  # Allow partial matching for scale.
-  if (identical(pmatch(scale, "estimate"), 1L)) {
-    fix_a <- fix_g
-  } else if (is.numeric(scale) && (length(scale) == 1) && (scale > 0)) {
-    if (!is.null(g$a) && !isTRUE(all.equal(g$a, 1 / scale))) {
-      stop("If scale and g_init$scale are both supplied, they must agree.")
+    if (fix_a) {
+      g$a <- 1 / scale
     }
-    fix_a <- TRUE
-    g$a <- 1 / scale
-  } else {
-    stop("Invalid argument to scale.")
   }
 
   x_optset <- x
@@ -58,16 +53,11 @@ ebnm_pl_workhorse <- function(x,
     } else {
       g <- mle_point_laplace(x_optset, s_optset, g, control)
     }
-  } else {
-    if (!inherits(g_init, "laplacemix")) {
-      stop("g_init must be NULL or an object of class laplacemix.")
-    }
-    g <- list(pi0 = g_init$pi[1], a = 1 / g_init$scale[2])
   }
 
   pi0 <- g$pi0
-  w <- 1 - g$pi0
-  a <- g$a
+  w   <- 1 - g$pi0
+  a   <- g$a
 
   retlist <- list()
 
@@ -77,15 +67,15 @@ ebnm_pl_workhorse <- function(x,
   }
 
   if ("fitted_g" %in% output) {
-    retlist <- c(retlist,
-                 list(fitted_g = laplacemix(pi = c(pi0, w),
-                                            mean = rep(0, 2),
-                                            scale = c(0, 1 / a))))
+    fitted_g <- laplacemix(pi = c(pi0, w),
+                           mean = rep(0, 2),
+                           scale = c(0, 1 / a))
+    retlist <- c(retlist, list(fitted_g = fitted_g))
   }
 
   if ("loglik" %in% output) {
     if (fix_g) {
-      loglik <- loglik_point_laplace(x, s, w, a)
+      loglik <- loglik_point_laplace(x_optset, s_optset, w, a)
     } else {
       loglik <- g$val
     }
@@ -101,7 +91,16 @@ ebnm_pl_workhorse <- function(x,
   return(retlist)
 }
 
-# Constructor for laplacemix class.
+#' Constructor for laplacemix class
+#'
+#' Creates a finite mixture of Laplace distributions.
+#'
+#' @param pi A vector of mixture proportions.
+#' @param mean A vector of means.
+#' @param scale A vector of scale parameters.
+#'
+#' @export
+#'
 laplacemix <- function(pi, mean, scale) {
   structure(data.frame(pi, mean, scale), class="laplacemix")
 }
