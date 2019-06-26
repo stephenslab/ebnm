@@ -22,56 +22,89 @@
 #'   Second, compute the posterior distributions \eqn{p(\theta_j | x_j, s_j, \hat{g})}, and/or summaries
 #'   such as the posterior means and posterior second moments, etc.
 #'
-#' @param x A vector of observations.
+#' @param x A vector of observations. Missing observations (\code{NA}s) are
+#'   allowed. If any observations are missing, the corresponding standard
+#'   errors should be set to \code{Inf}.
 #'
 #' @param s A vector of standard errors (or a scalar if all are equal).
-#'   Standard errors can be infinite, but they must be nonzero.
+#'   Standard errors may be infinite, but they may not be exactly zero.
+#'   Missing standard errors are not allowed.
 #'
-#' @param mode Scalar specifying the mode of the prior, g. Set to \code{"estimate"}
-#'   to estimate it from the data.
+#' @param prior_family A character string that specifies the prior family
+#'   \eqn{G}. See "Details" below.
 #'
-#' @param scale Scalar or vector, specifying the scale parameter(s) of the prior. The
-#' precise interpretation of \code{scale} depends on \code{prior_family}. For \code{prior_family=normal, point_normal}
-#' it is a scalar specifying the standard deviation of the normal component;
-#' for \code{prior_family=point_laplace} it is a scalar specifying the rate parameter of the
-#' Laplace component; for other prior types, which are implemented using the \code{\link[ashr]{ash}} function in the
-#' \code{ashr} package,
-#' it is a vector specifying the parameter \code{mixsd} to be passed to \code{\link[ashr]{ash}}.
-#' Set to \code{"estimate"} to estimate it from the data (or to use the default \code{mixsd} in \code{\link[ashr]{ash}}).
+#' @param mode A scalar specifying the mode of the prior \eqn{g} or
+#'   \code{"estimate"} if the mode is to be estimated from the data.
 #'
-#' @param g_init The prior distribution, \eqn{g}. Usually this is left unspecified (NULL) and
-#'   estimated from the data. However, it can be used in conjuction with
-#'   \code{fix_g = TRUE} to fix the prior (useful, for example, to do
-#'   computations with the "true" \code{g} in simulations). If \code{g_init} is specified but
-#'   \code{fix_g = FALSE}, \code{g_init} specifies the initial value of \code{g}
-#'   used during optimization. This has the side effect of fixing the
-#'   \code{mode} and \code{scale} parameters for adaptive shrinkage (ash) priors.
+#' @param scale A scalar or vector specifying the scale parameter(s) of the
+#'   prior or \code{"estimate"} if the scale parameters are to be estimated
+#'   from the data. The precise interpretation of \code{scale} depends on
+#'   \code{prior_family}. For normal and point-normal families, it is a scalar
+#'   specifying the standard deviation of the normal component. For
+#'   \code{prior_family = "point_laplace"}, it is a scalar specifying the scale
+#'   parameter of the Laplace component. For other prior types, which are
+#'   implemented using the function \code{ash} in package \code{ashr}, it is a
+#'   vector specifying the parameter \code{mixsd} to be passed to
+#'   \code{\link[ashr]{ash}} (or \code{"estimate"} if the default \code{mixsd}
+#'   is to be used).
 #'
-#' @param fix_g If \code{TRUE}, fix the prior \eqn{g}=\code{g_init} instead of
-#'   estimating it.
+#' @param g_init The prior distribution \eqn{g}. Usually this is left
+#'   unspecified (\code{NULL}) and estimated from the data. However, it can be
+#'   used in conjuction with \code{fix_g = TRUE} to fix the prior (useful, for
+#'   example, to do computations with the "true" \eqn{g} in simulations). If
+#'   \code{g_init} is specified but \code{fix_g = FALSE}, \code{g_init}
+#'   specifies the initial value of \eqn{g} used during optimization. For
+#'   \code{ash} priors, this has the side effect of fixing the \code{mode}
+#'   and \code{scale} parameters. If \code{g_init} is supplied, it should be
+#'   an object of class \code{\link[ashr]{normalmix}} for prior families
+#'   \code{normal}, \code{point_normal}, and \code{normal_scale_mixture};
+#'   class \code{\link{laplacemix}} for point-Laplace families; and class
+#'   \code{\link[ashr]{unimix}} for \code{unimodal_} families.
+#'
+#' @param fix_g If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
+#'   of estimating it.
 #'
 #' @param output A character vector indicating which values are to be returned.
-#'   Options include:
+#'   Function \code{output_default()} provides the default return values, while
+#'   \code{output_all()} lists all possible return values. See "Value" below.
+#'
+#' @param control A list of control parameters to be passed to the optimization
+#'   function. For point-normal and point-Laplace prior families, function
+#'   \code{\link[stats]{nlm}} is used. For ash prior families (including
+#'   \code{normal_scale_mixture} and all \code{unimodal_} families),
+#'   function \code{\link[mixsqp]{mixsqp}} in package \code{mixsqp} is used
+#'   unless otherwise specified via parameter \code{optmethod} (see
+#'   \code{\link[ashr]{ash}} for details). Finally, when
+#'   \code{prior_family = "normal"}, \code{ebnm} calls into function
+#'   \code{optimize}, which does not accept a \code{control} parameter.
+#'
+#' @param ... Additional parameters. When \code{prior_family = "ash"} or when
+#'   a \code{unimodal_} prior family is used, these parameters are passed to
+#'   function \code{\link[ashr]{ash}} in package \code{ashr}. Otherwise, they
+#'   are ignored.
+#'
+#' @return An \code{ebnm} object. Depending on the argument to \code{output}, the
+#'   object is a list containing elements:
 #'     \describe{
-#'       \item{\code{"result"}}{Summary results (posterior first and second
-#'         moments).}
-#'       \item{\code{"fitted_g"}}{The fitted prior \eqn{\hat{g}}.}
-#'       \item{\code{"loglik"}}{The optimal log likelihood attained, \eqn{L(\hat{g}}.}
-#'       \item{\code{"lfsr"}}{A vector of local false sign rates.}
-#'       \item{\code{"post_sampler"}}{A function that can be used to produce
-#'         samples from the posterior. It takes a single parameter
+#'       \item{\code{posterior}}{A data frame of summary results (posterior
+#'         means, standard deviations, and second moments; local false sign
+#'         rates).}
+#'       \item{\code{fitted_g}}{The fitted prior \eqn{g} (an object of class
+#'         \code{\link[ashr]{normalmix}}, \code{\link{laplacemix}}, or
+#'         \code{\link[ashr]{unimix}}).}
+#'       \item{\code{log_likelihood}}{The optimal log likelihood attained,
+#'         \eqn{L(x | g)}.}
+#'       \item{\code{posterior_sampler}}{A function that can be used to
+#'         produce samples from the posterior. It takes a single parameter
 #'         \code{nsamp}, the number of posterior samples to return per
 #'         observation.}
 #'      }
 #'
-#' @param control A list of control parameters to be passed to the optimization
-#'   function (\code{nlm} for normal, point-normal, and point-Laplace priors
-#'   and, unless specified otherwise, \code{mixsqp::mixsqp} for ash priors).
-#'
-#' @param prior_family A character string that specifies the prior family \eqn{G}. See "Details" below.
-#'
-#' @param ... Additional parameters. \code{unimodal_} prior types pass these
-#'   parameters to \code{ashr::ash}.
+#' @seealso \code{\link{ebnm_point_normal}}, \code{\link{ebnm_point_laplace}},
+#'   \code{\link{ebnm_normal}}, \code{\link{ebnm_normal_scale_mixture}},
+#'   \code{\link{ebnm_unimodal}}, \code{\link{ebnm_unimodal_symmetric}},
+#'   \code{\link{ebnm_unimodal_nonnegative}},
+#'   \code{\link{ebnm_unimodal_nonpositive}}, \code{\link{ebnm_ash}}.
 #'
 #' @examples
 #' theta <- c(rep(0, 1000), rexp(1000)) # means
@@ -84,12 +117,6 @@
 #'
 ebnm <- function(x,
                  s = 1,
-                 mode = 0,
-                 scale = "estimate",
-                 g_init = NULL,
-                 fix_g = FALSE,
-                 output = output_default(),
-                 control = NULL,
                  prior_family = c("point_normal",
                                   "point_laplace",
                                   "normal",
@@ -99,6 +126,12 @@ ebnm <- function(x,
                                   "unimodal_nonnegative",
                                   "unimodal_nonpositive",
                                   "ash"),
+                 mode = 0,
+                 scale = "estimate",
+                 g_init = NULL,
+                 fix_g = FALSE,
+                 output = output_default(),
+                 control = NULL,
                  ...) {
   prior_family <- match.arg(prior_family)
 
@@ -248,6 +281,14 @@ check_args <- function(x, s, g_init, fix_g, output) {
   if (!(length(s) %in% c(1, length(x)))) {
     stop("Argument 's' must have either length 1 or the same length as ",
          "argument 'x'.")
+  }
+
+  if (any(is.na(x)) && !all(is.infinite(s[is.na(x)]))) {
+    stop("All missing observations must have infinite SEs.")
+  }
+
+  if (any(is.na(s))) {
+    stop("Missing standard errors are not allowed.")
   }
 
   # Remove this check when handling of zero SEs has been implemented for

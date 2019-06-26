@@ -1,4 +1,8 @@
-#' @describeIn ebnm Solves the EBNM problem using a point-normal prior.
+#' Solve the EBNM problem using a point-normal prior
+#'
+#' See \code{\link{ebnm}} for details.
+#'
+#' @inheritParams ebnm
 #'
 #' @export
 #'
@@ -22,7 +26,11 @@ ebnm_point_normal <- function(x,
                         call = match.call()))
 }
 
-#' @describeIn ebnm Solves the EBNM problem using a point-Laplace prior.
+#' Solve the EBNM problem using a point-Laplace prior
+#'
+#' See \code{\link{ebnm}} for details.
+#'
+#' @inheritParams ebnm
 #'
 #' @export
 #'
@@ -46,8 +54,11 @@ ebnm_point_laplace <- function(x,
                         call = match.call()))
 }
 
-#' @describeIn ebnm Solves the EBNM problem using a normal prior (with no
-#'   point mass).
+#' Solve the EBNM problem using a normal prior
+#'
+#' No pointmass is used. See \code{\link{ebnm}} for details.
+#'
+#' @inheritParams ebnm
 #'
 #' @export
 #'
@@ -71,7 +82,11 @@ ebnm_normal <- function(x,
                         call = match.call()))
 }
 
-#' @describeIn ebnm Solves the EBNM problem using a scale mixture of normals.
+#' Solve the EBNM problem using a scale mixture of normals
+#'
+#' See \code{\link{ebnm}} for details.
+#'
+#' @inheritParams ebnm
 #'
 #' @export
 #'
@@ -95,7 +110,11 @@ ebnm_normal_scale_mixture <- function(x,
                         call = match.call()))
 }
 
-#' @describeIn ebnm Solves the EBNM problem using a unimodal distribution.
+#' Solve the EBNM problem using a unimodal distribution
+#'
+#' See \code{\link{ebnm}} for details.
+#'
+#' @inheritParams ebnm
 #'
 #' @export
 #'
@@ -121,8 +140,11 @@ ebnm_unimodal <- function(x,
                         ...))
 }
 
-#' @describeIn ebnm Solves the EBNM problem using a symmetric unimodal
-#'   distribution.
+#' Solve the EBNM problem using a symmetric unimodal distribution
+#'
+#' See \code{\link{ebnm}} for details.
+#'
+#' @inheritParams ebnm
 #'
 #' @export
 #'
@@ -148,8 +170,13 @@ ebnm_unimodal_symmetric <- function(x,
                         ...))
 }
 
-#' @describeIn ebnm Solves the EBNM problem using a unimodal distribution with
-#'   support constrained to be greater than the mode.
+#' Solve the EBNM problem using a nonnegative unimodal distribution
+#'
+#' More precisely, the support is constrained to be greater than the mode
+#'   (thus, when \code{mode} is not equal to zero, the distribution is not
+#'   necessarily nonnegative). See \code{\link{ebnm}} for details.
+#'
+#' @inheritParams ebnm
 #'
 #' @export
 #'
@@ -175,8 +202,13 @@ ebnm_unimodal_nonnegative <- function(x,
                         ...))
 }
 
-#' @describeIn ebnm Solves the EBNM problem using a unimodal distribution with
-#'   support constrained to be less than the mode.
+#' Solve the EBNM problem using a nonpositive unimodal distribution
+#'
+#' More precisely, the support is constrained to be less than the mode
+#'   (thus, when \code{mode} is not equal to zero, the distribution is not
+#'   necessarily nonpositive). See \code{\link{ebnm}} for details.
+#'
+#' @inheritParams ebnm
 #'
 #' @export
 #'
@@ -202,8 +234,12 @@ ebnm_unimodal_nonpositive <- function(x,
                         ...))
 }
 
-#' @describeIn ebnm A generic function for solving the EBNM problem using an
-#'   adaptive shrinkage (ash) prior.
+#' Solve the EBNM problem using an ash opior
+#'
+#' A generic function for solving the EBNM problem using an
+#'   adaptive shrinkage (ash) prior. See \code{\link{ebnm}} for details.
+#'
+#' @inheritParams ebnm
 #'
 #' @export
 #'
