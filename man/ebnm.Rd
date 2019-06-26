@@ -64,25 +64,27 @@ output_all()
 
 \item{s}{A vector of standard deviations (or a scalar if all are equal).}
 
-\item{mode}{Fixes the location of the prior mode. Set to \code{"estimate"}
+\item{mode}{Scalar specifying the mode of the prior, g. Set to \code{"estimate"}
 to estimate it from the data.}
 
-\item{scale}{Fixes the scale of the prior. Corresponds to the standard
-deviation of the normal component for normal and point-normal
-distributions; the rate parameter of the Laplace component for
-point-Laplace distributions; and parameter \code{mixsd} for adaptive
-shrinkage priors (see \code{\link[ashr]{ash}}). Set to \code{"estimate"}
-to estimate it from the data.}
+\item{scale}{Scalar or vector, specifying the scale parameter(s) of the prior. The
+precise interpretation of \code{scale} depends on \code{prior_type}. For \code{prior_type=normal, point_normal}
+it is a scalar specifying the standard deviation of the normal component;
+for \code{prior_type=point_laplace} it is a scalar specifying the rate parameter of the
+Laplace component; for other prior types, which are implemented using the \code{\link[ashr]{ash}} function in the
+\code{ashr} package,
+it is a vector specifying the parameter \code{mixsd} to be passed to \code{\link[ashr]{ash}}.
+Set to \code{"estimate"} to estimate it from the data (or to use the default \code{mixsd} in \code{\link[ashr]{ash}}).}
 
-\item{g_init}{The prior distribution. Usually this is left unspecified and
+\item{g_init}{The prior distribution, \eqn{g}. Usually this is left unspecified (NULL) and
 estimated from the data. However, it can be used in conjuction with
 \code{fix_g = TRUE} to fix the prior (useful, for example, to do
-computations with the "true" \code{g}). If \code{g_init} is specified but
+computations with the "true" \code{g} in simulations). If \code{g_init} is specified but
 \code{fix_g = FALSE}, \code{g_init} specifies the initial value of \code{g}
 used during optimization, but this has the side effect of fixing the
 \code{mode} and \code{scale} parameters for adaptive shrinkage (ash) priors.}
 
-\item{fix_g}{If \code{TRUE}, fix \code{g} at the specified value instead of
+\item{fix_g}{If \code{TRUE}, fix the prior \eqn{g}=\code{g_init} instead of
 estimating it.}
 
 \item{output}{A character vector indicating which values are to be returned.
@@ -90,8 +92,8 @@ Options include:
   \describe{
     \item{\code{"result"}}{Summary results (posterior first and second
       moments).}
-    \item{\code{"fitted_g"}}{The fitted prior.}
-    \item{\code{"loglik"}}{The optimal log likelihood attained.}
+    \item{\code{"fitted_g"}}{The fitted prior \eqn{\hat{g}}.}
+    \item{\code{"loglik"}}{The optimal log likelihood attained, \eqn{L(\hat{g}}.}
     \item{\code{"lfsr"}}{A vector of local false sign rates.}
     \item{\code{"post_sampler"}}{A function that can be used to produce
       samples from the posterior. It takes a single parameter
@@ -103,28 +105,34 @@ Options include:
 function (\code{nlm} for normal, point-normal, and point-Laplace priors
 and, unless specified otherwise, \code{mixsqp::mixsqp} for ash priors).}
 
-\item{prior_type}{The class of distributions from which the prior is to be
-estimated. See "Details" below.}
+\item{prior_type}{The prior family \eqn{G}. See "Details" below.}
 
 \item{...}{Additional parameters. \code{unimodal_} prior types pass these
 parameters to \code{ashr::ash}.}
 }
 \description{
-Solves the empirical Bayes normal means problem using a specified class of
+Solves the empirical Bayes normal means problem using a specified family of
   priors.
 }
 \details{
 TODO: update me.
 
 Given vectors of data \code{x} and standard errors \code{s},
-  solve the EBNM problem with a point-normal or point-laplace prior. The
-  model is \deqn{x_j \sim N(\theta_j, s_j^2),} where \eqn{s_j} are given and
-  \eqn{\theta_j \sim g}, with \eqn{g} either a mixture of a point mass at
-  \eqn{\mu} and a normal distribution: \deqn{\theta_j \sim \pi_0 \delta_\mu
-  + (1 - \pi_0)N(\mu, 1/a)} or a mixture of a point mass at zero and a
-  laplace distribution: \deqn{\theta_j \sim \pi_0 \delta_0 +
-  (1 - \pi_0)DExp(a).} \eqn{\pi_0}, \eqn{a}, and \eqn{\mu} are estimated by
-  marginal maximum likelihood.
+  solve the "empirical Bayes normal means" (EBNM) problem, for various
+  choices of prior family.
+  The model is \deqn{x_j | \theta_j, s_j \sim N(\theta_j, s_j^2),}  and
+  \deqn{\theta_j | s_j \sim g \in G}, where the distribution \eqn{g} is to be estimated.
+  The distribution \eqn{g} is often referred to as the "prior distribution" for \eqn{\theta_j}
+  and \eqn{G} is a specified family of prior distributions (several options for \eqn{G} are implemented, some
+  parametric and others non-parametric;  see below for examples).
+
+  Solving the EBNM problem involves
+  two steps. First, estimate \eqn{g \in  G}, by maximum marginal likelihood, yielding
+  an estimate \deqn{\hat{g}:= \arg\max_{g \in G} L(g)} where
+  \deqn{L(g):= \prod_j
+  \int p(x_j | \theta_j, s_j)  g(d\theta_j);}
+  Second, compute the posterior distributions \eqn{p(\theta_j | x_j, s_j, \hat{g})}, and/or summaries
+  such as the posterior means and posterior second moments, etc.
 }
 \section{Functions}{
 \itemize{
