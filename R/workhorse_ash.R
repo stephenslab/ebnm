@@ -9,7 +9,7 @@ ebnm_ash_workhorse <- function(x,
                                output,
                                call,
                                ...) {
-  if (scale == "estimate") {
+  if (identical(scale, "estimate")) {
     scale <- NULL
   }
 
@@ -21,7 +21,7 @@ ebnm_ash_workhorse <- function(x,
 
   # Ash will accept either mode and mixsd or g, but not both.
   if (is.null(g_init)) {
-    ash.res <- ash(betahat = as.vector(x),
+    ash_res <- ash(betahat = as.vector(x),
                    sebetahat = as.vector(s),
                    mode = mode,
                    mixsd = scale,
@@ -32,7 +32,7 @@ ebnm_ash_workhorse <- function(x,
     if (!is.null(call$mode) || !is.null(call$scale)) {
       warning("mode and scale parameters are ignored when g_init is supplied.")
     }
-    ash.res <- ash(betahat = as.vector(x),
+    ash_res <- ash(betahat = as.vector(x),
                    sebetahat = as.vector(s),
                    g = g_init,
                    fixg = fix_g,
@@ -45,27 +45,27 @@ ebnm_ash_workhorse <- function(x,
   if ("result" %in% output || "lfsr" %in% output) {
     retlist$result <- list()
     if ("result" %in% output) {
-      pm  <- ash.res$result$PosteriorMean
-      pm2 <- ash.res$result$PosteriorSD^2
+      pm  <- ash_res$result$PosteriorMean
+      pm2 <- ash_res$result$PosteriorSD^2
       retlist$result$posterior_mean  <- pm
       retlist$result$posterior_mean2 <- pm^2 + pm2
     }
     if ("lfsr" %in% output) {
-      retlist$result$lfsr <- ash.res$result$lfsr
+      retlist$result$lfsr <- ash_res$result$lfsr
     }
     retlist$result <- data.frame(retlist$result)
   }
 
   if ("fitted_g" %in% output) {
-    retlist$fitted_g <- ash.res$fitted_g
+    retlist$fitted_g <- ash_res$fitted_g
   }
 
   if ("loglik" %in% output) {
-    retlist$loglik <- ash.res$loglik
+    retlist$loglik <- ash_res$loglik
   }
 
   if ("post_sampler" %in% output) {
-    retlist$post_sampler <- ash.res$post_sampler
+    retlist$post_sampler <- ash_res$post_sampler
   }
 
   return(retlist)

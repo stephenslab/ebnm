@@ -17,7 +17,8 @@
 #'
 #' @param x A vector of observations.
 #'
-#' @param s A vector of standard deviations (or a scalar if all are equal).
+#' @param s A vector of standard errors (or a scalar if all are equal).
+#'   Standard errors can be infinite, but they must be nonzero.
 #'
 #' @param mode Fixes the location of the prior mode. Set to \code{"estimate"}
 #'   to estimate it from the data.
@@ -239,6 +240,13 @@ check_args <- function(x, s, g_init, fix_g, output) {
   if (!(length(s) %in% c(1, length(x)))) {
     stop("Argument 's' must have either length 1 or the same length as ",
          "argument 'x'.")
+  }
+
+  # Remove this check when handling of zero SEs has been implemented for
+  #   point-Laplace and normal-mixture priors and issue #84 in ashr has been
+  #   fixed.
+  if (any(s <= 0)) {
+    stop("Standard errors must be positive (and nonzero).")
   }
 
   if (all(is.infinite(s))) {

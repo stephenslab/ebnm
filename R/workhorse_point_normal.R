@@ -116,6 +116,7 @@ ebnm_pn_workhorse <- function(x,
 }
 
 # Used by both ebnm_pn_workhorse and ebnm_pl_workhorse.
+#
 check_g_init <- function(g_init,
                          fix_g,
                          mode,

@@ -7,11 +7,6 @@ ebnm_pl_workhorse <- function(x,
                               output,
                               control,
                               call) {
-  if (any(s == 0)) {
-    stop("Handling of SEs equal to zero not yet implemented for ",
-         "'point_laplace' priors.")
-  }
-
   if (mode != 0) {
     stop("Nonzero modes not yet implemented for 'point_laplace' priors.")
   }

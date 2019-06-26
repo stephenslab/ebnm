@@ -60,17 +60,17 @@ test_that("compute_summary_results gives same results as ashr", {
 test_that("Infinite and zero SEs give expected results", {
   x <- c(rep(0, 5), rep(1, 5))
   s <- rep(1, 10)
-  s[6] <- 0
+  # s[6] <- 0
   s[10] <- Inf
 
   pn.res <- ebnm_point_normal(x, s)
 
-  expect_equal(pn.res$result$posterior_mean[6], x[6])
-  expect_equal(pn.res$result$posterior_mean2[6], x[6]^2)
+  # expect_equal(pn.res$result$posterior_mean[6], x[6])
+  # expect_equal(pn.res$result$posterior_mean2[6], x[6]^2)
   expect_equal(pn.res$result$posterior_mean[10], 0)
   expect_equal(pn.res$result$posterior_mean2[10],
                pn.res$fitted_g$sd[2]^2 * pn.res$fitted_g$pi[2])
 
-  # Should get an error if mu is not fixed.
-  expect_error(ebnm_point_normal(x, s, mode = "est"))
+  # Zero SEs should throw an error if mu is not fixed.
+  # expect_error(ebnm_point_normal(x, s, mode = "est"))
 })

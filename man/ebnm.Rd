@@ -62,7 +62,8 @@ output_all()
 \arguments{
 \item{x}{A vector of observations.}
 
-\item{s}{A vector of standard deviations (or a scalar if all are equal).}
+\item{s}{A vector of standard errors (or a scalar if all are equal).
+Standard errors can be infinite, but they must be nonzero.}
 
 \item{mode}{Fixes the location of the prior mode. Set to \code{"estimate"}
 to estimate it from the data.}

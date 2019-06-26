@@ -24,7 +24,7 @@ test_that("point-Laplace sampler gives reasonable results", {
 })
 
 test_that("normal-mixture sampler gives reasonable results", {
-  res <- ebnm_normal_scale_mixture(s, x,
+  res <- ebnm_normal_scale_mixture(x, s,
                                    output = c("result", "fitted_g", "post_sampler"))
   samp <- res$post_sampler(1000)
 
