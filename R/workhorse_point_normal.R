@@ -1,4 +1,4 @@
-# The workhorse function is used by both ebnm_point_normal and ebnm_normal.
+# This workhorse function is used by both ebnm_point_normal and ebnm_normal.
 #
 #' @importFrom ashr normalmix
 #'
@@ -81,12 +81,12 @@ ebnm_pn_workhorse <- function(x,
 
   retlist <- list()
 
-  if ("result" %in% output || "lfsr" %in% output) {
-    result <- summary_results_point_normal(x, s, w, a, mu, output)
-    retlist <- c(retlist, list(result = result))
+  if (posterior_in_output(output)) {
+    posterior <- summary_results_point_normal(x, s, w, a, mu, output)
+    retlist   <- add_posterior_to_retlist(retlist, posterior, output)
   }
 
-  if ("fitted_g" %in% output) {
+  if (g_in_output(output)) {
     if (pi0 == 0) {
       fitted_g <- normalmix(pi = 1, mean = mu, sd = sqrt(1 / a))
     } else {
@@ -94,22 +94,23 @@ ebnm_pn_workhorse <- function(x,
                             mean = rep(mu, 2),
                             sd = c(0, sqrt(1 / a)))
     }
-    retlist <- c(retlist, list(fitted_g = fitted_g))
+    retlist <- add_g_to_retlist(retlist, fitted_g)
   }
 
-  if ("loglik" %in% output) {
+  if (llik_in_output(output)) {
     if (fix_g) {
       loglik <- loglik_point_normal(x_optset, s_optset, w, a, mu)
     } else {
       loglik <- g$val
     }
-    retlist <- c(retlist, list(loglik = loglik))
+    retlist <- add_llik_to_retlist(retlist, loglik)
   }
 
-  if ("post_sampler" %in% output) {
-    retlist <- c(retlist, list(post_sampler = function(nsamp) {
+  if (sampler_in_output(output)) {
+    post_sampler <- function(nsamp) {
       post_sampler_point_normal(x, s, w, a, mu, nsamp)
-    }))
+    }
+    retlist <- add_sampler_to_retlist(retlist, post_sampler)
   }
 
   return(retlist)

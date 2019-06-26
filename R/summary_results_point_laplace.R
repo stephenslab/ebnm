@@ -4,28 +4,28 @@ summary_results_point_laplace = function(x, s, w, a, output) {
   wpost <- wpost_laplace(x, s, w, a)
   lm <- lambda(x, s, a)
 
-  res <- list()
-  if ("result" %in% output) {
-    pm  <- wpost * (lm * my_etruncnorm(0, Inf, x - s^2 * a, s)
-                    + (1 - lm) * my_etruncnorm(-Inf, 0, x + s^2 * a, s))
-    pm2 <- wpost * (lm * my_e2truncnorm(0, Inf, x - s^2 * a, s)
-                    + (1 - lm) * my_e2truncnorm(-Inf, 0, x + s^2 * a, s))
+  post <- list()
+
+  if (result_in_output(output)) {
+    post$mean  <- wpost * (lm * my_etruncnorm(0, Inf, x - s^2 * a, s)
+                           + (1 - lm) * my_etruncnorm(-Inf, 0, x + s^2 * a, s))
+    post$mean2 <- wpost * (lm * my_e2truncnorm(0, Inf, x - s^2 * a, s)
+                           + (1 - lm) * my_e2truncnorm(-Inf, 0, x + s^2 * a, s))
     if (any(is.infinite(s))) {
-      pm[is.infinite(s)]  <- 0
-      pm2[is.infinite(s)] <- 2 * w / a^2
+      post$mean[is.infinite(s)]  <- 0
+      post$mean2[is.infinite(s)] <- 2 * w / a^2
     }
-    res$posterior_mean <- pm
-    res$posterior_mean2 <- pm2
-  }
-  if ("lfsr" %in% output) {
-    lfsr <- (1 - wpost) + wpost * pmin(lm, 1 - lm)
-    if (any(is.infinite(s))) {
-      lfsr[is.infinite(s)] <- 1 - w / 2
-    }
-    res$lfsr <- lfsr
+    post$sd <- sqrt(post$mean2 - post$mean^2)
   }
 
-  return(data.frame(res))
+  if ("lfsr" %in% output) {
+    post$lfsr <- (1 - wpost) + wpost * pmin(lm, 1 - lm)
+    if (any(is.infinite(s))) {
+      post$lfsr[is.infinite(s)] <- 1 - w / 2
+    }
+  }
+
+  return(post)
 }
 
 #  Calculate posterior weights for non-null effects.

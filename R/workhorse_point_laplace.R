@@ -58,31 +58,32 @@ ebnm_pl_workhorse <- function(x,
 
   retlist <- list()
 
-  if ("result" %in% output || "lfsr" %in% output) {
-    result <- summary_results_point_laplace(x, s, w, a, output)
-    retlist <- c(retlist, list(result = result))
+  if (posterior_in_output(output)) {
+    posterior <- summary_results_point_laplace(x, s, w, a, output)
+    retlist   <- add_posterior_to_retlist(retlist, posterior, output)
   }
 
-  if ("fitted_g" %in% output) {
+  if (g_in_output(output)) {
     fitted_g <- laplacemix(pi = c(pi0, w),
                            mean = rep(0, 2),
                            scale = c(0, 1 / a))
-    retlist <- c(retlist, list(fitted_g = fitted_g))
+    retlist <- add_g_to_retlist(retlist, fitted_g)
   }
 
-  if ("loglik" %in% output) {
+  if (llik_in_output(output)) {
     if (fix_g) {
       loglik <- loglik_point_laplace(x_optset, s_optset, w, a)
     } else {
       loglik <- g$val
     }
-    retlist <- c(retlist, list(loglik = loglik))
+    retlist <- add_llik_to_retlist(retlist, loglik)
   }
 
-  if ("post_sampler" %in% output) {
-    retlist <- c(retlist, list(post_sampler = function(nsamp) {
+  if (sampler_in_output(output)) {
+    post_sampler <- function(nsamp) {
       post_sampler_point_laplace(x, s, w, a, nsamp)
-    }))
+    }
+    retlist <- add_sampler_to_retlist(retlist, post_sampler)
   }
 
   return(retlist)

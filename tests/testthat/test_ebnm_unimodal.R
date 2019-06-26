@@ -9,30 +9,30 @@ test_that("Basic ebnm_unimodal functionality works", {
   ash.res <- ebnm(x, s, prior_family = "unimodal")
   ash.res2 <- ebnm_unimodal(x, s)
   expect_identical(ash.res, ash.res2)
-  expect_true(inherits(ash.res2$fitted_g, "unimix"))
-  expect_false(identical(ash.res2$fitted_g$a, -ash.res2$fitted_g$b))
+  expect_true(inherits(ash.res2[[g_ret_str()]], "unimix"))
+  expect_false(identical(ash.res2[[g_ret_str()]]$a, -ash.res2[[g_ret_str()]]$b))
 })
 
 test_that("Basic ebnm_unimodal_symmetric functionality works", {
   ash.res <- ebnm(x, s, prior_family = "unimodal_symmetric")
   ash.res2 <- ebnm_unimodal_symmetric(x, s)
   expect_identical(ash.res, ash.res2)
-  expect_true(inherits(ash.res2$fitted_g, "unimix"))
-  expect_identical(ash.res2$fitted_g$a, -ash.res2$fitted_g$b)
+  expect_true(inherits(ash.res2[[g_ret_str()]], "unimix"))
+  expect_identical(ash.res2[[g_ret_str()]]$a, -ash.res2[[g_ret_str()]]$b)
 })
 
 test_that("Basic ebnm_unimodal_nonnegative functionality works", {
   ash.res <- ebnm(x, s, prior_family = "unimodal_nonnegative")
   ash.res2 <- ebnm_unimodal_nonnegative(x, s)
   expect_identical(ash.res, ash.res2)
-  expect_true(inherits(ash.res2$fitted_g, "unimix"))
-  expect_identical(ash.res2$fitted_g$a, rep(0, length(ash.res2$fitted_g$a)))
+  expect_true(inherits(ash.res2[[g_ret_str()]], "unimix"))
+  expect_identical(ash.res2[[g_ret_str()]]$a, rep(0, length(ash.res2[[g_ret_str()]]$a)))
 })
 
 test_that("Basic ebnm_unimodal_nonpositive functionality works", {
   ash.res <- ebnm(x, s, prior_family = "unimodal_nonpositive")
   ash.res2 <- ebnm_unimodal_nonpositive(x, s)
   expect_identical(ash.res, ash.res2)
-  expect_true(inherits(ash.res2$fitted_g, "unimix"))
-  expect_identical(ash.res2$fitted_g$b, rep(0, length(ash.res2$fitted_g$b)))
+  expect_true(inherits(ash.res2[[g_ret_str()]], "unimix"))
+  expect_identical(ash.res2[[g_ret_str()]]$b, rep(0, length(ash.res2[[g_ret_str()]]$b)))
 })

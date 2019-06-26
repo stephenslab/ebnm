@@ -241,7 +241,7 @@ ebnm_workhorse <- function(x,
                                   ...)
   }
 
-  return(retlist)
+  return(as_ebnm(retlist))
 }
 
 check_args <- function(x, s, g_init, fix_g, output) {
