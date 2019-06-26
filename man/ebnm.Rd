@@ -17,7 +17,7 @@
 \usage{
 ebnm(x, s = 1, mode = 0, scale = "estimate", g_init = NULL,
   fix_g = FALSE, output = output_default(), control = NULL,
-  prior_type = c("point_normal", "point_laplace", "normal",
+  prior_family = c("point_normal", "point_laplace", "normal",
   "normal_scale_mixture", "unimodal", "unimodal_symmetric",
   "unimodal_nonnegative", "unimodal_nonpositive", "ash"), ...)
 
@@ -69,9 +69,9 @@ Standard errors can be infinite, but they must be nonzero.}
 to estimate it from the data.}
 
 \item{scale}{Scalar or vector, specifying the scale parameter(s) of the prior. The
-precise interpretation of \code{scale} depends on \code{prior_type}. For \code{prior_type=normal, point_normal}
+precise interpretation of \code{scale} depends on \code{prior_family}. For \code{prior_family=normal, point_normal}
 it is a scalar specifying the standard deviation of the normal component;
-for \code{prior_type=point_laplace} it is a scalar specifying the rate parameter of the
+for \code{prior_family=point_laplace} it is a scalar specifying the rate parameter of the
 Laplace component; for other prior types, which are implemented using the \code{\link[ashr]{ash}} function in the
 \code{ashr} package,
 it is a vector specifying the parameter \code{mixsd} to be passed to \code{\link[ashr]{ash}}.
@@ -82,7 +82,7 @@ estimated from the data. However, it can be used in conjuction with
 \code{fix_g = TRUE} to fix the prior (useful, for example, to do
 computations with the "true" \code{g} in simulations). If \code{g_init} is specified but
 \code{fix_g = FALSE}, \code{g_init} specifies the initial value of \code{g}
-used during optimization, but this has the side effect of fixing the
+used during optimization. This has the side effect of fixing the
 \code{mode} and \code{scale} parameters for adaptive shrinkage (ash) priors.}
 
 \item{fix_g}{If \code{TRUE}, fix the prior \eqn{g}=\code{g_init} instead of
@@ -106,7 +106,7 @@ Options include:
 function (\code{nlm} for normal, point-normal, and point-Laplace priors
 and, unless specified otherwise, \code{mixsqp::mixsqp} for ash priors).}
 
-\item{prior_type}{The prior family \eqn{G}. See "Details" below.}
+\item{prior_family}{A character string that specifies the prior family \eqn{G}. See "Details" below.}
 
 \item{...}{Additional parameters. \code{unimodal_} prior types pass these
 parameters to \code{ashr::ash}.}

@@ -13,7 +13,7 @@ true_g <- ashr::normalmix(pi = c(true_pi0, 1 - true_pi0),
                           sd = c(0, true_sd))
 
 test_that("Basic functionality works", {
-  ash.res <- ebnm(x, s, prior_type = "ash")
+  ash.res <- ebnm(x, s, prior_family = "ash")
   ash.res2 <- ebnm_ash(x, s)
   expect_identical(ash.res, ash.res2)
 })
@@ -32,7 +32,7 @@ test_that("Fixing the sd works", {
 test_that("Fixing g works", {
   ash.res <- ebnm_ash(x, s, g_init = true_g, fix_g = TRUE)
   expect_identical(ash.res$fitted_g, true_g)
-  ash.res2 <- ebnm(x, s, g_init = true_g, fix_g = TRUE, prior_type = "ash")
+  ash.res2 <- ebnm(x, s, g_init = true_g, fix_g = TRUE, prior_family = "ash")
   expect_identical(ash.res, ash.res2)
 })
 

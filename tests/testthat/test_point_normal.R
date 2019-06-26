@@ -13,7 +13,7 @@ true_g <- ashr::normalmix(pi = c(true_pi0, 1 - true_pi0),
                          sd = c(0, true_sd))
 
 test_that("Basic functionality works", {
-  pn.res <- ebnm(x, s, prior_type = "point_normal")
+  pn.res <- ebnm(x, s, prior_family = "point_normal")
   pn.res2 <- ebnm_point_normal(x, s)
   expect_identical(pn.res, pn.res2)
   expect_equal(pn.res$fitted_g, true_g, tolerance = 0.1)

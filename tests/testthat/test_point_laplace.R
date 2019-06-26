@@ -11,7 +11,7 @@ true_g <- laplacemix(pi = c(true_pi0, 1 - true_pi0),
                      mean = rep(0, 2),
                      scale = c(0, true_scale))
 
-pl.res <- ebnm(x, s, prior_type = "point_laplace")
+pl.res <- ebnm(x, s, prior_family = "point_laplace")
 
 test_that("Basic functionality works", {
   pl.res2 <- ebnm_point_laplace(x, s)

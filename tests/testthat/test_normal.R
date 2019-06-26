@@ -10,7 +10,7 @@ true_sd <- 10
 true_g <- ashr::normalmix(pi = 1, mean = true_mean, sd = true_sd)
 
 test_that("Basic functionality works", {
-  norm.res <- ebnm(x, s, prior_type = "normal")
+  norm.res <- ebnm(x, s, prior_family = "normal")
   norm.res2 <- ebnm_normal(x, s)
   expect_identical(norm.res, norm.res2)
   expect_equal(norm.res$fitted_g, true_g, tolerance = 0.2)

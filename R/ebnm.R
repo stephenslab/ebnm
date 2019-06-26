@@ -31,9 +31,9 @@
 #'   to estimate it from the data.
 #'
 #' @param scale Scalar or vector, specifying the scale parameter(s) of the prior. The
-#' precise interpretation of \code{scale} depends on \code{prior_type}. For \code{prior_type=normal, point_normal}
+#' precise interpretation of \code{scale} depends on \code{prior_family}. For \code{prior_family=normal, point_normal}
 #' it is a scalar specifying the standard deviation of the normal component;
-#' for \code{prior_type=point_laplace} it is a scalar specifying the rate parameter of the
+#' for \code{prior_family=point_laplace} it is a scalar specifying the rate parameter of the
 #' Laplace component; for other prior types, which are implemented using the \code{\link[ashr]{ash}} function in the
 #' \code{ashr} package,
 #' it is a vector specifying the parameter \code{mixsd} to be passed to \code{\link[ashr]{ash}}.
@@ -68,7 +68,7 @@
 #'   function (\code{nlm} for normal, point-normal, and point-Laplace priors
 #'   and, unless specified otherwise, \code{mixsqp::mixsqp} for ash priors).
 #'
-#' @param prior_type A character string that specifies the prior family \eqn{G}. See "Details" below.
+#' @param prior_family A character string that specifies the prior family \eqn{G}. See "Details" below.
 #'
 #' @param ... Additional parameters. \code{unimodal_} prior types pass these
 #'   parameters to \code{ashr::ash}.
@@ -90,17 +90,17 @@ ebnm <- function(x,
                  fix_g = FALSE,
                  output = output_default(),
                  control = NULL,
-                 prior_type = c("point_normal",
-                                "point_laplace",
-                                "normal",
-                                "normal_scale_mixture",
-                                "unimodal",
-                                "unimodal_symmetric",
-                                "unimodal_nonnegative",
-                                "unimodal_nonpositive",
-                                "ash"),
+                 prior_family = c("point_normal",
+                                  "point_laplace",
+                                  "normal",
+                                  "normal_scale_mixture",
+                                  "unimodal",
+                                  "unimodal_symmetric",
+                                  "unimodal_nonnegative",
+                                  "unimodal_nonpositive",
+                                  "ash"),
                  ...) {
-  prior_type <- match.arg(prior_type)
+  prior_family <- match.arg(prior_family)
 
   return(ebnm_workhorse(x = x,
                         s = s,
@@ -110,7 +110,7 @@ ebnm <- function(x,
                         fix_g = fix_g,
                         output = output,
                         control = control,
-                        prior_type = prior_type,
+                        prior_family = prior_family,
                         call = match.call(),
                         ...))
 }
@@ -126,7 +126,7 @@ ebnm_workhorse <- function(x,
                            fix_g,
                            output,
                            control,
-                           prior_type,
+                           prior_family,
                            call,
                            ...) {
   check_args(x, s, g_init, fix_g, output)
@@ -136,7 +136,7 @@ ebnm_workhorse <- function(x,
     control <- list()
   }
 
-  if (prior_type == "point_normal") {
+  if (prior_family == "point_normal") {
     retlist <- ebnm_pn_workhorse(x = x,
                                  s = s,
                                  mode = mode,
@@ -147,7 +147,7 @@ ebnm_workhorse <- function(x,
                                  control = control,
                                  pointmass = TRUE,
                                  call = call)
-  } else if (prior_type == "point_laplace") {
+  } else if (prior_family == "point_laplace") {
     retlist <- ebnm_pl_workhorse(x = x,
                                  s = s,
                                  mode = mode,
@@ -157,7 +157,7 @@ ebnm_workhorse <- function(x,
                                  output = output,
                                  control = control,
                                  call = call)
-  } else if (prior_type == "normal") {
+  } else if (prior_family == "normal") {
     retlist <- ebnm_pn_workhorse(x = x,
                                  s = s,
                                  mode = mode,
@@ -168,7 +168,7 @@ ebnm_workhorse <- function(x,
                                  control = control,
                                  pointmass = FALSE,
                                  call = call)
-  } else if (prior_type == "normal_scale_mixture") {
+  } else if (prior_family == "normal_scale_mixture") {
     retlist <- ebnm_normal_mix_workhorse(x = x,
                                          s = s,
                                          mode = mode,
@@ -180,7 +180,7 @@ ebnm_workhorse <- function(x,
                                          pointmass = TRUE,
                                          grid_mult = sqrt(2),
                                          call = call)
-  } else if (prior_type == "unimodal") {
+  } else if (prior_family == "unimodal") {
     retlist <- ebnm_ash_workhorse(x = x,
                                   s = s,
                                   mode = mode,
@@ -192,7 +192,7 @@ ebnm_workhorse <- function(x,
                                   call = call,
                                   mixcompdist = "halfuniform",
                                   ...)
-  } else if (prior_type == "unimodal_symmetric") {
+  } else if (prior_family == "unimodal_symmetric") {
     retlist <- ebnm_ash_workhorse(x = x,
                                   s = s,
                                   mode = mode,
@@ -204,7 +204,7 @@ ebnm_workhorse <- function(x,
                                   call = call,
                                   mixcompdist = "uniform",
                                   ...)
-  } else if (prior_type == "unimodal_nonnegative") {
+  } else if (prior_family == "unimodal_nonnegative") {
     retlist <- ebnm_ash_workhorse(x = x,
                                   s = s,
                                   mode = mode,
@@ -216,7 +216,7 @@ ebnm_workhorse <- function(x,
                                   call = call,
                                   mixcompdist = "+uniform",
                                   ...)
-  } else if (prior_type == "unimodal_nonpositive") {
+  } else if (prior_family == "unimodal_nonpositive") {
     retlist <- ebnm_ash_workhorse(x = x,
                                   s = s,
                                   mode = mode,
@@ -228,7 +228,7 @@ ebnm_workhorse <- function(x,
                                   call = call,
                                   mixcompdist = "-uniform",
                                   ...)
-  } else if (prior_type == "ash") {
+  } else if (prior_family == "ash") {
     retlist <- ebnm_ash_workhorse(x = x,
                                   s = s,
                                   mode = mode,
