@@ -149,17 +149,50 @@ Given vectors of data \code{x} and standard errors \code{s},
 }}
 
 \examples{
-theta <- c(rep(0, 1000), rexp(1000)) # means
-s <- rgamma(2000, 1, 1) # standard errors
-x <- theta + rnorm(2000, 0, s) # observations
-x.ebnm <- ebnm_point_normal(x, s)
-pm <- x.ebnm$result$posterior_mean
+theta <- c(rep(0, 100), rexp(100))
+s <- 1
+x <- theta + rnorm(200, 0, s)
+
+# The following are equivalent:
+pn.res <- ebnm(x, s, prior_family = "point_normal")
+pn.res <- ebnm_point_normal(x, s)
+
+# Inspect results:
+pn.res$log_likelihood
+plot(x, pn.res$posterior$mean)
+
+# Fix the scale parameter:
+pl.res <- ebnm_point_laplace(x, s, scale = 1)
+pl.res$fitted_g$scale
+
+# Estimate the mode:
+normal.res <- ebnm_normal(x, s, mode = "estimate")
+normal.res$fitted_g$mean
+
+# Use an initial g (this fixes mode and scale for ash priors):
+normalmix.res <- ebnm_normal_scale_mixture(x, s, g_init = pn.res$fitted_g)
+
+# Fix g and get more output:
+g_init <- pn.res$fitted_g
+pn.res <- ebnm_point_normal(x, s, g_init = g_init, fix_g = TRUE,
+                            output = "posterior_sampler")
+pn.res <- ebnm_point_normal(x, s, g_init = g_init, fix_g = TRUE,
+                            output = output_all())
+
+# Examples of usage of control parameter:
+#  point_normal uses nlm:
+pn.res <- ebnm_point_normal(x, s, control = list(print.level = 1))
+#  unimodal uses mixsqp:
+unimodal.res <- ebnm_unimodal(x, s, control = list(verbose = TRUE))
 
 }
 \seealso{
-\code{\link{ebnm_point_normal}}, \code{\link{ebnm_point_laplace}},
-  \code{\link{ebnm_normal}}, \code{\link{ebnm_normal_scale_mixture}},
-  \code{\link{ebnm_unimodal}}, \code{\link{ebnm_unimodal_symmetric}},
+Calling functions \code{\link{ebnm_point_normal}},
+  \code{\link{ebnm_point_laplace}}, \code{\link{ebnm_normal}},
+  \code{\link{ebnm_normal_scale_mixture}}, \code{\link{ebnm_unimodal}},
+  \code{\link{ebnm_unimodal_symmetric}},
   \code{\link{ebnm_unimodal_nonnegative}},
-  \code{\link{ebnm_unimodal_nonpositive}}, \code{\link{ebnm_ash}}.
+  \code{\link{ebnm_unimodal_nonpositive}}, and \code{\link{ebnm_ash}}
+  is equivalent to calling \code{ebnm} with \code{prior_family} set
+  accordingly.
 }
