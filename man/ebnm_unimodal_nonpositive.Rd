@@ -68,7 +68,5 @@ function \code{\link[ashr]{ash}} in package \code{ashr}. Otherwise, they
 are ignored.}
 }
 \description{
-More precisely, the support is constrained to be less than the mode
-  (thus, when \code{mode} is not equal to zero, the distribution is not
-  necessarily nonpositive). See \code{\link{ebnm}} for details.
+See \code{\link{ebnm}} for details.
 }

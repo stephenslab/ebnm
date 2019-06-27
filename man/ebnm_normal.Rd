@@ -62,5 +62,5 @@ function \code{\link[mixsqp]{mixsqp}} in package \code{mixsqp} is used
 unless otherwise specified.}
 }
 \description{
-No pointmass is used. See \code{\link{ebnm}} for details.
+See \code{\link{ebnm}} for details.
 }

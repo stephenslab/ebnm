@@ -56,7 +56,7 @@ ebnm_point_laplace <- function(x,
 
 #' Solve the EBNM problem using a normal prior
 #'
-#' No pointmass is used. See \code{\link{ebnm}} for details.
+#' See \code{\link{ebnm}} for details.
 #'
 #' @inheritParams ebnm
 #'
@@ -172,9 +172,7 @@ ebnm_unimodal_symmetric <- function(x,
 
 #' Solve the EBNM problem using a nonnegative unimodal distribution
 #'
-#' More precisely, the support is constrained to be greater than the mode
-#'   (thus, when \code{mode} is not equal to zero, the distribution is not
-#'   necessarily nonnegative). See \code{\link{ebnm}} for details.
+#' See \code{\link{ebnm}} for details.
 #'
 #' @inheritParams ebnm
 #'
@@ -204,9 +202,7 @@ ebnm_unimodal_nonnegative <- function(x,
 
 #' Solve the EBNM problem using a nonpositive unimodal distribution
 #'
-#' More precisely, the support is constrained to be less than the mode
-#'   (thus, when \code{mode} is not equal to zero, the distribution is not
-#'   necessarily nonpositive). See \code{\link{ebnm}} for details.
+#' See \code{\link{ebnm}} for details.
 #'
 #' @inheritParams ebnm
 #'
