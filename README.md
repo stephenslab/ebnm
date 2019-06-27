@@ -6,7 +6,7 @@ The model is $$ x_j | \theta_j, s_j \sim N(\theta_j, s_j^2), $$
 $$ \theta_j | s_j \sim g \in G $$ where the distribution g is to
 be estimated. The distribution g is referred to as the "prior distribution" for
 $\theta$ and G is a specified family of prior distributions. Several options
-for \eqn{G} are implemented, some parametric and others non-parametric.
+for G are implemented, some parametric and others non-parametric.
 
 Solving the EBNM problem involves
 two steps. First, estimate g $\in$  G via maximum marginal likelihood,
