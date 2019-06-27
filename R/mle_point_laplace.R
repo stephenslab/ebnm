@@ -14,15 +14,14 @@ mle_point_laplace <- function(x, s, g, control, fix_a) {
     warning("First optimization attempt failed. Retrying with fewer ",
             "significant digits.")
     control <- modifyList(control, list(ndigit = 8))
-    optres <- try(do.call(nlm, c(list(pl_nlm_fn, startpar), fn_params, control)),
-                  silent = TRUE)
+    optres  <- do.call(nlm, c(list(pl_nlm_fn, startpar), fn_params, control))
   }
 
-  if (inherits(optres, "try-error")) {
-    stop("Re-attempt at optimization failed, possibly due to one or more ",
-         "very small standard errors. The smallest nonzero standard error ",
-         "seen during optimization was ", signif(min(s), 2), ".")
-  }
+  # if (inherits(optres, "try-error")) {
+  #   stop("Re-attempt at optimization failed, possibly due to one or more ",
+  #        "very small standard errors. The smallest nonzero standard error ",
+  #        "seen during optimization was ", signif(min(s), 2), ".")
+  # }
 
   retlist <- pl_g_from_optpar(optres$estimate)
   retlist$val <- -optres$minimum
