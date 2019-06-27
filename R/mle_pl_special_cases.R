@@ -2,7 +2,7 @@
 #
 #' @importFrom stats pnorm optimize
 #'
-mle_point_laplace_fixa <- function(x, s, g) {
+mle_point_laplace_fixa <- function(x, s, g, control) {
   a <- g$a
 
   lf <- calc_lf(x, s)
@@ -16,8 +16,9 @@ mle_point_laplace_fixa <- function(x, s, g) {
   lgright <- -a * x + lpnormright
   lg <- log(a / 2) + s^2 * a^2 / 2 + logscale_add(lgleft, lgright)
 
-  optres <- optimize(pl_fixa_llik, lf = lf, lg = lg, interval = c(0, 1),
-                     maximum = TRUE)
+  optargs <- list(f = pl_fixa_llik, lf = lf, lg = lg, interval = c(0, 1),
+                  maximum = TRUE)
+  optres <- do.call(optimize, c(optargs, control))
 
   g$pi0 <- 1 - optres$maximum
   g$val <- optres$objective
