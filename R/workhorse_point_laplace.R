@@ -46,7 +46,7 @@ ebnm_pl_workhorse <- function(x,
   # Estimate g.
   if (!fix_g) {
     if (fix_a) {
-      g <- mle_point_laplace_fixa(x_optset, s_optset, g)
+      g <- mle_point_laplace_fixa(x_optset, s_optset, g, control)
     } else {
       g <- mle_point_laplace(x_optset, s_optset, g, control)
     }

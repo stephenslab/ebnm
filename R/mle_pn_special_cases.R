@@ -28,7 +28,7 @@ mle_point_only <- function(x, s, g, fix_a, fix_mu) {
 #
 #' @importFrom stats optimize
 #'
-mle_normal <- function(x, s, g, fix_a, fix_mu) {
+mle_normal <- function(x, s, g, control, fix_a, fix_mu) {
   if (fix_a) {
     # If a is fixed, the problem is equivalent to the "point only" problem.
     g <- mle_point_only(x, sqrt(s^2 + 1 / g$a), g, fix_a, fix_mu)
@@ -46,13 +46,15 @@ mle_normal <- function(x, s, g, fix_a, fix_mu) {
     if (fix_mu) {
       # Only a needs to be estimated.
       xc2 <- (x - g$mu)^2
-      optres <- optimize(norm_llik, xc2 = xc2, s2 = s2, interval = c(0, upper),
-                         maximum = TRUE)
+      optargs <- list(f = norm_llik, xc2 = xc2, s2 = s2, interval = c(0, upper),
+                      maximum = TRUE)
+      optres <- do.call(optimize, c(optargs, control))
     } else {
       # Both a and mu need to be estimated, but there is a closed-form
       #   expression for the optimal mu given a.
-      optres <- optimize(estmu_llik, x = x, s2 = s2, interval = c(0, upper),
-                         maximum = TRUE)
+      optargs <- list(f = estmu_llik, x = x, s2 = s2, interval = c(0, upper),
+                      maximum = TRUE)
+      optres <- do.call(optimize, c(optargs, control))
       g$mu <- estmu(optres$maximum, x, s2)
     }
     g$a <- 1 / optres$maximum

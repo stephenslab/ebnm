@@ -3,24 +3,48 @@
 #' Solves the empirical Bayes normal means problem using a specified family of
 #'   priors.
 #'
-#' @details TODO: update me.
+#' @details
 #'
 #' Given vectors of data \code{x} and standard errors \code{s},
-#'   solve the "empirical Bayes normal means" (EBNM) problem, for various
+#'   solve the "empirical Bayes normal means" (EBNM) problem for various
 #'   choices of prior family.
-#'   The model is \deqn{x_j | \theta_j, s_j \sim N(\theta_j, s_j^2),}  and
-#'   \deqn{\theta_j | s_j \sim g \in G}, where the distribution \eqn{g} is to be estimated.
-#'   The distribution \eqn{g} is often referred to as the "prior distribution" for \eqn{\theta_j}
-#'   and \eqn{G} is a specified family of prior distributions (several options for \eqn{G} are implemented, some
-#'   parametric and others non-parametric;  see below for examples).
+#'   The model is \deqn{x_j | \theta_j, s_j \sim N(\theta_j, s_j^2)}
+#'   \deqn{\theta_j | s_j \sim g \in G} where the distribution \eqn{g} is to
+#'   be estimated.
+#'   The distribution \eqn{g} is referred to as the "prior distribution" for
+#'   \eqn{\theta}
+#'   and \eqn{G} is a specified family of prior distributions. Several options
+#'   for \eqn{G} are implemented, some parametric and others non-parametric;
+#'   see below for examples.
 #'
 #'   Solving the EBNM problem involves
-#'   two steps. First, estimate \eqn{g \in  G}, by maximum marginal likelihood, yielding
-#'   an estimate \deqn{\hat{g}:= \arg\max_{g \in G} L(g)} where
-#'   \deqn{L(g):= \prod_j
-#'   \int p(x_j | \theta_j, s_j)  g(d\theta_j);}
-#'   Second, compute the posterior distributions \eqn{p(\theta_j | x_j, s_j, \hat{g})}, and/or summaries
-#'   such as the posterior means and posterior second moments, etc.
+#'   two steps. First, estimate \eqn{g \in  G} via maximum marginal likelihood,
+#'   yielding an estimate \deqn{\hat{g}:= \arg\max_{g \in G} L(g)} where
+#'   \deqn{L(g):= \prod_j \int p(x_j | \theta_j, s_j)  g(d\theta_j)}
+#'   Second, compute the posterior distributions
+#'   \eqn{p(\theta_j | x_j, s_j, \hat{g})} and/or summaries
+#'   such as posterior means and posterior second moments.
+#'
+#'   The prior families that have been implemented include:
+#'     \describe{
+#'       \item{\code{point_normal}}{The family of mixtures where one
+#'         component is a point mass at \eqn{\mu} and the other is a normal
+#'         distribution centered at \eqn{\mu}.}
+#'       \item{\code{point_laplace}}{The family of mixtures where one
+#'         component is a point mass at zero and the other is a
+#'         double-exponential distribution.}
+#'       \item{\code{normal}}{The family of normal distributions.}
+#'       \item{\code{normal_scale_mixture}}{The family of scale mixture of
+#'         normals.}
+#'       \item{\code{unimodal}}{The family of all unimodal distributions.}
+#'       \item{\code{unimodal_symmetric}}{The family of symmetric unimodal
+#'         distributions.}
+#'       \item{\code{unimodal_nonnegative}}{The family of unimodal
+#'         distributions with support constrained to be greater than the mode.}
+#'       \item{\code{unimodal_nonpositive}}{The family of unimodal
+#'         distributions with support constrained to be less than the mode.}
+#'     }
+#'
 #'
 #' @param x A vector of observations. Missing observations (\code{NA}s) are
 #'   allowed. If any observations are missing, the corresponding standard
@@ -34,7 +58,9 @@
 #'   \eqn{G}. See "Details" below.
 #'
 #' @param mode A scalar specifying the mode of the prior \eqn{g} or
-#'   \code{"estimate"} if the mode is to be estimated from the data.
+#'   \code{"estimate"} if the mode is to be estimated from the data. (This
+#'   functionality has not yet been implemented for
+#'   \code{prior_family = "point_laplace"}.)
 #'
 #' @param scale A scalar or vector specifying the scale parameter(s) of the
 #'   prior or \code{"estimate"} if the scale parameters are to be estimated
@@ -42,10 +68,10 @@
 #'   \code{prior_family}. For normal and point-normal families, it is a scalar
 #'   specifying the standard deviation of the normal component. For
 #'   \code{prior_family = "point_laplace"}, it is a scalar specifying the scale
-#'   parameter of the Laplace component. For other prior types, which are
-#'   implemented using the function \code{ash} in package \code{ashr}, it is a
-#'   vector specifying the parameter \code{mixsd} to be passed to
-#'   \code{\link[ashr]{ash}} (or \code{"estimate"} if the default \code{mixsd}
+#'   parameter of the Laplace component. For other prior families, which are
+#'   implemented using the function \code{\link[ashr]{ash}} in package
+#'   \code{ashr}, it is a vector specifying the parameter \code{mixsd} to be
+#'   passed to \code{ash} (or \code{"estimate"} if the default \code{mixsd}
 #'   is to be used).
 #'
 #' @param g_init The prior distribution \eqn{g}. Usually this is left
@@ -69,17 +95,15 @@
 #'   \code{output_all()} lists all possible return values. See "Value" below.
 #'
 #' @param control A list of control parameters to be passed to the optimization
-#'   function. For point-normal and point-Laplace prior families, function
-#'   \code{\link[stats]{nlm}} is used. For ash prior families (including
+#'   function. \code{\link[stats]{optimize}} is used for
+#'   \code{prior_family = "normal"}, while \code{\link[stats]{nlm}} is used for
+#'   point-normal and point-Laplace families. For ash families (including
 #'   \code{normal_scale_mixture} and all \code{unimodal_} families),
 #'   function \code{\link[mixsqp]{mixsqp}} in package \code{mixsqp} is used
-#'   unless otherwise specified via parameter \code{optmethod} (see
-#'   \code{\link[ashr]{ash}} for details). Finally, when
-#'   \code{prior_family = "normal"}, \code{ebnm} calls into function
-#'   \code{optimize}, which does not accept a \code{control} parameter.
+#'   unless otherwise specified.
 #'
 #' @param ... Additional parameters. When \code{prior_family = "ash"} or when
-#'   a \code{unimodal_} prior family is used, these parameters are passed to
+#'   a \code{unimodal_} prior is used, these parameters are passed to
 #'   function \code{\link[ashr]{ash}} in package \code{ashr}. Otherwise, they
 #'   are ignored.
 #'
@@ -89,11 +113,11 @@
 #'       \item{\code{posterior}}{A data frame of summary results (posterior
 #'         means, standard deviations, and second moments; local false sign
 #'         rates).}
-#'       \item{\code{fitted_g}}{The fitted prior \eqn{g} (an object of class
-#'         \code{\link[ashr]{normalmix}}, \code{\link{laplacemix}}, or
+#'       \item{\code{fitted_g}}{The fitted prior \eqn{\hat{g}} (an object of
+#'         class \code{\link[ashr]{normalmix}}, \code{\link{laplacemix}}, or
 #'         \code{\link[ashr]{unimix}}).}
-#'       \item{\code{log_likelihood}}{The optimal log likelihood attained,
-#'         \eqn{L(x | g)}.}
+#'       \item{\code{log_likelihood}}{The optimal log likelihood attained
+#'         \eqn{L(\hat{g})}.}
 #'       \item{\code{posterior_sampler}}{A function that can be used to
 #'         produce samples from the posterior. It takes a single parameter
 #'         \code{nsamp}, the number of posterior samples to return per

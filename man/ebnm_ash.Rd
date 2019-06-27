@@ -17,7 +17,9 @@ Standard errors may be infinite, but they may not be exactly zero.
 Missing standard errors are not allowed.}
 
 \item{mode}{A scalar specifying the mode of the prior \eqn{g} or
-\code{"estimate"} if the mode is to be estimated from the data.}
+\code{"estimate"} if the mode is to be estimated from the data. (This
+functionality has not yet been implemented for
+\code{prior_family = "point_laplace"}.)}
 
 \item{scale}{A scalar or vector specifying the scale parameter(s) of the
 prior or \code{"estimate"} if the scale parameters are to be estimated
@@ -25,10 +27,10 @@ from the data. The precise interpretation of \code{scale} depends on
 \code{prior_family}. For normal and point-normal families, it is a scalar
 specifying the standard deviation of the normal component. For
 \code{prior_family = "point_laplace"}, it is a scalar specifying the scale
-parameter of the Laplace component. For other prior types, which are
-implemented using the function \code{ash} in package \code{ashr}, it is a
-vector specifying the parameter \code{mixsd} to be passed to
-\code{\link[ashr]{ash}} (or \code{"estimate"} if the default \code{mixsd}
+parameter of the Laplace component. For other prior families, which are
+implemented using the function \code{\link[ashr]{ash}} in package
+\code{ashr}, it is a vector specifying the parameter \code{mixsd} to be
+passed to \code{ash} (or \code{"estimate"} if the default \code{mixsd}
 is to be used).}
 
 \item{g_init}{The prior distribution \eqn{g}. Usually this is left
@@ -52,17 +54,15 @@ Function \code{output_default()} provides the default return values, while
 \code{output_all()} lists all possible return values. See "Value" below.}
 
 \item{control}{A list of control parameters to be passed to the optimization
-function. For point-normal and point-Laplace prior families, function
-\code{\link[stats]{nlm}} is used. For ash prior families
-(\code{normal_scale_mixture} and \code{unimodal_} families),
+function. \code{\link[stats]{optimize}} is used for
+\code{prior_family = "normal"}, while \code{\link[stats]{nlm}} is used for
+point-normal and point-Laplace families. For ash families (including
+\code{normal_scale_mixture} and all \code{unimodal_} families),
 function \code{\link[mixsqp]{mixsqp}} in package \code{mixsqp} is used
-unless otherwise specified via parameter \code{optmethod} (see
-\code{\link[ashr]{ash}} for details). Finally, when
-\code{prior_family = "normal"}, \code{ebnm} calls into function
-\code{optimize}, which does not accept a \code{control} parameter.}
+unless otherwise specified.}
 
 \item{...}{Additional parameters. When \code{prior_family = "ash"} or when
-a \code{unimodal_} prior family is used, these parameters are passed to
+a \code{unimodal_} prior is used, these parameters are passed to
 function \code{\link[ashr]{ash}} in package \code{ashr}. Otherwise, they
 are ignored.}
 }
