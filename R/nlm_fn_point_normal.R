@@ -80,7 +80,7 @@ pn_nlm_fn <- function(par, fix_pi0, fix_a, fix_mu, alpha, beta, mu,
     i <- i + 1
   }
   if (!fix_mu) {
-    tmp <- sum(1 / s2) - sum(dlogist.y * dy.dmu^2)
+    tmp <- sum(1 / s2 - dlogist.y * dy.dmu^2)
     hess[i, i] <- tmp - sum(logist.y * logist.beta / s2)
   }
 
