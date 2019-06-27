@@ -37,12 +37,12 @@ ebnm_normal_mix_workhorse <- function(x,
                                             scale = scale,
                                             g_init = NULL,
                                             fix_g = FALSE,
-                                            output = "loglik",
+                                            output = llik_arg_str(),
                                             control = control,
                                             pointmass = pointmass,
                                             grid_mult = grid_mult,
                                             call = NULL)
-      return(ebnm_res$loglik)
+      return(ebnm_res[[llik_ret_str()]])
     }
     mode_opt_res <- optimize(mode_opt_fn, c(min(x), max(x)), maximum = TRUE)
     mode <- mode_opt_res$maximum
@@ -102,18 +102,21 @@ ebnm_normal_mix_workhorse <- function(x,
   # Compute results.
   retlist <- list()
 
-  if (any(c("result", "lfsr", "post_sampler") %in% output)) {
+  if (posterior_in_output(output)) {
+    posterior <- list()
+
     comp_postprob  <- L_mat * matrix(pi_est, n_obs, n_mixcomp, byrow = TRUE)
     comp_postprob  <- comp_postprob / rowSums(comp_postprob)
     comp_postmean  <- mode * s^2 + outer(x, scale^2) / sigmamat
     comp_postmean2 <- comp_postmean^2 + outer(s^2, scale^2) / sigmamat
 
-    result <- list()
-    if ("result" %in% output) {
-      result$posterior_mean  <- rowSums(comp_postprob * comp_postmean)
-      result$posterior_mean2 <- rowSums(comp_postprob * comp_postmean2)
+    if (result_in_output(output)) {
+      posterior$mean  <- rowSums(comp_postprob * comp_postmean)
+      posterior$mean2 <- rowSums(comp_postprob * comp_postmean2)
+      posterior$sd    <- sqrt(posterior$mean2 - posterior$mean^2)
     }
-    if ("lfsr" %in% output) {
+
+    if (lfsr_in_output(output)) {
       comp_probpos <- pnorm(0,
                             mean = comp_postmean,
                             sd = sqrt(comp_postmean2 - comp_postmean^2),
@@ -124,22 +127,23 @@ ebnm_normal_mix_workhorse <- function(x,
         probzero <- rowSums(comp_postprob[, zero_comps, drop = FALSE])
       }
       probneg <- 1 - (probpos + probzero)
-      result$lfsr <- probzero + pmin(probneg, probpos)
+      posterior$lfsr <- probzero + pmin(probneg, probpos)
     }
-    retlist <- c(retlist, list(result = data.frame(result)))
+
+    retlist <- add_posterior_to_retlist(retlist, posterior, output)
   }
 
-  if ("fitted_g" %in% output) {
-    retlist <- c(retlist, list(fitted_g = fitted_g))
+  if (g_in_output(output)) {
+    retlist <- add_g_to_retlist(retlist, fitted_g)
   }
 
-  if ("loglik" %in% output) {
+  if (llik_in_output(output)) {
     loglik <- sum(log(L_mat %*% pi_est))
     loglik <- loglik + sum(llik_norms) - n_obs * log(2 * pi) / 2
-    retlist <- c(retlist, list(loglik = loglik))
+    retlist <- add_llik_to_retlist(retlist, loglik)
   }
 
-  if ("post_sampler" %in% output) {
+  if (sampler_in_output(output)) {
     # Adapted from ashr::post_sample.normalmix.
     post_sampler <- function(nsamp) {
       mixcomp <- apply(comp_postprob, 1, function(prob) {
@@ -151,7 +155,7 @@ ebnm_normal_mix_workhorse <- function(x,
       samp       <- rnorm(nsamp * n_obs, mean = samp_means, sd = samp_sds)
       return(matrix(samp, nrow = nsamp, ncol = n_obs))
     }
-    retlist <- c(retlist, list(post_sampler = post_sampler))
+    retlist <- add_sampler_to_retlist(retlist, post_sampler)
   }
 
   return(retlist)

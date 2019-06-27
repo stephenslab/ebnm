@@ -65,15 +65,14 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
     warning("First optimization attempt failed. Retrying with fewer ",
             "significant digits.")
     control <- modifyList(control, list(ndigit = 8))
-    optres <- try(do.call(nlm, c(list(pn_nlm_fn, startpar), fn_params, control)),
-                  silent = TRUE)
+    optres  <- do.call(nlm, c(list(pn_nlm_fn, startpar), fn_params, control))
   }
 
-  if (inherits(optres, "try-error")) {
-    stop("Re-attempt at optimization failed, possibly due to one or more ",
-         "very small standard errors. The smallest nonzero standard error ",
-         "seen during optimization was ", signif(min(s), 2), ".")
-  }
+  # if (inherits(optres, "try-error")) {
+  #   stop("Re-attempt at optimization failed, possibly due to one or more ",
+  #        "very small standard errors. The smallest nonzero standard error ",
+  #        "seen during optimization was ", signif(min(s), 2), ".")
+  # }
 
   retlist <- pn_g_from_optpar(optres$estimate, g, fix_pi0, fix_a, fix_mu)
   retlist$val <- pn_llik_from_optval(optres$minimum, n1, n2, s2)

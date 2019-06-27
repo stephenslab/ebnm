@@ -1,4 +1,4 @@
-# The workhorse function is used by both ebnm_point_normal and ebnm_normal.
+# This workhorse function is used by both ebnm_point_normal and ebnm_normal.
 #
 #' @importFrom ashr normalmix
 #'
@@ -18,6 +18,8 @@ ebnm_pn_workhorse <- function(x,
 
   check_g_init(g_init,
                fix_g,
+               mode = mode,
+               scale = scale,
                pointmass = pointmass,
                call = call,
                class_name = "normalmix",
@@ -64,11 +66,14 @@ ebnm_pn_workhorse <- function(x,
   # Estimate g.
   if (!fix_g) {
     if (fix_pi0 && g$pi0 == 1) {
-      g <- mle_point_only(x_optset, s_optset, g, fix_a, fix_mu)
+      g <- mle_point_only(x_optset, s_optset, g,
+                          fix_a, fix_mu)
     } else if (fix_pi0 && g$pi0 == 0) {
-      g <- mle_normal(x_optset, s_optset, g, fix_a, fix_mu)
+      g <- mle_normal(x_optset, s_optset, g, control,
+                      fix_a, fix_mu)
     } else {
-      g <- mle_point_normal(x_optset, s_optset, g, control, fix_pi0, fix_a, fix_mu)
+      g <- mle_point_normal(x_optset, s_optset, g, control,
+                            fix_pi0, fix_a, fix_mu)
     }
   }
 
@@ -79,12 +84,12 @@ ebnm_pn_workhorse <- function(x,
 
   retlist <- list()
 
-  if ("result" %in% output || "lfsr" %in% output) {
-    result <- summary_results_point_normal(x, s, w, a, mu, output)
-    retlist <- c(retlist, list(result = result))
+  if (posterior_in_output(output)) {
+    posterior <- summary_results_point_normal(x, s, w, a, mu, output)
+    retlist   <- add_posterior_to_retlist(retlist, posterior, output)
   }
 
-  if ("fitted_g" %in% output) {
+  if (g_in_output(output)) {
     if (pi0 == 0) {
       fitted_g <- normalmix(pi = 1, mean = mu, sd = sqrt(1 / a))
     } else {
@@ -92,29 +97,38 @@ ebnm_pn_workhorse <- function(x,
                             mean = rep(mu, 2),
                             sd = c(0, sqrt(1 / a)))
     }
-    retlist <- c(retlist, list(fitted_g = fitted_g))
+    retlist <- add_g_to_retlist(retlist, fitted_g)
   }
 
-  if ("loglik" %in% output) {
+  if (llik_in_output(output)) {
     if (fix_g) {
       loglik <- loglik_point_normal(x_optset, s_optset, w, a, mu)
     } else {
       loglik <- g$val
     }
-    retlist <- c(retlist, list(loglik = loglik))
+    retlist <- add_llik_to_retlist(retlist, loglik)
   }
 
-  if ("post_sampler" %in% output) {
-    retlist <- c(retlist, list(post_sampler = function(nsamp) {
+  if (sampler_in_output(output)) {
+    post_sampler <- function(nsamp) {
       post_sampler_point_normal(x, s, w, a, mu, nsamp)
-    }))
+    }
+    retlist <- add_sampler_to_retlist(retlist, post_sampler)
   }
 
   return(retlist)
 }
 
 # Used by both ebnm_pn_workhorse and ebnm_pl_workhorse.
-check_g_init <- function(g_init, fix_g, pointmass, call, class_name, scale_name) {
+#
+check_g_init <- function(g_init,
+                         fix_g,
+                         mode,
+                         scale,
+                         pointmass,
+                         call,
+                         class_name,
+                         scale_name) {
   if (!is.null(g_init)) {
     if (!inherits(g_init, class_name)) {
       stop("g_init must be NULL or an object of class ", class_name, ".")
@@ -135,13 +149,13 @@ check_g_init <- function(g_init, fix_g, pointmass, call, class_name, scale_name)
     if (!fix_g) {
       # all.equal allows for numerical error:
       if (!is.null(call$mode)
-          && !identical(call$mode, "estimate")
-          && !isTRUE(all.equal(g_init$mean[1], call$mode))) {
+          && !identical(mode, "estimate")
+          && !isTRUE(all.equal(g_init$mean[1], mode))) {
         stop("If mode is fixed and g_init is supplied, they must agree.")
       }
       g_scale <- g_init[[scale_name]][ncomp]
       if (!is.null(call$scale)
-          && !identical(call$scale, "estimate")
+          && !identical(scale, "estimate")
           && !isTRUE(all.equal(g_scale, scale))) {
         stop("If scale is fixed and g_init is supplied, they must agree.")
       }

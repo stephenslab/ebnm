@@ -9,63 +9,59 @@ ebnm_ash_workhorse <- function(x,
                                output,
                                call,
                                ...) {
-  if (scale == "estimate") {
+  if (identical(scale, "estimate")) {
     scale <- NULL
-  }
-
-  ash_output <- output
-  if ("result" %in% output) {
-    ash_output <- setdiff(ash_output, "result")
-    ash_output <- c(ash_output, "PosteriorMean", "PosteriorSD")
   }
 
   # Ash will accept either mode and mixsd or g, but not both.
   if (is.null(g_init)) {
-    ash.res <- ash(betahat = as.vector(x),
+    ash_res <- ash(betahat = as.vector(x),
                    sebetahat = as.vector(s),
                    mode = mode,
                    mixsd = scale,
                    fixg = fix_g,
-                   outputlevel = ash_output,
+                   outputlevel = ash_output(output),
                    ...)
   } else {
     if (!is.null(call$mode) || !is.null(call$scale)) {
       warning("mode and scale parameters are ignored when g_init is supplied.")
     }
-    ash.res <- ash(betahat = as.vector(x),
+    ash_res <- ash(betahat = as.vector(x),
                    sebetahat = as.vector(s),
                    g = g_init,
                    fixg = fix_g,
-                   outputlevel = ash_output,
+                   outputlevel = ash_output(output),
                    ...)
   }
 
   retlist <- list()
 
-  if ("result" %in% output || "lfsr" %in% output) {
-    retlist$result <- list()
-    if ("result" %in% output) {
-      pm  <- ash.res$result$PosteriorMean
-      pm2 <- ash.res$result$PosteriorSD^2
-      retlist$result$posterior_mean  <- pm
-      retlist$result$posterior_mean2 <- pm^2 + pm2
+  if (posterior_in_output(output)) {
+    posterior <- list()
+
+    if (result_in_output(output)) {
+      posterior$mean  <- ash_res$result$PosteriorMean
+      posterior$sd    <- ash_res$result$PosteriorSD
+      posterior$mean2 <- posterior$mean^2 + posterior$sd^2
     }
-    if ("lfsr" %in% output) {
-      retlist$result$lfsr <- ash.res$result$lfsr
+
+    if (lfsr_in_output(output)) {
+      posterior$lfsr  <- ash_res$result$lfsr
     }
-    retlist$result <- data.frame(retlist$result)
+
+    retlist <- add_posterior_to_retlist(retlist, posterior, output)
   }
 
-  if ("fitted_g" %in% output) {
-    retlist$fitted_g <- ash.res$fitted_g
+  if (g_in_output(output)) {
+    retlist <- add_g_to_retlist(retlist, ash_res$fitted_g)
   }
 
-  if ("loglik" %in% output) {
-    retlist$loglik <- ash.res$loglik
+  if (llik_in_output(output)) {
+    retlist <- add_llik_to_retlist(retlist, ash_res$loglik)
   }
 
-  if ("post_sampler" %in% output) {
-    retlist$post_sampler <- ash.res$post_sampler
+  if (sampler_in_output(output)) {
+    retlist <- add_sampler_to_retlist(retlist, ash_res$post_sampler)
   }
 
   return(retlist)
