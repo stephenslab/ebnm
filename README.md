@@ -1,19 +1,19 @@
-# ebnm: Fit the Empirical Bayes Normal Means (EBNM) problem
+# ebnm: Fit the empirical Bayes normal means problem
 
 The `ebnm` package provides functions to solve the (heteroskedastic)
-empirical Bayes normal means problem for various choices of prior family.
+Empirical Bayes Normal Means (EBNM) problem for various choices of prior family.
 The model is $$ x_j | \theta_j, s_j \sim N(\theta_j, s_j^2), $$
-$$ \theta_j | s_j \sim g \in G $$ where the distribution g is to
+$$ \theta_j | s_j \sim g \in G, $$ where the distribution g is to
 be estimated. The distribution g is referred to as the "prior distribution" for
 $\theta$ and G is a specified family of prior distributions. Several options
 for G are implemented, some parametric and others non-parametric.
 
 Solving the EBNM problem involves
 two steps. First, estimate g $\in$  G via maximum marginal likelihood,
-yielding an estimate $$\hat{g}:= \arg\max_{g \in G} L(g),$$ 
-where $$L(g):= \prod_j \int p(x_j | \theta_j, s_j)  g(d\theta_j)$$
+yielding an estimate $$ \hat{g}:= \arg\max_{g \in G} L(g), $$ 
+where $$ L(g):= \prod_j \int p(x_j | \theta_j, s_j)  g(d\theta_j). $$
 Second, compute the posterior distributions 
-$p(\theta_j | x_j, s_j, \hat{g})$ and/or summaries
+$ p(\theta_j | x_j, s_j, \hat{g}) $ and/or summaries
 such as posterior means and posterior second moments.
 
 ## License
