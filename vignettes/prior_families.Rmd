@@ -1,0 +1,223 @@
+---
+title: "ebnm prior families"
+author: "Jason Willwerscheid"
+date: "6/28/2019"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, fig.width = 7, fig.height = 5)
+```
+
+## Introduction
+
+Below, I use the following prior families, all of which are constrained to have a unique mode at zero:
+
+* `ebnm_normal`: The family of normal distributions.
+
+* `ebnm_point_normal`: The family of two-component mixtures with one component a point mass at zero and the other a normal distribution (with mean zero). Usually, two parameters need to be estimated: the mixture proportion for the point mass and the variance of the normal component. One can fix the latter using parameter `scale` so that only one parameter needs to be estimated.
+
+* `ebnm_point_laplace`: One component is a point mass at zero and the other is a double-exponential distribution.
+
+* `ebnm_normal_scale_mixture`: The family of scale mixtures of normals.
+
+* `ebnm_ash(mixcompdist = "normal")`: This is also the family of scale mixtures of normals, but whereas `ebnm_normal_scale_mixture` calls into an `ebnm` function that was designed for simplicity and speed, `ebnm_ash` calls directly into the more flexible `ashr::ash`. 
+
+* `ebnm_unimodal_symmetric`: The family of symmetric unimodal distributions.
+
+* `ebnm_unimodal`: The general family of unimodal distributions.
+
+## Code
+
+The following functions are used to simulate data and plot results.
+
+```{r sampling_fns}
+mb.times <- 50L # Sets 'times' for microbenchmark
+
+library(ebnm)
+library(microbenchmark)
+library(ggplot2)
+
+sample <- function(g, ...) {
+  UseMethod("sample", g)
+}
+
+sample.normalmix <- function(g, nsamp) {
+  which.comp <- rmultinom(nsamp, size = 1, prob = g$pi)
+  means <- g$mean %*% which.comp
+  sds <- g$sd %*% which.comp
+  return(rnorm(nsamp, means, sds))
+}
+
+sample.unimix <- function(g, nsamp) {
+  which.comp <- rmultinom(nsamp, size = 1, prob = g$pi)
+  a <- g$a %*% which.comp
+  b <- g$b %*% which.comp
+  return(runif(nsamp, a, b))
+}
+
+cdf <- function(g, ...) {
+  UseMethod("cdf", g)
+}
+
+cdf.normalmix <- function(g, x) {
+  k <- length(g$pi)
+  p <- matrix(pnorm(rep(x, each = k), g$mean, g$sd), nrow = k)
+  return(as.vector(g$pi %*% p))
+}
+  
+cdf.unimix <- function(g, x) {
+  k <- length(g$pi)
+  p <- matrix(punif(rep(x, each = k), g$a, g$b), nrow = k)
+  return(as.vector(g$pi %*% p))
+}
+
+cdf.laplacemix <- function(g, x) {
+  k <- length(g$pi)
+  p <- matrix(0.5 * pexp(rep(x, each = k), 1 / g$scale)
+              + 0.5 * pexp(rep(-x, each = k), 1 / g$scale, 
+                           lower.tail = FALSE), 
+              nrow = k)
+  return(as.vector(g$pi %*% p))
+}
+
+plot.cdfs <- function(g.list, g.names, xmin, xmax, npts = 100) {
+  grid <- seq(xmin, xmax, length.out = npts)
+  cdf.list <- lapply(g.list, cdf, x = grid)
+  df <- data.frame(x = rep(grid, length(g.list)),
+                   cdf = unlist(cdf.list),
+                   g = rep(g.names, each = length(grid)))
+  ggplot(df, aes(x = x, y = cdf, color = g)) + geom_line()  
+}
+```
+
+## Example 1: mixture of normals
+
+First I simulate observations from the prior
+
+$$ g \sim 0.6\ \delta_0 + 0.3\ \text{Normal}(0, 3^2) + 0.1\ \text{Normal}(0, 10^2), $$
+
+which is meant to evoke a point-normal distribution with a slightly heavier tail.
+
+```{r g1.plot}
+true.g <- ashr::normalmix(pi = c(0.6, 0.3, 0.1),
+                          mean = c(0, 0, 0),
+                          sd = c(0, 3, 10))
+
+set.seed(666)
+n <- 2000
+theta <- sample(true.g, n)
+s <- 1
+x <- theta + rnorm(n)
+
+n.res   <- ebnm_normal(x, s)
+pn.res  <- ebnm_point_normal(x, s)
+pl.res  <- ebnm_point_laplace(x, s)
+smn.res <- ebnm_normal_scale_mixture(x, s)
+
+plot.cdfs(list(true.g, n.res$fitted_g, pn.res$fitted_g, pl.res$fitted_g,
+               smn.res$fitted_g),
+          g.names = c("true.g", "normal", "point.normal", "point.laplace",
+                      "scale.mix"),
+          xmin = -10, xmax = 0.5)
+```
+
+### Timing: homoskedastic errors
+
+With `s = 1`, a timing comparison yields:
+
+```{r g1.timing.homo}
+timing.res <- microbenchmark(ebnm_normal(x, s),
+                             ebnm_point_normal(x, s, scale = 3),
+                             ebnm_point_normal(x, s),
+                             ebnm_point_laplace(x, s),
+                             ebnm_normal_scale_mixture(x, s),
+                             ebnm_ash(x, s, mixcompdist = "normal"),
+                             ebnm_unimodal_symmetric(x, s),
+                             ebnm_unimodal(x, s),
+                             times = mb.times)
+autoplot(timing.res)
+```
+
+### Timing: heteroskedastic errors
+
+With heteroskedastic errors simulated from a Gamma distribution with shape and rate parameters equal to 1, the timings are:
+
+```{r g1.timing.hetero}
+s <- rgamma(n, 1, 1)
+timing.res <- microbenchmark(ebnm_normal(x, s),
+                             ebnm_point_normal(x, s, scale = 3),
+                             ebnm_point_normal(x, s),
+                             ebnm_point_laplace(x, s),
+                             ebnm_normal_scale_mixture(x, s),
+                             ebnm_ash(x, s, mixcompdist = "normal"),
+                             ebnm_unimodal_symmetric(x, s),
+                             ebnm_unimodal(x, s),
+                             times = mb.times)
+autoplot(timing.res)
+```
+
+## Example 2: mixture of uniforms
+
+Next I simulate observations from the more challenging "flat-top" distribution with a point mass at zero and a bit of extra tail:
+
+$$ g \sim 0.5\ \delta_0 + 0.4\ \text{Uniform}(-1, 1) + 0.1\ \text{Uniform}(-10, 10), $$
+
+I bump `n` up to 20000 to see how it affects the timing comparisons.
+
+```{r g2.plot}
+true.g <- ashr::unimix(pi = c(0.5, 0.4, 0.1),
+                       a = c(0, -1, -6),
+                       b = c(0, 1, 6))
+
+n <- 20000
+theta <- sample.unimix(true.g, n)
+s <- 1
+x <- theta + rnorm(n)
+
+pn.res    <- ebnm_point_normal(x, s)
+pl.res    <- ebnm_point_laplace(x, s)
+smn.res   <- ebnm_normal_scale_mixture(x, s)
+symm.res  <- ebnm_unimodal_symmetric(x, s)
+
+plot.cdfs(list(true.g, pn.res$fitted_g, pl.res$fitted_g, smn.res$fitted_g,
+               symm.res$fitted_g),
+          c("true.g", "point.normal", "point.laplace", "scale.mix.normal",
+            "symm.unimodal"),
+          xmin = -6, xmax = 0.5)
+```
+
+### Timing: homoskedastic errors
+
+```{r g2.timing.homo}
+timing.res <- microbenchmark(ebnm_normal(x, s),
+                             ebnm_point_normal(x, s, scale = 1),
+                             ebnm_point_normal(x, s),
+                             ebnm_point_laplace(x, s),
+                             ebnm_normal_scale_mixture(x, s),
+                             ebnm_ash(x, s, mixcompdist = "normal"),
+                             ebnm_unimodal_symmetric(x, s),
+                             ebnm_unimodal(x, s),
+                             times = mb.times)
+autoplot(timing.res)
+```
+
+### Timing: heteroskedastic errors
+
+```{r g2.timing.hetero}
+s <- rgamma(n, 1)
+timing.res <- microbenchmark(ebnm_normal(x, s),
+                             ebnm_point_normal(x, s, scale = 1),
+                             ebnm_point_normal(x, s),
+                             ebnm_point_laplace(x, s),
+                             ebnm_normal_scale_mixture(x, s),
+                             ebnm_ash(x, s, mixcompdist = "normal"),
+                             ebnm_unimodal_symmetric(x, s),
+                             ebnm_unimodal(x, s),
+                             times = mb.times)
+autoplot(timing.res)
+```

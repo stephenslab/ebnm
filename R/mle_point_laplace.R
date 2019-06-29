@@ -7,15 +7,11 @@ mle_point_laplace <- function(x, s, g, control, fix_a) {
 
   fn_params <- list(x = x, s = s, lf = lf)
 
-  optres <- try(do.call(nlm, c(list(pl_nlm_fn, startpar), fn_params, control)),
-                silent = TRUE)
+  # Sometimes nlm thinks that the gradient is being calculated incorrectly.
+  #   Reducing the number of significant digits often solves the problem.
+  control <- modifyList(list(ndigit = 8), control)
 
-  if (inherits(optres, "try-error")) {
-    warning("First optimization attempt failed. Retrying with fewer ",
-            "significant digits.")
-    control <- modifyList(control, list(ndigit = 8))
-    optres  <- do.call(nlm, c(list(pl_nlm_fn, startpar), fn_params, control))
-  }
+  optres <- do.call(nlm, c(list(pl_nlm_fn, startpar), fn_params, control))
 
   # if (inherits(optres, "try-error")) {
   #   stop("Re-attempt at optimization failed, possibly due to one or more ",
