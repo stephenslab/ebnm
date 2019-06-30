@@ -84,12 +84,14 @@ ebnm_normal_mix_workhorse <- function(x,
     nonzero_cols <- (apply(L_mat, 2, max) > 0)
     if (!all(nonzero_cols)) {
       pi_init <- pi_init[nonzero_cols]
-      L_mat   <- L_mat[, nonzero_cols, drop = FALSE]
+      L       <- L_mat[, nonzero_cols, drop = FALSE]
+    } else {
+      L       <- L_mat
     }
 
     control0 <- list(verbose = FALSE)
     control  <- modifyList(control0, control, keep.null = TRUE)
-    optres   <- mixsqp(L = L_mat, x0 = pi_init, control = control)
+    optres   <- mixsqp(L = L, x0 = pi_init, control = control)
 
     pi_est <- rep(0, n_mixcomp)
     pi_est[nonzero_cols] <- pmax(optres$x, 0)
