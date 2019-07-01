@@ -3,9 +3,9 @@
 The `ebnm` package provides functions to solve the (heteroskedastic)
 Empirical Bayes Normal Means (EBNM) problem for various choices of prior family.
 The model is $$ x_j | \theta_j, s_j \sim N(\theta_j, s_j^2), $$
-$$ \theta_j | s_j \sim g \in G, $$ where the distribution g is to
-be estimated. The distribution g is referred to as the "prior distribution" for
-$\theta$ and G is a specified family of prior distributions. Several options
+$$ \theta_j | s_j \sim g \in G, $$ where the distribution g (referred to as the 
+"prior distribution" for $\theta$) is to be estimated and G is a specified family 
+of prior distributions. Several options
 for G are implemented, some parametric and others non-parametric.
 
 Solving the EBNM problem involves
