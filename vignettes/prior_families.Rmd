@@ -36,7 +36,7 @@ Below, I use the following prior families, all of which are constrained to have 
 The following functions are used to simulate data and plot results.
 
 ```{r sampling_fns}
-mb.times <- 10L # Sets 'times' for microbenchmark
+mb.times <- 5L # Sets 'times' for microbenchmark
 
 library(ebnm)
 library(microbenchmark)
