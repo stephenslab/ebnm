@@ -9,7 +9,7 @@ mle_point_laplace <- function(x, s, g, control, fix_a) {
 
   # Sometimes nlm thinks that the gradient is being calculated incorrectly.
   #   Reducing the number of significant digits often solves the problem.
-  control <- modifyList(list(ndigit = 8), control)
+  control <- modifyList(nlm_control_defaults(), control)
 
   optres <- do.call(nlm, c(list(pl_nlm_fn, startpar), fn_params, control))
 
