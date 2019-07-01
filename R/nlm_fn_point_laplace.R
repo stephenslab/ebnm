@@ -1,3 +1,5 @@
+# The function that nlm optimizes when fitting a point-Laplace distribution.
+
 #' @importFrom stats pnorm
 #'
 pl_nlm_fn <- function(par, x, s, lf) {

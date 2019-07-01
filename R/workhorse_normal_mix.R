@@ -89,9 +89,9 @@ ebnm_normal_mix_workhorse <- function(x,
       L       <- L_mat
     }
 
-    control0 <- list(verbose = FALSE)
-    control  <- modifyList(control0, control, keep.null = TRUE)
-    optres   <- mixsqp(L = L, x0 = pi_init, control = control)
+    mixsqp_control_defaults <- list(verbose = FALSE)
+    control <- modifyList(mixsqp_control_defaults, control, keep.null = TRUE)
+    optres  <- mixsqp(L = L, x0 = pi_init, control = control)
 
     pi_est <- rep(0, n_mixcomp)
     pi_est[nonzero_cols] <- pmax(optres$x, 0)

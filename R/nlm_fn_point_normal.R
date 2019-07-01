@@ -1,3 +1,5 @@
+# The function that nlm optimizes when fitting a point-normal distribution.
+
 pn_nlm_fn <- function(par, fix_pi0, fix_a, fix_mu, alpha, beta, mu,
                       n0, n1, sum1, n2, x, s2, z, sum_z) {
   i <- 1
