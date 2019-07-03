@@ -113,7 +113,7 @@ Given vectors of data \code{x} and standard errors \code{s},
   for \eqn{G} are implemented, some parametric and others non-parametric;
   see below for examples.
 
-  Solving the EBNM problem involves
+Solving the EBNM problem involves
   two steps. First, estimate \eqn{g \in  G} via maximum marginal likelihood,
   yielding an estimate \deqn{\hat{g}:= \arg\max_{g \in G} L(g)} where
   \deqn{L(g):= \prod_j \int p(x_j | \theta_j, s_j)  g(d\theta_j)}
@@ -121,7 +121,7 @@ Given vectors of data \code{x} and standard errors \code{s},
   \eqn{p(\theta_j | x_j, s_j, \hat{g})} and/or summaries
   such as posterior means and posterior second moments.
 
-  The prior families that have been implemented include:
+The prior families that have been implemented include:
     \describe{
       \item{\code{point_normal}}{The family of mixtures where one
         component is a point mass at \eqn{\mu} and the other is a normal
@@ -130,7 +130,7 @@ Given vectors of data \code{x} and standard errors \code{s},
         component is a point mass at zero and the other is a
         double-exponential distribution.}
       \item{\code{normal}}{The family of normal distributions.}
-      \item{\code{normal_scale_mixture}}{The family of scale mixture of
+      \item{\code{normal_scale_mixture}}{The family of scale mixtures of
         normals.}
       \item{\code{unimodal}}{The family of all unimodal distributions.}
       \item{\code{unimodal_symmetric}}{The family of symmetric unimodal

@@ -3,8 +3,6 @@
 #' Solves the empirical Bayes normal means problem using a specified family of
 #'   priors.
 #'
-#' @details
-#'
 #' Given vectors of data \code{x} and standard errors \code{s},
 #'   solve the "empirical Bayes normal means" (EBNM) problem for various
 #'   choices of prior family.
@@ -34,7 +32,7 @@
 #'         component is a point mass at zero and the other is a
 #'         double-exponential distribution.}
 #'       \item{\code{normal}}{The family of normal distributions.}
-#'       \item{\code{normal_scale_mixture}}{The family of scale mixture of
+#'       \item{\code{normal_scale_mixture}}{The family of scale mixtures of
 #'         normals.}
 #'       \item{\code{unimodal}}{The family of all unimodal distributions.}
 #'       \item{\code{unimodal_symmetric}}{The family of symmetric unimodal
@@ -44,7 +42,6 @@
 #'       \item{\code{unimodal_nonpositive}}{The family of unimodal
 #'         distributions with support constrained to be less than the mode.}
 #'     }
-#'
 #'
 #' @param x A vector of observations. Missing observations (\code{NA}s) are
 #'   allowed. If any observations are missing, the corresponding standard
