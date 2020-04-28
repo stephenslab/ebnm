@@ -182,6 +182,7 @@ ebnm <- function(x,
                                   "unimodal_symmetric",
                                   "unimodal_nonnegative",
                                   "unimodal_nonpositive",
+                                  "npmle",
                                   "ash"),
                  mode = 0,
                  scale = "estimate",
@@ -328,6 +329,28 @@ ebnm_workhorse <- function(x,
                                   output = output,
                                   control = control,
                                   call = call,
+                                  ...)
+  } else if (prior_family == "npmle") {
+    if (is.null(g_init)) {
+      if (!is.null(call$mode)) {
+        warning("mode parameter is ignored by ebnm_npmle.")
+        call$mode <- NULL
+      }
+
+      g_init <- init_g_for_npmle(x, scale)
+      call$scale <- NULL
+    }
+
+    retlist <- ebnm_ash_workhorse(x = x,
+                                  s = s,
+                                  mode = mode,
+                                  scale = scale,
+                                  g_init = g_init,
+                                  fix_g = fix_g,
+                                  output = output,
+                                  control = control,
+                                  call = call,
+                                  prior = "uniform",
                                   ...)
   }
 
