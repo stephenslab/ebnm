@@ -8,8 +8,8 @@
 \usage{
 ebnm(x, s = 1, prior_family = c("point_normal", "point_laplace",
   "normal", "normal_scale_mixture", "unimodal", "unimodal_symmetric",
-  "unimodal_nonnegative", "unimodal_nonpositive", "ash"), mode = 0,
-  scale = "estimate", g_init = NULL, fix_g = FALSE,
+  "unimodal_nonnegative", "unimodal_nonpositive", "npmle", "ash"),
+  mode = 0, scale = "estimate", g_init = NULL, fix_g = FALSE,
   output = output_default(), control = NULL, ...)
 
 output_default()
