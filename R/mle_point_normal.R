@@ -1,6 +1,10 @@
 #' @importFrom stats nlm
 #'
-mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
+mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu,
+                             optmethod = c("nlm", "lbfgsb", "trust"),
+                             calc_grad = TRUE, calc_hess = TRUE) {
+  optmethod <- match.arg(optmethod)
+
   if (!fix_mu && any(s == 0)) {
     stop("The mode cannot be estimated if any SE is zero (the gradient does ",
          "not exist).")
@@ -54,20 +58,53 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu) {
                     n0 = n0, n1 = n1, sum1 = sum1, n2 = n2,
                     x = x, s2 = s2, z = z, sum_z = sum_z)
 
-  # Sometimes nlm thinks that the gradient is being calculated incorrectly.
-  #   Reducing the number of significant digits often solves the problem.
-  control <- modifyList(nlm_control_defaults(), control)
+  if (optmethod == "nlm") {
+    control <- modifyList(nlm_control_defaults(), control)
 
-  optres <- do.call(nlm, c(list(pn_nlm_fn, startpar), fn_params, control))
+    optres <- do.call(nlm, c(list(f = pn_nllik, p = startpar), fn_params,
+                             list(calc_grad = calc_grad, calc_hess = calc_hess),
+                             control))
+    optpar <- optres$estimate
+    optval <- optres$minimum
+  } else if (optmethod == "trust") {
+    control <- modifyList(trust_control_defaults(), control)
 
-  # if (inherits(optres, "try-error")) {
-  #   stop("Re-attempt at optimization failed, possibly due to one or more ",
-  #        "very small standard errors. The smallest nonzero standard error ",
-  #        "seen during optimization was ", signif(min(s), 2), ".")
-  # }
+    # The trust function requires a gradient and Hessian.
+    fn <- function(par, ...) {
+      nllik <- pn_nllik(par, calc_grad = TRUE, calc_hess = TRUE, ...)
+      return(list(value = nllik,
+                  gradient = attr(nllik, "gradient"),
+                  hessian = attr(nllik, "hessian")))
+    }
 
-  retlist <- pn_g_from_optpar(optres$estimate, g, fix_pi0, fix_a, fix_mu)
-  retlist$val <- pn_llik_from_optval(optres$minimum, n1, n2, s2)
+    optres <- do.call(trust, c(list(f = pn_nllik, p = startpar), fn_params,
+                               control))
+    optpar <- optres$argument
+    optval <- optres$value
+  } else if (optmethod == "lbfgsb") {
+    control <- modifyList(lbfgsb_control_defaults(), control)
+
+    # The optim function cannot accept a Hessian.
+    fn <- function(par, ...) {
+      return(pn_nllik(par, calc_grad = FALSE, calc_hess = FALSE, ...))
+    }
+    if (calc_grad) {
+      gr <- function(par, ...) {
+        nllik <- pn_nllik(par, calc_grad = TRUE, calc_hess = FALSE, ...)
+        return(attr(nllik, "gradient"))
+      }
+    } else {
+      gr <- NULL
+    }
+
+    optres  <- do.call(optim, c(list(startpar, fn = fn, gr = gr), fn_params,
+                                control, list(method = "L-BFGS-B")))
+    optpar  <- optres$par
+    optval  <- optres$value
+  }
+
+  retlist <- pn_g_from_optpar(optpar, g, fix_pi0, fix_a, fix_mu)
+  retlist$val <- pn_llik_from_optval(optval, n1, n2, s2)
 
   # Check the solution pi0 = 1.
   if (!fix_pi0 && fix_mu && n1 == 0) {
