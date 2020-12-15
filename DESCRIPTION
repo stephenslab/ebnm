@@ -1,7 +1,7 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 0.1-25
+Version: 0.1-26
 Date: 2020-12-15
 Title: Fit Empirical Bayes Normal Means Model
 Author: Matthew Stephens, Jason Willwerscheid, Andrew Goldstein
