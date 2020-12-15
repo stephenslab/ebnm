@@ -57,10 +57,11 @@ Function \code{output_default()} provides the default return values, while
 \item{control}{A list of control parameters to be passed to the optimization
 function. \code{\link[stats]{optimize}} is used for
 \code{prior_family = "normal"}, while \code{\link[stats]{nlm}} is used for
-point-normal and point-Laplace families. For ash families (including
+point-normal and point-Laplace families unless parameter \code{optmethod}
+specifies otherwise. For ash families (including
 \code{normal_scale_mixture} and all \code{unimodal_} families),
-function \code{\link[mixsqp]{mixsqp}} in package \code{mixsqp} is used
-unless otherwise specified.}
+function \code{\link[mixsqp]{mixsqp}} in package \code{mixsqp} is the
+default.}
 }
 \description{
 See \code{\link{ebnm}} for details.

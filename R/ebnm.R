@@ -92,19 +92,21 @@
 #'   \code{output_all()} lists all possible return values. See "Value" below.
 #'
 #' @param optmethod A string specifying which optimization function is to be
-#'   used. Options include \code{"nlm"}, \code{"lbfgsb"}, \code{"trust"},
-#'   \code{"nlm_nograd"}, \code{"lbfgsb_nograd"}, and \code{"nlm_nohess"}.
+#'   used. Options include \code{"nlm"}, \code{"lbfgsb"} (which calls
+#'   \code{optim} with \code{method = "L-BFGS-B"}), and \code{"trust"} (which
+#'   calls into package \code{trust}), as well as \code{"nlm_nograd"},
+#'   \code{"lbfgsb_nograd"}, and \code{"nlm_nohess"}.
 #'   Since all non-parametric families call into \code{ashr}, this parameter is
-#'   only available for parametric families (normal, point-normal, and
-#'   point-Laplace).
+#'   only available for parametric families (point-normal and point-Laplace).
 #'
 #' @param control A list of control parameters to be passed to the optimization
 #'   function. \code{\link[stats]{optimize}} is used for
 #'   \code{prior_family = "normal"}, while \code{\link[stats]{nlm}} is used for
-#'   point-normal and point-Laplace families. For ash families (including
+#'   point-normal and point-Laplace families unless parameter \code{optmethod}
+#'   specifies otherwise. For ash families (including
 #'   \code{normal_scale_mixture} and all \code{unimodal_} families),
-#'   function \code{\link[mixsqp]{mixsqp}} in package \code{mixsqp} is used
-#'   unless otherwise specified.
+#'   function \code{\link[mixsqp]{mixsqp}} in package \code{mixsqp} is the
+#'   default.
 #'
 #' @param ... Additional parameters. When \code{prior_family = "ash"} or when
 #'   a \code{unimodal_} prior is used, these parameters are passed to
@@ -256,6 +258,9 @@ ebnm_workhorse <- function(x,
                                  g_init = g_init,
                                  fix_g = fix_g,
                                  output = output,
+                                 optmethod = optmethod$fn,
+                                 use_grad = optmethod$use_grad,
+                                 use_hess = optmethod$use_hess,
                                  control = control,
                                  call = call)
   } else if (prior_family == "normal") {
