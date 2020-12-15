@@ -10,7 +10,7 @@ ebnm(x, s = 1, prior_family = c("point_normal", "point_laplace",
   "normal", "normal_scale_mixture", "unimodal", "unimodal_symmetric",
   "unimodal_nonnegative", "unimodal_nonpositive", "ash"), mode = 0,
   scale = "estimate", g_init = NULL, fix_g = FALSE,
-  output = output_default(), control = NULL, ...)
+  output = output_default(), optmethod = NULL, control = NULL, ...)
 
 output_default()
 
@@ -64,6 +64,13 @@ of estimating it.}
 \item{output}{A character vector indicating which values are to be returned.
 Function \code{output_default()} provides the default return values, while
 \code{output_all()} lists all possible return values. See "Value" below.}
+
+\item{optmethod}{A string specifying which optimization function is to be
+used. Options include \code{"nlm"}, \code{"lbfgsb"}, \code{"trust"},
+\code{"nlm_nograd"}, \code{"lbfgsb_nograd"}, and \code{"nlm_nohess"}.
+Since all non-parametric families call into \code{ashr}, this parameter is
+only available for parametric families (normal, point-normal, and
+point-Laplace).}
 
 \item{control}{A list of control parameters to be passed to the optimization
 function. \code{\link[stats]{optimize}} is used for
