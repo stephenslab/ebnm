@@ -34,7 +34,7 @@ pn_nllik <- function(par,
   nllik <- nllik + 0.5 * (n1 * beta + sum1 * exp(-beta) + sum_z)
   nllik <- nllik - sum(log(exp(y - C) + exp(alpha - C)) + C)
 
-  if (calc_grad) {
+  if (calc_grad || calc_hess) {
     dlogist.beta  <- logist.beta * logist.nbeta
 
     logist.y  <- 1 / (1 + exp(alpha - y)) # vector
@@ -59,7 +59,7 @@ pn_nllik <- function(par,
     attr(nllik, "gradient") <- grad
   }
 
-  if (calc_grad && calc_hess) {
+  if (calc_hess) {
     dlogist.alpha <- logist.alpha * logist.nalpha
     dlogist.y <- logist.y * logist.ny
 

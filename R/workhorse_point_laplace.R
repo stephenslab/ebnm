@@ -5,6 +5,9 @@ ebnm_pl_workhorse <- function(x,
                               g_init,
                               fix_g,
                               output,
+                              optmethod,
+                              use_grad,
+                              use_hess,
                               control,
                               call) {
   if (mode != 0) {
@@ -48,7 +51,8 @@ ebnm_pl_workhorse <- function(x,
     if (fix_a) {
       g <- mle_point_laplace_fixa(x_optset, s_optset, g, control)
     } else {
-      g <- mle_point_laplace(x_optset, s_optset, g, control)
+      g <- mle_point_laplace(x_optset, s_optset, g, control,
+                             optmethod, use_grad, use_hess)
     }
   }
 
