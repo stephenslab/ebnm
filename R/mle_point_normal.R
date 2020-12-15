@@ -1,4 +1,5 @@
 #' @importFrom stats nlm
+#' @importFrom trust trust
 #'
 mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu,
                              optmethod = c("nlm", "lbfgsb", "trust"),
