@@ -9,6 +9,9 @@ ebnm_pn_workhorse <- function(x,
                               g_init,
                               fix_g,
                               output,
+                              optmethod,
+                              use_grad,
+                              use_hess,
                               control,
                               pointmass,
                               call) {
@@ -73,7 +76,8 @@ ebnm_pn_workhorse <- function(x,
                       fix_a, fix_mu)
     } else {
       g <- mle_point_normal(x_optset, s_optset, g, control,
-                            fix_pi0, fix_a, fix_mu)
+                            fix_pi0, fix_a, fix_mu,
+                            optmethod, use_grad, use_hess)
     }
   }
 

@@ -185,6 +185,7 @@ ebnm <- function(x,
                  g_init = NULL,
                  fix_g = FALSE,
                  output = output_default(),
+                 optmethod = NULL,
                  control = NULL,
                  ...) {
   prior_family <- match.arg(prior_family)
@@ -196,6 +197,7 @@ ebnm <- function(x,
                         g_init = g_init,
                         fix_g = fix_g,
                         output = output,
+                        optmethod = optmethod,
                         control = control,
                         prior_family = prior_family,
                         call = match.call(),
@@ -212,6 +214,7 @@ ebnm_workhorse <- function(x,
                            g_init,
                            fix_g,
                            output,
+                           optmethod,
                            control,
                            prior_family,
                            call,
@@ -219,6 +222,7 @@ ebnm_workhorse <- function(x,
   check_args(x, s, g_init, fix_g, output)
   mode <- handle_mode_parameter(mode)
   scale <- handle_scale_parameter(scale)
+  optmethod <- handle_optmethod_parameter(optmethod)
   if (is.null(control)) {
     control <- list()
   }
@@ -231,6 +235,9 @@ ebnm_workhorse <- function(x,
                                  g_init = g_init,
                                  fix_g = fix_g,
                                  output = output,
+                                 optmethod = optmethod$fn,
+                                 use_grad = optmethod$use_grad,
+                                 use_hess = optmethod$use_hess,
                                  control = control,
                                  pointmass = TRUE,
                                  call = call)
@@ -252,6 +259,9 @@ ebnm_workhorse <- function(x,
                                  g_init = g_init,
                                  fix_g = fix_g,
                                  output = output,
+                                 optmethod = optmethod$fn,
+                                 use_grad = optmethod$use_grad,
+                                 use_hess = optmethod$use_hess,
                                  control = control,
                                  pointmass = FALSE,
                                  call = call)
@@ -385,4 +395,20 @@ handle_scale_parameter <- function(scale) {
     stop("Argument 'scale' must be either 'estimate' or numeric.")
   }
   return(scale)
+}
+
+handle_optmethod_parameter <- function(optmethod) {
+  optmethod <- match.arg(optmethod, c("nlm", "lbfgsb", "trust",
+                                      "nograd_nlm", "nograd_lbfgsb",
+                                      "nohess_nlm"))
+  return(
+    switch(optmethod,
+           nlm = list(fn = "nlm", use_grad = TRUE, use_hess = TRUE),
+           lbfgsb = list(fn = "lbfgsb", use_grad = TRUE, use_hess = FALSE),
+           trust = list(fn = "trust", use_grad = TRUE, use_hess = TRUE),
+           nograd_nlm = list(fn = "nlm", use_grad = FALSE, use_hess = FALSE),
+           nograd_lbfgsb = list(fn = "lbfgsb", use_grad = FALSE, use_hess = FALSE),
+           nohess_nlm = list(fn = "nlm", use_grad = TRUE, use_hess = FALSE)
+    )
+  )
 }

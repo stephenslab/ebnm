@@ -1,11 +1,9 @@
 #' @importFrom stats nlm
 #' @importFrom trust trust
 #'
-mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu,
-                             optmethod = c("nlm", "lbfgsb", "trust"),
-                             calc_grad = TRUE, calc_hess = TRUE) {
-  optmethod <- match.arg(optmethod)
-
+mle_point_normal <- function(x, s, g, control,
+                             fix_pi0, fix_a, fix_mu,
+                             optmethod, use_grad, use_hess) {
   if (!fix_mu && any(s == 0)) {
     stop("The mode cannot be estimated if any SE is zero (the gradient does ",
          "not exist).")
@@ -63,7 +61,7 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu,
     control <- modifyList(nlm_control_defaults(), control)
 
     optres <- do.call(nlm, c(list(f = pn_nllik, p = startpar), fn_params,
-                             list(calc_grad = calc_grad, calc_hess = calc_hess),
+                             list(calc_grad = use_grad, calc_hess = use_hess),
                              control))
     optpar <- optres$estimate
     optval <- optres$minimum
@@ -89,7 +87,7 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu,
     fn <- function(par, ...) {
       return(pn_nllik(par, calc_grad = FALSE, calc_hess = FALSE, ...))
     }
-    if (calc_grad) {
+    if (use_grad) {
       gr <- function(par, ...) {
         nllik <- pn_nllik(par, calc_grad = TRUE, calc_hess = FALSE, ...)
         return(attr(nllik, "gradient"))

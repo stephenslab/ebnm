@@ -59,7 +59,7 @@ pn_nllik <- function(par,
     attr(nllik, "gradient") <- grad
   }
 
-  if (calc_hess) {
+  if (calc_grad && calc_hess) {
     dlogist.alpha <- logist.alpha * logist.nalpha
     dlogist.y <- logist.y * logist.ny
 
