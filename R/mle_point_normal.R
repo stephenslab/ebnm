@@ -70,7 +70,7 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu,
   } else if (optmethod == "trust") {
     control <- modifyList(trust_control_defaults(), control)
 
-    # The trust function requires a gradient and Hessian.
+    # trust requires a gradient and Hessian.
     fn <- function(par, ...) {
       nllik <- pn_nllik(par, calc_grad = TRUE, calc_hess = TRUE, ...)
       return(list(value = nllik,
@@ -78,14 +78,14 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu,
                   hessian = attr(nllik, "hessian")))
     }
 
-    optres <- do.call(trust, c(list(f = pn_nllik, p = startpar), fn_params,
+    optres <- do.call(trust, c(list(objfun = fn, parinit = startpar), fn_params,
                                control))
     optpar <- optres$argument
     optval <- optres$value
   } else if (optmethod == "lbfgsb") {
     control <- modifyList(lbfgsb_control_defaults(), control)
 
-    # The optim function cannot accept a Hessian.
+    # optim cannot accept a Hessian.
     fn <- function(par, ...) {
       return(pn_nllik(par, calc_grad = FALSE, calc_hess = FALSE, ...))
     }
@@ -98,7 +98,7 @@ mle_point_normal <- function(x, s, g, control, fix_pi0, fix_a, fix_mu,
       gr <- NULL
     }
 
-    optres  <- do.call(optim, c(list(startpar, fn = fn, gr = gr), fn_params,
+    optres  <- do.call(optim, c(list(par = startpar, fn = fn, gr = gr), fn_params,
                                 control, list(method = "L-BFGS-B")))
     optpar  <- optres$par
     optval  <- optres$value
