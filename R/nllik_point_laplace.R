@@ -2,69 +2,116 @@
 
 #' @importFrom stats pnorm
 #'
-pl_nllik <- function(par, x, s, lf, calc_grad, calc_hess) {
+pl_nllik <- function(par, x, s, calc_grad, calc_hess) {
   w <- 1 / (1 + exp(-par[1]))
   a <- exp(par[2])
+  mu <- par[3]
 
-  # This part of the log likelihood comes from the left tail.
-  xleft <- x / s + s * a
+  # Write the negative log likelihood as -log((1 - w)f + wg), where f
+  #   corresponds to the point mass and g to the Laplace component.
+
+  # Point mass:
+  lf <- -0.5 * log(2 * pi * s^2) - 0.5 * (x - mu)^2 / s^2
+
+  # This part comes from the left tail.
+  xleft <- (x - mu) / s + s * a
   lpnormleft <- pnorm(xleft, log.p = TRUE, lower.tail = FALSE)
-  lgleft <- a * x + lpnormleft
+  lgleft <- log(a / 2) + s^2 * a^2 / 2 + a * (x - mu) + lpnormleft
 
   # This part comes from the right tail.
-  xright <- x / s - s * a
+  xright <- (x - mu) / s - s * a
   lpnormright <- pnorm(xright, log.p = TRUE)
-  lgright <- -a * x + lpnormright
+  lgright <- log(a / 2) + s^2 * a^2 / 2 - a * (x - mu) + lpnormright
 
-  # This part corresponds to the entire Laplace component.
-  lg <- log(a / 2) + s^2 * a^2 / 2 + logscale_add(lgleft, lgright)
+  # Laplace component:
+  lg <- logscale_add(lgleft, lgright)
 
   llik <- logscale_add(log(1 - w) + lf, log(w) + lg)
   nllik <- -sum(llik)
 
+  # Gradients:
   if (calc_grad || calc_hess) {
+    # Since the likelihood appears in the denominator of all gradients, all
+    #   quantities below divide by the likelihood (but this is not reflected in
+    #   the variable names!).
+
     # Derivatives with respect to w and alpha (= par[1]).
-    f.over.lik <- exp(lf - llik)
-    g.over.lik <- exp(lg - llik)
-    dnllik.dw <- f.over.lik - g.over.lik
-    dnllik.dalpha <- w * (1 - w) * dnllik.dw
+    f <- exp(lf - llik)
+    g <- exp(lg - llik)
+    dnllik.dw <- f - g
+    dw.dalpha <- w * (1 - w)
+    dnllik.dalpha <- dnllik.dw * dw.dalpha
 
     # Derivatives with respect to a and beta (= par[2]).
-    dlpnormleft.da <- -s * exp(-log(2 * pi) / 2 - xleft^2 / 2 - lpnormleft)
-    dlgleft.da <- x + dlpnormleft.da
+    dlogpnorm.left <- -exp(-log(2 * pi) / 2 - xleft^2 / 2 - lpnormleft)
+    dgleft.da <- exp(lgleft - llik) * (1 / a + a * s^2 + (x - mu) + s * dlogpnorm.left)
+    dlogpnorm.right <- exp(-log(2 * pi) / 2 - xright^2 / 2 - lpnormright)
+    dgright.da <- exp(lgright - llik) * (1 / a + a * s^2 - (x - mu) - s * dlogpnorm.right)
+    dg.da <- dgleft.da + dgright.da
+    dnllik.da <- -w * dg.da
+    da.dbeta <- a
+    dnllik.dbeta <- dnllik.da * da.dbeta
 
-    dlpnormright.da <- -s * exp(-log(2 * pi) / 2 - xright^2 / 2 - lpnormright)
-    dlgright.da <- -x + dlpnormright.da
+    # Derivatives with respect to mu.
+    df.dmu <- exp(lf - llik) * ((x - mu) / s^2)
+    dgleft.dmu <- exp(lgleft - llik) * (-a - dlogpnorm.left / s)
+    dgright.dmu <- exp(lgright - llik) * (a - dlogpnorm.right / s)
+    dg.dmu <- dgleft.dmu + dgright.dmu
+    dnllik.dmu <- -(1 - w) * df.dmu - w * dg.dmu
 
-    wt <- 1 / (1 + exp(lgleft - lgright))
-    dlg.da <- 1 / a + s^2 * a + (1 - wt) * dlgleft.da + wt * dlgright.da
-
-    dnllik.da <- -w * g.over.lik * dlg.da
-    dnllik.dbeta <- a * dnllik.da
-    attr(nllik, "gradient") <- c(sum(dnllik.dalpha), sum(dnllik.dbeta))
+    attr(nllik, "gradient") <- c(sum(dnllik.dalpha), sum(dnllik.dbeta), sum(dnllik.dmu))
   }
 
   if (calc_hess) {
-    d2nllik.dalpha2 <- (1 - 2 * w) * dnllik.dalpha + dnllik.dalpha^2
+    # Second derivative with respect to w (alpha).
+    d2nllik.dw2 <- (dnllik.dw)^2
+    d2w.dalpha2 <- (1 - 2 * w) * dw.dalpha
+    d2nllik.dalpha2 <- d2nllik.dw2 * (dw.dalpha)^2 + dnllik.dw * (d2w.dalpha2)
 
-    d2lgleft.da2 <- dlpnormleft.da * (-s * xleft - dlpnormleft.da)
-    d2lgright.da2 <- dlpnormright.da * (s * xright - dlpnormright.da)
+    # Second derivative with respect to a (beta).
+    d2gleft.da2 <- dgleft.da * (1 / a + a * s^2 + (x - mu) + s * dlogpnorm.left) +
+      exp(lgleft - llik) * (-1 / a^2 + s^2 * (1 - dlogpnorm.left * xleft - dlogpnorm.left^2))
+    d2gright.da2 <- dgright.da * (1 / a + a * s^2 - (x - mu) - s * dlogpnorm.right) +
+      exp(lgright - llik) * (-1 / a^2 + s^2 * (1 - dlogpnorm.right * xright - dlogpnorm.right^2))
+    d2g.da2 <- d2gleft.da2 + d2gright.da2
+    d2nllik.da2 <- (dnllik.da)^2 - w * d2g.da2
+    d2a.dbeta2 <- da.dbeta
+    d2nllik.dbeta2 <- d2nllik.da2 * (da.dbeta)^2 + dnllik.da * (d2a.dbeta2)
 
-    d2lg.da2 <- -1 / a^2 + s^2 + (1 - wt) * d2lgleft.da2 + wt * d2lgright.da2
-    d2lg.da2 <- d2lg.da2 + wt * (1 - wt) * (dlgleft.da - dlgright.da)^2
+    # Mixed derivative with respect to w and a (alpha and beta).
+    d2nllik.dwda <- dnllik.dw * dnllik.da - dg.da
+    d2nllik.dalphadbeta <- d2nllik.dwda * dw.dalpha * da.dbeta
 
-    d2nllik.da2 <- -w * g.over.lik * (d2lg.da2 + dlg.da * (dlg.da + dnllik.da))
+    # Second derivative with respect to mu.
+    d2f.dmu2 <- df.dmu * ((x - mu) / s^2) - exp(lf - llik) / s^2
+    d2gleft.dmu2 <- dgleft.dmu * (-a - dlogpnorm.left / s) -
+      exp(lgleft - llik) * (dlogpnorm.left * xleft + dlogpnorm.left^2) / s^2
+    d2gright.dmu2 <- dgright.dmu * (a - dlogpnorm.right / s) -
+      exp(lgright - llik) * (dlogpnorm.right * xright + dlogpnorm.right^2) / s^2
+    d2g.dmu2 <- d2gleft.dmu2 + d2gright.dmu2
+    d2nllik.dmu2 <- (dnllik.dmu)^2 - (1 - w) * d2f.dmu2 - w * d2g.dmu2
 
-    d2nllik.dbeta2 <- a^2 * d2nllik.da2 + dnllik.dbeta
+    # Mixed derivative with respect to w (alpha) and mu.
+    d2nllik.dwdmu <- dnllik.dw * dnllik.dmu - (dg.dmu - df.dmu)
+    d2nllik.dalphadmu <- d2nllik.dwdmu * dw.dalpha
 
-    # Mixed second derivative.
-    d2nllik.dalphadbeta <- (dnllik.dalpha * dnllik.dbeta
-                            - (w * (1 - w) * a) * g.over.lik * dlg.da)
+    # Mixed derivative with respect to a (beta) and mu.
+    d2gleft.dadmu <- dgleft.da * (-a - dlogpnorm.left / s) +
+      exp(lgleft - llik) * (-1 + dlogpnorm.left * xleft + dlogpnorm.left^2)
+    d2gright.dadmu <- dgright.da * (a - dlogpnorm.right / s) +
+      exp(lgright - llik) * (1 - dlogpnorm.right * xright - dlogpnorm.right^2)
+    d2g.dadmu <- d2gleft.dadmu + d2gright.dadmu
+    d2nllik.dbetadmu <- dnllik.dbeta * dnllik.dmu - w * d2g.dadmu * da.dbeta
 
-    attr(nllik, "hessian") <- matrix(c(sum(d2nllik.dalpha2),
-                                       rep(sum(d2nllik.dalphadbeta), 2),
-                                       sum(d2nllik.dbeta2)),
-                                     nrow = 2, ncol = 2)
+    hess <- matrix(nrow = 3, ncol = 3)
+    hess[1, 1] <- sum(d2nllik.dalpha2)
+    hess[1, 2] <- hess[2, 1] <- sum(d2nllik.dalphadbeta)
+    hess[1, 3] <- hess[3, 1] <- sum(d2nllik.dalphadmu)
+    hess[2, 2] <- sum(d2nllik.dbeta2)
+    hess[2, 3] <- hess[3, 2] <- sum(d2nllik.dbetadmu)
+    hess[3, 3] <- sum(d2nllik.dmu2)
+
+    attr(nllik, "hessian") <- hess
   }
 
   return(nllik)
