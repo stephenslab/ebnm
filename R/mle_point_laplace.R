@@ -1,12 +1,34 @@
 #' @importFrom stats nlm
 #'
 mle_point_laplace <- function(x, s, g, control,
+                              fix_pi0, fix_a, fix_mu,
                               optmethod, use_grad, use_hess) {
-  startpar <- pl_startpar(x, s, g)
+  if (!fix_mu && any(s == 0)) {
+    stop("The mode cannot be estimated if any SE is zero (the gradient does ",
+         "not exist).")
+  }
 
-  lf <- calc_lf(x, s)
+  startpar <- pl_startpar(x, s, g, fix_pi0, fix_a, fix_mu)
 
-  fn_params <- list(x = x, s = s, lf = lf)
+  if (fix_pi0) {
+    alpha <- -log(1 / g$pi0 - 1)
+  } else {
+    alpha <- NULL
+  }
+  if (fix_a) {
+    beta <- -log(g$a)
+  } else {
+    beta <- NULL
+  }
+  if (fix_mu) {
+    mu <- g$mu
+  } else {
+    mu <- NULL
+  }
+
+  fn_params <- list(fix_pi0 = fix_pi0, fix_a = fix_a, fix_mu = fix_mu,
+                    alpha = alpha, beta = beta, mu = mu,
+                    x = x, s = s)
 
   if (optmethod == "nlm") {
     control <- modifyList(nlm_control_defaults(), control)
@@ -53,39 +75,77 @@ mle_point_laplace <- function(x, s, g, control,
     optval  <- optres$value
   }
 
-  retlist <- pl_g_from_optpar(optpar)
+  retlist <- pl_g_from_optpar(optpar, g, fix_pi0, fix_a, fix_mu)
   retlist$val <- -optval
 
   # Check the solution pi0 = 1.
-  if (sum(lf) > retlist$val) {
-    retlist$pi0 <- 1
-    retlist$a <- 1
-    retlist$val <- sum(lf)
+  if (!fix_pi0 && fix_mu) {
+    pi0_val <- sum(-0.5 * log(2 * pi * s^2) - 0.5 * (x - mu)^2 / s^2)
+    if (pi0_val > retlist$val) {
+      retlist$pi0 <- 1
+      retlist$a <- 1
+      retlist$val <- pi0_val
+    }
   }
 
   return(retlist)
 }
 
 # Initial values.
-pl_startpar <- function(x, s, g) {
+pl_startpar <- function(x, s, g, fix_pi0, fix_a, fix_mu) {
   startpar <- numeric(0)
 
-  if (!is.null(g$pi0) && g$pi0 > 0 && g$pi0 < 1) {
-    startpar <- c(startpar, log(1 / g$pi0 - 1))
-  } else {
-    startpar <- c(startpar, 0) # default for -logit(pi0)
+  if (!fix_pi0) {
+    if (!is.null(g$pi0) && g$pi0 > 0 && g$pi0 < 1) {
+      startpar <- c(startpar, log(1 / g$pi0 - 1))
+    } else {
+      startpar <- c(startpar, 0) # default for -logit(pi0)
+    }
   }
 
-  if (!is.null(g$a)) {
-    startpar <- c(startpar, log(g$a))
-  } else {
-    startpar <- c(startpar, -0.5 * log(mean(x^2) / 2)) # default for log(a)
+  if (!fix_a) {
+    if (!is.null(g$a)) {
+      startpar <- c(startpar, log(g$a))
+    } else {
+      startpar <- c(startpar, -0.5 * log(mean(x^2) / 2)) # default for log(a)
+    }
+  }
+
+  if (!fix_mu) {
+    if (!is.null(g$mu)) {
+      startpar <- c(startpar, g$mu)
+    } else {
+      startpar <- c(startpar, mean(x)) # default for mu
+    }
   }
 
   return(startpar)
 }
 
 # Pull pi0 and a out of the optimization results.
-pl_g_from_optpar <- function(par) {
-  return(list(pi0 = 1 / (1 + exp(par[1])), a = exp(par[2])))
+pl_g_from_optpar <- function(optpar, g, fix_pi0, fix_a, fix_mu) {
+  opt_g <- list()
+
+  i <- 1
+  if (fix_pi0) {
+    opt_g$pi0 <- g$pi0
+  } else {
+    opt_g$pi0 <- 1 / (1 + exp(optpar[i]))
+    i <- i + 1
+  }
+
+  if (fix_a) {
+    opt_g$a <- g$a
+  } else {
+    opt_g$a <- exp(optpar[i])
+    i <- i + 1
+  }
+
+  if (fix_mu) {
+    opt_g$mu <- g$mu
+  } else {
+    opt_g$mu <- optpar[i]
+  }
+
+  return(opt_g)
 }

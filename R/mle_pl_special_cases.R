@@ -4,10 +4,10 @@
 #'
 mle_point_laplace_fixa <- function(x, s, g, control) {
   a <- g$a
+  mu <- g$mu
 
-  lf <- calc_lf(x, s)
-
-  # These calculations are from nlm_fn_point_laplace.
+  # These calculations are from nllik_point_laplace.
+  lf <- -0.5 * log(2 * pi * s^2) - 0.5 * (x - mu)^2 / s^2
   xleft <- x / s + s * a
   lpnormleft <- pnorm(xleft, log.p = TRUE, lower.tail = FALSE)
   lgleft <- a * x + lpnormleft
