@@ -1,6 +1,8 @@
 #' @importFrom ashr my_etruncnorm my_e2truncnorm
 #'
-summary_results_point_laplace = function(x, s, w, a, output) {
+summary_results_point_laplace = function(x, s, w, a, mu, output) {
+  x <- x - mu
+
   wpost <- wpost_laplace(x, s, w, a)
   lm <- lambda(x, s, a)
 
@@ -16,6 +18,9 @@ summary_results_point_laplace = function(x, s, w, a, output) {
       post$mean2[is.infinite(s)] <- 2 * w / a^2
     }
     post$sd <- sqrt(post$mean2 - post$mean^2)
+
+    post$mean2 <- post$mean2 + mu^2 + 2 * mu * post$mean
+    post$mean  <- post$mean + mu
   }
 
   if ("lfsr" %in% output) {

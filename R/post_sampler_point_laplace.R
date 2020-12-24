@@ -9,7 +9,9 @@
 #'
 #' @importFrom truncnorm rtruncnorm
 #'
-post_sampler_point_laplace <- function(x, s, w, a, nsamp) {
+post_sampler_point_laplace <- function(x, s, w, a, mu, nsamp) {
+  x <- x - mu
+
   wpost <- wpost_laplace(x, s, w, a)
   l <- lambda(x, s, a)
 
@@ -33,6 +35,8 @@ post_sampler_point_laplace <- function(x, s, w, a, nsamp) {
   samp <- matrix(0, nrow = nsamp, ncol = length(wpost))
   samp[is_nonnull & is_positive] <- positive_samp[is_nonnull & is_positive]
   samp[is_nonnull & !is_positive] <- negative_samp[is_nonnull & !is_positive]
+
+  samp <- samp + mu
 
   return(samp)
 }

@@ -75,7 +75,7 @@ ebnm_pl_workhorse <- function(x,
   retlist <- list()
 
   if (posterior_in_output(output)) {
-    posterior <- summary_results_point_laplace(x, s, w, a, output) # TODO
+    posterior <- summary_results_point_laplace(x, s, w, a, mu, output)
     retlist   <- add_posterior_to_retlist(retlist, posterior, output)
   }
 
@@ -101,7 +101,7 @@ ebnm_pl_workhorse <- function(x,
 
   if (sampler_in_output(output)) {
     post_sampler <- function(nsamp) {
-      post_sampler_point_laplace(x, s, w, a, nsamp) # TODO
+      post_sampler_point_laplace(x, s, w, a, mu, nsamp)
     }
     retlist <- add_sampler_to_retlist(retlist, post_sampler)
   }

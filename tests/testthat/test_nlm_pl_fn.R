@@ -11,7 +11,10 @@ true_mu = 1
 
 par = c(log(1 / true_pi0 - 1), log(true_a), true_mu)
 
-optval = pl_nllik(par, x = x, s = s, calc_grad = TRUE, calc_hess = TRUE)
+optval = pl_nllik(par, fix_pi0 = FALSE, fix_a = FALSE, fix_mu = FALSE,
+                  alpha = NULL, beta = NULL, mu = NULL,
+                  x = x, s = s,
+                  calc_grad = TRUE, calc_hess = TRUE)
 
 test_that("pn_nlm_fn value agrees with loglik_point_normal value", {
   true_llik = loglik_point_laplace(x, s,

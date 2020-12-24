@@ -19,6 +19,12 @@ test_that("Basic functionality works", {
   expect_equal(pl.res[[g_ret_str()]], true_g, tolerance = 0.1)
 })
 
+test_that("Mode estimation works", {
+  pl.res2 <- ebnm_point_laplace(x, s, mode = "est")
+  expect_equal(pl.res2[[g_ret_str()]], true_g, tolerance = 0.5)
+  expect_false(identical(pl.res2[[g_ret_str()]]$mean[1], true_mean))
+})
+
 test_that("Fixing the scale works", {
   pl.res2 <- ebnm_point_laplace(x, s, scale = true_scale)
   expect_equal(pl.res2[[g_ret_str()]], true_g, tolerance = 0.1)
