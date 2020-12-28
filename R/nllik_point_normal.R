@@ -1,8 +1,42 @@
-# Point-normal parameters are pi0, a, and mu. Optimization is done over
-#   logit(pi0), -log(a), and mu.
+# Point-normal uses the ashr class normalmix.
+pn_checkg <- function(g_init, fix_g, pointmass, mode, scale, call) {
+  return(check_g_init(g_init, fix_g, pointmass, mode, scale, call,
+                      class_name = "normalmix", scale_name = "sd"))
+}
+
+# Point-normal parameters are logit(pi0), log(s2), and mu.
+pn_gtopar <- function(g_init, fix_par) {
+  fix_pi0 <- fix_par[1]
+  fix_s2  <- fix_par[2]
+  fix_mu  <- fix_par[3]
+
+  if (!is.null(g_init) && length(g_init$pi) == 1) {
+    par <- list(pi0 = 0,
+                a = 1 / g_init$sd^2,
+                mu = g_init$mean)
+  } else if (!is.null(g_init) && length(g_init$pi) == 2) {
+    par <- list(pi0 = g_init$pi[1],
+                a = 1 / g_init$sd[2]^2,
+                mu = g_init$mean[1])
+  } else {
+    par <- list()
+    if (fix_pi0) {
+      par$pi0 <- 0
+    }
+    if (fix_s2) {
+      par$a <- 1 / scale^2
+    }
+    if (fix_mu) {
+      par$mu <- mode
+    }
+  }
+
+  return(par)
+}
+
 pn_startpar <- function(x, s, g, fix_par) {
   fix_pi0 <- fix_par[1]
-  fix_a   <- fix_par[2]
+  fix_s2  <- fix_par[2]
   fix_mu  <- fix_par[3]
 
   if (!fix_mu && any(s == 0)) {
@@ -20,7 +54,7 @@ pn_startpar <- function(x, s, g, fix_par) {
     }
   }
 
-  if (!fix_a) {
+  if (!fix_s2) {
     if (!is.null(g$a)) {
       startpar <- c(startpar, -log(g$a))
     } else {
@@ -41,7 +75,7 @@ pn_startpar <- function(x, s, g, fix_par) {
 
 pn_precomp <- function(x, s, g, fix_par) {
   fix_pi0 <- fix_par[1]
-  fix_a   <- fix_par[2]
+  fix_s2  <- fix_par[2]
   fix_mu  <- fix_par[3]
 
   if (fix_pi0) {
@@ -49,7 +83,7 @@ pn_precomp <- function(x, s, g, fix_par) {
   } else {
     alpha <- NULL
   }
-  if (fix_a) {
+  if (fix_s2) {
     beta <- -log(g$a)
   } else {
     beta <- NULL
@@ -93,7 +127,7 @@ pn_nllik <- function(par, x, s, g, fix_par,
                      alpha, beta, mu, n0, n1, sum1, n2, s2, z, sum_z,
                      calc_grad, calc_hess) {
   fix_pi0 <- fix_par[1]
-  fix_a   <- fix_par[2]
+  fix_s2  <- fix_par[2]
   fix_mu  <- fix_par[3]
 
   i <- 1
@@ -101,7 +135,7 @@ pn_nllik <- function(par, x, s, g, fix_par,
     alpha <- par[i]
     i <- i + 1
   }
-  if (!fix_a) {
+  if (!fix_s2) {
     beta <- par[i]
     i <- i + 1
   }
@@ -138,7 +172,7 @@ pn_nllik <- function(par, x, s, g, fix_par,
       grad[i] <- -n0 * logist.nalpha + (n1 + n2) * logist.alpha - sum(logist.ny)
       i <- i + 1
     }
-    if (!fix_a) {
+    if (!fix_s2) {
       dy.dbeta <- 0.5 * (z * dlogist.beta - logist.beta)
       grad[i] <- 0.5 * (n1 - sum1 * exp(-beta)) - sum(logist.y * dy.dbeta)
       i <- i + 1
@@ -161,7 +195,7 @@ pn_nllik <- function(par, x, s, g, fix_par,
       tmp <- (n0 + n1 + n2) * dlogist.alpha
       hess[i, i] <- tmp - sum(dlogist.y)
       j <- i + 1
-      if (!fix_a) {
+      if (!fix_s2) {
         hess[i, j] <- hess[j, i] <- sum(dlogist.y * dy.dbeta)
         j <- j + 1
       }
@@ -170,7 +204,7 @@ pn_nllik <- function(par, x, s, g, fix_par,
       }
       i <- i + 1
     }
-    if (!fix_a) {
+    if (!fix_s2) {
       d2y.dbeta2 <- 0.5 * ((z * (logist.nbeta - logist.beta) - 1) * dlogist.beta)
       tmp <- 0.5 * sum1 * exp(-beta) - sum(dlogist.y * dy.dbeta^2)
       hess[i, i] <- tmp - sum(logist.y * d2y.dbeta2)
@@ -195,7 +229,7 @@ pn_nllik <- function(par, x, s, g, fix_par,
 pn_gfromopt <- function(optpar, optval, g, fix_par,
                         alpha, beta, mu, n0, n1, sum1, n2, s2, z, sum_z) {
   fix_pi0 <- fix_par[1]
-  fix_a   <- fix_par[2]
+  fix_s2   <- fix_par[2]
   fix_mu  <- fix_par[3]
 
   opt_g <- list()
@@ -208,7 +242,7 @@ pn_gfromopt <- function(optpar, optval, g, fix_par,
     i <- i + 1
   }
 
-  if (fix_a) {
+  if (fix_s2) {
     opt_g$a <- g$a
   } else {
     opt_g$a <- exp(-optpar[i])
@@ -234,4 +268,8 @@ pn_llik_from_optval <- function(optval, n1, n2, s2) {
     sum.log.s2 <- sum(log(s2))
   }
   return(-optval - 0.5 * ((n1 + n2) * log(2 * pi) + sum.log.s2))
+}
+
+pn_partog <- function(g) {
+
 }

@@ -1,23 +1,23 @@
 # startpar_fn provides initial values for parameters that are to be estimated
-#   and takes arguments x, s, g, and fix_par.
+#   and takes arguments x, s, par, and fix_par.
 #
-# precomp_fn does precomputations (if any). It also takes arguments x, s, g,
+# precomp_fn does precomputations (if any). It also takes arguments x, s, par,
 #   and fix_par.
 #
 # nllik_fn calculates the negative log likelihood, gradient (if
 #   calc_grad = TRUE), and Hessian (if calc_hess = TRUE). It takes arguments
-#   x, s, g, fix_par, calc_grad, and calc_hess, and then whatever has been
+#   x, s, par, fix_par, calc_grad, and calc_hess, and then whatever has been
 #   calculated by precomp_fn.
 #
 # gfromopt_fn converts the optimization results into a suitable return object
 #   (transforming parameters when necessary). It takes arguments optpar, g,
 #   and fix_par, and then whatever has been calculated by precomp_fn.
 
-mle_parametric <- function(x, s, g, fix_par,
+mle_parametric <- function(x, s, par, fix_par,
                            startpar_fn, precomp_fn, nllik_fn, gfromopt_fn,
                            optmethod, control, use_grad, use_hess) {
-  startpar <- do.call(startpar_fn, list(x = x, s = s, g = g, fix_par = fix_par))
-  precomp  <- do.call(precomp_fn, list(x = x, s = s, g = g, fix_par = fix_par))
+  startpar <- do.call(startpar_fn, list(x = x, s = s, g = par, fix_par = fix_par))
+  precomp  <- do.call(precomp_fn, list(x = x, s = s, g = par, fix_par = fix_par))
 
   # Parameters that end up getting passed to all optimization functions.
   fn_params <- c(list(x = x, s = s, g = g, fix_par = fix_par), precomp)

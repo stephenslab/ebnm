@@ -1,6 +1,9 @@
-#' @importFrom stats pnorm
-#'
-summary_results_point_normal = function(x, s, w, a, mu, output) {
+pn_summres <- function(x, s, g, output) {
+  pi0 <- g$pi0
+  w   <- 1 - pi0
+  a   <- g$a
+  mu  <- g$mu
+
   wpost <- wpost_normal(x, s, w, a, mu)
   pmean_cond <- pmean_cond_normal(x, s, a, mu)
   pvar_cond <- pvar_cond_normal(s, a)
@@ -69,4 +72,21 @@ pvar_cond_normal <- function(s, a) {
   }
 
   return(pvar_cond)
+}
+
+pn_partog <- function(par) {
+  pi0 <- g$pi0
+  w   <- 1 - pi0
+  a   <- g$a
+  mu  <- g$mu
+
+  if (pi0 == 0) {
+    g <- normalmix(pi = 1, mean = mu, sd = sqrt(1 / a))
+  } else {
+    g <- normalmix(pi = c(pi0, w),
+                   mean = rep(mu, 2),
+                   sd = c(0, sqrt(1 / a)))
+  }
+
+  return(g)
 }

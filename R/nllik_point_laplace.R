@@ -1,5 +1,6 @@
 # Point-Laplace parameters are pi0, a, and mu. Optimization is done over
 #   -logit(pi0), log(a), and mu.
+
 pl_startpar <- function(x, s, g, fix_par) {
   fix_pi0 <- fix_par[1]
   fix_a   <- fix_par[2]
