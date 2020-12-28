@@ -14,3 +14,7 @@ lbfgsb_control_defaults <- function() {
 trust_control_defaults <- function () {
   return(list(rinit = 1, rmax = 100000))
 }
+
+optimize_control_defaults <- function() {
+  return(list())
+}

@@ -7,8 +7,10 @@ x <- c(rexp(n / 2, rate = 0.1), rep(0, n / 2)) + rnorm(n, sd = s)
 
 true_pi0 <- 0.5
 true_scale <- 10
+true_mean <- 0
+
 true_g <- laplacemix(pi = c(true_pi0, 1 - true_pi0),
-                     mean = rep(0, 2),
+                     mean = rep(true_mean, 2),
                      scale = c(0, true_scale))
 
 pl.res <- ebnm(x, s, prior_family = "point_laplace")

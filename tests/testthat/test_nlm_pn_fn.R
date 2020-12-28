@@ -14,10 +14,10 @@ sum_z = sum(z)
 
 par = c(-log(1 / true_pi0 - 1), -log(true_a), true_mu)
 
-optval = pn_nllik(par, fix_pi0 = FALSE, fix_a = FALSE, fix_mu = FALSE,
+optval = pn_nllik(par, x, s, g = NULL, fix_par = c(FALSE, FALSE, FALSE),
                   alpha = NULL, beta = NULL, mu = NULL,
                   n0 = 0, n1 = 0, sum1 = 0, n2 = n,
-                  x = x, s2 = s^2, z = z, sum_z = sum_z,
+                  s2 = s^2, z = z, sum_z = sum_z,
                   calc_grad = TRUE, calc_hess = TRUE)
 
 test_that("pn_nlm_fn value agrees with loglik_point_normal value", {
@@ -56,10 +56,10 @@ z <- z[-which(s == 0)]
 sum_z <- sum(z)
 
 par <- par[1:2]
-optval = pn_nllik(par, fix_pi0 = FALSE, fix_a = FALSE, fix_mu = TRUE,
+optval = pn_nllik(par, xsub, ssub, g = NULL, fix_par = c(FALSE, FALSE, TRUE),
                   alpha = NULL, beta = NULL, mu = true_mu,
                   n0 = 2, n1 = 2, sum1 = sum1, n2 = n - 4,
-                  x = xsub, s2 = ssub^2, z = z, sum_z = sum_z,
+                  s2 = ssub^2, z = z, sum_z = sum_z,
                   calc_grad = TRUE, calc_hess = TRUE)
 
 test_that("pn_nlm_fn and loglik_point_normal agree when some SEs are zero", {

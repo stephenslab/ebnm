@@ -1,26 +1,73 @@
-# The function that nlm optimizes when fitting a point-Laplace distribution.
+# Point-Laplace parameters are pi0, a, and mu. Optimization is done over
+#   -logit(pi0), log(a), and mu.
+pl_startpar <- function(x, s, g, fix_par) {
+  fix_pi0 <- fix_par[1]
+  fix_a   <- fix_par[2]
+  fix_mu  <- fix_par[3]
 
-#' @importFrom stats pnorm
-#'
-pl_nllik <- function(par,
-                     fix_pi0, fix_a, fix_mu, alpha, beta, mu,
-                     x, s,
-                     calc_grad, calc_hess) {
-  i <- 1
+  if (!fix_mu && any(s == 0)) {
+    stop("The mode cannot be estimated if any SE is zero (the gradient does ",
+         "not exist).")
+  }
+
+  startpar <- numeric(0)
+
   if (!fix_pi0) {
-    alpha <- par[i]
-    i <- i + 1
+    if (!is.null(g$pi0) && g$pi0 > 0 && g$pi0 < 1) {
+      startpar <- c(startpar, log(1 / g$pi0 - 1))
+    } else {
+      startpar <- c(startpar, 0) # default for -logit(pi0)
+    }
   }
+
   if (!fix_a) {
-    beta <- par[i]
+    if (!is.null(g$a)) {
+      startpar <- c(startpar, log(g$a))
+    } else {
+      startpar <- c(startpar, -0.5 * log(mean(x^2) / 2)) # default for log(a)
+    }
+  }
+
+  if (!fix_mu) {
+    if (!is.null(g$mu)) {
+      startpar <- c(startpar, g$mu)
+    } else {
+      startpar <- c(startpar, mean(x)) # default for mu
+    }
+  }
+
+  return(startpar)
+}
+
+# No precomputations are done for point-Laplace.
+pl_precomp <- function(x, s, g, fix_par) {
+  return(NULL)
+}
+
+pl_nllik <- function(par, x, s, g, fix_par,
+                     calc_grad, calc_hess) {
+  fix_pi0 <- fix_par[1]
+  fix_a   <- fix_par[2]
+  fix_mu  <- fix_par[3]
+
+  i <- 1
+  if (fix_pi0) {
+    w <- 1 - g$pi0
+  } else {
+    w <- 1 / (1 + exp(-par[i]))
     i <- i + 1
   }
-  if (!fix_mu) {
+  if (fix_a) {
+    a <- g$a
+  } else{
+    a <- exp(par[i])
+    i <- i + 1
+  }
+  if (fix_mu) {
+    mu <- g$mu
+  } else {
     mu <- par[i]
   }
-
-  w <- 1 / (1 + exp(-alpha))
-  a <- exp(beta)
 
   # Write the negative log likelihood as -log((1 - w)f + wg), where f
   #   corresponds to the point mass and g to the Laplace component.
@@ -173,4 +220,38 @@ pl_nllik <- function(par,
 logscale_add <- function(log.x, log.y) {
   C <- pmax(log.x, log.y)
   return(log(exp(log.x - C) + exp(log.y - C)) + C)
+}
+
+pl_gfromopt <- function(optpar, optval, g, fix_par) {
+  fix_pi0 <- fix_par[1]
+  fix_a   <- fix_par[2]
+  fix_mu  <- fix_par[3]
+
+  opt_g <- list()
+
+  i <- 1
+  if (fix_pi0) {
+    opt_g$pi0 <- g$pi0
+  } else {
+    opt_g$pi0 <- 1 / (1 + exp(optpar[i]))
+    i <- i + 1
+  }
+
+  if (fix_a) {
+    opt_g$a <- g$a
+  } else {
+    opt_g$a <- exp(optpar[i])
+    i <- i + 1
+  }
+
+  if (fix_mu) {
+    opt_g$mu <- g$mu
+  } else {
+    opt_g$mu <- optpar[i]
+  }
+
+  retlist <- opt_g
+  retlist$val <- -optval
+
+  return(retlist)
 }
