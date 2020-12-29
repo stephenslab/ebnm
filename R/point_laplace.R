@@ -13,7 +13,7 @@ laplacemix <- function(pi, mean, scale) {
 }
 
 
-# The point-normal family uses the ebnm class laplacemix.
+# The point-Laplace family uses the above ebnm class laplacemix.
 #
 pl_checkg <- function(g_init, fix_g, mode, scale, pointmass, call) {
   check_g_init(g_init = g_init,
@@ -345,7 +345,7 @@ lambda <- function(x, s, a) {
 
 
 # Point-Laplace parameters are alpha = -logit(pi0), beta = -log(lambda), and mu.
-#   The point-normal family uses the ebnm class laplacemix.
+#   The above ebnm class laplacemix is used.
 #
 pl_partog <- function(par) {
   pi0   <- 1 / (exp(par$alpha) + 1)
