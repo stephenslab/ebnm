@@ -33,7 +33,7 @@ test_that("Fixing the sd works", {
 
 test_that("Fixing g works", {
   pn.res <- ebnm_point_normal(x, s, g_init = true_g, fix_g = TRUE)
-  expect_identical(pn.res[[g_ret_str()]], true_g)
+  expect_equal(pn.res[[g_ret_str()]], true_g)
 })
 
 test_that("Output parameter works", {

@@ -1,3 +1,18 @@
+# startpar_fn provides initial values for parameters that are to be estimated
+#   and takes arguments x, s, par, and fix_par.
+#
+# precomp_fn does precomputations (if any). It also takes arguments x, s, par,
+#   and fix_par.
+#
+# nllik_fn calculates the negative log likelihood, gradient (if
+#   calc_grad = TRUE), and Hessian (if calc_hess = TRUE). It takes arguments
+#   x, s, par, fix_par, calc_grad, and calc_hess, and then whatever has been
+#   calculated by precomp_fn.
+#
+# gfromopt_fn converts the optimization results into a suitable return object
+#   (transforming parameters when necessary). It takes arguments opttheta, g,
+#   and fix_par, and then whatever has been calculated by precomp_fn.
+
 parametric_workhorse <- function(x,
                                  s,
                                  mode,
@@ -7,11 +22,11 @@ parametric_workhorse <- function(x,
                                  fix_g,
                                  output,
                                  optmethod,
-                                 control,
                                  use_grad,
                                  use_hess,
+                                 control,
                                  checkg_fn,
-                                 gtopar_fn,
+                                 initpar_fn,
                                  precomp_fn,
                                  nllik_fn,
                                  postcomp_fn,
@@ -19,6 +34,10 @@ parametric_workhorse <- function(x,
                                  partog_fn,
                                  postsamp_fn,
                                  call) {
+  # I'm not sure why this is the case, but I run into infinite recursion issues
+  #   if I don't extract the things I need from call here.
+  call <- list(mode = call$mode, scale = call$scale)
+
   # Check that argument g_init is valid. All parametric families currently
   #   call into function check_g_init below.
   do.call(checkg_fn, list(g_init = g_init,
@@ -33,12 +52,12 @@ parametric_workhorse <- function(x,
   #   of length 3, indicates whether 1. the weight of the spike component;
   #   2. the scale of the slab component; and 3. the location of the components
   #   is fixed.
-  par_init <- do.call(gtopar_fn, list(g_init = g_init,
-                                      mode = mode,
-                                      scale = scale,
-                                      pointmass = pointmass,
-                                      x = x,
-                                      s = s))
+  par_init <- do.call(initpar_fn, list(g_init = g_init,
+                                       mode = mode,
+                                       scale = scale,
+                                       pointmass = pointmass,
+                                       x = x,
+                                       s = s))
   if (fix_g) {
     fix_par <- c(TRUE, TRUE, TRUE)
   } else {
@@ -62,7 +81,6 @@ parametric_workhorse <- function(x,
                            s = s_optset,
                            par_init = par_init,
                            fix_par = fix_par,
-                           startpar_fn = startpar_fn,
                            precomp_fn = precomp_fn,
                            nllik_fn = nllik_fn,
                            postcomp_fn = postcomp_fn,
@@ -94,6 +112,107 @@ parametric_workhorse <- function(x,
     }
     retlist <- add_sampler_to_retlist(retlist, post_sampler)
   }
+
+  return(retlist)
+}
+
+
+# This function calls the selected optimization routine.
+#
+mle_parametric <- function(x,
+                           s,
+                           par_init,
+                           fix_par,
+                           precomp_fn,
+                           nllik_fn,
+                           postcomp_fn,
+                           optmethod,
+                           control,
+                           use_grad,
+                           use_hess) {
+  precomp <- do.call(precomp_fn, list(x = x,
+                                      s = s,
+                                      par_init = par_init,
+                                      fix_par = fix_par))
+
+  # Parameters that end up getting passed to all optimization functions:
+  fn_params <- c(list(x = x, s = s, par_init = par_init, fix_par = fix_par),
+                 precomp)
+
+  p <- unlist(par_init)[!fix_par]
+
+  if (all(fix_par)) {
+    optpar <- par_init
+    optval <- -do.call(nllik_fn, c(list(par = NULL), fn_params,
+                                   list(calc_grad = FALSE, calc_hess = FALSE)))
+  } else if (optmethod == "nlm") {
+    control <- modifyList(nlm_control_defaults(), control)
+
+    optres <- do.call(nlm, c(list(f = nllik_fn, p = p),
+                              fn_params,
+                              list(calc_grad = use_grad, calc_hess = use_hess),
+                              control))
+    optpar <- optres$estimate
+    optval <- optres$minimum
+  } else if (optmethod == "trust") {
+    control <- modifyList(trust_control_defaults(), control)
+
+    # trust requires both a gradient and a Hessian.
+    fn <- function(par, ...) {
+      nllik <- do.call(nllik_fn,
+                       list(par = par, calc_grad = TRUE, calc_hess = TRUE, ...))
+      return(list(value = nllik,
+                  gradient = attr(nllik, "gradient"),
+                  hessian = attr(nllik, "hessian")))
+    }
+    optres <- do.call(trust, c(list(objfun = fn, parinit = p),
+                               fn_params,
+                               control))
+    optpar <- optres$argument
+    optval <- optres$value
+  } else if (optmethod == "lbfgsb") {
+    control <- modifyList(lbfgsb_control_defaults(), control)
+
+    # optim cannot accept a Hessian.
+    fn <- function(par, ...) {
+      return(do.call(nllik_fn,
+                     list(par = par, calc_grad = FALSE, calc_hess = FALSE, ...)))
+    }
+    if (use_grad) {
+      gr <- function(par, ...) {
+        nllik <- do.call(nllik_fn,
+                         list(par = par, calc_grad = TRUE, calc_hess = FALSE, ...))
+        return(attr(nllik, "gradient"))
+      }
+    } else {
+      gr <- NULL
+    }
+
+    optres <- do.call(optim, c(list(par = p, fn = fn, gr = gr),
+                               fn_params,
+                               control,
+                               list(method = "L-BFGS-B")))
+    optpar <- optres$par
+    optval <- optres$value
+  } else if (optmethod == "optimize") {
+    control <- modifyList(optimize_control_defaults(), control)
+
+    optres <- do.call(optimize, c(list(f = nllik_fn), fn_params,
+                                  list(calc_grad = FALSE, calc_hess = FALSE),
+                                  control))
+    optpar <- optres$minimum
+    optval <- optres$objective
+  }
+
+  # Combine the fixed and estimated parameters.
+  retpar <- par_init
+  retpar[!fix_par] <- optpar
+
+  retlist <- do.call(postcomp_fn, c(list(optpar = retpar,
+                                         optval = optval,
+                                         par_init = par_init,
+                                         fix_par = fix_par),
+                                    precomp))
 
   return(retlist)
 }

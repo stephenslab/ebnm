@@ -14,7 +14,7 @@ pn_checkg <- function(g_init, fix_g, mode, scale, pointmass, call) {
 
 # Point-normal parameters are alpha = logit(pi0), beta = log(s2), and mu.
 #
-pn_gtopar <- function(g_init, mode, scale, pointmass, x, s) {
+pn_initpar <- function(g_init, mode, scale, pointmass, x, s) {
   if (!is.null(g_init) && length(g_init$pi) == 1) {
     par <- list(alpha = -Inf,
                 beta = 2 * log(g_init$sd),
@@ -87,7 +87,8 @@ pn_precomp <- function(x, s, par_init, fix_par) {
   return(list(n0 = n0, n1 = n1, sum1 = sum1, n2 = n2, s2 = s2, z = z, sum_z = sum_z))
 }
 
-# The objective function (negative log likelihood).
+
+# The objective function (the negative log likelihood, minus a constant).
 #
 pn_nllik <- function(par, x, s, par_init, fix_par,
                      n0, n1, sum1, n2, s2, z, sum_z,
@@ -198,31 +199,28 @@ pn_nllik <- function(par, x, s, par_init, fix_par,
   return(nllik)
 }
 
-# Postcomputations.
+
+# Postcomputations. A constant was subtracted from the log likelihood and needs
+#   to be added back in. We also check boundary solutions here.
 #
 pn_postcomp <- function(optpar, optval, par_init, fix_par,
                         n0, n1, sum1, n2, s2, z, sum_z) {
+  llik <- pn_llik_from_optval(optval, n1, n2, s2)
+  retlist <- list(par = optpar, val = llik)
+
+  # Check the solution pi0 = 1.
   fix_pi0 <- fix_par[1]
-  fix_s2  <- fix_par[2]
   fix_mu  <- fix_par[3]
-
-  par <- par_init
-
-  i <- 1
-  if (!fix_pi0) {
-    par$alpha <- optpar[i]
-    i <- i + 1
-  }
-  if (!fix_s2) {
-    par$beta <- optpar[i]
-    i <- i + 1
-  }
-  if (!fix_mu) {
-    par$mu <- optpar[i]
+  if (!fix_pi0 && fix_mu) {
+    pi0_llik <- sum(-0.5 * log(2 * pi * s^2) - 0.5 * (x - par_init$mu)^2 / s^2)
+    if (pi0_llik > llik) {
+      retlist$par$alpha <- Inf
+      retlist$par$beta <- 0
+      retlist$val <- pi0_llik
+    }
   }
 
-  return(list(par = par,
-              val = pn_llik_from_optval(optval, n1, n2, s2)))
+  return(retlist)
 }
 
 pn_llik_from_optval <- function(optval, n1, n2, s2) {
@@ -231,14 +229,22 @@ pn_llik_from_optval <- function(optval, n1, n2, s2) {
   } else {
     sum.log.s2 <- sum(log(s2))
   }
+
   return(-optval - 0.5 * ((n1 + n2) * log(2 * pi) + sum.log.s2))
 }
 
+
+# Summary results.
+#
 pn_summres <- function(x, s, optpar, output) {
   w  <- 1 - 1 / (exp(-optpar$alpha) + 1)
   a  <- exp(-optpar$beta)
   mu <- optpar$mu
 
+  return(pn_summres_untransformed(x, s, w, a, mu, output))
+}
+
+pn_summres_untransformed <- function(x, s, w, a, mu, output) {
   wpost <- wpost_normal(x, s, w, a, mu)
   pmean_cond <- pmean_cond_normal(x, s, a, mu)
   pvar_cond <- pvar_cond_normal(s, a)
@@ -258,7 +264,7 @@ pn_summres <- function(x, s, optpar, output) {
   return(posterior)
 }
 
-#  Calculate posterior weights for non-null effects.
+# Posterior weights for non-null effects.
 wpost_normal <- function(x, s, w, a, mu) {
   if (w == 0) {
     return(rep(0, length(x)))
@@ -284,7 +290,7 @@ wpost_normal <- function(x, s, w, a, mu) {
   return(wpost)
 }
 
-# Calculate posterior means for non-null effects.
+# Posterior means for non-null effects.
 pmean_cond_normal <- function(x, s, a, mu) {
   pm <- (x + s^2 * a * mu) / (1 + s^2 * a)
 
@@ -295,7 +301,7 @@ pmean_cond_normal <- function(x, s, a, mu) {
   return(pm)
 }
 
-# Calculate posterior variances for non-null effects.
+# Posterior variances for non-null effects.
 pvar_cond_normal <- function(s, a) {
   pvar_cond <- s^2 / (1 + s^2 * a)
 
@@ -306,21 +312,28 @@ pvar_cond_normal <- function(s, a) {
   return(pvar_cond)
 }
 
+
+# Point-normal parameters are alpha = logit(pi0), beta = log(s2), and mu. The
+#   point-normal family uses the ashr class normalmix.
+#
 pn_partog <- function(par) {
   pi0  <- 1 / (exp(-par$alpha) + 1)
   sd   <- exp(par$beta / 2)
   mean <- par$mu
 
   if (pi0 == 0) {
-    g <- normalmix(pi = 1, mean = mean, sd = sd)
+    g <- ashr::normalmix(pi = 1,
+                         mean = mean,
+                         sd = sd)
   } else {
-    g <- normalmix(pi = c(pi0, 1 - pi0),
-                   mean = rep(mean, 2),
-                   sd = c(0, sd))
+    g <- ashr::normalmix(pi = c(pi0, 1 - pi0),
+                         mean = rep(mean, 2),
+                         sd = c(0, sd))
   }
 
   return(g)
 }
+
 
 # Sample from the posterior under point-normal prior
 #
@@ -329,13 +342,15 @@ pn_partog <- function(par) {
 # @return An nsamp by length(x) matrix containing samples from the
 #   posterior, with each row corresponding to a single sample.
 #
-#' @importFrom stats rbinom rnorm
-#'
 pn_postsamp <- function(x, s, optpar, nsamp) {
   w  <- 1 - 1 / (exp(-optpar$alpha) + 1)
   a  <- exp(-optpar$beta)
   mu <- optpar$mu
 
+  return(pn_postsamp_untransformed(x, s, w, a, mu, nsamp))
+}
+
+pn_postsamp_untransformed <- function(x, s, w, a, mu, nsamp) {
   wpost <- wpost_normal(x, s, w, a, mu)
   pmean_cond <- pmean_cond_normal(x, s, a, mu)
   pvar_cond <- pvar_cond_normal(s, a)
@@ -349,4 +364,3 @@ pn_postsamp <- function(x, s, optpar, nsamp) {
 
   return(matrix(samp, nrow = nsamp))
 }
-
