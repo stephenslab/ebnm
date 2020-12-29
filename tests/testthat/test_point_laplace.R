@@ -30,7 +30,7 @@ test_that("Mode estimation works", {
 test_that("Fixing the scale works", {
   pl.res2 <- ebnm_point_laplace(x, s, scale = true_scale)
   expect_equal(pl.res2[[g_ret_str()]], true_g, tolerance = 0.1)
-  expect_identical(pl.res2[[g_ret_str()]]$scale[2], true_scale)
+  expect_equal(pl.res2[[g_ret_str()]]$scale[2], true_scale)
 })
 
 test_that("Fixing g works", {

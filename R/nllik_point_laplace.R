@@ -1,9 +1,72 @@
-# Point-Laplace parameters are pi0, a, and mu. Optimization is done over
-#   -logit(pi0), log(a), and mu.
+#' Constructor for laplacemix class
+#'
+#' Creates a finite mixture of Laplace distributions.
+#'
+#' @param pi A vector of mixture proportions.
+#' @param mean A vector of means.
+#' @param scale A vector of scale parameters.
+#'
+#' @export
+#'
+laplacemix <- function(pi, mean, scale) {
+  structure(data.frame(pi, mean, scale), class="laplacemix")
+}
 
-pl_startpar <- function(x, s, g, fix_par) {
-  fix_pi0 <- fix_par[1]
-  fix_a   <- fix_par[2]
+
+# The point-normal family uses the ebnm class laplacemix.
+#
+pl_checkg <- function(g_init, fix_g, mode, scale, pointmass, call) {
+  check_g_init(g_init = g_init,
+               fix_g = fix_g,
+               mode = mode,
+               scale = scale,
+               pointmass = pointmass,
+               call = call,
+               class_name = "laplacemix",
+               scale_name = "scale")
+}
+
+
+# Point-Laplace parameters are alpha = -logit(pi0), beta = -log(lambda), and mu.
+#
+pl_initpar <- function(g_init, mode, scale, pointmass, x, s) {
+  if (!is.null(g_init) && length(g_init$pi) == 1) {
+    par <- list(alpha = Inf,
+                beta = -log(g_init$scale),
+                mu = g_init$mean)
+  } else if (!is.null(g_init) && length(g_init$pi) == 2) {
+    par <- list(alpha = log(1 / g_init$pi[1] - 1),
+                beta = -log(g_init$scale[2]),
+                mu = g_init$mean[1])
+  } else {
+    par <- list()
+    if (!pointmass) {
+      par$alpha <- Inf
+    } else {
+      par$alpha <- 0 # default
+    }
+    if (!identical(scale, "estimate")) {
+      if (length(scale) != 1) {
+        stop("Argument 'scale' must be either 'estimate' or a scalar.")
+      }
+      par$beta <- -log(scale)
+    } else {
+      par$beta <- -0.5 * log(mean(x^2) / 2) # default
+    }
+    if (!identical(mode, "estimate")) {
+      par$mu <- mode
+    } else {
+      par$mu <- mean(x) # default
+    }
+  }
+
+  return(par)
+}
+
+
+# No precomputations are done for point-Laplace.
+#
+pl_precomp <- function(x, s, par_init, fix_par) {
   fix_mu  <- fix_par[3]
 
   if (!fix_mu && any(s == 0)) {
@@ -11,64 +74,24 @@ pl_startpar <- function(x, s, g, fix_par) {
          "not exist).")
   }
 
-  startpar <- numeric(0)
-
-  if (!fix_pi0) {
-    if (!is.null(g$pi0) && g$pi0 > 0 && g$pi0 < 1) {
-      startpar <- c(startpar, log(1 / g$pi0 - 1))
-    } else {
-      startpar <- c(startpar, 0) # default for -logit(pi0)
-    }
-  }
-
-  if (!fix_a) {
-    if (!is.null(g$a)) {
-      startpar <- c(startpar, log(g$a))
-    } else {
-      startpar <- c(startpar, -0.5 * log(mean(x^2) / 2)) # default for log(a)
-    }
-  }
-
-  if (!fix_mu) {
-    if (!is.null(g$mu)) {
-      startpar <- c(startpar, g$mu)
-    } else {
-      startpar <- c(startpar, mean(x)) # default for mu
-    }
-  }
-
-  return(startpar)
-}
-
-# No precomputations are done for point-Laplace.
-pl_precomp <- function(x, s, g, fix_par) {
   return(NULL)
 }
 
-pl_nllik <- function(par, x, s, g, fix_par,
+
+# The negative log likelihood.
+#
+pl_nllik <- function(par, x, s, par_init, fix_par,
                      calc_grad, calc_hess) {
   fix_pi0 <- fix_par[1]
   fix_a   <- fix_par[2]
   fix_mu  <- fix_par[3]
 
-  i <- 1
-  if (fix_pi0) {
-    w <- 1 - g$pi0
-  } else {
-    w <- 1 / (1 + exp(-par[i]))
-    i <- i + 1
-  }
-  if (fix_a) {
-    a <- g$a
-  } else{
-    a <- exp(par[i])
-    i <- i + 1
-  }
-  if (fix_mu) {
-    mu <- g$mu
-  } else {
-    mu <- par[i]
-  }
+  p <- unlist(par_init)
+  p[!fix_par] <- par
+
+  w <- 1 - 1 / (1 + exp(p[1]))
+  a <- exp(p[2])
+  mu <- p[3]
 
   # Write the negative log likelihood as -log((1 - w)f + wg), where f
   #   corresponds to the point mass and g to the Laplace component.
@@ -223,36 +246,171 @@ logscale_add <- function(log.x, log.y) {
   return(log(exp(log.x - C) + exp(log.y - C)) + C)
 }
 
-pl_gfromopt <- function(optpar, optval, g, fix_par) {
+
+# Postcomputations: check boundary solutions.
+#
+pl_postcomp <- function(optpar, optval, par_init, fix_par,
+                        n0, n1, sum1, n2, s2, z, sum_z) {
+  llik <- -optval
+  retlist <- list(par = optpar, val = llik)
+
+  # Check the solution pi0 = 1.
   fix_pi0 <- fix_par[1]
-  fix_a   <- fix_par[2]
   fix_mu  <- fix_par[3]
-
-  opt_g <- list()
-
-  i <- 1
-  if (fix_pi0) {
-    opt_g$pi0 <- g$pi0
-  } else {
-    opt_g$pi0 <- 1 / (1 + exp(optpar[i]))
-    i <- i + 1
+  if (!fix_pi0 && fix_mu) {
+    pi0_llik <- sum(-0.5 * log(2 * pi * s^2) - 0.5 * (x - par_init$mu)^2 / s^2)
+    if (pi0_llik > llik) {
+      retlist$par$alpha <- -Inf
+      retlist$par$beta <- 0
+      retlist$val <- pi0_llik
+    }
   }
-
-  if (fix_a) {
-    opt_g$a <- g$a
-  } else {
-    opt_g$a <- exp(optpar[i])
-    i <- i + 1
-  }
-
-  if (fix_mu) {
-    opt_g$mu <- g$mu
-  } else {
-    opt_g$mu <- optpar[i]
-  }
-
-  retlist <- opt_g
-  retlist$val <- -optval
 
   return(retlist)
+}
+
+
+# Summary results.
+#
+pl_summres <- function(x, s, optpar, output) {
+  w  <- 1 - 1 / (exp(optpar$alpha) + 1)
+  a  <- exp(optpar$beta)
+  mu <- optpar$mu
+
+  return(pl_summres_untransformed(x, s, w, a, mu, output))
+}
+
+#' @importFrom ashr my_etruncnorm my_e2truncnorm
+#'
+pl_summres_untransformed <- function(x, s, w, a, mu, output) {
+  x <- x - mu
+
+  wpost <- wpost_laplace(x, s, w, a)
+  lm <- lambda(x, s, a)
+
+  post <- list()
+
+  if (result_in_output(output)) {
+    post$mean  <- wpost * (lm * my_etruncnorm(0, Inf, x - s^2 * a, s)
+                           + (1 - lm) * my_etruncnorm(-Inf, 0, x + s^2 * a, s))
+    post$mean2 <- wpost * (lm * my_e2truncnorm(0, Inf, x - s^2 * a, s)
+                           + (1 - lm) * my_e2truncnorm(-Inf, 0, x + s^2 * a, s))
+    if (any(is.infinite(s))) {
+      post$mean[is.infinite(s)]  <- 0
+      post$mean2[is.infinite(s)] <- 2 * w / a^2
+    }
+    post$sd <- sqrt(post$mean2 - post$mean^2)
+
+    post$mean2 <- post$mean2 + mu^2 + 2 * mu * post$mean
+    post$mean  <- post$mean + mu
+  }
+
+  if ("lfsr" %in% output) {
+    post$lfsr <- (1 - wpost) + wpost * pmin(lm, 1 - lm)
+    if (any(is.infinite(s))) {
+      post$lfsr[is.infinite(s)] <- 1 - w / 2
+    }
+  }
+
+  return(post)
+}
+
+#  Calculate posterior weights for non-null effects.
+wpost_laplace <- function(x, s, w, a) {
+  if (w == 0) {
+    return(rep(0, length(x)))
+  }
+
+  if (w == 1) {
+    return(rep(1, length(x)))
+  }
+
+  lf <- dnorm(x, 0, s, log = TRUE)
+  lg <- logg_laplace(x, s, a)
+  wpost <- w / (w + (1 - w) * exp(lf - lg))
+
+  return(wpost)
+}
+
+# Compute the lambda function equation (2.7) from Kan Xu's thesis, which is
+#   the posterior probability of being positive given a non-zero effect.
+lambda <- function(x, s, a) {
+  lm1 <- -a * x + pnorm(x / s - s * a, log.p = TRUE)
+  lm2 <-  a * x + pnorm(x / s + s * a, log.p = TRUE, lower.tail = FALSE)
+
+  lm <- 1 / (1 + exp(lm2 - lm1))
+
+  return(lm)
+}
+
+
+# Point-Laplace parameters are alpha = -logit(pi0), beta = -log(lambda), and mu.
+#   The point-normal family uses the ebnm class laplacemix.
+#
+pl_partog <- function(par) {
+  pi0   <- 1 / (exp(par$alpha) + 1)
+  scale <- exp(-par$beta)
+  mean  <- par$mu
+
+  if (pi0 == 0) {
+    g <- laplacemix(pi = 1,
+                    mean = mean,
+                    scale = scale)
+  } else {
+    g <- laplacemix(pi = c(pi0, 1 - pi0),
+                    mean = rep(mean, 2),
+                    scale = c(0, scale))
+  }
+
+  return(g)
+}
+
+
+# Sample from the posterior under point-Laplace prior.
+#
+# @param nsamp The number of samples to return per observation.
+#
+# @return An nsamp by length(x) matrix containing samples from the
+#   posterior, with each row corresponding to a single sample.
+#
+pl_postsamp <- function(x, s, optpar, nsamp) {
+  w  <- 1 - 1 / (exp(optpar$alpha) + 1)
+  a  <- exp(optpar$beta)
+  mu <- optpar$mu
+
+  return(pl_postsamp_untransformed(x, s, w, a, mu, nsamp))
+}
+
+#' @importFrom truncnorm rtruncnorm
+#'
+pl_postsamp_untransformed <- function(x, s, w, a, mu, nsamp) {
+  x <- x - mu
+
+  wpost <- wpost_laplace(x, s, w, a)
+  l <- lambda(x, s, a)
+
+  nobs <- length(wpost)
+
+  is_nonnull <- rbinom(nsamp * nobs, 1, rep(wpost, each = nsamp))
+  is_positive <- rbinom(nsamp * nobs, 1, rep(l, each = nsamp))
+
+  if (length(s) == 1) {
+    s <- rep(s, nobs)
+  }
+
+  # rtruncnorm is not vectorized.
+  negative_samp <- mapply(FUN = function(mean, sd) {
+    rtruncnorm(nsamp, -Inf, 0, mean, sd)
+  }, mean = x + s^2 * a, sd = s)
+  positive_samp <- mapply(FUN = function(mean, sd) {
+    rtruncnorm(nsamp, 0, Inf, mean, sd)
+  }, mean = x - s^2 * a, sd = s)
+
+  samp <- matrix(0, nrow = nsamp, ncol = length(wpost))
+  samp[is_nonnull & is_positive] <- positive_samp[is_nonnull & is_positive]
+  samp[is_nonnull & !is_positive] <- negative_samp[is_nonnull & !is_positive]
+
+  samp <- samp + mu
+
+  return(samp)
 }

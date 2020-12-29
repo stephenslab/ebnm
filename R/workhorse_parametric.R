@@ -143,15 +143,15 @@ mle_parametric <- function(x,
 
   if (all(fix_par)) {
     optpar <- par_init
-    optval <- -do.call(nllik_fn, c(list(par = NULL), fn_params,
-                                   list(calc_grad = FALSE, calc_hess = FALSE)))
+    optval <- do.call(nllik_fn, c(list(par = NULL), fn_params,
+                                  list(calc_grad = FALSE, calc_hess = FALSE)))
   } else if (optmethod == "nlm") {
     control <- modifyList(nlm_control_defaults(), control)
 
     optres <- do.call(nlm, c(list(f = nllik_fn, p = p),
-                              fn_params,
-                              list(calc_grad = use_grad, calc_hess = use_hess),
-                              control))
+                             fn_params,
+                             list(calc_grad = use_grad, calc_hess = use_hess),
+                             control))
     optpar <- optres$estimate
     optval <- optres$minimum
   } else if (optmethod == "trust") {
