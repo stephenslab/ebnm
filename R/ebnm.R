@@ -237,8 +237,9 @@ ebnm_workhorse <- function(x,
   }
 
   if (prior_family == "point_normal") {
-    retlist <- ebnm_pn_workhorse(x = x,
+    retlist <- parametric_workhorse(x = x,
                                  s = s,
+                                 pointmass = TRUE,
                                  mode = mode,
                                  scale = scale,
                                  g_init = g_init,
@@ -248,7 +249,15 @@ ebnm_workhorse <- function(x,
                                  use_grad = optmethod$use_grad,
                                  use_hess = optmethod$use_hess,
                                  control = control,
-                                 pointmass = TRUE,
+                                 checkg_fn = pn_checkg,
+                                 gtopar_fn = pn_gtopar,
+                                 startpar_fn = pn_startpar,
+                                 precomp_fn = pn_precomp,
+                                 nllik_fn = pn_nllik,
+                                 processoptres_fn = pn_processoptres,
+                                 summres_fn = pn_summres,
+                                 partog_fn = pn_partog,
+                                 postsamp_fn = pn_postsamp,
                                  call = call)
   } else if (prior_family == "point_laplace") {
     retlist <- ebnm_pl_workhorse(x = x,

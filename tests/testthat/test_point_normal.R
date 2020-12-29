@@ -28,7 +28,7 @@ test_that("Mode estimation works", {
 test_that("Fixing the sd works", {
   pn.res <- ebnm_point_normal(x, s, scale = true_sd)
   expect_equal(pn.res[[g_ret_str()]], true_g, tolerance = 0.1)
-  expect_identical(pn.res[[g_ret_str()]]$sd[2], true_sd)
+  expect_equal(pn.res[[g_ret_str()]]$sd[2], true_sd, tolerance = 1e-8)
 })
 
 test_that("Fixing g works", {

@@ -12,10 +12,9 @@ true_mu = 2
 z = (x - true_mu)^2 / s^2
 sum_z = sum(z)
 
-par = c(-log(1 / true_pi0 - 1), -log(true_a), true_mu)
+theta = c(-log(1 / true_pi0 - 1), -log(true_a), true_mu)
 
-optval = pn_nllik(par, x, s, g = NULL, fix_par = c(FALSE, FALSE, FALSE),
-                  alpha = NULL, beta = NULL, mu = NULL,
+optval = pn_nllik(theta, x, s, par = NULL, fix_par = c(FALSE, FALSE, FALSE),
                   n0 = 0, n1 = 0, sum1 = 0, n2 = n,
                   s2 = s^2, z = z, sum_z = sum_z,
                   calc_grad = TRUE, calc_hess = TRUE)
@@ -36,12 +35,12 @@ true_llik_fn <- function(par) {
   return(-loglik_point_normal(x, s, w = 1 - pi0, a = a, mu = mu))
 }
 
-true_grad <- numDeriv::grad(true_llik_fn, x = par)
+true_grad <- numDeriv::grad(true_llik_fn, x = theta)
 test_that("pn_nlm_fn returns correct gradient", {
   expect_equal(true_grad, attr(optval, "gradient"))
 })
 
-true_hess <- numDeriv::hessian(true_llik_fn, x = par)
+true_hess <- numDeriv::hessian(true_llik_fn, x = theta)
 test_that("pn_nlm_fn returns correct Hessian", {
   expect_equal(true_hess, attr(optval, "hessian"))
 })
@@ -55,9 +54,8 @@ ssub <- s[-which(s == 0)]
 z <- z[-which(s == 0)]
 sum_z <- sum(z)
 
-par <- par[1:2]
-optval = pn_nllik(par, xsub, ssub, g = NULL, fix_par = c(FALSE, FALSE, TRUE),
-                  alpha = NULL, beta = NULL, mu = true_mu,
+theta <- theta[1:2]
+optval = pn_nllik(theta, xsub, ssub, par = NULL, fix_par = c(FALSE, FALSE, TRUE),
                   n0 = 2, n1 = 2, sum1 = sum1, n2 = n - 4,
                   s2 = ssub^2, z = z, sum_z = sum_z,
                   calc_grad = TRUE, calc_hess = TRUE)
@@ -78,12 +76,12 @@ true_llik_fn <- function(par) {
   return(-loglik_point_normal(x, s, w = 1 - pi0, a = a, mu = true_mu))
 }
 
-true_grad <- numDeriv::grad(true_llik_fn, x = par)
+true_grad <- numDeriv::grad(true_llik_fn, x = theta)
 test_that("pn_nlm_fn returns correct gradient when some SEs are zero", {
   expect_equal(true_grad, attr(optval, "gradient"))
 })
 
-true_hess <- numDeriv::hessian(true_llik_fn, x = par)
+true_hess <- numDeriv::hessian(true_llik_fn, x = theta)
 test_that("pn_nlm_fn returns correct Hessian when some SEs are zero", {
   expect_equal(true_hess, attr(optval, "hessian"))
 })

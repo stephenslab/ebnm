@@ -1,42 +1,57 @@
-# Point-normal uses the ashr class normalmix.
-pn_checkg <- function(g_init, fix_g, pointmass, mode, scale, call) {
-  return(check_g_init(g_init, fix_g, pointmass, mode, scale, call,
-                      class_name = "normalmix", scale_name = "sd"))
+# The point-normal family uses the ashr class normalmix.
+#
+pn_checkg <- function(g_init, fix_g, mode, scale, pointmass, call) {
+  check_g_init(g_init = g_init,
+               fix_g = fix_g,
+               mode = mode,
+               scale = scale,
+               pointmass = pointmass,
+               call = call,
+               class_name = "normalmix",
+               scale_name = "sd")
 }
 
-# Point-normal parameters are logit(pi0), log(s2), and mu.
-pn_gtopar <- function(g_init, fix_par) {
-  fix_pi0 <- fix_par[1]
-  fix_s2  <- fix_par[2]
-  fix_mu  <- fix_par[3]
 
+# Point-normal parameters are alpha = logit(pi0), beta = log(s2), and mu.
+#
+pn_gtopar <- function(g_init, mode, scale, pointmass, x, s) {
   if (!is.null(g_init) && length(g_init$pi) == 1) {
-    par <- list(pi0 = 0,
-                a = 1 / g_init$sd^2,
+    par <- list(alpha = -Inf,
+                beta = 2 * log(g_init$sd),
                 mu = g_init$mean)
   } else if (!is.null(g_init) && length(g_init$pi) == 2) {
-    par <- list(pi0 = g_init$pi[1],
-                a = 1 / g_init$sd[2]^2,
+    par <- list(alpha = -log(1 / g_init$pi[1] - 1),
+                beta = 2 * log(g_init$sd[2]),
                 mu = g_init$mean[1])
   } else {
     par <- list()
-    if (fix_pi0) {
-      par$pi0 <- 0
+    if (!pointmass) {
+      par$alpha <- -Inf
+    } else {
+      par$alpha <- 0 # default
     }
-    if (fix_s2) {
-      par$a <- 1 / scale^2
+    if (!identical(scale, "estimate")) {
+      if (length(scale) != 1) {
+        stop("Argument 'scale' must be either 'estimate' or a scalar.")
+      }
+      par$beta <- 2 * log(scale)
+    } else {
+      par$beta <- log(mean(x^2)) # default
     }
-    if (fix_mu) {
+    if (!identical(mode, "estimate")) {
       par$mu <- mode
+    } else {
+      par$mu <- mean(x) # default
     }
   }
 
   return(par)
 }
 
-pn_startpar <- function(x, s, g, fix_par) {
-  fix_pi0 <- fix_par[1]
-  fix_s2  <- fix_par[2]
+
+# Precomputations.
+#
+pn_precomp <- function(x, s, par_init, fix_par) {
   fix_mu  <- fix_par[3]
 
   if (!fix_mu && any(s == 0)) {
@@ -44,62 +59,12 @@ pn_startpar <- function(x, s, g, fix_par) {
          "not exist).")
   }
 
-  startpar <- numeric(0)
-
-  if (!fix_pi0) {
-    if (!is.null(g$pi0) && g$pi0 > 0 && g$pi0 < 1) {
-      startpar <- c(startpar, -log(1 / g$pi0 - 1))
-    } else {
-      startpar <- c(startpar, 0) # default for logit(pi0)
-    }
-  }
-
-  if (!fix_s2) {
-    if (!is.null(g$a)) {
-      startpar <- c(startpar, -log(g$a))
-    } else {
-      startpar <- c(startpar, log(mean(x^2))) # default for -log(a)
-    }
-  }
-
-  if (!fix_mu) {
-    if (!is.null(g$mu)) {
-      startpar <- c(startpar, g$mu)
-    } else {
-      startpar <- c(startpar, mean(x)) # default for mu
-    }
-  }
-
-  return(startpar)
-}
-
-pn_precomp <- function(x, s, g, fix_par) {
-  fix_pi0 <- fix_par[1]
-  fix_s2  <- fix_par[2]
-  fix_mu  <- fix_par[3]
-
-  if (fix_pi0) {
-    alpha <- -log(1 / g$pi0 - 1)
-  } else {
-    alpha <- NULL
-  }
-  if (fix_s2) {
-    beta <- -log(g$a)
-  } else {
-    beta <- NULL
-  }
-  if (fix_mu) {
-    mu <- g$mu
-  } else {
-    mu <- NULL
-  }
-
   if (any(s == 0)) {
     which_s0 <- which(s == 0)
-    which_x_nz <- which(x[which_s0] != g$mu)
+    which_x_nz <- which(x[which_s0] != par_init$mu)
     n0 <- length(which_s0) - length(which_x_nz)
     n1 <- length(which_x_nz)
-    sum1 <- sum((x[which_s0[which_x_nz]] - g$mu)^2)
+    sum1 <- sum((x[which_s0[which_x_nz]] - par_init$mu)^2)
     x <- x[-which_s0]
     s <- s[-which_s0]
   } else {
@@ -112,34 +77,41 @@ pn_precomp <- function(x, s, g, fix_par) {
   s2 <- s^2
 
   if (fix_mu) {
-    z <- (x - g$mu)^2 / s2
+    z <- (x - par_init$mu)^2 / s2
     sum_z <- sum(z)
   } else {
     z <- NULL
     sum_z <- NULL
   }
 
-  return(list(alpha = alpha, beta = beta, mu = mu, n0 = n0, n1 = n1,
-              sum1 = sum1, n2 = n2, s2 = s2, z = z, sum_z = sum_z))
+  return(list(n0 = n0, n1 = n1, sum1 = sum1, n2 = n2, s2 = s2, z = z, sum_z = sum_z))
 }
 
-pn_nllik <- function(par, x, s, g, fix_par,
-                     alpha, beta, mu, n0, n1, sum1, n2, s2, z, sum_z,
+# The objective function (negative log likelihood).
+#
+pn_nllik <- function(par, x, s, par_init, fix_par,
+                     n0, n1, sum1, n2, s2, z, sum_z,
                      calc_grad, calc_hess) {
   fix_pi0 <- fix_par[1]
   fix_s2  <- fix_par[2]
   fix_mu  <- fix_par[3]
 
   i <- 1
-  if (!fix_pi0) {
+  if (fix_pi0) {
+    alpha <- par_init$alpha
+  } else {
     alpha <- par[i]
     i <- i + 1
   }
-  if (!fix_s2) {
+  if (fix_s2) {
+    beta <- par_init$beta
+  } else {
     beta <- par[i]
     i <- i + 1
   }
-  if (!fix_mu) {
+  if (fix_mu) {
+    mu <- par_init$mu
+  } else {
     mu <- par[i]
     z <- (x - mu)^2 / s2
     sum_z <- sum(z)
@@ -226,39 +198,31 @@ pn_nllik <- function(par, x, s, g, fix_par,
   return(nllik)
 }
 
-pn_gfromopt <- function(optpar, optval, g, fix_par,
-                        alpha, beta, mu, n0, n1, sum1, n2, s2, z, sum_z) {
+# Postcomputations.
+#
+pn_postcomp <- function(optpar, optval, par_init, fix_par,
+                        n0, n1, sum1, n2, s2, z, sum_z) {
   fix_pi0 <- fix_par[1]
-  fix_s2   <- fix_par[2]
+  fix_s2  <- fix_par[2]
   fix_mu  <- fix_par[3]
 
-  opt_g <- list()
+  par <- par_init
 
   i <- 1
-  if (fix_pi0) {
-    opt_g$pi0 <- g$pi0
-  } else {
-    opt_g$pi0 <- 1 / (exp(-optpar[i]) + 1)
+  if (!fix_pi0) {
+    par$alpha <- optpar[i]
     i <- i + 1
   }
-
-  if (fix_s2) {
-    opt_g$a <- g$a
-  } else {
-    opt_g$a <- exp(-optpar[i])
+  if (!fix_s2) {
+    par$beta <- optpar[i]
     i <- i + 1
   }
-
-  if (fix_mu) {
-    opt_g$mu <- g$mu
-  } else {
-    opt_g$mu <- optpar[i]
+  if (!fix_mu) {
+    par$mu <- optpar[i]
   }
 
-  retlist <- opt_g
-  retlist$val <- pn_llik_from_optval(optval, n1, n2, s2)
-
-  return(retlist)
+  return(list(par = par,
+              val = pn_llik_from_optval(optval, n1, n2, s2)))
 }
 
 pn_llik_from_optval <- function(optval, n1, n2, s2) {
@@ -270,6 +234,119 @@ pn_llik_from_optval <- function(optval, n1, n2, s2) {
   return(-optval - 0.5 * ((n1 + n2) * log(2 * pi) + sum.log.s2))
 }
 
-pn_partog <- function(g) {
+pn_summres <- function(x, s, optpar, output) {
+  w  <- 1 - 1 / (exp(-optpar$alpha) + 1)
+  a  <- exp(-optpar$beta)
+  mu <- optpar$mu
 
+  wpost <- wpost_normal(x, s, w, a, mu)
+  pmean_cond <- pmean_cond_normal(x, s, a, mu)
+  pvar_cond <- pvar_cond_normal(s, a)
+
+  posterior <- list()
+
+  if (result_in_output(output)) {
+    posterior$mean  <- wpost * pmean_cond + (1 - wpost) * mu
+    posterior$mean2 <- wpost * (pmean_cond^2 + pvar_cond) + (1 - wpost) * (mu^2)
+    posterior$sd    <- sqrt(posterior$mean2 - posterior$mean^2)
+  }
+
+  if (lfsr_in_output(output)) {
+    posterior$lfsr  <- (1 - wpost) + wpost * pnorm(0, abs(pmean_cond), sqrt(pvar_cond))
+  }
+
+  return(posterior)
 }
+
+#  Calculate posterior weights for non-null effects.
+wpost_normal <- function(x, s, w, a, mu) {
+  if (w == 0) {
+    return(rep(0, length(x)))
+  }
+
+  if (w == 1) {
+    return(rep(1, length(x)))
+  }
+
+  llik.diff <- 0.5 * log(1 + 1 / (a * s^2))
+  llik.diff <- llik.diff - 0.5 * (x - mu)^2 / (s^2 * (a * s^2 + 1))
+  wpost <- w / (w + (1 - w) * exp(llik.diff))
+
+  if (any(s == 0)) {
+    wpost[s == 0 & x == mu] <- 0
+    wpost[s == 0 & x != mu] <- 1
+  }
+
+  if (any(is.infinite(s))) {
+    wpost[is.infinite(s)] <- w
+  }
+
+  return(wpost)
+}
+
+# Calculate posterior means for non-null effects.
+pmean_cond_normal <- function(x, s, a, mu) {
+  pm <- (x + s^2 * a * mu) / (1 + s^2 * a)
+
+  if (any(is.infinite(s))) {
+    pm[is.infinite(s)] <- mu
+  }
+
+  return(pm)
+}
+
+# Calculate posterior variances for non-null effects.
+pvar_cond_normal <- function(s, a) {
+  pvar_cond <- s^2 / (1 + s^2 * a)
+
+  if (any(is.infinite(s))) {
+    pvar_cond[is.infinite(s)] <- 1 / a
+  }
+
+  return(pvar_cond)
+}
+
+pn_partog <- function(par) {
+  pi0  <- 1 / (exp(-par$alpha) + 1)
+  sd   <- exp(par$beta / 2)
+  mean <- par$mu
+
+  if (pi0 == 0) {
+    g <- normalmix(pi = 1, mean = mean, sd = sd)
+  } else {
+    g <- normalmix(pi = c(pi0, 1 - pi0),
+                   mean = rep(mean, 2),
+                   sd = c(0, sd))
+  }
+
+  return(g)
+}
+
+# Sample from the posterior under point-normal prior
+#
+# @param nsamp The number of samples to return per observation.
+#
+# @return An nsamp by length(x) matrix containing samples from the
+#   posterior, with each row corresponding to a single sample.
+#
+#' @importFrom stats rbinom rnorm
+#'
+pn_postsamp <- function(x, s, optpar, nsamp) {
+  w  <- 1 - 1 / (exp(-optpar$alpha) + 1)
+  a  <- exp(-optpar$beta)
+  mu <- optpar$mu
+
+  wpost <- wpost_normal(x, s, w, a, mu)
+  pmean_cond <- pmean_cond_normal(x, s, a, mu)
+  pvar_cond <- pvar_cond_normal(s, a)
+
+  nobs <- length(x)
+  is_nonnull <- rbinom(nsamp * nobs, 1, rep(wpost, each = nsamp))
+  samp <- is_nonnull * rnorm(nsamp * nobs,
+                             mean = rep(pmean_cond, each = nsamp),
+                             sd = rep(sqrt(pvar_cond), each = nsamp))
+  samp <- samp + (1 - is_nonnull) * mu
+
+  return(matrix(samp, nrow = nsamp))
+}
+
