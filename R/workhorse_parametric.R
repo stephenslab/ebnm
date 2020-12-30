@@ -22,8 +22,6 @@ parametric_workhorse <- function(x,
                                  fix_g,
                                  output,
                                  optmethod,
-                                 use_grad,
-                                 use_hess,
                                  control,
                                  checkg_fn,
                                  initpar_fn,
@@ -66,6 +64,8 @@ parametric_workhorse <- function(x,
                  !identical(mode, "estimate"))
   }
 
+  optmethod <- handle_optmethod_parameter(optmethod, fix_par)
+
   # Don't use observations with infinite SEs when estimating g.
   x_optset <- x
   s_optset <- s
@@ -84,10 +84,10 @@ parametric_workhorse <- function(x,
                            precomp_fn = precomp_fn,
                            nllik_fn = nllik_fn,
                            postcomp_fn = postcomp_fn,
-                           optmethod = optmethod,
+                           optmethod = optmethod$fn,
                            control = control,
-                           use_grad = use_grad,
-                           use_hess = use_hess)
+                           use_grad = optmethod$use_grad,
+                           use_hess = optmethod$use_hess)
 
   # Build return object.
   retlist <- list()
@@ -114,6 +114,23 @@ parametric_workhorse <- function(x,
   }
 
   return(retlist)
+}
+
+
+handle_optmethod_parameter <- function(optmethod, fix_par) {
+  optmethod <- match.arg(optmethod, c("nlm", "lbfgsb", "trust",
+                                      "nograd_nlm", "nograd_lbfgsb",
+                                      "nohess_nlm", "optimize"))
+  return(
+    switch(optmethod,
+           nlm = list(fn = "nlm", use_grad = TRUE, use_hess = TRUE),
+           lbfgsb = list(fn = "lbfgsb", use_grad = TRUE, use_hess = FALSE),
+           trust = list(fn = "trust", use_grad = TRUE, use_hess = TRUE),
+           nograd_nlm = list(fn = "nlm", use_grad = FALSE, use_hess = FALSE),
+           nograd_lbfgsb = list(fn = "lbfgsb", use_grad = FALSE, use_hess = FALSE),
+           nohess_nlm = list(fn = "nlm", use_grad = TRUE, use_hess = FALSE),
+           optimize = list(fn = "optimize", use_grad = FALSE, use_hess = FALSE))
+  )
 }
 
 
@@ -210,6 +227,8 @@ mle_parametric <- function(x,
 
   retlist <- do.call(postcomp_fn, c(list(optpar = retpar,
                                          optval = optval,
+                                         x = x,
+                                         s = s,
                                          par_init = par_init,
                                          fix_par = fix_par),
                                     precomp))

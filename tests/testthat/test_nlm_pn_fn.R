@@ -36,12 +36,12 @@ true_llik_fn <- function(par) {
   return(-loglik_point_normal(x, s, w = 1 - pi0, a = a, mu = mu))
 }
 
-true_grad <- numDeriv::grad(true_llik_fn, x = theta)
+true_grad <- numDeriv::grad(true_llik_fn, x = par)
 test_that("pn_nlm_fn returns correct gradient", {
   expect_equal(true_grad, attr(optval, "gradient"))
 })
 
-true_hess <- numDeriv::hessian(true_llik_fn, x = theta)
+true_hess <- numDeriv::hessian(true_llik_fn, x = par)
 test_that("pn_nlm_fn returns correct Hessian", {
   expect_equal(true_hess, attr(optval, "hessian"))
 })
@@ -55,7 +55,7 @@ ssub <- s[-which(s == 0)]
 z <- z[-which(s == 0)]
 sum_z <- sum(z)
 
-par <- theta[1:2]
+par <- par[1:2]
 optval = pn_nllik(par, xsub, ssub, par_init = NULL, fix_par = c(FALSE, FALSE, TRUE),
                   n0 = 2, n1 = 2, sum1 = sum1, n2 = n - 4,
                   s2 = ssub^2, z = z, sum_z = sum_z,

@@ -249,8 +249,7 @@ logscale_add <- function(log.x, log.y) {
 
 # Postcomputations: check boundary solutions.
 #
-pl_postcomp <- function(optpar, optval, par_init, fix_par,
-                        n0, n1, sum1, n2, s2, z, sum_z) {
+pl_postcomp <- function(optpar, optval, x, s, par_init, fix_par) {
   llik <- -optval
   retlist <- list(par = optpar, val = llik)
 
