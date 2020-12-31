@@ -25,12 +25,12 @@ test_that("Mode estimation works", {
 test_that("Fixing the sd works", {
   norm.res <- ebnm_normal(x, s, scale = true_sd)
   expect_equal(norm.res[[g_ret_str()]], true_g, tolerance = 0.1)
-  expect_identical(norm.res[[g_ret_str()]]$sd, true_sd)
+  expect_equal(norm.res[[g_ret_str()]]$sd, true_sd)
 })
 
 test_that("Fixing g works", {
   norm.res <- ebnm_normal(x, s, g_init = true_g, fix_g = TRUE)
-  expect_identical(norm.res[[g_ret_str()]], true_g)
+  expect_equal(norm.res[[g_ret_str()]], true_g)
 })
 
 test_that("Output parameter works", {
