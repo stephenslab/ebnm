@@ -58,6 +58,36 @@ ebnm_point_laplace <- function(x,
                         call = match.call()))
 }
 
+#' Solve the EBNM problem using a point-exponential prior
+#'
+#' See \code{\link{ebnm}} for details.
+#'
+#' @inheritParams ebnm
+#'
+#' @export
+#'
+ebnm_point_exponential <- function(x,
+                                   s = 1,
+                                   mode = 0,
+                                   scale = "estimate",
+                                   g_init = NULL,
+                                   fix_g = FALSE,
+                                   output = output_default(),
+                                   optmethod = NULL,
+                                   control = NULL) {
+  return(ebnm_workhorse(x = x,
+                        s = s,
+                        mode = mode,
+                        scale = scale,
+                        g_init = g_init,
+                        fix_g = fix_g,
+                        output = output,
+                        optmethod = optmethod,
+                        control = control,
+                        prior_family = "point_exponential",
+                        call = match.call()))
+}
+
 #' Solve the EBNM problem using a normal prior
 #'
 #' See \code{\link{ebnm}} for details.
