@@ -331,6 +331,15 @@ wpost_laplace <- function(x, s, w, a) {
   return(wpost)
 }
 
+# This is the log of g, Laplace(a) convolved with normal.
+#
+logg_laplace = function(x, s, a) {
+  lg1 <- -a * x + pnorm((x - s^2 * a) / s, log.p = TRUE)
+  lg2 <-  a * x + pnorm((x + s^2 * a) / s, log.p = TRUE, lower.tail = FALSE)
+  lfac <- pmax(lg1, lg2)
+  return(log(a / 2) + s^2 * a^2 / 2 + lfac + log(exp(lg1 - lfac) + exp(lg2 - lfac)))
+}
+
 # Compute the lambda function equation (2.7) from Kan Xu's thesis, which is
 #   the posterior probability of being positive given a non-zero effect.
 lambda <- function(x, s, a) {

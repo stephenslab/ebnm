@@ -22,13 +22,3 @@ vloglik_point_laplace = function(x, s, w, a, mu) {
   lfac <- pmax(lg, lf)
   return(lfac + log((1 - w) * exp(lf - lfac) + w * exp(lg - lfac)))
 }
-
-# This is the log of g, Laplace(a) convolved with normal, eqn (2.2) in Kan Xu's
-#   MS paper.
-#
-logg_laplace = function(x, s, a) {
-  lg1 <- -a * x + pnorm((x - s^2 * a) / s, log.p = TRUE)
-  lg2 <-  a * x + pnorm((x + s^2 * a) / s, log.p = TRUE, lower.tail = FALSE)
-  lfac <- pmax(lg1, lg2)
-  return(log(a / 2) + s^2 * a^2 / 2 + lfac + log(exp(lg1 - lfac) + exp(lg2 - lfac)))
-}

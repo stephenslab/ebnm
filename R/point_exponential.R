@@ -94,7 +94,7 @@ pe_nllik <- function(par, x, s, par_init, fix_par,
   mu <- p[3]
 
   # Write the negative log likelihood as -log((1 - w)f + wg), where f
-  #   corresponds to the point mass and g to the Laplace component.
+  #   corresponds to the point mass and g to the exponential component.
 
   # Point mass:
   lf <- -0.5 * log(2 * pi * s^2) - 0.5 * (x - mu)^2 / s^2
@@ -309,7 +309,7 @@ wpost_exp <- function(x, s, w, a) {
 
 
 # Point-exponential parameters are alpha = -logit(pi0), beta = log(a), and mu.
-#   The above ebnm class laplacemix is used.
+#   The above ebnm class exponentialmix is used.
 #
 pe_partog <- function(par) {
   pi0   <- 1 / (exp(par$alpha) + 1)
@@ -330,7 +330,7 @@ pe_partog <- function(par) {
 }
 
 
-# Sample from the posterior under point-Laplace prior.
+# Sample from the posterior under point-exponential prior.
 #
 # @param nsamp The number of samples to return per observation.
 #

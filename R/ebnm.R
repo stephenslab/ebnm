@@ -31,6 +31,9 @@
 #'       \item{\code{point_laplace}}{The family of mixtures where one
 #'         component is a point mass at zero and the other is a
 #'         double-exponential distribution.}
+#'       \item{\code{point_exponential}}{The family of mixtures where one
+#'         component is a point mass at zero and the other is a
+#'         (nonnegative) exponential distribution.}
 #'       \item{\code{normal}}{The family of normal distributions.}
 #'       \item{\code{normal_scale_mixture}}{The family of scale mixtures of
 #'         normals.}
@@ -55,21 +58,19 @@
 #'   \eqn{G}. See "Details" below.
 #'
 #' @param mode A scalar specifying the mode of the prior \eqn{g} or
-#'   \code{"estimate"} if the mode is to be estimated from the data. (This
-#'   functionality has not yet been implemented for
-#'   \code{prior_family = "point_laplace"}.)
+#'   \code{"estimate"} if the mode is to be estimated from the data.
 #'
 #' @param scale A scalar or vector specifying the scale parameter(s) of the
 #'   prior or \code{"estimate"} if the scale parameters are to be estimated
 #'   from the data. The precise interpretation of \code{scale} depends on
 #'   \code{prior_family}. For normal and point-normal families, it is a scalar
 #'   specifying the standard deviation of the normal component. For
-#'   \code{prior_family = "point_laplace"}, it is a scalar specifying the scale
-#'   parameter of the Laplace component. For other prior families, which are
-#'   implemented using the function \code{\link[ashr]{ash}} in package
-#'   \code{ashr}, it is a vector specifying the parameter \code{mixsd} to be
-#'   passed to \code{ash} (or \code{"estimate"} if the default \code{mixsd}
-#'   is to be used).
+#'   point-Laplace and point-exponential families, it is a scalar specifying
+#'   the scale parameter of the Laplace or exponential component. For other
+#'   prior families, which are implemented using the function
+#'   \code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
+#'   the parameter \code{mixsd} to be passed to \code{ash} (or \code{"estimate"}
+#'   if the default \code{mixsd} is to be used).
 #'
 #' @param g_init The prior distribution \eqn{g}. Usually this is left
 #'   unspecified (\code{NULL}) and estimated from the data. However, it can be
@@ -81,7 +82,8 @@
 #'   and \code{scale} parameters. If \code{g_init} is supplied, it should be
 #'   an object of class \code{\link[ashr]{normalmix}} for prior families
 #'   \code{normal}, \code{point_normal}, and \code{normal_scale_mixture};
-#'   class \code{\link{laplacemix}} for point-Laplace families; and class
+#'   class \code{\link{laplacemix}} for point-Laplace families; class
+#'   \code{\link{exponentialmix}} for point-exponential families; and class
 #'   \code{\link[ashr]{unimix}} for \code{unimodal_} families.
 #'
 #' @param fix_g If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
@@ -97,16 +99,16 @@
 #'   calls into package \code{trust}), as well as \code{"nlm_nograd"},
 #'   \code{"lbfgsb_nograd"}, and \code{"nlm_nohess"}.
 #'   Since all non-parametric families call into \code{ashr}, this parameter is
-#'   only available for parametric families (point-normal and point-Laplace).
+#'   only available for parametric families (point-normal, point-Laplace,
+#'   point-exponential, and normal).
 #'
 #' @param control A list of control parameters to be passed to the optimization
 #'   function. \code{\link[stats]{optimize}} is used for
 #'   \code{prior_family = "normal"}, while \code{\link[stats]{nlm}} is used for
-#'   point-normal and point-Laplace families unless parameter \code{optmethod}
-#'   specifies otherwise. For ash families (including
-#'   \code{normal_scale_mixture} and all \code{unimodal_} families),
-#'   function \code{\link[mixsqp]{mixsqp}} in package \code{mixsqp} is the
-#'   default.
+#'   parametric families unless parameter \code{optmethod} specifies otherwise.
+#'   For ash families (including \code{normal_scale_mixture} and all
+#'   \code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
+#'   package \code{mixsqp} is the default.
 #'
 #' @param ... Additional parameters. When \code{prior_family = "ash"} or when
 #'   a \code{unimodal_} prior is used, these parameters are passed to
@@ -131,7 +133,8 @@
 #'      }
 #'
 #' @seealso Calling functions \code{\link{ebnm_point_normal}},
-#'   \code{\link{ebnm_point_laplace}}, \code{\link{ebnm_normal}},
+#'   \code{\link{ebnm_point_laplace}},
+#'   \code{\link{ebnm_point_exponential}}, \code{\link{ebnm_normal}},
 #'   \code{\link{ebnm_normal_scale_mixture}}, \code{\link{ebnm_unimodal}},
 #'   \code{\link{ebnm_unimodal_symmetric}},
 #'   \code{\link{ebnm_unimodal_nonnegative}},
