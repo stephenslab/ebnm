@@ -13,6 +13,8 @@
 #   (transforming parameters when necessary). It takes arguments opttheta, g,
 #   and fix_par, and then whatever has been calculated by precomp_fn.
 
+#' @importFrom trust trust
+#'
 parametric_workhorse <- function(x,
                                  s,
                                  mode,
@@ -182,7 +184,7 @@ mle_parametric <- function(x,
                   gradient = attr(nllik, "gradient"),
                   hessian = attr(nllik, "hessian")))
     }
-    optres <- do.call(trust, c(list(objfun = fn, parinit = p),
+    optres <- do.call(trust::trust, c(list(objfun = fn, parinit = p),
                                fn_params,
                                control))
     optpar <- optres$argument
