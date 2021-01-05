@@ -398,10 +398,12 @@ ebnm_workhorse <- function(x,
         call$mode <- NULL
       }
 
-      g_init <- init_g_for_npmle(x, scale)
+      g_init <- init_g_for_npmle(x, s, scale)
       call$scale <- NULL
     }
 
+    # Need to set prior = "uniform" because ash treats the first component as
+    #   the "null" component.
     retlist <- ebnm_ash_workhorse(x = x,
                                   s = s,
                                   mode = mode,
