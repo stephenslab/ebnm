@@ -7,10 +7,11 @@
 \title{Solve the EBNM problem}
 \usage{
 ebnm(x, s = 1, prior_family = c("point_normal", "point_laplace",
-  "normal", "normal_scale_mixture", "unimodal", "unimodal_symmetric",
-  "unimodal_nonnegative", "unimodal_nonpositive", "npmle", "ash"),
-  mode = 0, scale = "estimate", g_init = NULL, fix_g = FALSE,
-  output = output_default(), control = NULL, ...)
+  "point_exponential", "normal", "normal_scale_mixture", "unimodal",
+  "unimodal_symmetric", "unimodal_nonnegative", "unimodal_nonpositive",
+  "npmle", "ash"), mode = 0, scale = "estimate", g_init = NULL,
+  fix_g = FALSE, output = output_default(), optmethod = NULL,
+  control = NULL, ...)
 
 output_default()
 
@@ -29,21 +30,19 @@ Missing standard errors are not allowed.}
 \eqn{G}. See "Details" below.}
 
 \item{mode}{A scalar specifying the mode of the prior \eqn{g} or
-\code{"estimate"} if the mode is to be estimated from the data. (This
-functionality has not yet been implemented for
-\code{prior_family = "point_laplace"}.)}
+\code{"estimate"} if the mode is to be estimated from the data.}
 
 \item{scale}{A scalar or vector specifying the scale parameter(s) of the
 prior or \code{"estimate"} if the scale parameters are to be estimated
 from the data. The precise interpretation of \code{scale} depends on
 \code{prior_family}. For normal and point-normal families, it is a scalar
 specifying the standard deviation of the normal component. For
-\code{prior_family = "point_laplace"}, it is a scalar specifying the scale
-parameter of the Laplace component. For other prior families, which are
-implemented using the function \code{\link[ashr]{ash}} in package
-\code{ashr}, it is a vector specifying the parameter \code{mixsd} to be
-passed to \code{ash} (or \code{"estimate"} if the default \code{mixsd}
-is to be used).}
+point-Laplace and point-exponential families, it is a scalar specifying
+the scale parameter of the Laplace or exponential component. For other
+prior families, which are implemented using the function
+\code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
+the parameter \code{mixsd} to be passed to \code{ash} (or \code{"estimate"}
+if the default \code{mixsd} is to be used).}
 
 \item{g_init}{The prior distribution \eqn{g}. Usually this is left
 unspecified (\code{NULL}) and estimated from the data. However, it can be
@@ -55,7 +54,8 @@ specifies the initial value of \eqn{g} used during optimization. For
 and \code{scale} parameters. If \code{g_init} is supplied, it should be
 an object of class \code{\link[ashr]{normalmix}} for prior families
 \code{normal}, \code{point_normal}, and \code{normal_scale_mixture};
-class \code{\link{laplacemix}} for point-Laplace families; and class
+class \code{\link{laplacemix}} for point-Laplace families; class
+\code{\link{exponentialmix}} for point-exponential families; and class
 \code{\link[ashr]{unimix}} for \code{unimodal_} families.}
 
 \item{fix_g}{If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
@@ -65,13 +65,22 @@ of estimating it.}
 Function \code{output_default()} provides the default return values, while
 \code{output_all()} lists all possible return values. See "Value" below.}
 
+\item{optmethod}{A string specifying which optimization function is to be
+used. Options include \code{"nlm"}, \code{"lbfgsb"} (which calls
+\code{optim} with \code{method = "L-BFGS-B"}), and \code{"trust"} (which
+calls into package \code{trust}), as well as \code{"nlm_nograd"},
+\code{"lbfgsb_nograd"}, and \code{"nlm_nohess"}.
+Since all non-parametric families call into \code{ashr}, this parameter is
+only available for parametric families (point-normal, point-Laplace,
+point-exponential, and normal).}
+
 \item{control}{A list of control parameters to be passed to the optimization
 function. \code{\link[stats]{optimize}} is used for
 \code{prior_family = "normal"}, while \code{\link[stats]{nlm}} is used for
-point-normal and point-Laplace families. For ash families (including
-\code{normal_scale_mixture} and all \code{unimodal_} families),
-function \code{\link[mixsqp]{mixsqp}} in package \code{mixsqp} is used
-unless otherwise specified.}
+parametric families unless parameter \code{optmethod} specifies otherwise.
+For ash families (including \code{normal_scale_mixture} and all
+\code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
+package \code{mixsqp} is the default.}
 
 \item{...}{Additional parameters. When \code{prior_family = "ash"} or when
 a \code{unimodal_} prior is used, these parameters are passed to
@@ -113,7 +122,7 @@ Given vectors of data \code{x} and standard errors \code{s},
   for \eqn{G} are implemented, some parametric and others non-parametric;
   see below for examples.
 
-  Solving the EBNM problem involves
+Solving the EBNM problem involves
   two steps. First, estimate \eqn{g \in  G} via maximum marginal likelihood,
   yielding an estimate \deqn{\hat{g}:= \arg\max_{g \in G} L(g)} where
   \deqn{L(g):= \prod_j \int p(x_j | \theta_j, s_j)  g(d\theta_j)}
@@ -121,7 +130,7 @@ Given vectors of data \code{x} and standard errors \code{s},
   \eqn{p(\theta_j | x_j, s_j, \hat{g})} and/or summaries
   such as posterior means and posterior second moments.
 
-  The prior families that have been implemented include:
+The prior families that have been implemented include:
     \describe{
       \item{\code{point_normal}}{The family of mixtures where one
         component is a point mass at \eqn{\mu} and the other is a normal
@@ -129,8 +138,11 @@ Given vectors of data \code{x} and standard errors \code{s},
       \item{\code{point_laplace}}{The family of mixtures where one
         component is a point mass at zero and the other is a
         double-exponential distribution.}
+      \item{\code{point_exponential}}{The family of mixtures where one
+        component is a point mass at zero and the other is a
+        (nonnegative) exponential distribution.}
       \item{\code{normal}}{The family of normal distributions.}
-      \item{\code{normal_scale_mixture}}{The family of scale mixture of
+      \item{\code{normal_scale_mixture}}{The family of scale mixtures of
         normals.}
       \item{\code{unimodal}}{The family of all unimodal distributions.}
       \item{\code{unimodal_symmetric}}{The family of symmetric unimodal
@@ -188,7 +200,8 @@ unimodal.res <- ebnm_unimodal(x, s, control = list(verbose = TRUE))
 }
 \seealso{
 Calling functions \code{\link{ebnm_point_normal}},
-  \code{\link{ebnm_point_laplace}}, \code{\link{ebnm_normal}},
+  \code{\link{ebnm_point_laplace}},
+  \code{\link{ebnm_point_exponential}}, \code{\link{ebnm_normal}},
   \code{\link{ebnm_normal_scale_mixture}}, \code{\link{ebnm_unimodal}},
   \code{\link{ebnm_unimodal_symmetric}},
   \code{\link{ebnm_unimodal_nonnegative}},

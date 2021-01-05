@@ -7,8 +7,10 @@ x <- c(rexp(n / 2, rate = 0.1), rep(0, n / 2)) + rnorm(n, sd = s)
 
 true_pi0 <- 0.5
 true_scale <- 10
+true_mean <- 0
+
 true_g <- laplacemix(pi = c(true_pi0, 1 - true_pi0),
-                     mean = rep(0, 2),
+                     mean = rep(true_mean, 2),
                      scale = c(0, true_scale))
 
 pl.res <- ebnm(x, s, prior_family = "point_laplace")
@@ -19,10 +21,16 @@ test_that("Basic functionality works", {
   expect_equal(pl.res[[g_ret_str()]], true_g, tolerance = 0.1)
 })
 
+test_that("Mode estimation works", {
+  pl.res2 <- ebnm_point_laplace(x, s, mode = "est")
+  expect_equal(pl.res2[[g_ret_str()]], true_g, tolerance = 0.5)
+  expect_false(identical(pl.res2[[g_ret_str()]]$mean[1], true_mean))
+})
+
 test_that("Fixing the scale works", {
   pl.res2 <- ebnm_point_laplace(x, s, scale = true_scale)
   expect_equal(pl.res2[[g_ret_str()]], true_g, tolerance = 0.1)
-  expect_identical(pl.res2[[g_ret_str()]]$scale[2], true_scale)
+  expect_equal(pl.res2[[g_ret_str()]]$scale[2], true_scale)
 })
 
 test_that("Fixing g works", {

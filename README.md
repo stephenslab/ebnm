@@ -1,39 +1,20 @@
-# ebnm: Fit the Empirical Bayes Normal Means (EBNM) problem
+# ebnm: Fit the empirical Bayes normal means problem
 
 The `ebnm` package provides functions to solve the (heteroskedastic)
-Empirical Bayes Normal Means (EBNM) problem, which is as follows.
-Observations $x=(x_1,\dots,x_n)$ are assumed to be independent with
-$$x_j | \theta_j \sim N(\theta_j, s_j^2)$$ where the standard
-deviations $s_j$ are assumed known and the means $\theta_j$ are to be
-estimated.
+Empirical Bayes Normal Means (EBNM) problem for various choices of prior family.
+The model is $$ x_j | \theta_j, s_j \sim N(\theta_j, s_j^2), $$
+$$ \theta_j | s_j \sim g \in G, $$ where the distribution g (referred to as the 
+"prior distribution" for $\theta$) is to be estimated and G is a specified family 
+of prior distributions. Several options
+for G are implemented, some parametric and others non-parametric.
 
-In addition, the $\theta_j$ are assumed to be independent and identically distributed,
-$$\theta_j \sim g() \in G$$ for some pre-specified family $G$.
-
-Solving the EBNM problem involves two steps:
-
-	- estimate $g$ by maximizing the likelihood. That is, $\hat{g} = \arg\max_{g \in G} p(x_1,\dots,x_n | g)$.
-
-	- compute (summaries of) the posterior distributions $p(\theta_j | \hat{g}, x)$.
-	
-Currently two functions are provided: `ebnm_point_normal` and `ebnm_point_laplace`
-which solve the EBNM with a "point-normal" and "point-Laplace" prior respectively.
-
-That is, `ebnm_point_normal` solves EBNM with 
-$$g(\cdot) = \pi_0 \delta_0(\cdot) + (1-\pi_0) N(\cdot; 0,1/a)$$ 
-where $\delta_0$ denotes a point mass at 0, and $N(\cdot; \mu,\sigma^2)$ denotes
-the density of a normal distribution with mean $\mu$ and variance $\sigma^2$. (So $a$ is the inverse-variance, or precision.)
-
-And `ebnm_point_laplacel` solves EBNM with 
-$$g(\cdot) = \pi_0 \delta_0(\cdot) + (1-\pi_0) DExp(\cdot; a)$$ 
-where $\delta_0$ denotes a point mass at 0, and $DExp(\cdot; \lambda)$ denotes
-the density of a double exponential (Laplace) distribution with rate parameter $\lamdba$.
-
-In both cases the parameters $\pi_0$ and $a$ are to be estimated.
-
-The goal is for the methods to be fast and numerically stable. 
-The `ebnm_point_normal` function is considerably faster (and probably more stable).
-
+Solving the EBNM problem involves
+two steps. First, estimate g $\in$  G via maximum marginal likelihood,
+yielding an estimate $$ \hat{g}:= \arg\max_{g \in G} L(g), $$ 
+where $$ L(g):= \prod_j \int p(x_j | \theta_j, s_j)  g(d\theta_j). $$
+Second, compute the posterior distributions 
+$ p(\theta_j | x_j, s_j, \hat{g}) $ and/or summaries
+such as posterior means and posterior second moments.
 
 ## License
 
@@ -59,27 +40,16 @@ Load `ebnm` into your R environment, and get help:
 
 ```R
 library(ebnm)
-??ebnm_point_normal
-??ebnm_point_laplace
+?ebnm
 ```
 
 Try an example
 ```R
 set.seed(1)
 mu = c(rep(0,500),rnorm(500)) # true means
-x = mu + rnorm(1000) #observations with standard error 1
-x.ebnm = ebnm_point_normal(x,1)
-plot(mu,ashr::get_pm(x.ebnm)) # plot posterior mean against true values
-```
-
-## How to build the webpages
-
-Run the following commands in R from the [vignettes](vignettes)
-directory:
-
-```R
-library(rmarkdown)
-render("opt_normal.Rmd",output_dir = "../docs")
+x = mu + rnorm(1000) # observations with standard error 1
+x.ebnm = ebnm_point_normal(x, 1)
+plot(mu, x.ebnm$posterior$mean) # plot posterior mean against true values
 ```
 
 ## Credits 
