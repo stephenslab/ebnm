@@ -9,9 +9,9 @@ exponentialmix(pi, mode, scale)
 \arguments{
 \item{pi}{A vector of mixture proportions.}
 
-\item{scale}{A vector of scale parameters.}
+\item{mode}{A vector of modes.}
 
-\item{mean}{A vector of modes.}
+\item{scale}{A vector of scale parameters.}
 }
 \description{
 Creates a finite mixture of exponential distributions.

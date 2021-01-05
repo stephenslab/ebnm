@@ -3,7 +3,7 @@
 #' Creates a finite mixture of exponential distributions.
 #'
 #' @param pi A vector of mixture proportions.
-#' @param mean A vector of modes.
+#' @param mode A vector of modes.
 #' @param scale A vector of scale parameters.
 #'
 #' @export
