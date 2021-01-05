@@ -1,13 +1,20 @@
 init_g_for_npmle <- function(x,
                              s,
-                             scale,
+                             scale = "estimate",
                              min_K = 10,
                              max_K = 300,
                              KLdiv_target = 0.5) {
   xrange <- diff(range(x))
 
   # See ebnm paper for rationale.
-  if (xrange / max_K < 2.3 * min(s)) {
+  if (!identical(scale, "estimate")) {
+    grid <- seq(min(x), max(x), by = scale)
+    ncomp <- length(grid)
+
+    g_init <- ashr::unimix(pi = rep(1 / ncomp, ncomp),
+                           a = grid,
+                           b = grid)
+  } else if (xrange / max_K < 2.3 * min(s)) {
     # Use point-mass mixture.
     d <- min(s) * (64 * KLdiv_target)^0.25
     ncomp <- min(max(min_K, ceiling(xrange / d)), max_K) + 1

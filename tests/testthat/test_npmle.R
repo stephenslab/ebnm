@@ -16,12 +16,12 @@ test_that("Basic functionality works", {
   expect_identical(npmle.res, npmle.res2)
 
   est_cdf <- drop(npmle.res$fitted_g$pi %*% ashr::comp_cdf(npmle.res$fitted_g, cdf_grid))
-  expect_equal(true_cdf, est_cdf, tolerance = 0.05)
+  expect_equal(true_cdf, est_cdf, tolerance = 0.1)
 })
 
 test_that("Fixing the scale works", {
   npmle.res <- ebnm_npmle(x, s, scale = 1)
-  g_scale <- npmle.res$fitted_g$b[1] - npmle.res$fitted_g$a[1]
+  g_scale <- npmle.res$fitted_g$a[2] - npmle.res$fitted_g$a[1]
   expect_equal(1, g_scale, tolerance = 0.1)
 })
 
