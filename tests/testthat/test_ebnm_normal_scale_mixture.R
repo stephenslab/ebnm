@@ -19,14 +19,18 @@ test_that("ebnm_normal_scale_mixture returns the same results as ashr", {
   # The ash grid is the same:
   expect_equal(ebnm.res[[g_ret_str()]]$sd, ash.res[[g_ret_str()]]$sd)
 
+  # Control defaults are different depending on whether mixsqp is called from
+  #   ashr or called directly, so the following quantities can be slightly
+  #   different.
+
   # The estimated mixture probabilities are the same:
-  expect_equal(ebnm.res[[g_ret_str()]]$pi, ash.res[[g_ret_str()]]$pi)
+  expect_equal(ebnm.res[[g_ret_str()]]$pi, ash.res[[g_ret_str()]]$pi, tol = 1e-4)
 
   # The posterior quantities are the same:
-  expect_equal(ebnm.res[[df_ret_str()]], ash.res[[df_ret_str()]])
+  expect_equal(ebnm.res[[df_ret_str()]], ash.res[[df_ret_str()]], tol = 1e-4)
 
   # Likelihoods are the same:
-  expect_equal(ebnm.res[[llik_ret_str()]], ash.res[[llik_ret_str()]])
+  expect_equal(ebnm.res[[llik_ret_str()]], ash.res[[llik_ret_str()]], tol = 1e-4)
 
   # Now repeat with scalar s.
   s <- 1
@@ -34,9 +38,9 @@ test_that("ebnm_normal_scale_mixture returns the same results as ashr", {
   ash.res  <- ebnm_ash(x, s, mixcompdist = "normal", prior = "uniform",
                        output = output_all())
   expect_equal(ebnm.res[[g_ret_str()]]$sd, ash.res[[g_ret_str()]]$sd)
-  expect_equal(ebnm.res[[g_ret_str()]]$pi, ash.res[[g_ret_str()]]$pi, tol = 1e-6)
-  expect_equal(ebnm.res[[df_ret_str()]], ash.res[[df_ret_str()]])
-  expect_equal(ebnm.res[[llik_ret_str()]], ash.res[[llik_ret_str()]])
+  expect_equal(ebnm.res[[g_ret_str()]]$pi, ash.res[[g_ret_str()]]$pi, tol = 1e-4)
+  expect_equal(ebnm.res[[df_ret_str()]], ash.res[[df_ret_str()]], tol = 1e-4)
+  expect_equal(ebnm.res[[llik_ret_str()]], ash.res[[llik_ret_str()]], tol = 1e-4)
 })
 
 test_that("Mode estimation works", {

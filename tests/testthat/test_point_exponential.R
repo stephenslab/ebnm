@@ -24,7 +24,7 @@ test_that("Basic functionality works", {
 test_that("Mode estimation works", {
   pe.res2 <- ebnm_point_exponential(x, s, mode = "est")
   expect_equal(pe.res2[[g_ret_str()]], true_g, tolerance = 0.5)
-  expect_false(identical(pe.res2[[g_ret_str()]]$mean[1], true_mean))
+  expect_false(identical(pe.res2[[g_ret_str()]]$mean[1], true_mode))
 })
 
 test_that("Fixing the scale works", {
