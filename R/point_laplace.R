@@ -80,6 +80,8 @@ pl_precomp <- function(x, s, par_init, fix_par) {
 
 # The negative log likelihood.
 #
+#' @importFrom stats pnorm
+#'
 pl_nllik <- function(par, x, s, par_init, fix_par,
                      calc_grad, calc_hess) {
   fix_pi0 <- fix_par[1]
@@ -315,6 +317,9 @@ pl_summres_untransformed <- function(x, s, w, a, mu, output) {
 }
 
 #  Calculate posterior weights for non-null effects.
+#
+#' @importFrom stats dnorm
+#'
 wpost_laplace <- function(x, s, w, a) {
   if (w == 0) {
     return(rep(0, length(x)))
@@ -333,6 +338,8 @@ wpost_laplace <- function(x, s, w, a) {
 
 # This is the log of g, Laplace(a) convolved with normal.
 #
+#' @importFrom stats pnorm
+#'
 logg_laplace = function(x, s, a) {
   lg1 <- -a * x + pnorm((x - s^2 * a) / s, log.p = TRUE)
   lg2 <-  a * x + pnorm((x + s^2 * a) / s, log.p = TRUE, lower.tail = FALSE)
@@ -342,6 +349,9 @@ logg_laplace = function(x, s, a) {
 
 # Compute the lambda function equation (2.7) from Kan Xu's thesis, which is
 #   the posterior probability of being positive given a non-zero effect.
+#
+#' @importFrom stats pnorm
+#'
 lambda <- function(x, s, a) {
   lm1 <- -a * x + pnorm(x / s - s * a, log.p = TRUE)
   lm2 <-  a * x + pnorm(x / s + s * a, log.p = TRUE, lower.tail = FALSE)
@@ -390,6 +400,7 @@ pl_postsamp <- function(x, s, optpar, nsamp) {
 }
 
 #' @importFrom truncnorm rtruncnorm
+#' @importFrom stats rbinom
 #'
 pl_postsamp_untransformed <- function(x, s, w, a, mu, nsamp) {
   x <- x - mu

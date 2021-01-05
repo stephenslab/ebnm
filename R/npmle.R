@@ -1,3 +1,5 @@
+#' @importFrom ashr unimix normalmix
+#'
 init_g_for_npmle <- function(x,
                              s,
                              scale = "estimate",

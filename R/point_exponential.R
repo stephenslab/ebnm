@@ -80,6 +80,8 @@ pe_precomp <- function(x, s, par_init, fix_par) {
 
 # The negative log likelihood.
 #
+#' @importFrom stats pnorm
+#'
 pe_nllik <- function(par, x, s, par_init, fix_par,
                      calc_grad, calc_hess) {
   fix_pi0 <- fix_par[1]
@@ -291,6 +293,9 @@ pe_summres_untransformed <- function(x, s, w, a, mu, output) {
 }
 
 #  Calculate posterior weights for non-null effects.
+#
+#' @importFrom stats dnorm pnorm
+#'
 wpost_exp <- function(x, s, w, a) {
   if (w == 0) {
     return(rep(0, length(x)))
@@ -346,6 +351,7 @@ pe_postsamp <- function(x, s, optpar, nsamp) {
 }
 
 #' @importFrom truncnorm rtruncnorm
+#' @importFrom stats rbinom
 #'
 pe_postsamp_untransformed <- function(x, s, w, a, mu, nsamp) {
   x <- x - mu

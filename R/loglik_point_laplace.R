@@ -8,6 +8,8 @@ loglik_point_laplace = function(x, s, w, a, mu) {
 # Return log((1 - w)f + wg) as a vector (deal with cases w = 1 and w = 0
 #   separately for stability).
 #
+#' @importFrom stats dnorm
+#'
 vloglik_point_laplace = function(x, s, w, a, mu) {
   if (w <= 0) {
     return(dnorm(x - mu, sd = s, log = TRUE))

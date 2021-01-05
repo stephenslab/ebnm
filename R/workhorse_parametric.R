@@ -13,8 +13,7 @@
 #   (transforming parameters when necessary). It takes arguments opttheta, g,
 #   and fix_par, and then whatever has been calculated by precomp_fn.
 
-#' @importFrom trust trust
-#'
+#
 parametric_workhorse <- function(x,
                                  s,
                                  mode,
@@ -138,6 +137,9 @@ handle_optmethod_parameter <- function(optmethod, fix_par) {
 
 # This function calls the selected optimization routine.
 #
+#' @importFrom stats nlm optim optimize
+#' @importFrom trust trust
+#'
 mle_parametric <- function(x,
                            s,
                            par_init,

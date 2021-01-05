@@ -321,6 +321,8 @@ pvar_cond_normal <- function(s, a) {
 # Point-normal parameters are alpha = logit(pi0), beta = log(s2), and mu. The
 #   point-normal family uses the ashr class normalmix.
 #
+#' @importFrom ashr normalmix
+#'
 pn_partog <- function(par) {
   pi0  <- 1 / (exp(-par$alpha) + 1)
   sd   <- exp(par$beta / 2)
@@ -347,6 +349,8 @@ pn_partog <- function(par) {
 # @return An nsamp by length(x) matrix containing samples from the
 #   posterior, with each row corresponding to a single sample.
 #
+#' @importFrom stats rbinom rnorm
+#'
 pn_postsamp <- function(x, s, optpar, nsamp) {
   w  <- 1 - 1 / (exp(-optpar$alpha) + 1)
   a  <- exp(-optpar$beta)
