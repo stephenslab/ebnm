@@ -1,8 +1,9 @@
-init_g_for_npmle <- function(x, s, scale) {
-  min_K <- 10
-  max_K <- 300
-  KLdiv_target <- 0.5
-
+init_g_for_npmle <- function(x,
+                             s,
+                             scale,
+                             min_K = 10,
+                             max_K = 300,
+                             KLdiv_target = 0.5) {
   xrange <- diff(range(x))
 
   # See ebnm paper for rationale.
