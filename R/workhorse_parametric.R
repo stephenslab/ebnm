@@ -139,6 +139,7 @@ handle_optmethod_parameter <- function(optmethod, fix_par) {
 #
 #' @importFrom stats nlm optim optimize
 #' @importFrom trust trust
+#' @importFrom utils modifyList
 #'
 mle_parametric <- function(x,
                            s,
