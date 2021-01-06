@@ -29,3 +29,9 @@ test_that("Fixing g works", {
   npmle.res <- ebnm_npmle(x, s, g_init = true_g, fix_g = TRUE)
   expect_identical(npmle.res[[g_ret_str()]], true_g)
 })
+
+test_that("Gaussian grid is selected when the range of x is large", {
+  x <- rcauchy(n)
+  npmle.res <- ebnm_npmle(x, s)
+  expect_identical(class(npmle.res$fitted_g), "normalmix")
+})
