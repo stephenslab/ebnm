@@ -65,3 +65,23 @@ test_that("Infinite and zero SEs give expected results", {
   expect_equal(pn.res[[df_ret_str()]][[lfsr_ret_str()]][10],
                pn.res[[g_ret_str()]]$pi[1] + pn.res[[g_ret_str()]]$pi[2] / 2)
 })
+
+test_that("Can fix g with one component", {
+  g_init <- laplacemix(pi = 1,
+                       scale = true_scale,
+                       mean = true_mean)
+  pl.res <- ebnm_point_laplace(x, s, g_init = g_init, fix_g = TRUE)
+
+  g_init2 <- laplacemix(pi = c(0, 1),
+                        scale = c(0, true_scale),
+                        mean = rep(true_mean, 2))
+  pl.res2 <- ebnm_point_laplace(x, s, g_init = g_init2, fix_g = TRUE)
+
+  expect_equal(pl.res$log_likelihood, pl.res2$log_likelihood)
+})
+
+test_that("Null case estimates pi0 = 1", {
+  x <- rnorm(n, s = 0.5)
+  pl.res <- ebnm_point_laplace(x, s = 1)
+  expect_equal(pl.res[[g_ret_str()]]$pi[1], 1)
+})

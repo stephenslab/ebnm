@@ -49,3 +49,25 @@ test_that("Output parameter works", {
   pe.res <- ebnm_point_exponential(x, s, output = c("fitted_g"))
   expect_identical(names(pe.res), "fitted_g")
 })
+
+test_that("Can fix g with one component", {
+  g_init <- gammamix(pi = 1,
+                     shape = 1,
+                     scale = true_scale,
+                     shift = true_mode)
+  pe.res <- ebnm_point_exponential(x, s, g_init = g_init, fix_g = TRUE)
+
+  g_init2 <- gammamix(pi = c(0, 1),
+                      shape = c(1, 1),
+                      scale = c(0, true_scale),
+                      shift = rep(true_mode, 2))
+  pe.res2 <- ebnm_point_exponential(x, s, g_init = g_init2, fix_g = TRUE)
+
+  expect_equal(pe.res$log_likelihood, pe.res2$log_likelihood)
+})
+
+test_that("Null case estimates pi0 = 1", {
+  x <- rnorm(n, s = 0.1)
+  pe.res <- ebnm_point_exponential(x, s = 1)
+  expect_equal(pe.res[[g_ret_str()]]$pi[1], 1)
+})
