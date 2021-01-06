@@ -42,7 +42,7 @@ and \code{scale} parameters. If \code{g_init} is supplied, it should be
 an object of class \code{\link[ashr]{normalmix}} for prior families
 \code{normal}, \code{point_normal}, and \code{normal_scale_mixture};
 class \code{\link{laplacemix}} for point-Laplace families; class
-\code{\link{exponentialmix}} for point-exponential families; and class
+\code{\link{gammamix}} for point-exponential families; and class
 \code{\link[ashr]{unimix}} for \code{unimodal_} families.}
 
 \item{fix_g}{If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
