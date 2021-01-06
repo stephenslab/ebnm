@@ -28,12 +28,12 @@ test_that("Mode estimation works", {
 test_that("Fixing the sd works", {
   pn.res <- ebnm_point_normal(x, s, scale = true_sd)
   expect_equal(pn.res[[g_ret_str()]], true_g, tolerance = 0.1)
-  expect_identical(pn.res[[g_ret_str()]]$sd[2], true_sd)
+  expect_equal(pn.res[[g_ret_str()]]$sd[2], true_sd, tolerance = 1e-8)
 })
 
 test_that("Fixing g works", {
   pn.res <- ebnm_point_normal(x, s, g_init = true_g, fix_g = TRUE)
-  expect_identical(pn.res[[g_ret_str()]], true_g)
+  expect_equal(pn.res[[g_ret_str()]], true_g)
 })
 
 test_that("Output parameter works", {
@@ -72,4 +72,10 @@ test_that("Infinite and zero SEs give expected results", {
 
   # Zero SEs should throw an error if mu is not fixed.
   # expect_error(ebnm_point_normal(x, s, mode = "est"))
+})
+
+test_that("Null case estimates pi0 = 1", {
+  x <- rnorm(n, s = 0.5)
+  pn.res <- ebnm_point_normal(x, s = 1)
+  expect_equal(pn.res[[g_ret_str()]]$pi[1], 1)
 })

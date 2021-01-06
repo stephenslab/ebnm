@@ -7,8 +7,10 @@ x <- c(rexp(n / 2, rate = 0.1), rep(0, n / 2)) + rnorm(n, sd = s)
 
 true_pi0 <- 0.5
 true_scale <- 10
+true_mean <- 0
+
 true_g <- laplacemix(pi = c(true_pi0, 1 - true_pi0),
-                     mean = rep(0, 2),
+                     mean = rep(true_mean, 2),
                      scale = c(0, true_scale))
 
 pl.res <- ebnm(x, s, prior_family = "point_laplace")
@@ -19,10 +21,16 @@ test_that("Basic functionality works", {
   expect_equal(pl.res[[g_ret_str()]], true_g, tolerance = 0.1)
 })
 
+test_that("Mode estimation works", {
+  pl.res2 <- ebnm_point_laplace(x, s, mode = "est")
+  expect_equal(pl.res2[[g_ret_str()]], true_g, tolerance = 0.5)
+  expect_false(identical(pl.res2[[g_ret_str()]]$mean[1], true_mean))
+})
+
 test_that("Fixing the scale works", {
   pl.res2 <- ebnm_point_laplace(x, s, scale = true_scale)
   expect_equal(pl.res2[[g_ret_str()]], true_g, tolerance = 0.1)
-  expect_identical(pl.res2[[g_ret_str()]]$scale[2], true_scale)
+  expect_equal(pl.res2[[g_ret_str()]]$scale[2], true_scale)
 })
 
 test_that("Fixing g works", {
@@ -56,4 +64,24 @@ test_that("Infinite and zero SEs give expected results", {
                2 * pn.res[[g_ret_str()]]$scale[2]^2 * pn.res[[g_ret_str()]]$pi[2])
   expect_equal(pn.res[[df_ret_str()]][[lfsr_ret_str()]][10],
                pn.res[[g_ret_str()]]$pi[1] + pn.res[[g_ret_str()]]$pi[2] / 2)
+})
+
+test_that("Can fix g with one component", {
+  g_init <- laplacemix(pi = 1,
+                       scale = true_scale,
+                       mean = true_mean)
+  pl.res <- ebnm_point_laplace(x, s, g_init = g_init, fix_g = TRUE)
+
+  g_init2 <- laplacemix(pi = c(0, 1),
+                        scale = c(0, true_scale),
+                        mean = rep(true_mean, 2))
+  pl.res2 <- ebnm_point_laplace(x, s, g_init = g_init2, fix_g = TRUE)
+
+  expect_equal(pl.res$log_likelihood, pl.res2$log_likelihood)
+})
+
+test_that("Null case estimates pi0 = 1", {
+  x <- rnorm(n, s = 0.5)
+  pl.res <- ebnm_point_laplace(x, s = 1)
+  expect_equal(pl.res[[g_ret_str()]]$pi[1], 1)
 })
