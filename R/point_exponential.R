@@ -1,19 +1,20 @@
-#' Constructor for exponentialmix class
+#' Constructor for gammamix class
 #'
-#' Creates a finite mixture of exponential distributions.
+#' Creates a finite mixture of gamma distributions.
 #'
 #' @param pi A vector of mixture proportions.
-#' @param mode A vector of modes.
+#' @param shape A vector of shape parameters.
 #' @param scale A vector of scale parameters.
+#' @param shift A vector of shift parameters.
 #'
 #' @export
 #'
-exponentialmix <- function(pi, mode, scale) {
-  structure(data.frame(pi, mode, scale), class="exponentialmix")
+gammamix <- function(pi, shape, scale, shift = rep(0, length(pi))) {
+  structure(data.frame(pi, shape, scale, shift), class = "gammamix")
 }
 
 
-# The point-exponential family uses the above ebnm class exponentialmix.
+# The point-exponential family uses the above ebnm class gammamix.
 #
 pe_checkg <- function(g_init, fix_g, mode, scale, pointmass, call) {
   check_g_init(g_init = g_init,
@@ -22,8 +23,14 @@ pe_checkg <- function(g_init, fix_g, mode, scale, pointmass, call) {
                scale = scale,
                pointmass = pointmass,
                call = call,
-               class_name = "exponentialmix",
-               scale_name = "scale")
+               class_name = "gammamix",
+               scale_name = "scale",
+               mode_name = "shift")
+
+  if (!is.null(g_init)
+      && !isTRUE(all.equal(g_init$shape, rep(1, length(g_init$shape))))) {
+    stop("g_init must be of class gammamix with shape parameter = 1")
+  }
 }
 
 
@@ -33,11 +40,11 @@ pe_initpar <- function(g_init, mode, scale, pointmass, x, s) {
   if (!is.null(g_init) && length(g_init$pi) == 1) {
     par <- list(alpha = Inf,
                 beta = -log(g_init$scale),
-                mu = g_init$mode)
+                mu = g_init$shift)
   } else if (!is.null(g_init) && length(g_init$pi) == 2) {
     par <- list(alpha = log(1 / g_init$pi[1] - 1),
                 beta = -log(g_init$scale[2]),
-                mu = g_init$mode[1])
+                mu = g_init$shift[1])
   } else {
     par <- list()
     if (!pointmass) {
@@ -314,7 +321,7 @@ wpost_exp <- function(x, s, w, a) {
 
 
 # Point-exponential parameters are alpha = -logit(pi0), beta = log(a), and mu.
-#   The above ebnm class exponentialmix is used.
+#   The above ebnm class gammamix is used.
 #
 pe_partog <- function(par) {
   pi0   <- 1 / (exp(par$alpha) + 1)
@@ -322,13 +329,15 @@ pe_partog <- function(par) {
   mode  <- par$mu
 
   if (pi0 == 0) {
-    g <- exponentialmix(pi = 1,
-                        mode = mode,
-                        scale = scale)
+    g <- gammamix(pi = 1,
+                  shape = 1,
+                  scale = scale,
+                  shift = mode)
   } else {
-    g <- exponentialmix(pi = c(pi0, 1 - pi0),
-                        mode = rep(mode, 2),
-                        scale = c(0, scale))
+    g <- gammamix(pi = c(pi0, 1 - pi0),
+                  shape = c(1, 1),
+                  scale = c(0, scale),
+                  shift = rep(mode, 2))
   }
 
   return(g)

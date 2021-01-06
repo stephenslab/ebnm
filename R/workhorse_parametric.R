@@ -251,7 +251,8 @@ check_g_init <- function(g_init,
                          pointmass,
                          call,
                          class_name,
-                         scale_name) {
+                         scale_name,
+                         mode_name = "mean") {
   if (!is.null(g_init)) {
     if (!inherits(g_init, class_name)) {
       stop("g_init must be NULL or an object of class ", class_name, ".")
@@ -273,7 +274,7 @@ check_g_init <- function(g_init,
       # all.equal allows for numerical error:
       if (!is.null(call$mode)
           && !identical(mode, "estimate")
-          && !isTRUE(all.equal(g_init$mean[1], mode))) {
+          && !isTRUE(all.equal(g_init[[mode_name]], rep(mode, length(g_init[[mode_name]]))))) {
         stop("If mode is fixed and g_init is supplied, they must agree.")
       }
       g_scale <- g_init[[scale_name]][ncomp]

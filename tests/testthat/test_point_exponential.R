@@ -9,9 +9,10 @@ true_pi0 <- 0.5
 true_scale <- 10
 true_mode <- 0
 
-true_g <- exponentialmix(pi = c(true_pi0, 1 - true_pi0),
-                         mode = rep(true_mode, 2),
-                         scale = c(0, true_scale))
+true_g <- gammamix(pi = c(true_pi0, 1 - true_pi0),
+                   shape = c(1, 1),
+                   scale = c(0, true_scale),
+                   shift = rep(true_mode, 2))
 
 pe.res <- ebnm(x, s, prior_family = "point_exponential")
 
