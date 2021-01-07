@@ -15,7 +15,6 @@ NeedsCompilation: no
 Depends: R (>= 3.3.0)
 Imports:
     stats,
-    ashr (>= 2.2-2),
     mixsqp,
     truncnorm,
     trust
@@ -26,6 +25,8 @@ Suggests:
     ggplot2,
     microbenchmark,
     numDeriv
+Remotes:
+    stephens999/ashr
 URL: https://github.com/stephenslab/ebnm
 BugReports: https://github.com/stephenslab/ebnm/issues
 RoxygenNote: 6.1.1

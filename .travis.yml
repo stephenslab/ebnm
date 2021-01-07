@@ -5,10 +5,7 @@ latex: false
 r_packages:
   - covr
 
-install:
-  - R -e 'install.packages(c("devtools","covr","testthat","knitr","rmarkdown","microbenchmark","ggplot2","numDeriv","trust","truncnorm"))'
-  - R -e 'devtools::install_github("stephenslab/mixsqp", upgrade="never", force=TRUE)'
-  - R -e 'devtools::install_github("stephens999/ashr", upgrade="never", force=TRUE)'
+r_github_packages: stephens999/ashr
 
 env:
   global:
