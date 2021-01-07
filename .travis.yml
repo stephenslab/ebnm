@@ -5,7 +5,8 @@ latex: false
 r_packages:
   - covr
 
-r_github_packages: stephens999/ashr
+install:
+  - R -e 'devtools::install_github("stephens999/ashr", upgrade="never", force=TRUE)'
 
 env:
   global:
