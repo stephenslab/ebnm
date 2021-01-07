@@ -31,4 +31,3 @@ URL: https://github.com/stephenslab/ebnm
 BugReports: https://github.com/stephenslab/ebnm/issues
 RoxygenNote: 6.1.1
 VignetteBuilder: knitr
-Remotes: stephens999/ashr
