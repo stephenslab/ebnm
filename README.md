@@ -3,6 +3,7 @@
 [![Travis Build Status](https://travis-ci.com/stephenslab/ebnm.svg?branch=master)](https://travis-ci.com/github/stephenslab/ebnm)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/l4u64gdn4noqlb1i?svg=true)](https://ci.appveyor.com/project/pcarbo/ebnm)
 [![CircleCI build status](https://circleci.com/gh/stephenslab/ebnm.svg?style=svg)](https://circleci.com/gh/stephenslab/ebnm)
+[![codecov](https://codecov.io/gh/stephenslab/ebnm/branch/master/graph/badge.svg)](https://codecov.io/gh/stephenslab/ebnm)
 
 The `ebnm` package provides functions to solve the (heteroskedastic)
 Empirical Bayes Normal Means (EBNM) problem for various choices of prior family.
