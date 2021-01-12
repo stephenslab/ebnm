@@ -212,7 +212,7 @@ mle_parametric <- function(x,
 
     optres <- do.call(optim, c(list(par = p, fn = fn, gr = gr),
                                fn_params,
-                               control,
+                               list(control = control),
                                list(method = "L-BFGS-B")))
     optpar <- optres$par
     optval <- optres$value
