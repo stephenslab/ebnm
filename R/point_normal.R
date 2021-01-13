@@ -259,7 +259,7 @@ pn_summres_untransformed <- function(x, s, w, a, mu, output) {
   if (result_in_output(output)) {
     posterior$mean  <- wpost * pmean_cond + (1 - wpost) * mu
     posterior$mean2 <- wpost * (pmean_cond^2 + pvar_cond) + (1 - wpost) * (mu^2)
-    posterior$sd    <- sqrt(posterior$mean2 - posterior$mean^2)
+    posterior$sd    <- sqrt(pmax(0, posterior$mean2 - posterior$mean^2))
   }
 
   if (lfsr_in_output(output)) {
