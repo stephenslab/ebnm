@@ -116,7 +116,7 @@ ebnm_normal_mix_workhorse <- function(x,
     if (result_in_output(output)) {
       posterior$mean  <- rowSums(comp_postprob * comp_postmean)
       posterior$mean2 <- rowSums(comp_postprob * comp_postmean2)
-      posterior$sd    <- sqrt(posterior$mean2 - posterior$mean^2)
+      posterior$sd    <- sqrt(pmax(0, posterior$mean2 - posterior$mean^2))
     }
 
     if (lfsr_in_output(output)) {
