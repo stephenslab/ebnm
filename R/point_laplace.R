@@ -64,6 +64,18 @@ pl_initpar <- function(g_init, mode, scale, pointmass, x, s) {
 }
 
 
+pl_scalepar <- function(par, scale_factor) {
+  if (!is.null(par$beta)) {
+    par$beta <- par$beta - log(scale_factor)
+  }
+  if (!is.null(par$mu)) {
+    par$mu <- scale_factor * par$mu
+  }
+
+  return(par)
+}
+
+
 # No precomputations are done for point-Laplace.
 #
 pl_precomp <- function(x, s, par_init, fix_par) {

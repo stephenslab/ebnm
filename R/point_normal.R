@@ -49,6 +49,18 @@ pn_initpar <- function(g_init, mode, scale, pointmass, x, s) {
 }
 
 
+pn_scalepar <- function(par, scale_factor) {
+  if (!is.null(par$beta)) {
+    par$beta <- par$beta + 2 * log(scale_factor)
+  }
+  if (!is.null(par$mu)) {
+    par$mu <- scale_factor * par$mu
+  }
+
+  return(par)
+}
+
+
 # Precomputations.
 #
 pn_precomp <- function(x, s, par_init, fix_par) {
