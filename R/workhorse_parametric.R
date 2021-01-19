@@ -26,6 +26,7 @@ parametric_workhorse <- function(x,
                                  control,
                                  checkg_fn,
                                  initpar_fn,
+                                 scalepar_fn,
                                  precomp_fn,
                                  nllik_fn,
                                  postcomp_fn,
@@ -82,6 +83,7 @@ parametric_workhorse <- function(x,
                            s = s_optset,
                            par_init = par_init,
                            fix_par = fix_par,
+                           scalepar_fn = scalepar_fn,
                            precomp_fn = precomp_fn,
                            nllik_fn = nllik_fn,
                            postcomp_fn = postcomp_fn,
@@ -145,6 +147,7 @@ mle_parametric <- function(x,
                            s,
                            par_init,
                            fix_par,
+                           scalepar_fn,
                            precomp_fn,
                            nllik_fn,
                            postcomp_fn,
@@ -152,6 +155,13 @@ mle_parametric <- function(x,
                            control,
                            use_grad,
                            use_hess) {
+  scale_factor <- 1 / median(s[s > 0])
+  x <- x * scale_factor
+  s <- s * scale_factor
+
+  par_init <- do.call(scalepar_fn, list(par = par_init,
+                                        scale_factor = scale_factor))
+
   precomp <- do.call(precomp_fn, list(x = x,
                                       s = s,
                                       par_init = par_init,
@@ -229,6 +239,11 @@ mle_parametric <- function(x,
   # Combine the fixed and estimated parameters.
   retpar <- par_init
   retpar[!fix_par] <- optpar
+
+  # Re-scale parameters and log likelihood.
+  retpar <- do.call(scalepar_fn, list(par = retpar,
+                                      scale_factor = 1 / scale_factor))
+  optval <- optval - sum(is.finite(x)) * log(scale_factor)
 
   retlist <- do.call(postcomp_fn, c(list(optpar = retpar,
                                          optval = optval,

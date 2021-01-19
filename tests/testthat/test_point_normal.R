@@ -79,3 +79,23 @@ test_that("Null case estimates pi0 = 1", {
   pn.res <- ebnm_point_normal(x, s = 1)
   expect_equal(pn.res[[g_ret_str()]]$pi[1], 1)
 })
+
+test_that("Very large observations give reasonable results", {
+  scl <- 1e8
+  pn.res <- ebnm_point_normal(x, s, mode = "estimate")
+  pn.res.lg <- ebnm_point_normal(scl*x, scl*s, mode = "estimate")
+
+  expect_equal(pn.res[[g_ret_str()]]$pi[1], pn.res.lg[[g_ret_str()]]$pi[1])
+  expect_equal(scl * pn.res[[g_ret_str()]]$sd[2], pn.res.lg[[g_ret_str()]]$sd[2])
+  expect_equal(scl * pn.res[[g_ret_str()]]$mean[1], pn.res.lg[[g_ret_str()]]$mean[1])
+})
+
+test_that("Very small observations give reasonable results", {
+  scl <- 1e-8
+  pn.res <- ebnm_point_normal(x, s, mode = "estimate")
+  pn.res.sm <- ebnm_point_normal(scl*x, scl*s, mode = "estimate")
+
+  expect_equal(pn.res[[g_ret_str()]]$pi[1], pn.res.sm[[g_ret_str()]]$pi[1])
+  expect_equal(scl * pn.res[[g_ret_str()]]$sd[2], pn.res.sm[[g_ret_str()]]$sd[2])
+  expect_equal(scl * pn.res[[g_ret_str()]]$mean[1], pn.res.sm[[g_ret_str()]]$mean[1])
+})

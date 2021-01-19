@@ -55,15 +55,15 @@ test_that("Infinite and zero SEs give expected results", {
   # s[6] <- 0
   s[10] <- Inf
 
-  pn.res <- ebnm_point_laplace(x, s, output = output_all())
+  pl.res <- ebnm_point_laplace(x, s, output = output_all())
 
-  # expect_equal(pn.res[[df_ret_str()]][[pm_ret_str()]][6], x[6])
-  # expect_equal(pn.res[[df_ret_str()]][[pm_ret_str()]]2[6], x[6]^2)
-  expect_equal(pn.res[[df_ret_str()]][[pm_ret_str()]][10], 0)
-  expect_equal(pn.res[[df_ret_str()]][[pm2_ret_str()]][10],
-               2 * pn.res[[g_ret_str()]]$scale[2]^2 * pn.res[[g_ret_str()]]$pi[2])
-  expect_equal(pn.res[[df_ret_str()]][[lfsr_ret_str()]][10],
-               pn.res[[g_ret_str()]]$pi[1] + pn.res[[g_ret_str()]]$pi[2] / 2)
+  # expect_equal(pl.res[[df_ret_str()]][[pm_ret_str()]][6], x[6])
+  # expect_equal(pl.res[[df_ret_str()]][[pm_ret_str()]]2[6], x[6]^2)
+  expect_equal(pl.res[[df_ret_str()]][[pm_ret_str()]][10], 0)
+  expect_equal(pl.res[[df_ret_str()]][[pm2_ret_str()]][10],
+               2 * pl.res[[g_ret_str()]]$scale[2]^2 * pl.res[[g_ret_str()]]$pi[2])
+  expect_equal(pl.res[[df_ret_str()]][[lfsr_ret_str()]][10],
+               pl.res[[g_ret_str()]]$pi[1] + pl.res[[g_ret_str()]]$pi[2] / 2)
 })
 
 test_that("Can fix g with one component", {
@@ -84,4 +84,24 @@ test_that("Null case estimates pi0 = 1", {
   x <- rnorm(n, s = 0.5)
   pl.res <- ebnm_point_laplace(x, s = 1)
   expect_equal(pl.res[[g_ret_str()]]$pi[1], 1)
+})
+
+test_that("Very large observations give reasonable results", {
+  scl <- 1e8
+  pl.res <- ebnm_point_laplace(x, s, mode = "estimate")
+  pl.res.lg <- ebnm_point_laplace(scl*x, scl*s, mode = "estimate")
+
+  expect_equal(pl.res[[g_ret_str()]]$pi[1], pl.res.lg[[g_ret_str()]]$pi[1])
+  expect_equal(scl * pl.res[[g_ret_str()]]$scale[2], pl.res.lg[[g_ret_str()]]$scale[2])
+  expect_equal(scl * pl.res[[g_ret_str()]]$mean[1], pl.res.lg[[g_ret_str()]]$mean[1])
+})
+
+test_that("Very small observations give reasonable results", {
+  scl <- 1e-8
+  pl.res <- ebnm_point_laplace(x, s, mode = "estimate")
+  pl.res.sm <- ebnm_point_laplace(scl*x, scl*s, mode = "estimate")
+
+  expect_equal(pl.res[[g_ret_str()]]$pi[1], pl.res.sm[[g_ret_str()]]$pi[1])
+  expect_equal(scl * pl.res[[g_ret_str()]]$scale[2], pl.res.sm[[g_ret_str()]]$scale[2])
+  expect_equal(scl * pl.res[[g_ret_str()]]$mean[1], pl.res.sm[[g_ret_str()]]$mean[1])
 })
