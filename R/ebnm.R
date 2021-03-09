@@ -100,8 +100,10 @@
 #' @param optmethod A string specifying which optimization function is to be
 #'   used. Options include \code{"nlm"}, \code{"lbfgsb"} (which calls
 #'   \code{optim} with \code{method = "L-BFGS-B"}), and \code{"trust"} (which
-#'   calls into package \code{trust}), as well as \code{"nlm_nograd"},
-#'   \code{"lbfgsb_nograd"}, and \code{"nlm_nohess"}.
+#'   calls into package \code{trust}). Other options are \code{"nohess_nlm"},
+#'   \code{"nograd_nlm"}, and \code{"nograd_lbfgsb"}, which use numerical
+#'   approximations rather than exact expressions for the Hessian and (for
+#'   the latter two) the gradient. The default option is \code{"nohess_nlm"}.
 #'   Since all non-parametric families call into \code{ashr}, this parameter is
 #'   only available for parametric families (point-normal, point-Laplace,
 #'   point-exponential, and normal).

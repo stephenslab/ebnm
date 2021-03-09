@@ -121,9 +121,10 @@ parametric_workhorse <- function(x,
 
 
 handle_optmethod_parameter <- function(optmethod, fix_par) {
-  optmethod <- match.arg(optmethod, c("nlm", "lbfgsb", "trust",
-                                      "nograd_nlm", "nograd_lbfgsb",
-                                      "nohess_nlm", "optimize"))
+  optmethod <- match.arg(optmethod, c("nohess_nlm", "nlm", "nograd_nlm",
+                                      "lbfgsb", "nograd_lbfgsb",
+                                      "trust",
+                                      "optimize"))
   return(
     switch(optmethod,
            nlm = list(fn = "nlm", use_grad = TRUE, use_hess = TRUE),
@@ -172,6 +173,11 @@ mle_parametric <- function(x,
                  precomp)
 
   p <- unlist(par_init)[!fix_par]
+
+  # Fix issue #46 (don't initialize using pi0 = 0 or pi0 = 1):
+  if (!(fix_par[1]) && is.infinite(p[1])) {
+    p[1] <- sign(p[1]) * log(length(x))
+  }
 
   if (all(fix_par)) {
     optpar <- par_init
