@@ -2,28 +2,28 @@ language: r
 cache: packages
 latex: false
 warnings_are_errors: false
-r_build_args: 
+r_build_args:
 r_check_args: --as-cran
 
-      
+
 # This is the minimal set of R packages needed to run "R CMD check" on
 # the package.
 install:
-  - R -e 'install.packages(c("devtools","testthat","knitr","rmarkdown","ggplot2","microbenchmark","numDeriv","mixsqp","truncnorm","trust"))'
+  - R -e 'install.packages(c("devtools","testthat","knitr","rmarkdown","ggplot2","microbenchmark","numDeriv","mixsqp","truncnorm","trust","horseshoe"))'
   - R -e 'devtools::install_github("stephens999/ashr",upgrade="never",force=TRUE)'
 
 env:
   global:
     - _R_CHECK_FORCE_SUGGESTS_: false
     - R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
-      
+
 after_success:
   - Rscript -e 'library(covr); codecov()'
 
 branches:
   only:
     - master
-    
+
 addons:
   apt:
     packages:
