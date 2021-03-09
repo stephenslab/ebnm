@@ -173,6 +173,11 @@ mle_parametric <- function(x,
 
   p <- unlist(par_init)[!fix_par]
 
+  # Fix issue #46 (don't initialize using pi0 = 0 or pi0 = 1):
+  if (!(fix_par[1]) && is.infinite(p[1])) {
+    p[1] <- sign(p[1]) * log(length(x))
+  }
+
   if (all(fix_par)) {
     optpar <- par_init
     optval <- do.call(nllik_fn, c(list(par = NULL), fn_params,
