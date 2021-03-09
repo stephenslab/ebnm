@@ -273,7 +273,7 @@ check_g_init <- function(g_init,
       stop("g_init must be NULL or an object of class ", class_name, ".")
     }
 
-    ncomp <- length(g_init$pi)
+    ncomp <- length(g_init[[1]])
     if (!(ncomp == 1 || (pointmass && ncomp == 2))) {
       stop("g_init does not have the correct number of components.")
     }

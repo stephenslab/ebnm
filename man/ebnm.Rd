@@ -7,11 +7,11 @@
 \title{Solve the EBNM problem}
 \usage{
 ebnm(x, s = 1, prior_family = c("point_normal", "point_laplace",
-  "point_exponential", "normal", "normal_scale_mixture", "unimodal",
-  "unimodal_symmetric", "unimodal_nonnegative", "unimodal_nonpositive",
-  "npmle", "ash"), mode = 0, scale = "estimate", g_init = NULL,
-  fix_g = FALSE, output = output_default(), optmethod = NULL,
-  control = NULL, ...)
+  "point_exponential", "normal", "horseshoe", "normal_scale_mixture",
+  "unimodal", "unimodal_symmetric", "unimodal_nonnegative",
+  "unimodal_nonpositive", "npmle", "ash"), mode = 0,
+  scale = "estimate", g_init = NULL, fix_g = FALSE,
+  output = output_default(), optmethod = NULL, control = NULL, ...)
 
 output_default()
 
@@ -38,8 +38,10 @@ from the data. The precise interpretation of \code{scale} depends on
 \code{prior_family}. For normal and point-normal families, it is a scalar
 specifying the standard deviation of the normal component. For
 point-Laplace and point-exponential families, it is a scalar specifying
-the scale parameter of the Laplace or exponential component. For other
-prior families, which are implemented using the function
+the scale parameter of the Laplace or exponential component. For horseshoe
+families, it corresponds to \eqn{s\tau} in the usual parametrization of
+the \coe{\link{horseshoe}} distribution. For other prior families, which
+are implemented using the function
 \code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
 the parameter \code{mixsd} to be passed to \code{ash} (or \code{"estimate"}
 if the default \code{mixsd} is to be used).}
@@ -55,7 +57,8 @@ and \code{scale} parameters. If \code{g_init} is supplied, it should be
 an object of class \code{\link[ashr]{normalmix}} for prior families
 \code{normal}, \code{point_normal}, and \code{normal_scale_mixture};
 class \code{\link{laplacemix}} for point-Laplace families; class
-\code{\link{gammamix}} for point-exponential families; and class
+\code{\link{gammamix}} for point-exponential families; class
+\code{\link{horseshoe}} for horseshoe families; and class
 \code{\link[ashr]{unimix}} for \code{unimodal_} families.}
 
 \item{fix_g}{If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
@@ -76,7 +79,8 @@ point-exponential, and normal).}
 
 \item{control}{A list of control parameters to be passed to the optimization
 function. \code{\link[stats]{optimize}} is used for
-\code{prior_family = "normal"}, while \code{\link[stats]{nlm}} is used for
+\code{prior_family = "normal"} and \code{prior_family = "horseshoe"},
+while \code{\link[stats]{nlm}} is used for
 parametric families unless parameter \code{optmethod} specifies otherwise.
 For ash families (including \code{normal_scale_mixture} and all
 \code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
@@ -142,6 +146,7 @@ The prior families that have been implemented include:
         component is a point mass at zero and the other is a
         (nonnegative) exponential distribution.}
       \item{\code{normal}}{The family of normal distributions.}
+      \item{\code{horseshoe}}{The family of \link{horseshoe} distributions.}
       \item{\code{normal_scale_mixture}}{The family of scale mixtures of
         normals.}
       \item{\code{unimodal}}{The family of all unimodal distributions.}
@@ -202,6 +207,7 @@ unimodal.res <- ebnm_unimodal(x, s, control = list(verbose = TRUE))
 Calling functions \code{\link{ebnm_point_normal}},
   \code{\link{ebnm_point_laplace}},
   \code{\link{ebnm_point_exponential}}, \code{\link{ebnm_normal}},
+  \code{\link{horseshoe}},
   \code{\link{ebnm_normal_scale_mixture}}, \code{\link{ebnm_unimodal}},
   \code{\link{ebnm_unimodal_symmetric}},
   \code{\link{ebnm_unimodal_nonnegative}},

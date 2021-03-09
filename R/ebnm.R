@@ -35,6 +35,7 @@
 #'         component is a point mass at zero and the other is a
 #'         (nonnegative) exponential distribution.}
 #'       \item{\code{normal}}{The family of normal distributions.}
+#'       \item{\code{horseshoe}}{The family of \link{horseshoe} distributions.}
 #'       \item{\code{normal_scale_mixture}}{The family of scale mixtures of
 #'         normals.}
 #'       \item{\code{unimodal}}{The family of all unimodal distributions.}
@@ -66,8 +67,10 @@
 #'   \code{prior_family}. For normal and point-normal families, it is a scalar
 #'   specifying the standard deviation of the normal component. For
 #'   point-Laplace and point-exponential families, it is a scalar specifying
-#'   the scale parameter of the Laplace or exponential component. For other
-#'   prior families, which are implemented using the function
+#'   the scale parameter of the Laplace or exponential component. For horseshoe
+#'   families, it corresponds to \eqn{s\tau} in the usual parametrization of
+#'   the \coe{\link{horseshoe}} distribution. For other prior families, which
+#'   are implemented using the function
 #'   \code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
 #'   the parameter \code{mixsd} to be passed to \code{ash} (or \code{"estimate"}
 #'   if the default \code{mixsd} is to be used).
@@ -83,7 +86,8 @@
 #'   an object of class \code{\link[ashr]{normalmix}} for prior families
 #'   \code{normal}, \code{point_normal}, and \code{normal_scale_mixture};
 #'   class \code{\link{laplacemix}} for point-Laplace families; class
-#'   \code{\link{gammamix}} for point-exponential families; and class
+#'   \code{\link{gammamix}} for point-exponential families; class
+#'   \code{\link{horseshoe}} for horseshoe families; and class
 #'   \code{\link[ashr]{unimix}} for \code{unimodal_} families.
 #'
 #' @param fix_g If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
@@ -104,7 +108,8 @@
 #'
 #' @param control A list of control parameters to be passed to the optimization
 #'   function. \code{\link[stats]{optimize}} is used for
-#'   \code{prior_family = "normal"}, while \code{\link[stats]{nlm}} is used for
+#'   \code{prior_family = "normal"} and \code{prior_family = "horseshoe"},
+#'   while \code{\link[stats]{nlm}} is used for
 #'   parametric families unless parameter \code{optmethod} specifies otherwise.
 #'   For ash families (including \code{normal_scale_mixture} and all
 #'   \code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
@@ -135,6 +140,7 @@
 #' @seealso Calling functions \code{\link{ebnm_point_normal}},
 #'   \code{\link{ebnm_point_laplace}},
 #'   \code{\link{ebnm_point_exponential}}, \code{\link{ebnm_normal}},
+#'   \code{\link{horseshoe}},
 #'   \code{\link{ebnm_normal_scale_mixture}}, \code{\link{ebnm_unimodal}},
 #'   \code{\link{ebnm_unimodal_symmetric}},
 #'   \code{\link{ebnm_unimodal_nonnegative}},
@@ -187,6 +193,7 @@ ebnm <- function(x,
                                   "point_laplace",
                                   "point_exponential",
                                   "normal",
+                                  "horseshoe",
                                   "normal_scale_mixture",
                                   "unimodal",
                                   "unimodal_symmetric",
@@ -324,6 +331,16 @@ ebnm_workhorse <- function(x,
                                     partog_fn = pn_partog,
                                     postsamp_fn = pn_postsamp,
                                     call = call)
+  } else if (prior_family == "horseshoe") {
+    retlist <- horseshoe_workhorse(x = x,
+                                   s = s,
+                                   mode = mode,
+                                   scale = scale,
+                                   g_init = g_init,
+                                   fix_g = fix_g,
+                                   output = output,
+                                   control = control,
+                                   call = call)
   } else if (prior_family == "normal_scale_mixture") {
     retlist <- ebnm_normal_mix_workhorse(x = x,
                                          s = s,
