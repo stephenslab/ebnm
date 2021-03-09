@@ -18,7 +18,8 @@ Imports:
     ashr,
     mixsqp,
     truncnorm,
-    trust
+    trust,
+    horseshoe
 Suggests: 
     testthat, 
     knitr,
