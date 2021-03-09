@@ -26,8 +26,10 @@ from the data. The precise interpretation of \code{scale} depends on
 \code{prior_family}. For normal and point-normal families, it is a scalar
 specifying the standard deviation of the normal component. For
 point-Laplace and point-exponential families, it is a scalar specifying
-the scale parameter of the Laplace or exponential component. For other
-prior families, which are implemented using the function
+the scale parameter of the Laplace or exponential component. For horseshoe
+families, it corresponds to \eqn{s\tau} in the usual parametrization of
+the \code{\link{horseshoe}} distribution. For other prior families, which
+are implemented using the function
 \code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
 the parameter \code{mixsd} to be passed to \code{ash} (or \code{"estimate"}
 if the default \code{mixsd} is to be used).}
@@ -43,7 +45,8 @@ and \code{scale} parameters. If \code{g_init} is supplied, it should be
 an object of class \code{\link[ashr]{normalmix}} for prior families
 \code{normal}, \code{point_normal}, and \code{normal_scale_mixture};
 class \code{\link{laplacemix}} for point-Laplace families; class
-\code{\link{gammamix}} for point-exponential families; and class
+\code{\link{gammamix}} for point-exponential families; class
+\code{\link{horseshoe}} for horseshoe families; and class
 \code{\link[ashr]{unimix}} for \code{unimodal_} families.}
 
 \item{fix_g}{If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
@@ -55,7 +58,8 @@ Function \code{output_default()} provides the default return values, while
 
 \item{control}{A list of control parameters to be passed to the optimization
 function. \code{\link[stats]{optimize}} is used for
-\code{prior_family = "normal"}, while \code{\link[stats]{nlm}} is used for
+\code{prior_family = "normal"} and \code{prior_family = "horseshoe"},
+while \code{\link[stats]{nlm}} is used for
 parametric families unless parameter \code{optmethod} specifies otherwise.
 For ash families (including \code{normal_scale_mixture} and all
 \code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in

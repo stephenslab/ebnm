@@ -118,6 +118,34 @@ ebnm_normal <- function(x,
                         call = match.call()))
 }
 
+#' Solve the EBNM problem using a horseshoe prior
+#'
+#' See \code{\link{ebnm}} for details.
+#'
+#' @inheritParams ebnm
+#'
+#' @export
+#'
+ebnm_horseshoe <- function(x,
+                           s = 1,
+                           scale = "estimate",
+                           g_init = NULL,
+                           fix_g = FALSE,
+                           output = output_default(),
+                           control = NULL) {
+  return(ebnm_workhorse(x = x,
+                        s = s,
+                        mode = 0,
+                        scale = scale,
+                        g_init = g_init,
+                        fix_g = fix_g,
+                        output = output,
+                        optmethod = NULL,
+                        control = control,
+                        prior_family = "horseshoe",
+                        call = match.call()))
+}
+
 #' Solve the EBNM problem using a scale mixture of normals
 #'
 #' See \code{\link{ebnm}} for details.
