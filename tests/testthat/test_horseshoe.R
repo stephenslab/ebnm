@@ -53,4 +53,10 @@ test_that("Likelihood sanity checks", {
   expect_true(hs.res2[[llik_ret_str()]] < pn.res2[[llik_ret_str()]])
 })
 
-
+test_that("Posterior sampler works", {
+  hs.res <- ebnm_horseshoe(x, s, output = c("posterior_sampler", "posterior_mean"))
+  sampler <- hs.res$posterior_sampler
+  zz <- capture_output(sampres <- sampler(1000))
+  # The analytic posterior means are not very accurate:
+  expect_equal(hs.res$posterior$mean, colMeans(sampres), tol = 1)
+})

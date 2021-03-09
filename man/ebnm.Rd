@@ -40,7 +40,7 @@ specifying the standard deviation of the normal component. For
 point-Laplace and point-exponential families, it is a scalar specifying
 the scale parameter of the Laplace or exponential component. For horseshoe
 families, it corresponds to \eqn{s\tau} in the usual parametrization of
-the \coe{\link{horseshoe}} distribution. For other prior families, which
+the \code{\link{horseshoe}} distribution. For other prior families, which
 are implemented using the function
 \code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
 the parameter \code{mixsd} to be passed to \code{ash} (or \code{"estimate"}
@@ -99,14 +99,17 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
         means, standard deviations, and second moments; local false sign
         rates).}
       \item{\code{fitted_g}}{The fitted prior \eqn{\hat{g}} (an object of
-        class \code{\link[ashr]{normalmix}}, \code{\link{laplacemix}}, or
-        \code{\link[ashr]{unimix}}).}
+        class \code{\link[ashr]{normalmix}}, \code{\link{laplacemix}},
+        \code{\link[ashr]{unimix}}, or \code{\link{horseshoe}}).}
       \item{\code{log_likelihood}}{The optimal log likelihood attained
         \eqn{L(\hat{g})}.}
       \item{\code{posterior_sampler}}{A function that can be used to
-        produce samples from the posterior. It takes a single parameter
+        produce samples from the posterior. For all prior families other
+        than the horseshoe, it takes a single parameter
         \code{nsamp}, the number of posterior samples to return per
-        observation.}
+        observation. Since \code{ebnm_horseshoe} returns an MCMC sampler,
+        it additionally takes parameter \code{burn}, the number of burn-in
+        samples to discard.}
      }
 }
 \description{
@@ -207,7 +210,7 @@ unimodal.res <- ebnm_unimodal(x, s, control = list(verbose = TRUE))
 Calling functions \code{\link{ebnm_point_normal}},
   \code{\link{ebnm_point_laplace}},
   \code{\link{ebnm_point_exponential}}, \code{\link{ebnm_normal}},
-  \code{\link{horseshoe}},
+  \code{\link{ebnm_horseshoe}},
   \code{\link{ebnm_normal_scale_mixture}}, \code{\link{ebnm_unimodal}},
   \code{\link{ebnm_unimodal_symmetric}},
   \code{\link{ebnm_unimodal_nonnegative}},

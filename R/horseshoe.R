@@ -16,7 +16,7 @@ horseshoe <- function(scale) {
   structure(data.frame(scale), class = "horseshoe")
 }
 
-#' @importFrom horseshoe HS.post.mean HS.post.var
+#' @importFrom horseshoe HS.post.mean HS.post.var HS.normal.means
 #'
 horseshoe_workhorse <- function(x = x,
                                 s = s,
@@ -69,7 +69,7 @@ horseshoe_workhorse <- function(x = x,
     }
 
     if (lfsr_in_output(output)) {
-      warning("LFSR calculations have not been implemented for the horseshoe prior ",
+      warning("LFSR calculations are not implemented for the horseshoe prior",
               " family. Please use the posterior sampler instead.")
     }
 
@@ -85,8 +85,7 @@ horseshoe_workhorse <- function(x = x,
     retlist <- add_llik_to_retlist(retlist, loglik)
   }
   if (sampler_in_output(output)) {
-    post_sampler <- function(nsamp) {
-      burn <- control$burn
+    post_sampler <- function(nsamp, burn = 1000) {
       cat("MCMC Sampling with", burn, "burn-in samples\n")
       samp <- HS.normal.means(x, tau = tau, Sigma2 = s^2, nmc = nsamp, burn = burn)
       return(samp$BetaSamples)
@@ -95,14 +94,6 @@ horseshoe_workhorse <- function(x = x,
   }
 
   return(retlist)
-}
-
-#' @importFrom horseshoe HS.normal.means
-#'
-HS.sampler <- function(nsamp, burn = 1000) {
-  cat("MCMC Sampling with", burn, "burn-in samples\n")
-  samp <- horseshoe::HS.normal.means(x, tau = tau, Sigma2 = s^2, nmc = nsamp, burn = burn)
-  return(samp$BetaSamples)
 }
 
 

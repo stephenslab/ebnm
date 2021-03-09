@@ -28,7 +28,7 @@ specifying the standard deviation of the normal component. For
 point-Laplace and point-exponential families, it is a scalar specifying
 the scale parameter of the Laplace or exponential component. For horseshoe
 families, it corresponds to \eqn{s\tau} in the usual parametrization of
-the \coe{\link{horseshoe}} distribution. For other prior families, which
+the \code{\link{horseshoe}} distribution. For other prior families, which
 are implemented using the function
 \code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
 the parameter \code{mixsd} to be passed to \code{ash} (or \code{"estimate"}
