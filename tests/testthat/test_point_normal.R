@@ -99,3 +99,16 @@ test_that("Very small observations give reasonable results", {
   expect_equal(scl * pn.res[[g_ret_str()]]$sd[2], pn.res.sm[[g_ret_str()]]$sd[2])
   expect_equal(scl * pn.res[[g_ret_str()]]$mean[1], pn.res.sm[[g_ret_str()]]$mean[1])
 })
+
+test_that("g_init with pi0 = 0 or pi0 = 1 isn't a dealbreaker", {
+  pn.res <- ebnm_point_normal(x, s)
+
+  bad_g <- normalmix(c(1, 0), c(0, 0), c(0, true_sd))
+  pn.res2 <- ebnm_point_normal(x, s, g_init = bad_g, fix_g = FALSE)
+  expect_equal(pn.res[[llik_ret_str()]], pn.res2[[llik_ret_str()]])
+
+  bad_g <- normalmix(c(0, 1), c(0, 0), c(0, true_sd))
+  pn.res3 <- ebnm_point_normal(x, s, g_init = bad_g, fix_g = FALSE)
+  expect_equal(pn.res[[llik_ret_str()]], pn.res3[[llik_ret_str()]])
+
+})
