@@ -67,7 +67,7 @@ test_that("Can fix g with one component", {
 })
 
 test_that("Null case estimates pi0 = 1", {
-  x <- rnorm(n, s = 0.1)
-  pe.res <- ebnm_point_exponential(x, s = 1)
+  x <- rnorm(n)
+  pe.res <- ebnm_point_exponential(x, s = 1, scale = 1)
   expect_equal(pe.res[[g_ret_str()]]$pi[1], 1)
 })

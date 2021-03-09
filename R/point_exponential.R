@@ -290,7 +290,7 @@ pe_summres_untransformed <- function(x, s, w, a, mu, output) {
       post$mean[is.infinite(s)]  <- w / a
       post$mean2[is.infinite(s)] <- 2 * w / a^2
     }
-    post$sd <- sqrt(post$mean2 - post$mean^2)
+    post$sd <- sqrt(pmax(0, post$mean2 - post$mean^2))
 
     post$mean2 <- post$mean2 + mu^2 + 2 * mu * post$mean
     post$mean  <- post$mean + mu

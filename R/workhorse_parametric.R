@@ -121,9 +121,10 @@ parametric_workhorse <- function(x,
 
 
 handle_optmethod_parameter <- function(optmethod, fix_par) {
-  optmethod <- match.arg(optmethod, c("nlm", "lbfgsb", "trust",
-                                      "nograd_nlm", "nograd_lbfgsb",
-                                      "nohess_nlm", "optimize"))
+  optmethod <- match.arg(optmethod, c("nohess_nlm", "nlm", "nograd_nlm",
+                                      "lbfgsb", "nograd_lbfgsb",
+                                      "trust",
+                                      "optimize"))
   return(
     switch(optmethod,
            nlm = list(fn = "nlm", use_grad = TRUE, use_hess = TRUE),
