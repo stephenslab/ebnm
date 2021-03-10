@@ -45,6 +45,12 @@
 #'         distributions with support constrained to be greater than the mode.}
 #'       \item{\code{unimodal_nonpositive}}{The family of unimodal
 #'         distributions with support constrained to be less than the mode.}
+#'       \item{\code{npmle}}{The family of all distributions.}
+#'       \item{\code{deconvolver}}{A non-parametric exponential family with
+#'         a natural spline basis. Like \code{npmle}, there is no unimodal
+#'         assumption, but whereas \code{npmle} produces spiky estimates for
+#'         \eqn{g}, \code{deconvolver} estimates are much more regular. See
+#'         Narasimhan and Efron (2020) for details.}
 #'     }
 #'
 #' @param x A vector of observations. Missing observations (\code{NA}s) are
@@ -53,13 +59,20 @@
 #'
 #' @param s A vector of standard errors (or a scalar if all are equal).
 #'   Standard errors may be infinite, but they may not be exactly zero.
-#'   Missing standard errors are not allowed.
+#'   Missing standard errors are not allowed. Two prior families have
+#'   additional restrictions: when \code{prior_family = "horseshoe"}, errors
+#'   must be homoskedastic; and since function
+#'   \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR} takes
+#'   z-scores, it must be true that \code{s = 1} when
+#'   \code{prior_family = "deconvolver"}.
 #'
 #' @param prior_family A character string that specifies the prior family
 #'   \eqn{G}. See "Details" below.
 #'
 #' @param mode A scalar specifying the mode of the prior \eqn{g} or
-#'   \code{"estimate"} if the mode is to be estimated from the data.
+#'   \code{"estimate"} if the mode is to be estimated from the data. This
+#'   parameter is ignored when \code{prior_family} is \code{"npmle"} or
+#'   \code{"deconvolver"}.
 #'
 #' @param scale A scalar or vector specifying the scale parameter(s) of the
 #'   prior or \code{"estimate"} if the scale parameters are to be estimated
@@ -69,8 +82,9 @@
 #'   point-Laplace and point-exponential families, it is a scalar specifying
 #'   the scale parameter of the Laplace or exponential component. For horseshoe
 #'   families, it corresponds to \eqn{s\tau} in the usual parametrization of
-#'   the \code{\link{horseshoe}} distribution. For other prior families, which
-#'   are implemented using the function
+#'   the \code{\link{horseshoe}} distribution. For \code{"npmle"} and
+#'   \code{"deconvolver"}, it is a scalar specifying the distance between support
+#'   points. For all other prior families, which are implemented using the function
 #'   \code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
 #'   the parameter \code{mixsd} to be passed to \code{ash} (or \code{"estimate"}
 #'   if the default \code{mixsd} is to be used).
@@ -81,7 +95,7 @@
 #'   example, to do computations with the "true" \eqn{g} in simulations). If
 #'   \code{g_init} is specified but \code{fix_g = FALSE}, \code{g_init}
 #'   specifies the initial value of \eqn{g} used during optimization. For
-#'   \code{ash} priors, this has the side effect of fixing the \code{mode}
+#'   non-parametric priors, this has the side effect of fixing the \code{mode}
 #'   and \code{scale} parameters. If \code{g_init} is supplied, it should be
 #'   an object of class \code{\link[ashr]{normalmix}} for prior families
 #'   \code{normal}, \code{point_normal}, and \code{normal_scale_mixture};
@@ -104,23 +118,26 @@
 #'   \code{"nograd_nlm"}, and \code{"nograd_lbfgsb"}, which use numerical
 #'   approximations rather than exact expressions for the Hessian and (for
 #'   the latter two) the gradient. The default option is \code{"nohess_nlm"}.
-#'   Since all non-parametric families call into \code{ashr}, this parameter is
-#'   only available for parametric families (point-normal, point-Laplace,
+#'   Since all non-parametric families rely upon external packages, this parameter
+#'   is only available for parametric families (point-normal, point-Laplace,
 #'   point-exponential, and normal).
 #'
 #' @param control A list of control parameters to be passed to the optimization
 #'   function. \code{\link[stats]{optimize}} is used for
 #'   \code{prior_family = "normal"} and \code{prior_family = "horseshoe"},
-#'   while \code{\link[stats]{nlm}} is used for
-#'   parametric families unless parameter \code{optmethod} specifies otherwise.
+#'   while \code{\link[stats]{nlm}} is used for parametric families unless
+#'   parameter \code{optmethod} specifies otherwise. \code{\link[stats]{nlm}} is
+#'   also used for \code{prior_family = "deconvolver"}.
 #'   For ash families (including \code{normal_scale_mixture} and all
 #'   \code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
 #'   package \code{mixsqp} is the default.
 #'
 #' @param ... Additional parameters. When \code{prior_family = "ash"} or when
 #'   a \code{unimodal_} prior is used, these parameters are passed to
-#'   function \code{\link[ashr]{ash}} in package \code{ashr}. Otherwise, they
-#'   are ignored.
+#'   function \code{\link[ashr]{ash}} in package \code{ashr}. When
+#'   \code{prior_family = "deconvolver"}, they are passed to function
+#'   \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR}.
+#'   Otherwise, they are ignored.
 #'
 #' @return An \code{ebnm} object. Depending on the argument to \code{output}, the
 #'   object is a list containing elements:
@@ -130,7 +147,8 @@
 #'         rates).}
 #'       \item{\code{fitted_g}}{The fitted prior \eqn{\hat{g}} (an object of
 #'         class \code{\link[ashr]{normalmix}}, \code{\link{laplacemix}},
-#'         \code{\link[ashr]{unimix}}, or \code{\link{horseshoe}}).}
+#'         \code{\link{gammamix}}, \code{\link[ashr]{unimix}}, or
+#'         \code{\link{horseshoe}}).}
 #'       \item{\code{log_likelihood}}{The optimal log likelihood attained
 #'         \eqn{L(\hat{g})}.}
 #'       \item{\code{posterior_sampler}}{A function that can be used to
@@ -149,7 +167,8 @@
 #'   \code{\link{ebnm_normal_scale_mixture}}, \code{\link{ebnm_unimodal}},
 #'   \code{\link{ebnm_unimodal_symmetric}},
 #'   \code{\link{ebnm_unimodal_nonnegative}},
-#'   \code{\link{ebnm_unimodal_nonpositive}}, and \code{\link{ebnm_ash}}
+#'   \code{\link{ebnm_unimodal_nonpositive}}, \code{\link{ebnm_npmle}},
+#'   \code{\link{ebnm_deconvolver}}, and \code{\link{ebnm_ash}}
 #'   is equivalent to calling \code{ebnm} with \code{prior_family} set
 #'   accordingly.
 #'
