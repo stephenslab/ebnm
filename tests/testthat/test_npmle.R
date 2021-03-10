@@ -3,7 +3,7 @@ context("NPMLE")
 n <- 1000
 set.seed(1)
 s <- rnorm(n, 1, 0.1)
-x <- runif(n, -10, 10)
+x <- runif(n, -10, 10) + rnorm(n, sd = s)
 
 cdf_grid <- seq(-10, 10, 0.1)
 
@@ -21,7 +21,7 @@ test_that("Basic functionality works", {
 
 test_that("Fixing the scale works", {
   npmle.res <- ebnm_npmle(x, s, scale = 1)
-  g_scale <- npmle.res$fitted_g$a[2] - npmle.res$fitted_g$a[1]
+  g_scale <- npmle.res$fitted_g$mean[2] - npmle.res$fitted_g$mean[1]
   expect_equal(1, g_scale, tolerance = 0.1)
 })
 
@@ -33,5 +33,5 @@ test_that("Fixing g works", {
 test_that("Gaussian grid is selected when the range of x is large", {
   x <- rcauchy(n)
   npmle.res <- ebnm_npmle(x, s)
-  expect_identical(class(npmle.res$fitted_g), "normalmix")
+  expect_true(npmle.res$fitted_g$sd[1] > 0)
 })

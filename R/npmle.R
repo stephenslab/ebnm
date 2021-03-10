@@ -1,11 +1,12 @@
-#' @importFrom ashr unimix normalmix
+#' @importFrom ashr normalmix
 #'
 init_g_for_npmle <- function(x,
                              s,
                              scale = "estimate",
                              min_K = 10,
                              max_K = 300,
-                             KLdiv_target = 1 / length(x)) {
+                             KLdiv_target = 1 / length(x),
+                             force_pointmass = FALSE) {
   xrange <- diff(range(x))
 
   # See ebnm paper for rationale.
@@ -13,18 +14,18 @@ init_g_for_npmle <- function(x,
     grid <- seq(min(x), max(x), by = scale)
     ncomp <- length(grid)
 
-    g_init <- ashr::unimix(pi = rep(1 / ncomp, ncomp),
-                           a = grid,
-                           b = grid)
-  } else if (xrange / max_K < 2.3 * min(s)) {
+    g_init <- ashr::normalmix(pi = rep(1 / ncomp, ncomp),
+                              mean = grid,
+                              sd = 0)
+  } else if (force_pointmass || xrange / max_K < 2.3 * min(s)) {
     # Use point-mass mixture.
     d <- min(s) * (64 * KLdiv_target)^0.25
     ncomp <- min(max(min_K - 1, ceiling(xrange / d)), max_K - 1) + 1
     grid <- seq(min(x), max(x), length.out = ncomp)
 
-    g_init <- ashr::unimix(pi = rep(1 / ncomp, ncomp),
-                           a = grid,
-                           b = grid)
+    g_init <- ashr::normalmix(pi = rep(1 / ncomp, ncomp),
+                              mean = grid,
+                              sd = 0)
   } else {
     # Use Gaussian mixture.
     d <- 2 * min(s) * sqrt(exp(2 * KLdiv_target) - 1)

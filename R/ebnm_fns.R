@@ -341,7 +341,6 @@ ebnm_ash <- function(x,
 #'
 ebnm_npmle <- function(x,
                        s = 1,
-                       mode = 0,
                        scale = "estimate",
                        g_init = NULL,
                        fix_g = FALSE,
@@ -350,13 +349,42 @@ ebnm_npmle <- function(x,
                        ...) {
   return(ebnm_workhorse(x = x,
                         s = s,
-                        mode = mode,
+                        mode = 0,
                         scale = scale,
                         g_init = g_init,
                         fix_g = fix_g,
                         output = output,
                         control = control,
                         prior_family = "npmle",
+                        call = match.call(),
+                        ...))
+}
+
+#' Solve the EBNM problem using package deconvolveR
+#'
+#' See \code{\link{ebnm}} for details.
+#'
+#' @inheritParams ebnm
+#'
+#' @export
+#'
+ebnm_deconvolver <- function(x,
+                             s = 1,
+                             scale = "estimate",
+                             g_init = NULL,
+                             fix_g = FALSE,
+                             output = output_default(),
+                             control = NULL,
+                             ...) {
+  return(ebnm_workhorse(x = x,
+                        s = s,
+                        mode = 0,
+                        scale = scale,
+                        g_init = g_init,
+                        fix_g = fix_g,
+                        output = output,
+                        control = control,
+                        prior_family = "deconvolver",
                         call = match.call(),
                         ...))
 }
