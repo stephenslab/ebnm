@@ -205,6 +205,7 @@ ebnm <- function(x,
                                   "unimodal_nonnegative",
                                   "unimodal_nonpositive",
                                   "npmle",
+                                  "deconvolver",
                                   "ash"),
                  mode = 0,
                  scale = "estimate",
@@ -441,6 +442,17 @@ ebnm_workhorse <- function(x,
                                   call = call,
                                   prior = "uniform",
                                   ...)
+  } else if (prior_family == "deconvolver") {
+    retlist = deconvolver_workhorse(x = x,
+                                    s = s,
+                                    mode = mode,
+                                    scale = scale,
+                                    g_init = g_init,
+                                    fix_g = fix_g,
+                                    output = output,
+                                    control = control,
+                                    call = call,
+                                    ...)
   }
 
   return(as_ebnm(retlist))
