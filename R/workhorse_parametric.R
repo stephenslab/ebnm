@@ -140,7 +140,7 @@ handle_optmethod_parameter <- function(optmethod, fix_par) {
 
 # This function calls the selected optimization routine.
 #
-#' @importFrom stats nlm optim optimize
+#' @importFrom stats median nlm optim optimize
 #' @importFrom trust trust
 #' @importFrom utils modifyList
 #'
