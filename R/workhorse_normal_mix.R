@@ -110,7 +110,7 @@ ebnm_normal_mix_workhorse <- function(x,
 
     comp_postprob  <- L_mat * matrix(pi_est, n_obs, n_mixcomp, byrow = TRUE)
     comp_postprob  <- comp_postprob / rowSums(comp_postprob)
-    comp_postmean  <- mode * s^2 + outer(x, scale^2) / sigmamat
+    comp_postmean  <- (mode * s^2 + outer(x, scale^2)) / sigmamat
     comp_postmean2 <- comp_postmean^2 + outer(s^2, scale^2) / sigmamat
 
     if (result_in_output(output)) {
