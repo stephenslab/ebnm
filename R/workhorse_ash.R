@@ -9,6 +9,13 @@ ebnm_ash_workhorse <- function(x,
                                output,
                                call,
                                ...) {
+  if("mixsd" %in% names(list(...))) {
+    stop("Use parameter 'scale' instead of 'mixsd'.")
+  }
+  if ("outputlevel" %in% names(list(...))) {
+    stop("Use parameter 'output' instead of 'outputlevel'.")
+  }
+
   if (identical(scale, "estimate")) {
     scale <- NULL
   }
