@@ -6,12 +6,21 @@
 \alias{output_all}
 \title{Solve the EBNM problem}
 \usage{
-ebnm(x, s = 1, prior_family = c("point_normal", "point_laplace",
-  "point_exponential", "normal", "horseshoe", "normal_scale_mixture",
-  "unimodal", "unimodal_symmetric", "unimodal_nonnegative",
-  "unimodal_nonpositive", "npmle", "deconvolver", "ash"), mode = 0,
-  scale = "estimate", g_init = NULL, fix_g = FALSE,
-  output = output_default(), optmethod = NULL, control = NULL, ...)
+ebnm(
+  x,
+  s = 1,
+  prior_family = c("point_normal", "point_laplace", "point_exponential", "normal",
+    "horseshoe", "normal_scale_mixture", "unimodal", "unimodal_symmetric",
+    "unimodal_nonnegative", "unimodal_nonpositive", "npmle", "deconvolver", "ash"),
+  mode = 0,
+  scale = "estimate",
+  g_init = NULL,
+  fix_g = FALSE,
+  output = output_default(),
+  optmethod = NULL,
+  control = NULL,
+  ...
+)
 
 output_default()
 
@@ -51,8 +60,12 @@ the \code{\link{horseshoe}} distribution. For \code{"npmle"} and
 \code{"deconvolver"}, it is a scalar specifying the distance between support
 points. For all other prior families, which are implemented using the function
 \code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
-the parameter \code{mixsd} to be passed to \code{ash} (or \code{"estimate"}
-if the default \code{mixsd} is to be used).}
+the parameter \code{mixsd} to be passed to \code{ash} or \code{"estimate"}
+if \code{mixsd} is to be chosen by \code{ebnm}. (Note that \code{ebnm} chooses
+\code{mixsd} differently from \code{ashr}. To use the \code{ashr} grid, set
+\code{scale = "estimate"} and pass in \code{gridmult}, \code{pointmass}, or
+\code{method} as an additional \code{ash} parameter. See
+\code{\link[ashr]{ash}} for defaults and details.)}
 
 \item{g_init}{The prior distribution \eqn{g}. Usually this is left
 unspecified (\code{NULL}) and estimated from the data. However, it can be
@@ -143,7 +156,7 @@ Given vectors of data \code{x} and standard errors \code{s},
   for \eqn{G} are implemented, some parametric and others non-parametric;
   see below for examples.
 
-Solving the EBNM problem involves
+  Solving the EBNM problem involves
   two steps. First, estimate \eqn{g \in  G} via maximum marginal likelihood,
   yielding an estimate \deqn{\hat{g}:= \arg\max_{g \in G} L(g)} where
   \deqn{L(g):= \prod_j \int p(x_j | \theta_j, s_j)  g(d\theta_j)}
@@ -151,7 +164,7 @@ Solving the EBNM problem involves
   \eqn{p(\theta_j | x_j, s_j, \hat{g})} and/or summaries
   such as posterior means and posterior second moments.
 
-The prior families that have been implemented include:
+  The prior families that have been implemented include:
     \describe{
       \item{\code{point_normal}}{The family of mixtures where one
         component is a point mass at \eqn{\mu} and the other is a normal

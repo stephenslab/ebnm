@@ -4,8 +4,16 @@
 \alias{ebnm_deconvolver}
 \title{Solve the EBNM problem using package deconvolveR}
 \usage{
-ebnm_deconvolver(x, s = 1, scale = "estimate", g_init = NULL,
-  fix_g = FALSE, output = output_default(), control = NULL, ...)
+ebnm_deconvolver(
+  x,
+  s = 1,
+  scale = "estimate",
+  g_init = NULL,
+  fix_g = FALSE,
+  output = output_default(),
+  control = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{A vector of observations. Missing observations (\code{NA}s) are
@@ -33,8 +41,12 @@ the \code{\link{horseshoe}} distribution. For \code{"npmle"} and
 \code{"deconvolver"}, it is a scalar specifying the distance between support
 points. For all other prior families, which are implemented using the function
 \code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
-the parameter \code{mixsd} to be passed to \code{ash} (or \code{"estimate"}
-if the default \code{mixsd} is to be used).}
+the parameter \code{mixsd} to be passed to \code{ash} or \code{"estimate"}
+if \code{mixsd} is to be chosen by \code{ebnm}. (Note that \code{ebnm} chooses
+\code{mixsd} differently from \code{ashr}. To use the \code{ashr} grid, set
+\code{scale = "estimate"} and pass in \code{gridmult}, \code{pointmass}, or
+\code{method} as an additional \code{ash} parameter. See
+\code{\link[ashr]{ash}} for defaults and details.)}
 
 \item{g_init}{The prior distribution \eqn{g}. Usually this is left
 unspecified (\code{NULL}) and estimated from the data. However, it can be
