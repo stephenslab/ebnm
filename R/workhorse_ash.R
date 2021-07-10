@@ -17,7 +17,12 @@ ebnm_ash_workhorse <- function(x,
   }
 
   if (identical(scale, "estimate")) {
-    scale <- NULL
+    if(!identical(mode, "estimate") && !("gridmult" %in% names(list(...)))) {
+      scale <- default_scale(x, s, mode)
+    } else {
+      # Let ashr do the grid estimation.
+      scale <- NULL
+    }
   }
 
   # Ash will accept either mode and mixsd or g, but not both.

@@ -18,7 +18,7 @@ test_that("Basic ebnm_normal_scale_mixture functionality works", {
 test_that("ebnm_normal_scale_mixture returns the same results as ashr", {
   ebnm.res <- ebnm_normal_scale_mixture(x, s, output = output_all(),
                                         control = control)
-  ash.res  <- ebnm_ash(x, s, mixcompdist = "normal", prior = "uniform",
+  ash.res  <- ebnm_ash(x, s, mixcompdist = "normal", prior = "uniform", gridmult = sqrt(2),
                        output = output_all(), control = control)
 
   # The ash grid is the same:
@@ -42,7 +42,7 @@ test_that("ebnm_normal_scale_mixture returns the same results as ashr", {
   s <- 1
   ebnm.res <- ebnm_normal_scale_mixture(x, s, output = output_all(),
                                         control = control)
-  ash.res  <- ebnm_ash(x, s, mixcompdist = "normal", prior = "uniform",
+  ash.res  <- ebnm_ash(x, s, mixcompdist = "normal", prior = "uniform", gridmult = sqrt(2),
                        output = output_all(), control = control)
   expect_equal(ebnm.res[[g_ret_str()]]$sd, ash.res[[g_ret_str()]]$sd)
   # expect_equal(ebnm.res[[g_ret_str()]]$pi, ash.res[[g_ret_str()]]$pi, tol = 1e-6)
