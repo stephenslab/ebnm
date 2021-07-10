@@ -49,14 +49,7 @@ ebnm_normal_mix_workhorse <- function(x,
   }
 
   if (identical(scale, "estimate")) {
-    # Adapted from ashr:::autoselect.mixsd.
-    sigmamin <- min(s[s > 0]) / 10
-    sigmamax <- max(8 * sigmamin, 2 * sqrt(max(x^2 - s^2, 0)))
-    npoint <- ceiling(log2(sigmamax / sigmamin) / log2(grid_mult))
-    scale <- grid_mult^((-npoint):0) * sigmamax
-    if (pointmass) {
-      scale <- c(0, scale)
-    }
+    scale <- default_scale(x, s, mode)
   }
 
   n_mixcomp <- length(scale)
