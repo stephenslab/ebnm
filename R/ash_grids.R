@@ -75,14 +75,3 @@ default_scale <- function(x,
 
   return(scale)
 }
-
-ashr_default_mixsd <- function(x, s, mode, grid_mult = sqrt(2)) {
-  # Adapted from ashr:::autoselect.mixsd.
-  sigmamin <- min(s[s > 0]) / 10
-  sigmamax <- max(8 * sigmamin, 2 * sqrt(max((x - mode)^2 - s^2, 0)))
-  npoint <- ceiling(log2(sigmamax / sigmamin) / log2(grid_mult))
-  scale <- grid_mult^((-npoint):0) * sigmamax
-  scale <- c(0, scale)
-
-  return(scale)
-}
