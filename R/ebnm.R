@@ -54,8 +54,7 @@
 #'     }
 #'
 #' @param x A vector of observations. Missing observations (\code{NA}s) are
-#'   allowed. If any observations are missing, the corresponding standard
-#'   errors should be set to \code{Inf}.
+#'   not allowed.
 #'
 #' @param s A vector of standard errors (or a scalar if all are equal).
 #'   Standard errors may be infinite, but they may not be exactly zero.
@@ -105,7 +104,7 @@
 #'   \code{normal}, \code{point_normal}, \code{normal_scale_mixture},
 #'   \code{npmle}, and \code{deconvolver}; class \code{\link{laplacemix}} for
 #'   point-Laplace families; class \code{\link{gammamix}} for point-exponential
-#'   families; class \code{\link{horseshoe}} for horseshoe families; and class
+#'   families; class \code{\link{horseshoe}} for horseshoe families; or class
 #'   \code{\link[ashr]{unimix}} for \code{unimodal_} families.
 #'
 #' @param fix_g If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
@@ -132,8 +131,8 @@
 #'   while \code{\link[stats]{nlm}} is used for parametric families unless
 #'   parameter \code{optmethod} specifies otherwise. \code{\link[stats]{nlm}} is
 #'   also used for \code{prior_family = "deconvolver"}.
-#'   For ash families (including \code{normal_scale_mixture} and all
-#'   \code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
+#'   For ash families (including \code{normal_scale_mixture}, \code{npmle}, and
+#'   all \code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
 #'   package \code{mixsqp} is the default.
 #'
 #' @param ... Additional parameters. When \code{prior_family = "ash"} or when
@@ -485,8 +484,12 @@ check_args <- function(x, s, g_init, fix_g, output) {
          "argument 'x'.")
   }
 
-  if (any(is.na(x)) && !all(is.infinite(s[is.na(x)]))) {
-    stop("All missing observations must have infinite SEs.")
+  # if (any(is.na(x)) && !all(is.infinite(s[is.na(x)]))) {
+  #   stop("All missing observations must have infinite SEs.")
+  # }
+
+  if (any(is.na(x))) {
+    stop("Missing observations are not allowed.")
   }
 
   if (any(is.na(s))) {
