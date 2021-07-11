@@ -453,8 +453,6 @@ ebnm_workhorse <- function(x,
       call$scale <- NULL
     }
 
-    # Need to set prior = "uniform" because ash treats the first component as
-    #   the "null" component.
     retlist <- ebnm_normal_mix_workhorse(x = x,
                                          s = s,
                                          mode = mode,
