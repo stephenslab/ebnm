@@ -14,8 +14,8 @@ ebnm_normal_mix_workhorse <- function(x,
                                       fix_g,
                                       output,
                                       control,
-                                      grid_mult,
-                                      call) {
+                                      call,
+                                      ...) {
   if (!is.null(g_init)) {
     if (!inherits(g_init, "normalmix")) {
       stop("g_init must be NULL or an object of class normalmix.")
@@ -45,8 +45,8 @@ ebnm_normal_mix_workhorse <- function(x,
                                             fix_g = FALSE,
                                             output = llik_arg_str(),
                                             control = control,
-                                            grid_mult = grid_mult,
-                                            call = NULL)
+                                            call = NULL,
+                                            ...)
       return(ebnm_res[[llik_ret_str()]])
     }
     mode_opt_res <- optimize(mode_opt_fn, c(min(x), max(x)), maximum = TRUE)
@@ -54,7 +54,12 @@ ebnm_normal_mix_workhorse <- function(x,
   }
 
   if (identical(scale, "estimate")) {
-    scale <- default_scale(x, s, mode)
+    if ("gridmult" %in% list(...)) {
+      gridmult <- list(...)$grid
+      scale <- 1
+    } else {
+      scale <- default_scale(x, s, mode)
+    }
   }
 
   n_mixcomp <- max(length(mode), length(scale))

@@ -378,8 +378,8 @@ ebnm_workhorse <- function(x,
                                          fix_g = fix_g,
                                          output = output,
                                          control = control,
-                                         grid_mult = sqrt(2),
-                                         call = call)
+                                         call = call,
+                                         ...)
   } else if (prior_family == "unimodal") {
     retlist <- ebnm_ash_workhorse(x = x,
                                   s = s,
@@ -460,8 +460,8 @@ ebnm_workhorse <- function(x,
                                          fix_g = fix_g,
                                          output = output,
                                          control = control,
-                                         grid_mult = sqrt(2),
-                                         call = call)
+                                         call = call,
+                                         ...)
   } else if (prior_family == "deconvolver") {
     retlist = deconvolver_workhorse(x = x,
                                     s = s,
