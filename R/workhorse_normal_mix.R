@@ -14,7 +14,6 @@ ebnm_normal_mix_workhorse <- function(x,
                                       fix_g,
                                       output,
                                       control,
-                                      pointmass,
                                       grid_mult,
                                       call) {
   if (!is.null(g_init)) {
@@ -46,7 +45,6 @@ ebnm_normal_mix_workhorse <- function(x,
                                             fix_g = FALSE,
                                             output = llik_arg_str(),
                                             control = control,
-                                            pointmass = pointmass,
                                             grid_mult = grid_mult,
                                             call = NULL)
       return(ebnm_res[[llik_ret_str()]])
@@ -59,7 +57,7 @@ ebnm_normal_mix_workhorse <- function(x,
     scale <- default_scale(x, s, mode)
   }
 
-  n_mixcomp <- length(scale)
+  n_mixcomp <- max(length(mode), length(scale))
   n_obs     <- length(x)
 
   # Adapted from ashr:::estimate_mixprop.

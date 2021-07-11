@@ -102,10 +102,10 @@
 #'   non-parametric priors, this has the side effect of fixing the \code{mode}
 #'   and \code{scale} parameters. If \code{g_init} is supplied, it should be
 #'   an object of class \code{\link[ashr]{normalmix}} for prior families
-#'   \code{normal}, \code{point_normal}, and \code{normal_scale_mixture};
-#'   class \code{\link{laplacemix}} for point-Laplace families; class
-#'   \code{\link{gammamix}} for point-exponential families; class
-#'   \code{\link{horseshoe}} for horseshoe families; and class
+#'   \code{normal}, \code{point_normal}, \code{normal_scale_mixture},
+#'   \code{npmle}, and \code{deconvolver}; class \code{\link{laplacemix}} for
+#'   point-Laplace families; class \code{\link{gammamix}} for point-exponential
+#'   families; class \code{\link{horseshoe}} for horseshoe families; and class
 #'   \code{\link[ashr]{unimix}} for \code{unimodal_} families.
 #'
 #' @param fix_g If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
@@ -379,7 +379,6 @@ ebnm_workhorse <- function(x,
                                          fix_g = fix_g,
                                          output = output,
                                          control = control,
-                                         pointmass = TRUE,
                                          grid_mult = sqrt(2),
                                          call = call)
   } else if (prior_family == "unimodal") {
@@ -454,17 +453,16 @@ ebnm_workhorse <- function(x,
 
     # Need to set prior = "uniform" because ash treats the first component as
     #   the "null" component.
-    retlist <- ebnm_ash_workhorse(x = x,
-                                  s = s,
-                                  mode = mode,
-                                  scale = scale,
-                                  g_init = g_init,
-                                  fix_g = fix_g,
-                                  output = output,
-                                  control = control,
-                                  call = call,
-                                  prior = "uniform",
-                                  ...)
+    retlist <- ebnm_normal_mix_workhorse(x = x,
+                                         s = s,
+                                         mode = mode,
+                                         scale = scale,
+                                         g_init = g_init,
+                                         fix_g = fix_g,
+                                         output = output,
+                                         control = control,
+                                         grid_mult = sqrt(2),
+                                         call = call)
   } else if (prior_family == "deconvolver") {
     retlist = deconvolver_workhorse(x = x,
                                     s = s,
