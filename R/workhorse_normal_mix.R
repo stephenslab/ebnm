@@ -16,6 +16,12 @@ ebnm_normal_mix_workhorse <- function(x,
                                       control,
                                       call,
                                       ...) {
+  if (length(setdiff(names(list(...)), "gridmult")) > 0) {
+    warning("All additional parameters other than 'gridmult' are ignored for ",
+            "scale mixtures of normal prior families. To use 'ashr' parameters, ",
+            "use function 'ebnm_ash' with 'mixcompdist = \"normal\"'.")
+  }
+
   if (!is.null(g_init)) {
     if (!inherits(g_init, "normalmix")) {
       stop("g_init must be NULL or an object of class normalmix.")
