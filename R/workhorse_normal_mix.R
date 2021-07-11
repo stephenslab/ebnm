@@ -54,9 +54,9 @@ ebnm_normal_mix_workhorse <- function(x,
   }
 
   if (identical(scale, "estimate")) {
-    if ("gridmult" %in% list(...)) {
-      gridmult <- list(...)$grid
-      scale <- 1
+    if ("gridmult" %in% names(list(...))) {
+      gridmult <- list(...)$gridmult
+      scale <- get_ashr_grid(x, s, mode, gridmult)
     } else {
       scale <- default_scale(x, s, mode)
     }

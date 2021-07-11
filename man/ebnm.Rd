@@ -113,8 +113,11 @@ package \code{mixsqp} is the default.}
 a \code{unimodal_} prior is used, these parameters are passed to
 function \code{\link[ashr]{ash}} in package \code{ashr}. When
 \code{prior_family = "deconvolver"}, they are passed to function
-\code{\link[deconvolveR]{deconv}} in package \code{deconvolveR}.
-Otherwise, they are ignored.}
+\code{\link[deconvolveR]{deconv}} in package \code{deconvolveR}. Although it
+does not call into \code{ashr}, \code{normal_scale_mixture} accepts
+parameter \code{gridmult} for purposes of comparison. When \code{gridmult}
+is set, an \code{ashr}-style grid will be used instead of the default
+\code{ebnm} grid. In all other cases, additional parameters are ignored.}
 }
 \value{
 An \code{ebnm} object. Depending on the argument to \code{output}, the

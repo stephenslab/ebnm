@@ -161,7 +161,8 @@ ebnm_normal_scale_mixture <- function(x,
                                       g_init = NULL,
                                       fix_g = FALSE,
                                       output = output_default(),
-                                      control = NULL) {
+                                      control = NULL,
+                                      ...) {
   return(ebnm_workhorse(x = x,
                         s = s,
                         mode = mode,
@@ -172,7 +173,8 @@ ebnm_normal_scale_mixture <- function(x,
                         optmethod = NULL,
                         control = control,
                         prior_family = "normal_scale_mixture",
-                        call = match.call()))
+                        call = match.call(),
+                        ...))
 }
 
 #' Solve the EBNM problem using a unimodal distribution

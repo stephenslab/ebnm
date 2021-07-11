@@ -12,7 +12,8 @@ ebnm_normal_scale_mixture(
   g_init = NULL,
   fix_g = FALSE,
   output = output_default(),
-  control = NULL
+  control = NULL,
+  ...
 )
 }
 \arguments{
@@ -83,6 +84,16 @@ also used for \code{prior_family = "deconvolver"}.
 For ash families (including \code{normal_scale_mixture}, \code{npmle}, and
 all \code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
 package \code{mixsqp} is the default.}
+
+\item{...}{Additional parameters. When \code{prior_family = "ash"} or when
+a \code{unimodal_} prior is used, these parameters are passed to
+function \code{\link[ashr]{ash}} in package \code{ashr}. When
+\code{prior_family = "deconvolver"}, they are passed to function
+\code{\link[deconvolveR]{deconv}} in package \code{deconvolveR}. Although it
+does not call into \code{ashr}, \code{normal_scale_mixture} accepts
+parameter \code{gridmult} for purposes of comparison. When \code{gridmult}
+is set, an \code{ashr}-style grid will be used instead of the default
+\code{ebnm} grid. In all other cases, additional parameters are ignored.}
 }
 \description{
 See \code{\link{ebnm}} for details.
