@@ -24,8 +24,15 @@ ebnm_normal_mix_workhorse <- function(x,
     if (!is.null(call$mode) || !is.null(call$scale)) {
       warning("mode and scale parameters are ignored when g_init is supplied.")
     }
-    mode  <- g_init$mean[1]
+    min_s <- min(s)
+    mode <- g_init$mean
+    if (max(mode) - min(mode) < 1e-6 * min_s) {
+      mode <- mode[1]
+    }
     scale <- g_init$sd
+    if (max(scale) - min(scale) < 1e-6 * min_s) {
+      scale <- scale[1]
+    }
   }
 
   if (identical(mode, "estimate")) {
@@ -59,8 +66,18 @@ ebnm_normal_mix_workhorse <- function(x,
   if (length(s) == 1) {
     s <- rep(s, n_obs)
   }
-  sigmamat   <- outer(s^2, scale^2, `+`)
-  llik_mat   <- -0.5 * (log(sigmamat) + (x - mode)^2 / sigmamat)
+
+  if (length(scale) > 1) {
+    sigma2 <- outer(s^2, scale^2, `+`)
+  } else {
+    sigma2 <- s^2 + scale^2
+  }
+  if (length(mode) > 1) {
+    llik_mat <- -0.5 * (log(sigma2) + outer(x, -mode, `+`)^2 / sigma2)
+  } else {
+    llik_mat   <- -0.5 * (log(sigma2) + (x - mode)^2 / sigma2)
+  }
+
   llik_norms <- apply(llik_mat, 1, max)
   L_mat      <- exp(llik_mat - llik_norms)
 
@@ -91,20 +108,31 @@ ebnm_normal_mix_workhorse <- function(x,
     pi_est[nonzero_cols] <- pmax(optres$x, 0)
     pi_est <- pi_est / sum(pi_est)
     fitted_g <- normalmix(pi = pi_est,
-                          mean = rep(mode, n_mixcomp),
-                          sd = scale)
+                          mean = rep(mode, length.out = n_mixcomp),
+                          sd = rep(scale, length.out = n_mixcomp))
   }
 
   # Compute results.
   retlist <- list()
 
-  if (posterior_in_output(output)) {
+  if (posterior_in_output(output) || sampler_in_output(output)) {
     posterior <- list()
 
     comp_postprob  <- L_mat * matrix(pi_est, n_obs, n_mixcomp, byrow = TRUE)
     comp_postprob  <- comp_postprob / rowSums(comp_postprob)
-    comp_postmean  <- (mode * s^2 + outer(x, scale^2)) / sigmamat
-    comp_postmean2 <- comp_postmean^2 + outer(s^2, scale^2) / sigmamat
+
+    if (length(mode) > 1) {
+      comp_postmean <- outer(s^2, mode)
+    } else {
+      comp_postmean <- mode * s^2
+    }
+    if (length(scale) > 1) {
+      comp_postmean  <- (comp_postmean + outer(x, scale^2)) / sigma2
+      comp_postmean2 <- (comp_postmean^2 + outer(s^2, scale^2)) / sigma2
+    } else {
+      comp_postmean  <- (comp_postmean + x * scale^2) / sigma2
+      comp_postmean2 <- (comp_postmean^2 + s^2 * scale^2) / sigma2
+    }
 
     if (result_in_output(output)) {
       posterior$mean  <- rowSums(comp_postprob * comp_postmean)
