@@ -57,8 +57,8 @@
 #'   not allowed.
 #'
 #' @param s A vector of standard errors (or a scalar if all are equal).
-#'   Standard errors may be infinite, but they may not be exactly zero.
-#'   Missing standard errors are not allowed. Two prior families have
+#'   Standard errors may not be exactly zero, and
+#'   missing standard errors are not allowed. Two prior families have
 #'   additional restrictions: when \code{prior_family = "horseshoe"}, errors
 #'   must be homoskedastic; and since function
 #'   \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR} takes
@@ -503,8 +503,8 @@ check_args <- function(x, s, g_init, fix_g, output) {
     stop("Standard errors must be positive (and nonzero).")
   }
 
-  if (all(is.infinite(s))) {
-    stop("Standard errors cannot all be infinite.")
+  if (any(is.infinite(s))) {
+    stop("Standard errors cannot be infinite.")
   }
 
   if (fix_g && is.null(g_init)) {

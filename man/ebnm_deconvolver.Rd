@@ -20,8 +20,8 @@ ebnm_deconvolver(
 not allowed.}
 
 \item{s}{A vector of standard errors (or a scalar if all are equal).
-Standard errors may be infinite, but they may not be exactly zero.
-Missing standard errors are not allowed. Two prior families have
+Standard errors may not be exactly zero, and
+missing standard errors are not allowed. Two prior families have
 additional restrictions: when \code{prior_family = "horseshoe"}, errors
 must be homoskedastic; and since function
 \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR} takes
