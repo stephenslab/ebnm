@@ -23,40 +23,40 @@ such as posterior means and posterior second moments.
 
 The prior families that have been implemented include:
 
-point_normal
+"point_normal":
 The family of mixtures where one component is a point mass at μ and the other is a normal distribution centered at μ.
 
-point_laplace
+"point_laplace":
 The family of mixtures where one component is a point mass at zero and the other is a double-exponential distribution.
 
-point_exponential
+"point_exponential":
 The family of mixtures where one component is a point mass at zero and the other is a (nonnegative) exponential distribution.
 
-normal
+"normal":
 The family of normal distributions.
 
-horseshoe
+"horseshoe":
 The family of horseshoe distributions.
 
-normal_scale_mixture
+"normal_scale_mixture":
 The family of scale mixtures of normals.
 
-unimodal
+"unimodal":
 The family of all unimodal distributions.
 
-unimodal_symmetric
+"unimodal_symmetric":
 The family of symmetric unimodal distributions.
 
-unimodal_nonnegative
+"unimodal_nonnegative":
 The family of unimodal distributions with support constrained to be greater than the mode.
 
-unimodal_nonpositive
+"unimodal_nonpositive":
 The family of unimodal distributions with support constrained to be less than the mode.
 
-npmle
+"npmle":
 The family of all distributions.
 
-deconvolver
+"deconvolver":
 A non-parametric exponential family with a natural spline basis. Like npmle, there is no unimodal assumption, but whereas npmle produces spiky estimates for g, deconvolver estimates are much more regular. See Narasimhan and Efron (2020) for details.
 
 ## License
