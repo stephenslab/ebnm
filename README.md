@@ -11,7 +11,7 @@ The model is $$ x_j | \theta_j, s_j \sim N(\theta_j, s_j^2), $$
 $$ \theta_j | s_j \sim g \in G, $$ where the distribution g (referred to as the 
 "prior distribution" for $\theta$) is to be estimated and G is a specified family 
 of prior distributions. Several options
-for G are implemented, some parametric and others non-parametric.
+for G are implemented, some parametric and others non-parametric; see below for details.
 
 Solving the EBNM problem involves
 two steps. First, estimate g $\in$  G via maximum marginal likelihood,
@@ -20,6 +20,44 @@ where $$ L(g):= \prod_j \int p(x_j | \theta_j, s_j)  g(d\theta_j). $$
 Second, compute the posterior distributions 
 $ p(\theta_j | x_j, s_j, \hat{g}) $ and/or summaries
 such as posterior means and posterior second moments.
+
+The prior families that have been implemented include:
+
+point_normal
+The family of mixtures where one component is a point mass at μ and the other is a normal distribution centered at μ.
+
+point_laplace
+The family of mixtures where one component is a point mass at zero and the other is a double-exponential distribution.
+
+point_exponential
+The family of mixtures where one component is a point mass at zero and the other is a (nonnegative) exponential distribution.
+
+normal
+The family of normal distributions.
+
+horseshoe
+The family of horseshoe distributions.
+
+normal_scale_mixture
+The family of scale mixtures of normals.
+
+unimodal
+The family of all unimodal distributions.
+
+unimodal_symmetric
+The family of symmetric unimodal distributions.
+
+unimodal_nonnegative
+The family of unimodal distributions with support constrained to be greater than the mode.
+
+unimodal_nonpositive
+The family of unimodal distributions with support constrained to be less than the mode.
+
+npmle
+The family of all distributions.
+
+deconvolver
+A non-parametric exponential family with a natural spline basis. Like npmle, there is no unimodal assumption, but whereas npmle produces spiky estimates for g, deconvolver estimates are much more regular. See Narasimhan and Efron (2020) for details.
 
 ## License
 
