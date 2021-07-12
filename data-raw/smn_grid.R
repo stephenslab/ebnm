@@ -31,6 +31,7 @@ ub_smnKLdiv <- function(m, samp) {
 }
 
 build_grid <- function(m, sampsize) {
+  cat("Building grid for values from", min(m), "to", max(m), "\n")
   samp <- rnorm(sampsize)
 
   ub <- numeric(length(m))
@@ -44,17 +45,7 @@ build_grid <- function(m, sampsize) {
   return(tib)
 }
 
-cat("\nEstimating quality of ashr grid approximations for scale mixtures of",
-    "normals.\n This takes roughly 30 seconds per value of m.\n",
-    "Values of m range from 1.1 to 2.\n\n")
-
 set.seed(666)
-
-# # Test:
-# test.tib <- build_grid(
-#   m = seq(1.1, 2, by = 0.1),
-#   sampsize = 100000
-# )
 
 # The relationship between log(ub) and log(log(m)) is roughly linear.
 tib <- build_grid(
