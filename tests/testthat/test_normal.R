@@ -53,16 +53,16 @@ test_that("compute_summary_results gives same results as ashr", {
                ash.res[[llik_ret_str()]], tol = 1e-6)
 })
 
-test_that("Infinite and zero SEs give expected results", {
-  x <- c(rep(0, 5), rep(10, 5))
-  s <- rep(1, 10)
-  # s[6] <- 0
-  s[10] <- Inf
-
-  norm.res <- ebnm_normal(x, s)
-
-  # expect_equal(norm.res[[df_ret_str()]][[pm_ret_str()]][6], x[6])
-  # expect_equal(norm.res[[df_ret_str()]][[psd_ret_str()]][6], x[6]^2)
-  expect_equal(norm.res[[df_ret_str()]][[pm_ret_str()]][10], 0)
-  expect_equal(norm.res[[df_ret_str()]][[psd_ret_str()]][10], norm.res[[g_ret_str()]]$sd)
-})
+# test_that("Infinite and zero SEs give expected results", {
+#   x <- c(rep(0, 5), rep(10, 5))
+#   s <- rep(1, 10)
+#   # s[6] <- 0
+#   s[10] <- Inf
+#
+#   norm.res <- ebnm_normal(x, s)
+#
+#   # expect_equal(norm.res[[df_ret_str()]][[pm_ret_str()]][6], x[6])
+#   # expect_equal(norm.res[[df_ret_str()]][[psd_ret_str()]][6], x[6]^2)
+#   expect_equal(norm.res[[df_ret_str()]][[pm_ret_str()]][10], 0)
+#   expect_equal(norm.res[[df_ret_str()]][[psd_ret_str()]][10], norm.res[[g_ret_str()]]$sd)
+# })

@@ -4,17 +4,23 @@
 \alias{ebnm_horseshoe}
 \title{Solve the EBNM problem using a horseshoe prior}
 \usage{
-ebnm_horseshoe(x, s = 1, scale = "estimate", g_init = NULL,
-  fix_g = FALSE, output = output_default(), control = NULL)
+ebnm_horseshoe(
+  x,
+  s = 1,
+  scale = "estimate",
+  g_init = NULL,
+  fix_g = FALSE,
+  output = output_default(),
+  control = NULL
+)
 }
 \arguments{
 \item{x}{A vector of observations. Missing observations (\code{NA}s) are
-allowed. If any observations are missing, the corresponding standard
-errors should be set to \code{Inf}.}
+not allowed.}
 
 \item{s}{A vector of standard errors (or a scalar if all are equal).
-Standard errors may be infinite, but they may not be exactly zero.
-Missing standard errors are not allowed. Two prior families have
+Standard errors may not be exactly zero, and
+missing standard errors are not allowed. Two prior families have
 additional restrictions: when \code{prior_family = "horseshoe"}, errors
 must be homoskedastic; and since function
 \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR} takes
@@ -33,8 +39,12 @@ the \code{\link{horseshoe}} distribution. For \code{"npmle"} and
 \code{"deconvolver"}, it is a scalar specifying the distance between support
 points. For all other prior families, which are implemented using the function
 \code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
-the parameter \code{mixsd} to be passed to \code{ash} (or \code{"estimate"}
-if the default \code{mixsd} is to be used).}
+the parameter \code{mixsd} to be passed to \code{ash} or \code{"estimate"}
+if \code{mixsd} is to be chosen by \code{ebnm}. (Note that \code{ebnm} chooses
+\code{mixsd} differently from \code{ashr}. To use the \code{ashr} grid, set
+\code{scale = "estimate"} and pass in \code{gridmult}, \code{pointmass}, or
+\code{method} as an additional \code{ash} parameter. See
+\code{\link[ashr]{ash}} for defaults and details.)}
 
 \item{g_init}{The prior distribution \eqn{g}. Usually this is left
 unspecified (\code{NULL}) and estimated from the data. However, it can be
@@ -45,10 +55,10 @@ specifies the initial value of \eqn{g} used during optimization. For
 non-parametric priors, this has the side effect of fixing the \code{mode}
 and \code{scale} parameters. If \code{g_init} is supplied, it should be
 an object of class \code{\link[ashr]{normalmix}} for prior families
-\code{normal}, \code{point_normal}, and \code{normal_scale_mixture};
-class \code{\link{laplacemix}} for point-Laplace families; class
-\code{\link{gammamix}} for point-exponential families; class
-\code{\link{horseshoe}} for horseshoe families; and class
+\code{normal}, \code{point_normal}, \code{normal_scale_mixture},
+\code{npmle}, and \code{deconvolver}; class \code{\link{laplacemix}} for
+point-Laplace families; class \code{\link{gammamix}} for point-exponential
+families; class \code{\link{horseshoe}} for horseshoe families; or class
 \code{\link[ashr]{unimix}} for \code{unimodal_} families.}
 
 \item{fix_g}{If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
@@ -64,8 +74,8 @@ function. \code{\link[stats]{optimize}} is used for
 while \code{\link[stats]{nlm}} is used for parametric families unless
 parameter \code{optmethod} specifies otherwise. \code{\link[stats]{nlm}} is
 also used for \code{prior_family = "deconvolver"}.
-For ash families (including \code{normal_scale_mixture} and all
-\code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
+For ash families (including \code{normal_scale_mixture}, \code{npmle}, and
+all \code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
 package \code{mixsqp} is the default.}
 }
 \description{

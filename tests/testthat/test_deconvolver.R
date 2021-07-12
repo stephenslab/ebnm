@@ -26,8 +26,9 @@ test_that("Fixing the scale works", {
 })
 
 test_that("Fixing g works", {
-  deconv.res <- ebnm_deconvolver(x, s, g_init = true_g, fix_g = TRUE)
-  expect_identical(deconv.res[[g_ret_str()]], true_g)
+  g_init = normalmix(rep(0.2, 5), seq(-10, 10, by = 5), 0)
+  deconv.res <- ebnm_deconvolver(x, s, g_init = g_init, fix_g = TRUE)
+  expect_identical(deconv.res[[g_ret_str()]], g_init)
 })
 
 test_that("deconv and nlm parameters get passed in", {

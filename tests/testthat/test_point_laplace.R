@@ -49,22 +49,22 @@ test_that("Output parameter works", {
   expect_identical(names(pl.res), "fitted_g")
 })
 
-test_that("Infinite and zero SEs give expected results", {
-  x <- c(rep(0, 5), rep(5, 5))
-  s <- rep(1, 10)
-  # s[6] <- 0
-  s[10] <- Inf
-
-  pl.res <- ebnm_point_laplace(x, s, output = output_all())
-
-  # expect_equal(pl.res[[df_ret_str()]][[pm_ret_str()]][6], x[6])
-  # expect_equal(pl.res[[df_ret_str()]][[pm_ret_str()]]2[6], x[6]^2)
-  expect_equal(pl.res[[df_ret_str()]][[pm_ret_str()]][10], 0)
-  expect_equal(pl.res[[df_ret_str()]][[pm2_ret_str()]][10],
-               2 * pl.res[[g_ret_str()]]$scale[2]^2 * pl.res[[g_ret_str()]]$pi[2])
-  expect_equal(pl.res[[df_ret_str()]][[lfsr_ret_str()]][10],
-               pl.res[[g_ret_str()]]$pi[1] + pl.res[[g_ret_str()]]$pi[2] / 2)
-})
+# test_that("Infinite and zero SEs give expected results", {
+#   x <- c(rep(0, 5), rep(5, 5))
+#   s <- rep(1, 10)
+#   # s[6] <- 0
+#   s[10] <- Inf
+#
+#   pl.res <- ebnm_point_laplace(x, s, output = output_all())
+#
+#   # expect_equal(pl.res[[df_ret_str()]][[pm_ret_str()]][6], x[6])
+#   # expect_equal(pl.res[[df_ret_str()]][[pm_ret_str()]]2[6], x[6]^2)
+#   expect_equal(pl.res[[df_ret_str()]][[pm_ret_str()]][10], 0)
+#   expect_equal(pl.res[[df_ret_str()]][[pm2_ret_str()]][10],
+#                2 * pl.res[[g_ret_str()]]$scale[2]^2 * pl.res[[g_ret_str()]]$pi[2])
+#   expect_equal(pl.res[[df_ret_str()]][[lfsr_ret_str()]][10],
+#                pl.res[[g_ret_str()]]$pi[1] + pl.res[[g_ret_str()]]$pi[2] / 2)
+# })
 
 test_that("Can fix g with one component", {
   g_init <- laplacemix(pi = 1,

@@ -9,8 +9,22 @@ ebnm_ash_workhorse <- function(x,
                                output,
                                call,
                                ...) {
+  if("mixsd" %in% names(list(...))) {
+    stop("Use parameter 'scale' instead of 'mixsd'.")
+  }
+  if ("outputlevel" %in% names(list(...))) {
+    stop("Use parameter 'output' instead of 'outputlevel'.")
+  }
+
   if (identical(scale, "estimate")) {
-    scale <- NULL
+    # Some ashr settings have implications for the grid:
+    use_ashr_grid <- any(c("gridmult", "pointmass", "method") %in% names(list(...)))
+    if(!identical(mode, "estimate") && !use_ashr_grid) {
+      scale <- default_scale(x, s, mode)[-1]
+    } else {
+      # Let ashr do the grid estimation.
+      scale <- NULL
+    }
   }
 
   # Ash will accept either mode and mixsd or g, but not both.

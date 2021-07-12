@@ -6,12 +6,21 @@
 \alias{output_all}
 \title{Solve the EBNM problem}
 \usage{
-ebnm(x, s = 1, prior_family = c("point_normal", "point_laplace",
-  "point_exponential", "normal", "horseshoe", "normal_scale_mixture",
-  "unimodal", "unimodal_symmetric", "unimodal_nonnegative",
-  "unimodal_nonpositive", "npmle", "deconvolver", "ash"), mode = 0,
-  scale = "estimate", g_init = NULL, fix_g = FALSE,
-  output = output_default(), optmethod = NULL, control = NULL, ...)
+ebnm(
+  x,
+  s = 1,
+  prior_family = c("point_normal", "point_laplace", "point_exponential", "normal",
+    "horseshoe", "normal_scale_mixture", "unimodal", "unimodal_symmetric",
+    "unimodal_nonnegative", "unimodal_nonpositive", "npmle", "deconvolver", "ash"),
+  mode = 0,
+  scale = "estimate",
+  g_init = NULL,
+  fix_g = FALSE,
+  output = output_default(),
+  optmethod = NULL,
+  control = NULL,
+  ...
+)
 
 output_default()
 
@@ -19,12 +28,11 @@ output_all()
 }
 \arguments{
 \item{x}{A vector of observations. Missing observations (\code{NA}s) are
-allowed. If any observations are missing, the corresponding standard
-errors should be set to \code{Inf}.}
+not allowed.}
 
 \item{s}{A vector of standard errors (or a scalar if all are equal).
-Standard errors may be infinite, but they may not be exactly zero.
-Missing standard errors are not allowed. Two prior families have
+Standard errors may not be exactly zero, and
+missing standard errors are not allowed. Two prior families have
 additional restrictions: when \code{prior_family = "horseshoe"}, errors
 must be homoskedastic; and since function
 \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR} takes
@@ -51,8 +59,12 @@ the \code{\link{horseshoe}} distribution. For \code{"npmle"} and
 \code{"deconvolver"}, it is a scalar specifying the distance between support
 points. For all other prior families, which are implemented using the function
 \code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
-the parameter \code{mixsd} to be passed to \code{ash} (or \code{"estimate"}
-if the default \code{mixsd} is to be used).}
+the parameter \code{mixsd} to be passed to \code{ash} or \code{"estimate"}
+if \code{mixsd} is to be chosen by \code{ebnm}. (Note that \code{ebnm} chooses
+\code{mixsd} differently from \code{ashr}. To use the \code{ashr} grid, set
+\code{scale = "estimate"} and pass in \code{gridmult}, \code{pointmass}, or
+\code{method} as an additional \code{ash} parameter. See
+\code{\link[ashr]{ash}} for defaults and details.)}
 
 \item{g_init}{The prior distribution \eqn{g}. Usually this is left
 unspecified (\code{NULL}) and estimated from the data. However, it can be
@@ -63,10 +75,10 @@ specifies the initial value of \eqn{g} used during optimization. For
 non-parametric priors, this has the side effect of fixing the \code{mode}
 and \code{scale} parameters. If \code{g_init} is supplied, it should be
 an object of class \code{\link[ashr]{normalmix}} for prior families
-\code{normal}, \code{point_normal}, and \code{normal_scale_mixture};
-class \code{\link{laplacemix}} for point-Laplace families; class
-\code{\link{gammamix}} for point-exponential families; class
-\code{\link{horseshoe}} for horseshoe families; and class
+\code{normal}, \code{point_normal}, \code{normal_scale_mixture},
+\code{npmle}, and \code{deconvolver}; class \code{\link{laplacemix}} for
+point-Laplace families; class \code{\link{gammamix}} for point-exponential
+families; class \code{\link{horseshoe}} for horseshoe families; or class
 \code{\link[ashr]{unimix}} for \code{unimodal_} families.}
 
 \item{fix_g}{If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
@@ -93,16 +105,19 @@ function. \code{\link[stats]{optimize}} is used for
 while \code{\link[stats]{nlm}} is used for parametric families unless
 parameter \code{optmethod} specifies otherwise. \code{\link[stats]{nlm}} is
 also used for \code{prior_family = "deconvolver"}.
-For ash families (including \code{normal_scale_mixture} and all
-\code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
+For ash families (including \code{normal_scale_mixture}, \code{npmle}, and
+all \code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
 package \code{mixsqp} is the default.}
 
 \item{...}{Additional parameters. When \code{prior_family = "ash"} or when
 a \code{unimodal_} prior is used, these parameters are passed to
 function \code{\link[ashr]{ash}} in package \code{ashr}. When
 \code{prior_family = "deconvolver"}, they are passed to function
-\code{\link[deconvolveR]{deconv}} in package \code{deconvolveR}.
-Otherwise, they are ignored.}
+\code{\link[deconvolveR]{deconv}} in package \code{deconvolveR}. Although it
+does not call into \code{ashr}, \code{normal_scale_mixture} accepts
+parameter \code{gridmult} for purposes of comparison. When \code{gridmult}
+is set, an \code{ashr}-style grid will be used instead of the default
+\code{ebnm} grid. In all other cases, additional parameters are ignored.}
 }
 \value{
 An \code{ebnm} object. Depending on the argument to \code{output}, the
@@ -143,7 +158,7 @@ Given vectors of data \code{x} and standard errors \code{s},
   for \eqn{G} are implemented, some parametric and others non-parametric;
   see below for examples.
 
-Solving the EBNM problem involves
+  Solving the EBNM problem involves
   two steps. First, estimate \eqn{g \in  G} via maximum marginal likelihood,
   yielding an estimate \deqn{\hat{g}:= \arg\max_{g \in G} L(g)} where
   \deqn{L(g):= \prod_j \int p(x_j | \theta_j, s_j)  g(d\theta_j)}
@@ -151,7 +166,7 @@ Solving the EBNM problem involves
   \eqn{p(\theta_j | x_j, s_j, \hat{g})} and/or summaries
   such as posterior means and posterior second moments.
 
-The prior families that have been implemented include:
+  The prior families that have been implemented include:
     \describe{
       \item{\code{point_normal}}{The family of mixtures where one
         component is a point mass at \eqn{\mu} and the other is a normal

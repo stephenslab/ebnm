@@ -14,9 +14,14 @@ ebnm_normal_mix_workhorse <- function(x,
                                       fix_g,
                                       output,
                                       control,
-                                      pointmass,
-                                      grid_mult,
-                                      call) {
+                                      call,
+                                      ...) {
+  if (length(setdiff(names(list(...)), "gridmult")) > 0) {
+    warning("All additional parameters other than 'gridmult' are ignored for ",
+            "scale mixtures of normal prior families. To use 'ashr' parameters, ",
+            "use function 'ebnm_ash' with 'mixcompdist = \"normal\"'.")
+  }
+
   if (!is.null(g_init)) {
     if (!inherits(g_init, "normalmix")) {
       stop("g_init must be NULL or an object of class normalmix.")
@@ -24,8 +29,15 @@ ebnm_normal_mix_workhorse <- function(x,
     if (!is.null(call$mode) || !is.null(call$scale)) {
       warning("mode and scale parameters are ignored when g_init is supplied.")
     }
-    mode  <- g_init$mean[1]
+    min_s <- min(s)
+    mode <- g_init$mean
+    if (max(mode) - min(mode) < 1e-6 * min_s) {
+      mode <- mode[1]
+    }
     scale <- g_init$sd
+    if (max(scale) - min(scale) < 1e-6 * min_s) {
+      scale <- scale[1]
+    }
   }
 
   if (identical(mode, "estimate")) {
@@ -39,9 +51,8 @@ ebnm_normal_mix_workhorse <- function(x,
                                             fix_g = FALSE,
                                             output = llik_arg_str(),
                                             control = control,
-                                            pointmass = pointmass,
-                                            grid_mult = grid_mult,
-                                            call = NULL)
+                                            call = NULL,
+                                            ...)
       return(ebnm_res[[llik_ret_str()]])
     }
     mode_opt_res <- optimize(mode_opt_fn, c(min(x), max(x)), maximum = TRUE)
@@ -49,25 +60,33 @@ ebnm_normal_mix_workhorse <- function(x,
   }
 
   if (identical(scale, "estimate")) {
-    # Adapted from ashr:::autoselect.mixsd.
-    sigmamin <- min(s[s > 0]) / 10
-    sigmamax <- max(8 * sigmamin, 2 * sqrt(max(x^2 - s^2, 0)))
-    npoint <- ceiling(log2(sigmamax / sigmamin) / log2(grid_mult))
-    scale <- grid_mult^((-npoint):0) * sigmamax
-    if (pointmass) {
-      scale <- c(0, scale)
+    if ("gridmult" %in% names(list(...))) {
+      gridmult <- list(...)$gridmult
+      scale <- get_ashr_grid(x, s, mode, gridmult)
+    } else {
+      scale <- default_scale(x, s, mode)
     }
   }
 
-  n_mixcomp <- length(scale)
+  n_mixcomp <- max(length(mode), length(scale))
   n_obs     <- length(x)
 
   # Adapted from ashr:::estimate_mixprop.
   if (length(s) == 1) {
     s <- rep(s, n_obs)
   }
-  sigmamat   <- outer(s^2, scale^2, `+`)
-  llik_mat   <- -0.5 * (log(sigmamat) + (x - mode)^2 / sigmamat)
+
+  if (length(scale) > 1) {
+    sigma2 <- outer(s^2, scale^2, `+`)
+  } else {
+    sigma2 <- s^2 + scale^2
+  }
+  if (length(mode) > 1) {
+    llik_mat <- -0.5 * (log(sigma2) + outer(x, -mode, `+`)^2 / sigma2)
+  } else {
+    llik_mat   <- -0.5 * (log(sigma2) + (x - mode)^2 / sigma2)
+  }
+
   llik_norms <- apply(llik_mat, 1, max)
   L_mat      <- exp(llik_mat - llik_norms)
 
@@ -98,20 +117,31 @@ ebnm_normal_mix_workhorse <- function(x,
     pi_est[nonzero_cols] <- pmax(optres$x, 0)
     pi_est <- pi_est / sum(pi_est)
     fitted_g <- normalmix(pi = pi_est,
-                          mean = rep(mode, n_mixcomp),
-                          sd = scale)
+                          mean = rep(mode, length.out = n_mixcomp),
+                          sd = rep(scale, length.out = n_mixcomp))
   }
 
   # Compute results.
   retlist <- list()
 
-  if (posterior_in_output(output)) {
+  if (posterior_in_output(output) || sampler_in_output(output)) {
     posterior <- list()
 
     comp_postprob  <- L_mat * matrix(pi_est, n_obs, n_mixcomp, byrow = TRUE)
     comp_postprob  <- comp_postprob / rowSums(comp_postprob)
-    comp_postmean  <- mode * s^2 + outer(x, scale^2) / sigmamat
-    comp_postmean2 <- comp_postmean^2 + outer(s^2, scale^2) / sigmamat
+
+    if (length(mode) > 1) {
+      comp_postmean <- outer(s^2, mode)
+    } else {
+      comp_postmean <- mode * s^2
+    }
+    if (length(scale) > 1) {
+      comp_postmean  <- comp_postmean + outer(x, scale^2) / sigma2
+      comp_postmean2 <- comp_postmean^2 + outer(s^2, scale^2) / sigma2
+    } else {
+      comp_postmean  <- comp_postmean + x * scale^2 / sigma2
+      comp_postmean2 <- comp_postmean^2 + s^2 * scale^2 / sigma2
+    }
 
     if (result_in_output(output)) {
       posterior$mean  <- rowSums(comp_postprob * comp_postmean)
