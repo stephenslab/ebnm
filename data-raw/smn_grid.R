@@ -53,4 +53,5 @@ tib <- build_grid(
   sampsize = 1e8
 )
 
-saveRDS(tib, "./data/smngrid.rds")
+smngrid <- tib
+usethis::use_data(smngrid, internal = TRUE)
