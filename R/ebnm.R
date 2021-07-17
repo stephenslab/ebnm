@@ -442,6 +442,18 @@ ebnm_workhorse <- function(x,
                                   control = control,
                                   call = call,
                                   ...)
+  } else if (prior_family == "npmle"
+             && !is.null(optmethod) && optmethod == "REBayes") {
+    retlist <- rebayes_workhorse(x = x,
+                                 s = s,
+                                 mode = mode,
+                                 scale = scale,
+                                 g_init = g_init,
+                                 fix_g = fix_g,
+                                 output = output,
+                                 control = control,
+                                 call = call,
+                                 ...)
   } else if (prior_family == "npmle") {
     if (is.null(g_init)) {
       if (!is.null(call$mode)) {
@@ -464,16 +476,16 @@ ebnm_workhorse <- function(x,
                                          call = call,
                                          ...)
   } else if (prior_family == "deconvolver") {
-    retlist = deconvolver_workhorse(x = x,
-                                    s = s,
-                                    mode = mode,
-                                    scale = scale,
-                                    g_init = g_init,
-                                    fix_g = fix_g,
-                                    output = output,
-                                    control = control,
-                                    call = call,
-                                    ...)
+    retlist <- deconvolver_workhorse(x = x,
+                                     s = s,
+                                     mode = mode,
+                                     scale = scale,
+                                     g_init = g_init,
+                                     fix_g = fix_g,
+                                     output = output,
+                                     control = control,
+                                     call = call,
+                                     ...)
   }
 
   return(as_ebnm(retlist))
