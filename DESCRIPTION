@@ -29,8 +29,6 @@ Suggests:
     ggplot2,
     microbenchmark,
     numDeriv
-Remotes:
-    stephens999/ashr
 URL: https://github.com/stephenslab/ebnm
 BugReports: https://github.com/stephenslab/ebnm/issues
 RoxygenNote: 7.1.1
