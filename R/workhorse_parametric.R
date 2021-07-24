@@ -256,7 +256,8 @@ mle_parametric <- function(x,
                                          x = x,
                                          s = s,
                                          par_init = par_init,
-                                         fix_par = fix_par),
+                                         fix_par = fix_par,
+                                         scale_factor = scale_factor),
                                     precomp))
 
   return(retlist)

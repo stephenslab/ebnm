@@ -220,7 +220,7 @@ pn_nllik <- function(par, x, s, par_init, fix_par,
 # Postcomputations. A constant was subtracted from the log likelihood and needs
 #   to be added back in. We also check boundary solutions here.
 #
-pn_postcomp <- function(optpar, optval, x, s, par_init, fix_par,
+pn_postcomp <- function(optpar, optval, x, s, par_init, fix_par, scale_factor,
                         n0, n1, sum1, n2, s2, z, sum_z) {
   llik <- pn_llik_from_optval(optval, n1, n2, s2)
   retlist <- list(par = optpar, val = llik)
@@ -230,6 +230,7 @@ pn_postcomp <- function(optpar, optval, x, s, par_init, fix_par,
   fix_mu  <- fix_par[3]
   if (!fix_pi0 && fix_mu) {
     pi0_llik <- sum(-0.5 * log(2 * pi * s^2) - 0.5 * (x - par_init$mu)^2 / s^2)
+    pi0_llik <- pi0_llik + sum(is.finite(x)) * log(scale_factor)
     if (pi0_llik > llik) {
       retlist$par$alpha <- Inf
       retlist$par$beta <- 0

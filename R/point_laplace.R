@@ -263,7 +263,7 @@ logscale_add <- function(log.x, log.y) {
 
 # Postcomputations: check boundary solutions.
 #
-pl_postcomp <- function(optpar, optval, x, s, par_init, fix_par) {
+pl_postcomp <- function(optpar, optval, x, s, par_init, fix_par, scale_factor) {
   llik <- -optval
   retlist <- list(par = optpar, val = llik)
 
@@ -272,6 +272,7 @@ pl_postcomp <- function(optpar, optval, x, s, par_init, fix_par) {
   fix_mu  <- fix_par[3]
   if (!fix_pi0 && fix_mu) {
     pi0_llik <- sum(-0.5 * log(2 * pi * s^2) - 0.5 * (x - par_init$mu)^2 / s^2)
+    pi0_llik <- pi0_llik + sum(is.finite(x)) * log(scale_factor)
     if (pi0_llik > llik) {
       retlist$par$alpha <- -Inf
       retlist$par$beta <- 0
