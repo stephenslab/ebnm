@@ -11,6 +11,7 @@ ebnm_npmle(
   g_init = NULL,
   fix_g = FALSE,
   output = output_default(),
+  optmethod = NULL,
   control = NULL,
   ...
 )
@@ -68,6 +69,17 @@ of estimating it.}
 \item{output}{A character vector indicating which values are to be returned.
 Function \code{output_default()} provides the default return values, while
 \code{output_all()} lists all possible return values. See "Value" below.}
+
+\item{optmethod}{A string specifying which optimization function is to be
+used. Options include \code{"nlm"}, \code{"lbfgsb"} (which calls
+\code{optim} with \code{method = "L-BFGS-B"}), and \code{"trust"} (which
+calls into package \code{trust}). Other options are \code{"nohess_nlm"},
+\code{"nograd_nlm"}, and \code{"nograd_lbfgsb"}, which use numerical
+approximations rather than exact expressions for the Hessian and (for
+the latter two) the gradient. The default option is \code{"nohess_nlm"}.
+Since all non-parametric families rely upon external packages, this parameter
+is only available for parametric families (point-normal, point-Laplace,
+point-exponential, and normal).}
 
 \item{control}{A list of control parameters to be passed to the optimization
 function. \code{\link[stats]{optimize}} is used for
