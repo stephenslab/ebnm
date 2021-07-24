@@ -1,6 +1,6 @@
 context("NPMLE")
 
-n <- 1000
+n <- 100
 set.seed(1)
 s <- rnorm(n, 1, 0.1)
 x <- runif(n, -10, 10) + rnorm(n, sd = s)
@@ -16,7 +16,7 @@ test_that("Basic functionality works", {
   expect_identical(npmle.res, npmle.res2)
 
   est_cdf <- drop(npmle.res$fitted_g$pi %*% ashr::comp_cdf(npmle.res$fitted_g, cdf_grid))
-  expect_equal(true_cdf, est_cdf, tolerance = 0.1)
+  expect_equal(true_cdf, est_cdf, tolerance = 0.2)
 })
 
 test_that("Fixing the scale works", {
@@ -32,7 +32,7 @@ test_that("Fixing g works", {
 })
 
 test_that("Gaussian grid is selected when the range of x is large", {
-  x <- rcauchy(n)
+  x <- 100 * rcauchy(n)
   npmle.res <- ebnm_npmle(x, s)
   expect_true(npmle.res$fitted_g$sd[1] > 0)
 })
