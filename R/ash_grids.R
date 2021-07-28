@@ -19,7 +19,7 @@ init_g_for_npmle <- function(x,
                               sd = 0)
   } else if (force_pointmass || xrange / max_K < 3 * min(s)) {
     # Use point-mass mixture.
-    d <- min(s) * sqrt(8 * KLdiv_target)
+    d <- min(s) * (64 * KLdiv_target)^(1 / 4)
     ncomp <- min(max(min_K - 1, ceiling(xrange / d)), max_K - 1) + 1
     grid <- seq(min(x), max(x), length.out = ncomp)
 
