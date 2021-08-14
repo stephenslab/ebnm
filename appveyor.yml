@@ -24,7 +24,7 @@ environment:
 # This is the minimal set of R packages needed to run "R CMD check" on
 # the package.
 build_script:
-  - R -e install.packages(c('devtools','testthat','knitr','rmarkdown','ggplot2','microbenchmark','numDeriv','mixsqp','truncnorm','trust','horseshoe','deconvolveR','REBayes'),head(.libPaths(),1),'http://cran.wustl.edu')
+  - R -e install.packages(c('devtools','testthat','knitr','rmarkdown','ggplot2','microbenchmark','numDeriv','mixsqp','truncnorm','trust','horseshoe','deconvolveR','REBayes','magrittr','dplyr'),head(.libPaths(),1),'http://cran.wustl.edu')
   - R -e devtools::install_github('stephens999/ashr',upgrade='never',force=TRUE)
 
 test_script:

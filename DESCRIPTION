@@ -21,7 +21,9 @@ Imports:
     trust,
     horseshoe,
     deconvolveR,
-    REBayes
+    REBayes,
+    magrittr,
+    dplyr
 Suggests: 
     testthat, 
     knitr,
