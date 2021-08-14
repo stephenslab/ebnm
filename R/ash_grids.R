@@ -125,7 +125,8 @@ default_symmuni_scale <- function(x,
 
   # Trim grid and re-scale:
   scale <- min_s * scale
-  scale <- scale[scale < max_x]
+  K <- min(sum(scale < max_x) + 1, max_K)
+  scale <- scale[1:K]
 
   return(scale)
 }
