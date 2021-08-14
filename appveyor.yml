@@ -20,7 +20,7 @@ environment:
     R_VERSION: release
     R_ARCH: x64
     R_CHECK_ARGS: --no-manual --as-cran
-    GITHUB_PAT: secure: PlP5DwgRVWGT94iV9v333iO2METbg+G1rcwjCsNuFsdmbG83p8KFxirLW91PE8Le
+  GITHUB_PAT: secure: PlP5DwgRVWGT94iV9v333iO2METbg+G1rcwjCsNuFsdmbG83p8KFxirLW91PE8Le
 
 # This is the minimal set of R packages needed to run "R CMD check" on
 # the package.
