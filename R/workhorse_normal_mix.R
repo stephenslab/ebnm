@@ -64,7 +64,7 @@ ebnm_normal_mix_workhorse <- function(x,
       gridmult <- list(...)$gridmult
       scale <- get_ashr_grid(x, s, mode, gridmult)
     } else {
-      scale <- default_scale(x, s, mode)
+      scale <- default_smn_scale(x, s, mode)
     }
   }
 

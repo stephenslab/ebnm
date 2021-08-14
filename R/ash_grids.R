@@ -44,12 +44,12 @@ init_g_for_npmle <- function(x,
 
 #' @importFrom stats approx
 #'
-default_scale <- function(x,
-                          s,
-                          mode,
-                          min_K = 3,
-                          max_K = 300,
-                          KLdiv_target = 1 / length(x)) {
+default_smn_scale <- function(x,
+                              s,
+                              mode,
+                              min_K = 3,
+                              max_K = 300,
+                              KLdiv_target = 1 / length(x)) {
   max_x2 <- max((x - mode)^2)
   min_s2 <- min(s)^2
 
@@ -58,7 +58,7 @@ default_scale <- function(x,
 
   grid_mult <- approx(
     y = smngrid$m,
-    x = log(smngrid$ub),
+    x = log(smngrid$KL),
     xout = log(KLdiv_target),
     rule = 2
   )[["y"]]
@@ -66,8 +66,67 @@ default_scale <- function(x,
   grid_mult <- min(max(grid_mult, min_mult), max_mult)
 
   K <- ceiling(log(max(max_x2 / min_s2, 1), base = grid_mult) + 1)
-  K <- min(max(K, min_K), max_K)
   scale <- sqrt(min_s2 * (grid_mult^(0:(K - 1)) - 1))
+
+  return(scale)
+}
+
+#' @importFrom stats approx
+#' @importFrom magrittr `%>%`
+#' @importFrom dplyr filter arrange pull
+#'
+default_symmuni_scale <- function(x,
+                                  s,
+                                  mode,
+                                  min_K = 3,
+                                  max_K = 300,
+                                  KLdiv_target = 1 / length(x)) {
+  max_x <- max(abs(x - mode))
+  min_s <- min(s)
+
+  max_K <- min(max_K, max(symmunigrid$idx))
+
+  # Trim grids to have desired number of components:
+  grids <- symmunigrid %>%
+    filter(idx <= max_K) %>%
+    arrange(idx)
+
+  # Remove grids that are too fine to span the range of the data:
+  KLs <- grids %>%
+    filter(idx == max_K) %>%
+    filter(loc > max_x / min_s) %>%
+    pull(KL)
+
+  if (length(KLs) == 0) {
+    # Bail and use the scale mixture of normals grid:
+    scale <- default_smn_scale(
+      x = (x - mode) / min_s,
+      s = 1,
+      mode = 0,
+      min_K = max_K,
+      max_K = max_K,
+      KLdiv_target = KLdiv_target
+    )
+  } else if (KLdiv_target <= min(KLs)) {
+    scale <- grids %>% filter(KL == min(KLs)) %>% pull(loc)
+  } else if (KLdiv_target >= max(KLs)) {
+    scale <- grids %>% filter(KL == max(KLs)) %>% pull(loc)
+  } else {
+    # Select the two grids that are nearest the target KL:
+    lower_KL <- max(KLs[KLs <= KLdiv_target])
+    upper_KL <- min(KLs[KLs > KLdiv_target])
+    lower_grid <- grids %>% filter(KL == lower_KL) %>% pull(loc)
+    upper_grid <- grids %>% filter(KL == upper_KL) %>% pull(loc)
+
+    # Interpolate:
+    prop <- (log(KLdiv_target) - log(lower_KL)) / (log(upper_KL) - log(lower_KL))
+    scale <- lower_grid + prop * (upper_grid - lower_grid)
+  }
+
+  # Trim grid and re-scale:
+  scale <- min_s * scale
+  K <- min(sum(scale < max_x) + 1, max_K)
+  scale <- scale[1:K]
 
   return(scale)
 }
