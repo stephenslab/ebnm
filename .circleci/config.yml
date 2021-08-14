@@ -18,7 +18,11 @@ jobs:
           command: |
             mkdir -p ~/R/Library
             Rscript -e 'install.packages(c("devtools","testthat","knitr","rmarkdown","ggplot2","microbenchmark","numDeriv","mixsqp","truncnorm","trust","horseshoe","deconvolveR","REBayes","magrittr","dplyr"))'
+<<<<<<< HEAD
             Rscript -e 'devtools::install_github("stephens999/ashr",upgrade="never",force=TRUE)'
+=======
+            Rscript -e 'remotes::install_github("stephens999/ashr",upgrade="never",force=TRUE)'
+>>>>>>> parent of 4a52c82 (Try changing appveyor settings to use remotes)
       - run:
           name: Session information and installed package versions
           command: |
