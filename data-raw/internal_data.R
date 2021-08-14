@@ -224,7 +224,5 @@ for (log.KL in seq(-7, -8, by = -0.25)) {
     bind_rows(tibble(KL = 10^(log.KL), idx = 1:length(grid), loc = grid))
 }
 
-symmunigrid <- tib
-
 
 usethis::use_data(smngrid, symmunigrid, internal = TRUE, overwrite = TRUE)
