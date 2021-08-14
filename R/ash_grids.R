@@ -44,12 +44,12 @@ init_g_for_npmle <- function(x,
 
 #' @importFrom stats approx
 #'
-default_scale <- function(x,
-                          s,
-                          mode,
-                          min_K = 3,
-                          max_K = 300,
-                          KLdiv_target = 1 / length(x)) {
+default_smn_scale <- function(x,
+                              s,
+                              mode,
+                              min_K = 3,
+                              max_K = 300,
+                              KLdiv_target = 1 / length(x)) {
   max_x2 <- max((x - mode)^2)
   min_s2 <- min(s)^2
 
@@ -58,7 +58,7 @@ default_scale <- function(x,
 
   grid_mult <- approx(
     y = smngrid$m,
-    x = log(smngrid$ub),
+    x = log(smngrid$KL),
     xout = log(KLdiv_target),
     rule = 2
   )[["y"]]
@@ -66,10 +66,20 @@ default_scale <- function(x,
   grid_mult <- min(max(grid_mult, min_mult), max_mult)
 
   K <- ceiling(log(max(max_x2 / min_s2, 1), base = grid_mult) + 1)
-  K <- min(max(K, min_K), max_K)
   scale <- sqrt(min_s2 * (grid_mult^(0:(K - 1)) - 1))
 
   return(scale)
+}
+
+#' @importFrom stats approx
+#'
+default_symmuni_scale <- function(x,
+                                  s,
+                                  mode,
+                                  min_K = 3,
+                                  max_K = 300,
+                                  KLdiv_target = 1 / length(x)) {
+  return(default_smn_scale(x, s, mode))
 }
 
 get_ashr_grid <- function(x, s, mode, grid_mult) {

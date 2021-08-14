@@ -20,7 +20,7 @@ ebnm_ash_workhorse <- function(x,
     # Some ashr settings have implications for the grid:
     use_ashr_grid <- any(c("gridmult", "pointmass", "method") %in% names(list(...)))
     if(!identical(mode, "estimate") && !use_ashr_grid) {
-      scale <- default_scale(x, s, mode)[-1]
+      scale <- default_symmuni_scale(x, s, mode)[-1]
     } else {
       # Let ashr do the grid estimation.
       scale <- NULL
