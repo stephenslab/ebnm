@@ -271,11 +271,16 @@ ebnm_workhorse <- function(x,
                            prior_family,
                            call,
                            ...) {
-  check_args(x, s, g_init, fix_g, output)
+  check_args(x, s, g_init, fix_g, output, mode)
   mode <- handle_mode_parameter(mode)
   scale <- handle_scale_parameter(scale)
   if (is.null(control)) {
     control <- list()
+  }
+  if (lfsr_arg_str() %in% output && mode != 0) {
+    warning("Since they're not well defined for nonzero modes, local false ",
+            "sign rates won't be returned.")
+    output <- setdiff(output, lfsr_arg_str())
   }
 
   if (prior_family == "point_normal") {
@@ -491,7 +496,7 @@ ebnm_workhorse <- function(x,
   return(as_ebnm(retlist))
 }
 
-check_args <- function(x, s, g_init, fix_g, output) {
+check_args <- function(x, s, g_init, fix_g, output, mode) {
   if (!(length(s) %in% c(1, length(x)))) {
     stop("Argument 's' must have either length 1 or the same length as ",
          "argument 'x'.")
@@ -550,4 +555,3 @@ handle_scale_parameter <- function(scale) {
   }
   return(scale)
 }
-
