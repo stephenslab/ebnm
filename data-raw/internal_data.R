@@ -1,6 +1,5 @@
 library(tidyverse)
 
-
 ## Scale mixture of normal grids ----------------------------------------------
 
 log.add <- function(log.x, log.y) {

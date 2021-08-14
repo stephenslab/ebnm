@@ -12,8 +12,6 @@ install:
   ps: Bootstrap
 
 environment:
-  GITHUB_PAT:
-    secure: PlP5DwgRVWGT94iV9v333iO2METbg+G1rcwjCsNuFsdmbG83p8KFxirLW91PE8Le
   global:
     R_REMOTES_NO_ERRORS_FROM_WARNINGS: true
     _R_CHECK_FORCE_SUGGESTS_: false
@@ -22,6 +20,10 @@ environment:
     R_VERSION: release
     R_ARCH: x64
     R_CHECK_ARGS: --no-manual --as-cran
+
+environment:
+  GITHUB_PAT:
+    secure: PlP5DwgRVWGT94iV9v333iO2METbg+G1rcwjCsNuFsdmbG83p8KFxirLW91PE8Le
 
 # This is the minimal set of R packages needed to run "R CMD check" on
 # the package.
