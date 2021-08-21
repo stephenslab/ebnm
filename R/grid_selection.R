@@ -46,7 +46,7 @@ init_g_for_npmle <- function(x,
 #'
 default_smn_scale <- function(x,
                               s,
-                              mode,
+                              mode = 0,
                               min_K = 3,
                               max_K = 300,
                               KLdiv_target = 1 / length(x)) {
@@ -77,7 +77,7 @@ default_smn_scale <- function(x,
 #'
 default_symmuni_scale <- function(x,
                                   s,
-                                  mode,
+                                  mode = 0,
                                   min_K = 3,
                                   max_K = 300,
                                   KLdiv_target = 1 / length(x)) {
@@ -95,6 +95,12 @@ default_symmuni_scale <- function(x,
   KLs <- grids %>%
     filter(idx == max_K) %>%
     filter(loc > max_x / min_s) %>%
+    pull(KL)
+
+  # Remove grids that are too coarse to give the required number of components:
+  KLs <- grids %>%
+    filter(KL %in% KLs, idx == min_K) %>%
+    filter(loc < max_x / min_s) %>%
     pull(KL)
 
   if (length(KLs) == 0) {
@@ -131,7 +137,10 @@ default_symmuni_scale <- function(x,
   return(scale)
 }
 
-get_ashr_grid <- function(x, s, mode, grid_mult = sqrt(2)) {
+get_ashr_grid <- function(x,
+                          s,
+                          mode = 0,
+                          grid_mult = sqrt(2)) {
   # Adapted from ashr:::autoselect.mixsd.
   sigmamin <- min(s[s > 0]) / 10
   sigmamax <- max(8 * sigmamin, 2 * sqrt(max((x - mode)^2 - s^2, 0)))
