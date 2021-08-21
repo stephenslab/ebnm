@@ -1,5 +1,5 @@
+devtools::load_all(".")
 library(tidyverse)
-library(ebnm)
 
 
 m <- exp(exp(seq(log(log(1.025)), log(log(4)), length.out = 100)))
