@@ -5,7 +5,10 @@ log.add <- function(log.x, log.y) {
   return(log(exp(log.x - c) + exp(log.y - c)) + c)
 }
 
-# KL divergence from f = N(0, s2) to g = omega * N(0, 1) + (1 - omega) * N(0, m):
+# KL divergence from f = N(0, s2) to g = omega * N(0, 1) + (1 - omega) * N(0, m).
+#
+#' @importFrom stats dnorm integrate
+#'
 smnKLdiv <- function(s2, omega, m) {
   KL.integrand <- function(x) {
     f.dens <- dnorm(x, mean = 0, sd = sqrt(s2))
@@ -25,6 +28,9 @@ smnKLdiv <- function(s2, omega, m) {
 }
 
 # Minimum KL divergence over 0 \le omega \le 1.
+#
+#' @importFrom stats optimize
+#'
 min.smnKLdiv <- function(s2, m) {
   optres <- optimize(
     function(omega) smnKLdiv(s2, omega, m),
@@ -35,6 +41,9 @@ min.smnKLdiv <- function(s2, m) {
 }
 
 # Maximum KL divergence over 1 \le s2 \le m.
+#
+#' @importFrom stats optimize
+#'
 ub.smnKLdiv <- function(m) {
   optres <- optimize(
     function(s2) min.smnKLdiv(s2, m)$objective,
@@ -58,6 +67,9 @@ log.minus <- function(log.x, log.y) {
 }
 
 # Log density of UN(a, 1) (Unif[-a, a] convolved with N(0, 1)).
+#
+#' @importFrom stats dnorm pnorm
+#'
 UN.logdens <- function(x, a) {
   x <- abs(x) # computations are stabler for x > 0
   if (a == 0) {
@@ -73,6 +85,9 @@ UN.logdens <- function(x, a) {
 
 # KL divergence from f = UN(a, 1) to
 #   g = omega * UN(a_left, 1) + (1 - omega) * UN(a_right, 1).
+#
+#' @importFrom stats integrate
+#'
 symmKLdiv <- function(a, omega, a.left, a.right) {
   KL.integrand <- function(x) {
     f.dens <- exp(UN.logdens(x, a = a))
@@ -92,6 +107,9 @@ symmKLdiv <- function(a, omega, a.left, a.right) {
 }
 
 # Minimum KL divergence over 0 \le omega \le 1.
+#
+#' @importFrom stats optimize
+#'
 min.symmKLdiv <- function(a, a.left, a.right) {
   optres <- optimize(
     function(omega) symmKLdiv(a, omega, a.left, a.right),
@@ -102,6 +120,9 @@ min.symmKLdiv <- function(a, a.left, a.right) {
 }
 
 # Maximum KL divergence over a_left \le a \le a_right.
+#
+#' @importFrom stats optimize
+#'
 ub.symmKLdiv <- function(a.left, a.right) {
   optres <- optimize(
     function(a) min.symmKLdiv(a, a.left, a.right)$objective,
@@ -117,6 +138,9 @@ ub.symmKLdiv <- function(a.left, a.right) {
 }
 
 # Given a_left and a desired (upper bound for) KL-divergence, finds a_right.
+#
+#' @importFrom stats uniroot
+#'
 symm.find.next.gridpt <- function(a.left, targetKL, srch.interval) {
   uniroot.fn <- function(a.right) {
     return(ub.symmKLdiv(a.left, a.right)$KL.div - targetKL)
@@ -184,6 +208,9 @@ build.symm.grid <- function(targetKL,
 # These functions aren't used because good, simple upper bounds exist.
 
 # KL divergence from f = N(0, 1) to g = 0.5 * N(-d/2, s2 + 1) + 0.5 * N(d/2, s2 + 1):
+#
+#' @importFrom stats dnorm integrate
+#'
 npmleKLdiv <- function(d, s2) {
   KL.integrand <- function(x) {
     f.dens <- dnorm(x, mean = 0, sd = 1)
@@ -203,6 +230,9 @@ npmleKLdiv <- function(d, s2) {
 }
 
 # Minimum KL divergence over s2 \ge 0.
+#
+#' @importFrom stats optimize
+#'
 min.npmleKLdiv <- function(d) {
   optres <- optimize(
     function(s2) npmleKLdiv(d, s2),
