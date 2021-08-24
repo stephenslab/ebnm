@@ -53,8 +53,8 @@ default_smn_scale <- function(x,
   max_x2 <- max((x - mode)^2)
   min_s2 <- min(s)^2
 
-  max_mult <- (max(max_x2, min_s2) + 1)^(1 / (min_K - 1))
-  min_mult <- max_mult^((min_K - 1) / (max_K - 1))
+  max_mult <- (max(max_x2 / min_s2, 1) + 1)^(1 / (min_K - 1)) + 1e-8
+  min_mult <- max_mult^((min_K - 1) / (max_K - 1)) - 1e-8
 
   grid_mult <- approx(
     y = smngrid$m,
@@ -65,7 +65,7 @@ default_smn_scale <- function(x,
 
   grid_mult <- min(max(grid_mult, min_mult), max_mult)
 
-  K <- ceiling(log(max(max_x2 / min_s2, 1), base = grid_mult) + 1)
+  K <- ceiling(log(max(max_x2 / min_s2, 1) + 1, base = grid_mult)) + 1
   scale <- sqrt(min_s2 * (grid_mult^(0:(K - 1)) - 1))
 
   return(scale)
