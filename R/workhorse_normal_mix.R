@@ -141,10 +141,10 @@ ebnm_normal_mix_workhorse <- function(x,
       comp_postmean <- mode * s^2
     }
     if (length(scale) > 1) {
-      comp_postmean  <- comp_postmean + outer(x, scale^2) / sigma2
+      comp_postmean  <- (comp_postmean + outer(x, scale^2)) / sigma2
       comp_postmean2 <- comp_postmean^2 + outer(s^2, scale^2) / sigma2
     } else {
-      comp_postmean  <- comp_postmean + x * scale^2 / sigma2
+      comp_postmean  <- (comp_postmean + x * scale^2) / sigma2
       comp_postmean2 <- comp_postmean^2 + s^2 * scale^2 / sigma2
     }
 
