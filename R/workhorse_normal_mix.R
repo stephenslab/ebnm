@@ -84,11 +84,16 @@ ebnm_normal_mix_workhorse <- function(x,
   if (length(mode) > 1) {
     llik_mat <- -0.5 * (log(sigma2) + outer(x, -mode, `+`)^2 / sigma2)
   } else {
-    llik_mat   <- -0.5 * (log(sigma2) + (x - mode)^2 / sigma2)
+    llik_mat <- -0.5 * (log(sigma2) + (x - mode)^2 / sigma2)
+  }
+
+  if (length(scale) == 1 && length(mode) == 1) {
+    llik_mat <- matrix(llik_mat, ncol = 1)
   }
 
   llik_norms <- apply(llik_mat, 1, max)
-  L_mat      <- exp(llik_mat - llik_norms)
+
+  L_mat <- exp(llik_mat - llik_norms)
 
   if (fix_g) {
     fitted_g <- g_init
@@ -136,10 +141,10 @@ ebnm_normal_mix_workhorse <- function(x,
       comp_postmean <- mode * s^2
     }
     if (length(scale) > 1) {
-      comp_postmean  <- comp_postmean + outer(x, scale^2) / sigma2
+      comp_postmean  <- (comp_postmean + outer(x, scale^2)) / sigma2
       comp_postmean2 <- comp_postmean^2 + outer(s^2, scale^2) / sigma2
     } else {
-      comp_postmean  <- comp_postmean + x * scale^2 / sigma2
+      comp_postmean  <- (comp_postmean + x * scale^2) / sigma2
       comp_postmean2 <- comp_postmean^2 + s^2 * scale^2 / sigma2
     }
 
