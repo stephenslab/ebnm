@@ -36,7 +36,7 @@ missing standard errors are not allowed. Two prior families have
 additional restrictions: when \code{prior_family = "horseshoe"}, errors
 must be homoskedastic; and since function
 \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR} takes
-z-scores, it must be true that \code{s = 1} when
+\eqn{z}-scores, all standard errors must be equal to 1 when
 \code{prior_family = "deconvolver"}.}
 
 \item{prior_family}{A character string that specifies the prior family
@@ -49,12 +49,12 @@ parameter is ignored when \code{prior_family} is \code{"npmle"} or
 
 \item{scale}{A scalar or vector specifying the scale parameter(s) of the
 prior or \code{"estimate"} if the scale parameters are to be estimated
-from the data. The precise interpretation of \code{scale} depends on
+from the data. The interpretation of \code{scale} depends on
 \code{prior_family}. For normal and point-normal families, it is a scalar
 specifying the standard deviation of the normal component. For
 point-Laplace and point-exponential families, it is a scalar specifying
-the scale parameter of the Laplace or exponential component. For horseshoe
-families, it corresponds to \eqn{s\tau} in the usual parametrization of
+the scale parameter of the Laplace or exponential component. For the horseshoe
+family, it corresponds to \eqn{s\tau} in the usual parametrization of
 the \code{\link{horseshoe}} distribution. For \code{"npmle"} and
 \code{"deconvolver"}, it is a scalar specifying the distance between support
 points. For all other prior families, which are implemented using the function
@@ -62,9 +62,8 @@ points. For all other prior families, which are implemented using the function
 the parameter \code{mixsd} to be passed to \code{ash} or \code{"estimate"}
 if \code{mixsd} is to be chosen by \code{ebnm}. (Note that \code{ebnm} chooses
 \code{mixsd} differently from \code{ashr}. To use the \code{ashr} grid, set
-\code{scale = "estimate"} and pass in \code{gridmult}, \code{pointmass}, or
-\code{method} as an additional \code{ash} parameter. See
-\code{\link[ashr]{ash}} for defaults and details.)}
+\code{scale = "estimate"} and pass in \code{gridmult} as an additional
+parameter. See \code{\link[ashr]{ash}} for defaults and details.)}
 
 \item{g_init}{The prior distribution \eqn{g}. Usually this is left
 unspecified (\code{NULL}) and estimated from the data. However, it can be
@@ -78,7 +77,7 @@ an object of class \code{\link[ashr]{normalmix}} for prior families
 \code{normal}, \code{point_normal}, \code{normal_scale_mixture},
 \code{npmle}, and \code{deconvolver}; class \code{\link{laplacemix}} for
 point-Laplace families; class \code{\link{gammamix}} for point-exponential
-families; class \code{\link{horseshoe}} for horseshoe families; or class
+families; class \code{\link{horseshoe}} for horseshoe families; and class
 \code{\link[ashr]{unimix}} for \code{unimodal_} families.}
 
 \item{fix_g}{If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
@@ -124,13 +123,13 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
   object is a list containing elements:
     \describe{
       \item{\code{posterior}}{A data frame of summary results (posterior
-        means, standard deviations, and second moments; local false sign
+        means, standard deviations, second moments, and local false sign
         rates).}
       \item{\code{fitted_g}}{The fitted prior \eqn{\hat{g}} (an object of
         class \code{\link[ashr]{normalmix}}, \code{\link{laplacemix}},
         \code{\link{gammamix}}, \code{\link[ashr]{unimix}}, or
         \code{\link{horseshoe}}).}
-      \item{\code{log_likelihood}}{The optimal log likelihood attained
+      \item{\code{log_likelihood}}{The optimal log likelihood attained,
         \eqn{L(\hat{g})}.}
       \item{\code{posterior_sampler}}{A function that can be used to
         produce samples from the posterior. For all prior families other
@@ -143,7 +142,7 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
 }
 \description{
 Solves the empirical Bayes normal means problem using a specified family of
-  priors.
+  priors \eqn{G}.
 }
 \details{
 Given vectors of data \code{x} and standard errors \code{s},
@@ -160,8 +159,8 @@ Given vectors of data \code{x} and standard errors \code{s},
 
   Solving the EBNM problem involves
   two steps. First, estimate \eqn{g \in  G} via maximum marginal likelihood,
-  yielding an estimate \deqn{\hat{g}:= \arg\max_{g \in G} L(g)} where
-  \deqn{L(g):= \prod_j \int p(x_j | \theta_j, s_j)  g(d\theta_j)}
+  yielding an estimate \deqn{\hat{g} := \arg\max_{g \in G} L(g)} where
+  \deqn{L(g) := \prod_j \int p(x_j | \theta_j, s_j)  g(d\theta_j)}
   Second, compute the posterior distributions
   \eqn{p(\theta_j | x_j, s_j, \hat{g})} and/or summaries
   such as posterior means and posterior second moments.
@@ -198,7 +197,7 @@ Given vectors of data \code{x} and standard errors \code{s},
 }
 \section{Functions}{
 \itemize{
-\item \code{output_default}: Defines the default return values.
+\item \code{output_default}: Lists the default return values.
 
 \item \code{output_all}: Lists all valid return values.
 }}
@@ -227,12 +226,15 @@ normal.res$fitted_g$mean
 # Use an initial g (this fixes mode and scale for ash priors):
 normalmix.res <- ebnm_normal_scale_mixture(x, s, g_init = pn.res$fitted_g)
 
-# Fix g and get more output:
+# Fix g and get different output:
 g_init <- pn.res$fitted_g
 pn.res <- ebnm_point_normal(x, s, g_init = g_init, fix_g = TRUE,
                             output = "posterior_sampler")
 pn.res <- ebnm_point_normal(x, s, g_init = g_init, fix_g = TRUE,
                             output = output_all())
+
+# Sample from the posterior:
+pn.postsamp <- pn.res$posterior_sampler(nsamp = 100)
 
 # Examples of usage of control parameter:
 #  point_normal uses nlm:

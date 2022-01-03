@@ -1,4 +1,4 @@
-#' @describeIn ebnm Defines the default return values.
+#' @describeIn ebnm Lists the default return values.
 #'
 #' @export
 #'

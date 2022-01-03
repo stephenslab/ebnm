@@ -26,17 +26,17 @@ missing standard errors are not allowed. Two prior families have
 additional restrictions: when \code{prior_family = "horseshoe"}, errors
 must be homoskedastic; and since function
 \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR} takes
-z-scores, it must be true that \code{s = 1} when
+\eqn{z}-scores, all standard errors must be equal to 1 when
 \code{prior_family = "deconvolver"}.}
 
 \item{scale}{A scalar or vector specifying the scale parameter(s) of the
 prior or \code{"estimate"} if the scale parameters are to be estimated
-from the data. The precise interpretation of \code{scale} depends on
+from the data. The interpretation of \code{scale} depends on
 \code{prior_family}. For normal and point-normal families, it is a scalar
 specifying the standard deviation of the normal component. For
 point-Laplace and point-exponential families, it is a scalar specifying
-the scale parameter of the Laplace or exponential component. For horseshoe
-families, it corresponds to \eqn{s\tau} in the usual parametrization of
+the scale parameter of the Laplace or exponential component. For the horseshoe
+family, it corresponds to \eqn{s\tau} in the usual parametrization of
 the \code{\link{horseshoe}} distribution. For \code{"npmle"} and
 \code{"deconvolver"}, it is a scalar specifying the distance between support
 points. For all other prior families, which are implemented using the function
@@ -44,9 +44,8 @@ points. For all other prior families, which are implemented using the function
 the parameter \code{mixsd} to be passed to \code{ash} or \code{"estimate"}
 if \code{mixsd} is to be chosen by \code{ebnm}. (Note that \code{ebnm} chooses
 \code{mixsd} differently from \code{ashr}. To use the \code{ashr} grid, set
-\code{scale = "estimate"} and pass in \code{gridmult}, \code{pointmass}, or
-\code{method} as an additional \code{ash} parameter. See
-\code{\link[ashr]{ash}} for defaults and details.)}
+\code{scale = "estimate"} and pass in \code{gridmult} as an additional
+parameter. See \code{\link[ashr]{ash}} for defaults and details.)}
 
 \item{g_init}{The prior distribution \eqn{g}. Usually this is left
 unspecified (\code{NULL}) and estimated from the data. However, it can be
@@ -60,7 +59,7 @@ an object of class \code{\link[ashr]{normalmix}} for prior families
 \code{normal}, \code{point_normal}, \code{normal_scale_mixture},
 \code{npmle}, and \code{deconvolver}; class \code{\link{laplacemix}} for
 point-Laplace families; class \code{\link{gammamix}} for point-exponential
-families; class \code{\link{horseshoe}} for horseshoe families; or class
+families; class \code{\link{horseshoe}} for horseshoe families; and class
 \code{\link[ashr]{unimix}} for \code{unimodal_} families.}
 
 \item{fix_g}{If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
