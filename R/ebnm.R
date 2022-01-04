@@ -147,6 +147,8 @@
 #' @return An \code{ebnm} object. Depending on the argument to \code{output}, the
 #'   object is a list containing elements:
 #'     \describe{
+#'       \item{\code{data}}{A data frame containing the observations \code{x}
+#'         and standard errors \code{s}.}
 #'       \item{\code{posterior}}{A data frame of summary results (posterior
 #'         means, standard deviations, second moments, and local false sign
 #'         rates).}
