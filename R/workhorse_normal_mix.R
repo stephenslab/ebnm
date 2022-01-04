@@ -129,6 +129,10 @@ ebnm_normal_mix_workhorse <- function(x,
   # Compute results.
   retlist <- list()
 
+  if (data_in_output(output)) {
+    retlist <- add_data_to_retlist(retlist, x, s)
+  }
+
   if (posterior_in_output(output) || sampler_in_output(output)) {
     posterior <- list()
 
@@ -176,8 +180,8 @@ ebnm_normal_mix_workhorse <- function(x,
   }
 
   if (llik_in_output(output)) {
-    loglik <- sum(log(L_mat %*% pi_est))
-    loglik <- loglik + sum(llik_norms) - n_obs * log(2 * pi) / 2
+    loglik  <- sum(log(L_mat %*% pi_est))
+    loglik  <- loglik + sum(llik_norms) - n_obs * log(2 * pi) / 2
     retlist <- add_llik_to_retlist(retlist, loglik)
   }
 

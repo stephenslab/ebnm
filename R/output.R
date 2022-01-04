@@ -3,7 +3,8 @@
 #' @export
 #'
 output_default <- function() {
-  return(c(pm_arg_str(), psd_arg_str(), g_arg_str(), llik_arg_str()))
+  return(c(data_arg_str(), pm_arg_str(), psd_arg_str(),
+           g_arg_str(), llik_arg_str()))
 }
 
 #' @describeIn ebnm Lists all valid return values.
@@ -11,11 +12,12 @@ output_default <- function() {
 #' @export
 #'
 output_all <- function() {
-  return(c(pm_arg_str(), psd_arg_str(), pm2_arg_str(), lfsr_arg_str(),
-           g_arg_str(), llik_arg_str(), samp_arg_str()))
+  return(c(data_arg_str(), pm_arg_str(), psd_arg_str(), pm2_arg_str(),
+           lfsr_arg_str(), g_arg_str(), llik_arg_str(), samp_arg_str()))
 }
 
 # Return value names as used in arguments to parameter 'output'.
+data_arg_str <- function() "data"
 pm_arg_str   <- function() "posterior_mean"
 psd_arg_str  <- function() "posterior_sd"
 pm2_arg_str  <- function() "posterior_second_moment"
@@ -25,6 +27,7 @@ llik_arg_str <- function() "log_likelihood"
 samp_arg_str <- function() "posterior_sampler"
 
 # Return value names as used in the returned ebnm object.
+data_ret_str <- function() "data"
 df_ret_str   <- function() "posterior"
 pm_ret_str   <- function() "mean"
 psd_ret_str  <- function() "sd"
@@ -41,8 +44,8 @@ as_ebnm <- function(retlist) {
 }
 
 ash_output <- function(output) {
-  ash_arg_str <- c("PosteriorMean", "PosteriorSD", "PosteriorSD", "lfsr",
-                   "fitted_g", "loglik", "post_sampler")
+  ash_arg_str <- c("data", "PosteriorMean", "PosteriorSD", "PosteriorSD",
+                   "lfsr", "fitted_g", "loglik", "post_sampler")
   which_args  <- pmatch(output, output_all())
   return(ash_arg_str[which_args])
 }
@@ -53,7 +56,7 @@ posterior_in_output <- function(output) {
 }
 
 result_in_output <- function(output) {
-  res_args <-c(pm_arg_str(), psd_arg_str(), pm2_arg_str())
+  res_args <- c(pm_arg_str(), psd_arg_str(), pm2_arg_str())
   return(any(res_args %in% output))
 }
 
@@ -61,7 +64,20 @@ lfsr_in_output <- function(output) {
   return(lfsr_arg_str() %in% output)
 }
 
-# 'posterior' should be a list with fields 'mean', 'sd', 'mean2', and 'lfsr'.
+data_in_output <- function(output) {
+  return(data_arg_str() %in% output)
+}
+
+add_data_to_retlist <- function(retlist, x, s) {
+  df <- list()
+  df[["x"]] <- x
+  df[["s"]] <- rep(s, length.out = length(x))
+  df <- data.frame(df)
+
+  retlist[[data_ret_str()]] <- df
+  return(retlist)
+}
+
 add_posterior_to_retlist <- function(retlist, posterior, output) {
   df <- list()
   if (pm_arg_str() %in% output) {

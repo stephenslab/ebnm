@@ -59,6 +59,11 @@ horseshoe_workhorse <- function(x = x,
   }
 
   retlist <- list()
+
+  if (data_in_output(output)) {
+    retlist <- add_data_to_retlist(retlist, x, s)
+  }
+
   if (posterior_in_output(output)) {
     posterior <- list()
 
@@ -75,15 +80,18 @@ horseshoe_workhorse <- function(x = x,
 
     retlist <- add_posterior_to_retlist(retlist, posterior, output)
   }
+
   if (g_in_output(output)) {
     fitted_g <- horseshoe(tau * s)
     retlist  <- add_g_to_retlist(retlist, fitted_g)
   }
+
   if (llik_in_output(output)) {
     n       <- length(x)
     loglik  <- obj - 1.5 * n * log(pi) - 0.5 * n * log(2) - n * sum(log(s))
     retlist <- add_llik_to_retlist(retlist, loglik)
   }
+
   if (sampler_in_output(output)) {
     post_sampler <- function(nsamp, burn = 1000) {
       cat("MCMC Sampling with", burn, "burn-in samples\n")

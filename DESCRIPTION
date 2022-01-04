@@ -1,8 +1,8 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 0.1-54
-Date: 2022-1-03
+Version: 0.1-55
+Date: 2022-1-04
 Title: Solve the Empirical Bayes Normal Means Problem
 Author: Matthew Stephens, Jason Willwerscheid, Andrew Goldstein
 Maintainer: Matthew Stephens <mstephens@uchicago.edu>

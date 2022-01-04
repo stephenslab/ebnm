@@ -50,6 +50,10 @@ ebnm_ash_workhorse <- function(x,
 
   retlist <- list()
 
+  if (data_in_output(output)) {
+    retlist <- add_data_to_retlist(retlist, x, s)
+  }
+
   if (posterior_in_output(output)) {
     posterior <- list()
 

@@ -94,21 +94,29 @@ parametric_workhorse <- function(x,
 
   # Build return object.
   retlist <- list()
+
+  if (data_in_output(output)) {
+    retlist <- add_data_to_retlist(retlist, x, s)
+  }
+
   if (posterior_in_output(output)) {
     posterior <- do.call(summres_fn, list(x = x,
                                           s = s,
                                           optpar = optres$par,
                                           output = output))
-    retlist   <- add_posterior_to_retlist(retlist, posterior, output)
+    retlist <- add_posterior_to_retlist(retlist, posterior, output)
   }
+
   if (g_in_output(output)) {
     fitted_g <- do.call(partog_fn, list(par = optres$par))
     retlist  <- add_g_to_retlist(retlist, fitted_g)
   }
+
   if (llik_in_output(output)) {
     loglik  <- optres$val
     retlist <- add_llik_to_retlist(retlist, loglik)
   }
+
   if (sampler_in_output(output)) {
     post_sampler <- function(nsamp) {
       postsamp_fn(x, s, optres$par, nsamp)
