@@ -18,6 +18,7 @@
 #' @method plot ebnm
 #'
 #' @importFrom ggplot2 ggplot aes geom_point geom_abline labs theme_minimal
+#' @importFrom methods is
 #'
 #' @examples
 #' theta <- c(rep(0, 100), rexp(100))
