@@ -147,6 +147,8 @@
 #' @return An \code{ebnm} object. Depending on the argument to \code{output}, the
 #'   object is a list containing elements:
 #'     \describe{
+#'       \item{\code{data}}{A data frame containing the observations \code{x}
+#'         and standard errors \code{s}.}
 #'       \item{\code{posterior}}{A data frame of summary results (posterior
 #'         means, standard deviations, second moments, and local false sign
 #'         rates).}
@@ -165,7 +167,10 @@
 #'         samples to discard.}
 #'      }
 #'
-#' @seealso Calling functions \code{\link{ebnm_point_normal}},
+#' @seealso A plotting method is available for \code{ebnm} objects: see
+#'   \code{\link{plot.ebnm}}.
+#'
+#'   Calling functions \code{\link{ebnm_point_normal}},
 #'   \code{\link{ebnm_point_laplace}},
 #'   \code{\link{ebnm_point_exponential}}, \code{\link{ebnm_normal}},
 #'   \code{\link{ebnm_horseshoe}},
@@ -188,7 +193,7 @@
 #'
 #' # Inspect results:
 #' pn.res$log_likelihood
-#' plot(x, pn.res$posterior$mean)
+#' plot(pn.res)
 #'
 #' # Fix the scale parameter:
 #' pl.res <- ebnm_point_laplace(x, s, scale = 1)
