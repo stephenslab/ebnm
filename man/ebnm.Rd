@@ -215,7 +215,7 @@ pn.res <- ebnm_point_normal(x, s)
 
 # Inspect results:
 pn.res$log_likelihood
-plot(x, pn.res$posterior$mean)
+plot(pn.res)
 
 # Fix the scale parameter:
 pl.res <- ebnm_point_laplace(x, s, scale = 1)
@@ -246,7 +246,10 @@ unimodal.res <- ebnm_unimodal(x, s, control = list(verbose = TRUE))
 
 }
 \seealso{
-Calling functions \code{\link{ebnm_point_normal}},
+A plotting method is available for \code{ebnm} objects: see
+  \code{\link{plot.ebnm}}.
+
+  Calling functions \code{\link{ebnm_point_normal}},
   \code{\link{ebnm_point_laplace}},
   \code{\link{ebnm_point_exponential}}, \code{\link{ebnm_normal}},
   \code{\link{ebnm_horseshoe}},
