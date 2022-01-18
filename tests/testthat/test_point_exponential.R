@@ -18,6 +18,7 @@ pe.res <- ebnm(x, s, prior_family = "point_exponential")
 
 test_that("Basic functionality works", {
   pe.res2 <- ebnm_point_exponential(x, s)
+  pe.res$call <- pe.res2$call <- NULL
   expect_identical(pe.res, pe.res2)
   expect_equal(pe.res[[g_ret_str()]], true_g, tolerance = 0.1)
 })
@@ -47,6 +48,7 @@ test_that("Initializing g works", {
 
 test_that("Output parameter works", {
   pe.res <- ebnm_point_exponential(x, s, output = c("fitted_g"))
+  pe.res$call <- NULL
   expect_identical(names(pe.res), "fitted_g")
 })
 

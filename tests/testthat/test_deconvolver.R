@@ -13,6 +13,7 @@ true_cdf <- ashr::comp_cdf(true_g, cdf_grid)
 test_that("Basic functionality works", {
   deconv.res <- ebnm(x, s, prior_family = "deconvolver")
   deconv.res2 <- ebnm_deconvolver(x, s)
+  deconv.res$call <- deconv.res2$call <- NULL
   expect_identical(deconv.res, deconv.res2)
 
   est_cdf <- drop(deconv.res$fitted_g$pi %*% ashr::comp_cdf(deconv.res$fitted_g, cdf_grid))

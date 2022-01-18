@@ -17,6 +17,7 @@ pl.res <- ebnm(x, s, prior_family = "point_laplace")
 
 test_that("Basic functionality works", {
   pl.res2 <- ebnm_point_laplace(x, s)
+  pl.res$call <- pl.res2$call <- NULL
   expect_identical(pl.res, pl.res2)
   expect_equal(pl.res[[g_ret_str()]], true_g, tolerance = 0.1)
 })
@@ -46,6 +47,7 @@ test_that("Initializing g works", {
 
 test_that("Output parameter works", {
   pl.res <- ebnm_point_laplace(x, s, output = c("fitted_g"))
+  pl.res$call <- NULL
   expect_identical(names(pl.res), "fitted_g")
 })
 

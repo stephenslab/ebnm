@@ -12,6 +12,7 @@ control = list(eps = 1e-6, numiter.em = 20)
 test_that("Basic ebnm_normal_scale_mixture functionality works", {
   ebnm.res <- ebnm(x, s, prior_family = "normal_scale_mixture", control = control)
   ebnm.res2 <- ebnm_normal_scale_mixture(x, s, control = control)
+  ebnm.res$call <- ebnm.res2$call <- NULL
   expect_identical(ebnm.res, ebnm.res2)
 })
 

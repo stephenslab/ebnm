@@ -13,6 +13,7 @@ true_cdf <- ashr::comp_cdf(true_g, cdf_grid)
 test_that("Basic functionality works", {
   npmle.res <- ebnm(x, s, prior_family = "npmle")
   npmle.res2 <- ebnm_npmle(x, s)
+  npmle.res$call <- npmle.res2$call <- NULL
   expect_identical(npmle.res, npmle.res2)
 
   est_cdf <- drop(npmle.res$fitted_g$pi %*% ashr::comp_cdf(npmle.res$fitted_g, cdf_grid))
