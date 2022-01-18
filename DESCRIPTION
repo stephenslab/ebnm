@@ -1,7 +1,7 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 0.1-58
+Version: 0.1-59
 Date: 2022-01-17
 Title: Solve the Empirical Bayes Normal Means Problem
 Author: Matthew Stephens, Jason Willwerscheid, Andrew Goldstein
@@ -30,7 +30,6 @@ Suggests:
     testthat, 
     knitr,
     rmarkdown,
-    ggplot2,
     microbenchmark,
     numDeriv
 URL: https://github.com/stephenslab/ebnm
