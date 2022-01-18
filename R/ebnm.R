@@ -500,7 +500,7 @@ ebnm_workhorse <- function(x,
                                      ...)
   }
 
-  return(as_ebnm(retlist))
+  return(as_ebnm(retlist, call))
 }
 
 check_args <- function(x, s, g_init, fix_g, output, mode) {

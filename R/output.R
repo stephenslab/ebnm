@@ -28,6 +28,8 @@ samp_arg_str <- function() "posterior_sampler"
 
 # Return value names as used in the returned ebnm object.
 data_ret_str <- function() "data"
+obs_ret_str  <- function() "x"
+se_ret_str   <- function() "s"
 df_ret_str   <- function() "posterior"
 pm_ret_str   <- function() "mean"
 psd_ret_str  <- function() "sd"
@@ -38,7 +40,8 @@ llik_ret_str <- function() "log_likelihood"
 samp_ret_str <- function() "posterior_sampler"
 
 # Postprocessing of the returned object is done here.
-as_ebnm <- function(retlist) {
+as_ebnm <- function(retlist, call) {
+  retlist$call <- call
   class(retlist) <- c("ebnm", "list")
   return(retlist)
 }
@@ -70,8 +73,8 @@ data_in_output <- function(output) {
 
 add_data_to_retlist <- function(retlist, x, s) {
   df <- list()
-  df[["x"]] <- x
-  df[["s"]] <- rep(s, length.out = length(x))
+  df[[obs_ret_str()]] <- x
+  df[[se_ret_str()]] <- rep(s, length.out = length(x))
   df <- data.frame(df)
 
   retlist[[data_ret_str()]] <- df

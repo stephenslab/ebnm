@@ -40,17 +40,17 @@ plot.ebnm <- function(x, remove_abline = FALSE, ...) {
     stop("Input argument x must be an instance of class \"ebnm\".")
   }
 
-  if (is.null(x$data)) {
+  if (is.null(x[[data_ret_str()]])) {
     stop("Data not found in ebnm object. Results cannot be plotted.")
   }
 
-  if (is.null(x$posterior$mean)) {
+  if (is.null(x[[df_ret_str()]][[pm_ret_str()]])) {
     stop("Posterior means not found in ebnm object. Results cannot be plotted.")
   }
 
   df <- data.frame(
-    x = x$data$x,
-    pm = x$posterior$mean
+    x = x[[data_ret_str()]][[obs_ret_str()]],
+    pm = x[[df_ret_str()]][[pm_ret_str()]]
   )
 
   plt <- ggplot(df, aes(x = x, y = pm)) +
@@ -63,4 +63,34 @@ plot.ebnm <- function(x, remove_abline = FALSE, ...) {
   }
 
   return(plt)
+}
+
+print.ebnm <- function(x, ...) {
+  cat("Call:\n")
+  print(x$call)
+  cat("\n")
+
+  if (!is.null(x[[data_ret_str()]])) {
+    cat("Sample size:", length(x[[data_ret_str()]][[1]]), "\n")
+  }
+
+  if (!is.null(x[[g_ret_str()]])) {
+    cat("Prior class:", class(x[[g_ret_str()]]), "\n")
+  }
+
+  if (!is.null(x[[llik_ret_str()]])) {
+    cat("\n")
+    cat("Log likelihood of fitted model:", x[[llik_ret_str()]], "\n")
+  }
+
+  if (!is.null(x[[df_ret_str()]])) {
+    cat("Posterior summaries included: ")
+    cat(paste(names(x[[df_ret_str()]]), collapse = ", "), "\n")
+  }
+
+  if (!is.null(x[[samp_ret_str()]])) {
+    cat("Posterior sampler included. \n")
+  }
+
+  return(invisible(x))
 }
