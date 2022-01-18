@@ -12,6 +12,7 @@ true_g <- ashr::normalmix(pi = 1, mean = true_mean, sd = true_sd)
 test_that("Basic functionality works", {
   norm.res <- ebnm(x, s, prior_family = "normal")
   norm.res2 <- ebnm_normal(x, s)
+  norm.res$call <- norm.res2$call <- NULL
   expect_identical(norm.res, norm.res2)
   expect_equal(norm.res[[g_ret_str()]], true_g, tolerance = 0.2)
 })
@@ -35,6 +36,7 @@ test_that("Fixing g works", {
 
 test_that("Output parameter works", {
   norm.res <- ebnm_normal(x, s, output = samp_arg_str())
+  norm.res$call <- NULL
   expect_identical(names(norm.res), samp_ret_str())
 })
 

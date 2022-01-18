@@ -15,6 +15,7 @@ true_g <- ashr::normalmix(pi = c(true_pi0, 1 - true_pi0),
 test_that("Basic functionality works", {
   pn.res <- ebnm(x, s, prior_family = "point_normal")
   pn.res2 <- ebnm_point_normal(x, s)
+  pn.res$call <- pn.res2$call <- NULL
   expect_identical(pn.res, pn.res2)
   expect_equal(pn.res[[g_ret_str()]], true_g, tolerance = 0.1)
 })
@@ -38,6 +39,7 @@ test_that("Fixing g works", {
 
 test_that("Output parameter works", {
   pn.res <- ebnm_point_normal(x, s, output = samp_arg_str())
+  pn.res$call <- NULL
   expect_identical(names(pn.res), samp_ret_str())
 })
 

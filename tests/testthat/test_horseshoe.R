@@ -13,6 +13,7 @@ hs.res <- ebnm(x, s, prior_family = "horseshoe")
 
 test_that("Basic functionality works", {
   hs.res2 <- ebnm_horseshoe(x, s)
+  hs.res$call <- hs.res2$call <- NULL
   expect_identical(hs.res, hs.res2)
   expect_equal(hs.res[[g_ret_str()]], true_g, tolerance = 0.5)
 })
