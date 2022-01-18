@@ -7,7 +7,7 @@
 \method{plot}{ebnm}(x, remove_abline = FALSE, ...)
 }
 \arguments{
-\item{x}{The fitted ebnm object.}
+\item{x}{The fitted \code{ebnm} object.}
 
 \item{remove_abline}{To better illustrate shrinkage effects, the plot
 will include the line \eqn{y = x} by default. If
@@ -17,7 +17,7 @@ will include the line \eqn{y = x} by default. If
 \code{\link[ggplot2]{geom_point}}.}
 }
 \description{
-Given a fitted ebnm object, produces a plot of posterior means vs.
+Given a fitted \code{ebnm} object, produces a plot of posterior means vs.
   observations.
 }
 \details{
