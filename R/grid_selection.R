@@ -73,6 +73,7 @@ default_smn_scale <- function(x,
 
 #' @importFrom stats approx
 #' @importFrom magrittr `%>%`
+#' @importFrom rlang .data
 #' @importFrom dplyr filter arrange pull
 #'
 default_symmuni_scale <- function(x,
@@ -88,20 +89,20 @@ default_symmuni_scale <- function(x,
 
   # Trim grids to have desired number of components:
   grids <- symmunigrid %>%
-    filter(idx <= max_K) %>%
-    arrange(idx)
+    filter(.data[["idx"]] <= max_K) %>%
+    arrange(.data[["idx"]])
 
   # Remove grids that are too fine to span the range of the data:
   KLs <- grids %>%
-    filter(idx == max_K) %>%
-    filter(loc > max_x / min_s) %>%
-    pull(KL)
+    filter(.data[["idx"]] == max_K) %>%
+    filter(.data[["loc"]] > max_x / min_s) %>%
+    pull(.data[["KL"]])
 
   # Remove grids that are too coarse to give the required number of components:
   KLs <- grids %>%
-    filter(KL %in% KLs, idx == min_K) %>%
-    filter(loc < max_x / min_s) %>%
-    pull(KL)
+    filter(.data[["KL"]] %in% KLs,.data[["idx"]] == min_K) %>%
+    filter(.data[["loc"]] < max_x / min_s) %>%
+    pull(.data[["KL"]])
 
   if (length(KLs) == 0) {
     # Bail and use the scale mixture of normals grid:
@@ -114,15 +115,23 @@ default_symmuni_scale <- function(x,
       KLdiv_target = KLdiv_target
     )
   } else if (KLdiv_target <= min(KLs)) {
-    scale <- grids %>% filter(KL == min(KLs)) %>% pull(loc)
+    scale <- grids %>%
+             filter(.data[["KL"]] == min(KLs)) %>%
+             pull(.data[["loc"]])
   } else if (KLdiv_target >= max(KLs)) {
-    scale <- grids %>% filter(KL == max(KLs)) %>% pull(loc)
+    scale <- grids %>%
+             filter(.data[["KL"]] == max(KLs)) %>%
+             pull(.data[["loc"]])
   } else {
     # Select the two grids that are nearest the target KL:
     lower_KL <- max(KLs[KLs <= KLdiv_target])
     upper_KL <- min(KLs[KLs > KLdiv_target])
-    lower_grid <- grids %>% filter(KL == lower_KL) %>% pull(loc)
-    upper_grid <- grids %>% filter(KL == upper_KL) %>% pull(loc)
+    lower_grid <- grids %>%
+                  filter(.data[["KL"]] == lower_KL) %>%
+                  pull(.data[["loc"]])
+    upper_grid <- grids %>%
+                  filter(.data[["KL"]] == upper_KL) %>%
+                  pull(.data[["loc"]])
 
     # Interpolate:
     prop <- (log(KLdiv_target) - log(lower_KL)) / (log(upper_KL) - log(lower_KL))

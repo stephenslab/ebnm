@@ -1,11 +1,11 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 0.1-61
+Version: 0.1-62
 Date: 2022-02-22
 Title: Solve the Empirical Bayes Normal Means Problem
 Author: Matthew Stephens, Jason Willwerscheid, Andrew Goldstein
-Maintainer: Matthew Stephens <mstephens@uchicago.edu>
+Maintainer: Peter Carbonetto <peter.carbonetto@gmail.com>
 Description: Provides simple, fast, and stable functions to fit the normal
     means model using empirical Bayes. For available models and details, see 
     function ebnm.
@@ -24,6 +24,7 @@ Imports:
     deconvolveR,
     REBayes,
     magrittr,
+    rlang,
     dplyr,
     ggplot2
 Suggests: 
