@@ -1,0 +1,17 @@
+citHeader("To cite the ebnm package, please use:")
+
+citEntry(entry = "Article",
+  title = paste("ebnm: an R Package for solving the empirical Bayes",
+                "normal means problem using a variety of prior families"),
+  author  = personList(as.person("Jason Willwerscheid"),
+                       as.person("Matthew Stephens")),
+  journal = "arXiv",
+  volume  = "2110.00152",
+  eprint  = "2110.00152",
+  year    = "2021",
+  archivePrefix = "arXiv",
+  url = "https://arxiv.org/abs/2110.00152",
+  textVersion = paste("Jason Willwerscheid and Matthew Stephens (2021).",
+                      "ebnm: an R Package for solving the empirical Bayes",
+                      "normal means problem using a variety of prior ",
+                      "families. arXiv, 2110.00152, 2021."))
