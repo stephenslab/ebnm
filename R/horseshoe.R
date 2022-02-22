@@ -3,7 +3,7 @@
 #' Creates a horseshoe prior (see Carvalho, Polson, and Scott (2010)). The
 #'   horseshoe is usually parametrized as
 #'   \eqn{\theta_i \sim N(0, s^2 \tau^2 \lambda_i^2)},
-#'   \eqn{\lambda_i \sim \text{Cauchy}^+(0, 1)},
+#'   \eqn{\lambda_i \sim \mathrm{Cauchy}^+(0, 1)},
 #'   with \eqn{s^2} the variance of the error distribution. We use a single
 #'   parameter \code{scale}, which corresponds to \eqn{s\tau} and thus does
 #'   not depend on the error distribution.

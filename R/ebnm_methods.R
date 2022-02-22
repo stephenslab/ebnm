@@ -17,7 +17,8 @@
 #'
 #' @method plot ebnm
 #'
-#' @importFrom ggplot2 ggplot aes geom_point geom_abline labs theme_minimal
+#' @importFrom ggplot2 ggplot aes_string geom_point geom_abline labs
+#' @importFrom ggplot2 theme_minimal
 #' @importFrom methods is
 #'
 #' @examples
@@ -53,7 +54,7 @@ plot.ebnm <- function(x, remove_abline = FALSE, ...) {
     pm = x[[df_ret_str()]][[pm_ret_str()]]
   )
 
-  plt <- ggplot(df, aes(x = x, y = pm)) +
+  plt <- ggplot(df,aes_string(x = x, y = pm)) +
     geom_point(...) +
     labs(x = "Observations", y = "Posterior means") +
     theme_minimal()

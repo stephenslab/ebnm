@@ -1,6 +1,8 @@
 ^\.travis\.yml$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^\.circleci$
 ^docs$
 ^doc$
 ^Meta$
+^appveyor\.yml$
