@@ -278,6 +278,19 @@ ebnm_workhorse <- function(x,
                            prior_family,
                            call,
                            ...) {
+  # Remove this check when handling of zero SEs has been implemented for
+  #   point-Laplace and normal-mixture priors and issue #84 in ashr has been
+  #   fixed.
+  if (any(s <= 0, na.rm = TRUE)) {
+    if (any(s > 0, na.rm = TRUE)) {
+      min.s <- min(s[s > 0], na.rm = TRUE)
+    } else {
+      min.s <- Inf
+    }
+    s[s <= 0] <- min(min.s, (max(x) - min(x)) * sqrt(.Machine$double.eps))
+    warning("Nonpositive SEs have been replaced by small positive SEs.")
+  }
+
   check_args(x, s, g_init, fix_g, output, mode)
   mode <- handle_mode_parameter(mode)
   scale <- handle_scale_parameter(scale)
@@ -519,13 +532,6 @@ check_args <- function(x, s, g_init, fix_g, output, mode) {
 
   if (any(is.na(s))) {
     stop("Missing standard errors are not allowed.")
-  }
-
-  # Remove this check when handling of zero SEs has been implemented for
-  #   point-Laplace and normal-mixture priors and issue #84 in ashr has been
-  #   fixed.
-  if (any(s <= 0)) {
-    stop("Standard errors must be positive (and nonzero).")
   }
 
   if (any(is.infinite(s))) {
