@@ -143,8 +143,9 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
      }
 }
 \description{
-Solves the empirical Bayes normal means problem using a specified family of
-  priors \eqn{G}.
+Solves the empirical Bayes normal means (EBNM) problem using a specified
+  family of priors. For a comprehensive introduction to the package, see
+  the paper cited in \strong{References} below.
 }
 \details{
 Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
@@ -192,7 +193,8 @@ Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
         a natural spline basis. Like \code{npmle}, there is no unimodal
         assumption, but whereas \code{npmle} produces spiky estimates for
         \eqn{g}, \code{deconvolver} estimates are much more regular. See
-        Narasimhan and Efron (2020) for details.}
+        \code{\link[deconvolveR]{deconvolveR-package}} for details and
+        references.}
     }
 }
 \section{Functions}{

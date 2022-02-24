@@ -1,7 +1,8 @@
 #' Solve the EBNM problem
 #'
-#' Solves the empirical Bayes normal means problem using a specified family of
-#'   priors \eqn{G}.
+#' Solves the empirical Bayes normal means (EBNM) problem using a specified
+#'   family of priors. For a comprehensive introduction to the package, see
+#'   the paper cited in \strong{References} below.
 #'
 #' Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
 #'   solves the "empirical Bayes normal means" (EBNM) problem for various
@@ -48,7 +49,8 @@
 #'         a natural spline basis. Like \code{npmle}, there is no unimodal
 #'         assumption, but whereas \code{npmle} produces spiky estimates for
 #'         \eqn{g}, \code{deconvolver} estimates are much more regular. See
-#'         Narasimhan and Efron (2020) for details.}
+#'         \code{\link[deconvolveR]{deconvolveR-package}} for details and
+#'         references.}
 #'     }
 #'
 #' @param x A vector of observations. Missing observations (\code{NA}s) are
