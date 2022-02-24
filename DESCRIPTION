@@ -1,8 +1,8 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 0.1-64
-Date: 2022-02-22
+Version: 0.1-65
+Date: 2022-02-23
 Title: Solve the Empirical Bayes Normal Means Problem
 Author: Matthew Stephens, Jason Willwerscheid, Andrew Goldstein
 Maintainer: Peter Carbonetto <peter.carbonetto@gmail.com>
@@ -22,7 +22,6 @@ Imports:
     trust,
     horseshoe,
     deconvolveR,
-    REBayes,
     magrittr,
     rlang,
     dplyr,
@@ -32,7 +31,8 @@ Suggests:
     knitr,
     rmarkdown,
     microbenchmark,
-    numDeriv
+    numDeriv,
+    REBayes
 URL: https://github.com/stephenslab/ebnm
 BugReports: https://github.com/stephenslab/ebnm/issues
 RoxygenNote: 7.1.2

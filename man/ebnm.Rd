@@ -135,7 +135,7 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
         \eqn{L(\hat{g})}.}
       \item{\code{posterior_sampler}}{A function that can be used to
         produce samples from the posterior. For all prior families other
-        than the horseshoe, it takes a single parameter
+        than the horseshoe, the sampler takes a single parameter
         \code{nsamp}, the number of posterior samples to return per
         observation. Since \code{ebnm_horseshoe} returns an MCMC sampler,
         it additionally takes parameter \code{burn}, the number of burn-in
@@ -147,27 +147,25 @@ Solves the empirical Bayes normal means problem using a specified family of
   priors \eqn{G}.
 }
 \details{
-Given vectors of data \code{x} and standard errors \code{s},
-  solve the "empirical Bayes normal means" (EBNM) problem for various
+Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
+  solves the "empirical Bayes normal means" (EBNM) problem for various
   choices of prior family.
   The model is \deqn{x_j | \theta_j, s_j \sim N(\theta_j, s_j^2)}
-  \deqn{\theta_j | s_j \sim g \in G} where the distribution \eqn{g} is to
-  be estimated.
-  The distribution \eqn{g} is referred to as the "prior distribution" for
-  \eqn{\theta}
-  and \eqn{G} is a specified family of prior distributions. Several options
+  \deqn{\theta_j \sim g \in G,} where \eqn{g}, which is referred to as the
+  "prior distribution" for \eqn{\theta}, is to be estimated from among
+  some specified family of prior distributions \eqn{G}. Several options
   for \eqn{G} are implemented, some parametric and others non-parametric;
   see below for examples.
 
   Solving the EBNM problem involves
-  two steps. First, estimate \eqn{g \in  G} via maximum marginal likelihood,
-  yielding an estimate \deqn{\hat{g} := \arg\max_{g \in G} L(g)} where
-  \deqn{L(g) := \prod_j \int p(x_j | \theta_j, s_j)  g(d\theta_j)}
-  Second, compute the posterior distributions
+  two steps. First, \eqn{g \in  G} is estimated via maximum marginal likelihood:
+  \deqn{\hat{g} := \arg\max_{g \in G} L(g),} where
+  \deqn{L(g) := \prod_j \int p(x_j | \theta_j, s_j)  g(d\theta_j).}
+  Second, posterior distributions
   \eqn{p(\theta_j | x_j, s_j, \hat{g})} and/or summaries
-  such as posterior means and posterior second moments.
+  such as posterior means and posterior second moments are computed.
 
-  The prior families that have been implemented include:
+  Implemented prior families include:
     \describe{
       \item{\code{point_normal}}{The family of mixtures where one
         component is a point mass at \eqn{\mu} and the other is a normal
@@ -244,6 +242,12 @@ pn.res <- ebnm_point_normal(x, s, control = list(print.level = 1))
 #  unimodal uses mixsqp:
 unimodal.res <- ebnm_unimodal(x, s, control = list(verbose = TRUE))
 
+}
+\references{
+Jason Willwerscheid and Matthew Stephens (2021).
+  \code{ebnm}: an \code{R} Package for solving the empirical Bayes
+  normal means problem using a variety of prior families. arXiv,
+  2110.00152, 2021.
 }
 \seealso{
 A plotting method is available for \code{ebnm} objects: see
