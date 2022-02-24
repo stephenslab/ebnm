@@ -282,20 +282,8 @@ ebnm_workhorse <- function(x,
                            prior_family,
                            call,
                            ...) {
-  # Remove this check when handling of zero SEs has been implemented for
-  #   point-Laplace and normal-mixture priors and issue #84 in ashr has been
-  #   fixed.
-  if (any(s <= 0, na.rm = TRUE)) {
-    if (any(s > 0, na.rm = TRUE)) {
-      min.s <- min(s[s > 0], na.rm = TRUE)
-    } else {
-      min.s <- Inf
-    }
-    s[s <= 0] <- min(min.s, (max(x) - min(x)) * sqrt(.Machine$double.eps))
-    warning("Nonpositive SEs have been replaced by small positive SEs.")
-  }
-
   check_args(x, s, g_init, fix_g, output, mode)
+  s <- handle_standard_errors(x, s)
   mode <- handle_mode_parameter(mode)
   scale <- handle_scale_parameter(scale)
   if (is.null(control)) {
@@ -527,13 +515,13 @@ check_args <- function(x, s, g_init, fix_g, output, mode) {
          "argument 'x'.")
   }
 
-  # if (any(is.na(x)) && !all(is.infinite(s[is.na(x)]))) {
-  #   stop("All missing observations must have infinite SEs.")
-  # }
-
   if (any(is.na(x))) {
     stop("Missing observations are not allowed.")
   }
+
+  # if (any(is.na(x)) && !all(is.infinite(s[is.na(x)]))) {
+  #   stop("All missing observations must have infinite SEs.")
+  # }
 
   if (any(is.na(s))) {
     stop("Missing standard errors are not allowed.")
@@ -551,6 +539,23 @@ check_args <- function(x, s, g_init, fix_g, output, mode) {
     stop("Invalid argument to output. See function output_all() for a list ",
          "of valid outputs.")
   }
+}
+
+handle_standard_errors <- function(x, s) {
+  # Remove this check when handling of zero SEs has been implemented for
+  #   point-Laplace and normal-mixture priors and issue #84 in ashr has been
+  #   fixed.
+  if (any(s <= 0)) {
+    if (any(s > 0)) {
+      min.s <- min(s[s > 0])
+    } else {
+      min.s <- Inf
+    }
+    s[s <= 0] <- min(min.s, (max(x) - min(x)) * sqrt(.Machine$double.eps))
+    warning("Nonpositive SEs have been replaced by small positive SEs.")
+  }
+
+  return(s)
 }
 
 handle_mode_parameter <- function(mode) {
