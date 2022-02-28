@@ -1,9 +1,9 @@
 # ebnm: Fit the empirical Bayes normal means problem
 
-[![Travis Build Status](https://travis-ci.com/stephenslab/ebnm.svg?branch=master)](https://travis-ci.com/github/stephenslab/ebnm)
+[![Travis Build Status](https://travis-ci.com/stephenslab/ebnm.svg?branch=master)](https://app.travis-ci.com/github/stephenslab/ebnm)
 [![Appveyor Build status](https://ci.appveyor.com/api/projects/status/l4u64gdn4noqlb1i?svg=true)](https://ci.appveyor.com/project/pcarbo/ebnm)
-[![CircleCI build status](https://circleci.com/gh/stephenslab/ebnm.svg?style=svg)](https://circleci.com/gh/stephenslab/ebnm)
-[![codecov](https://codecov.io/gh/stephenslab/ebnm/branch/master/graph/badge.svg)](https://codecov.io/gh/stephenslab/ebnm)
+[![CircleCI build status](https://circleci.com/gh/stephenslab/ebnm.svg?style=svg)](https://app.circleci.com/pipelines/github/stephenslab/ebnm)
+[![codecov](https://codecov.io/gh/stephenslab/ebnm/branch/master/graph/badge.svg)](https://app.codecov.io/gh/stephenslab/ebnm)
 
 The `ebnm` package provides functions to solve the (heteroskedastic) "empirical Bayes normal means" (EBNM) problem for various choices of prior family. The model is
 
@@ -71,8 +71,7 @@ redistribute it under the terms of the
 the files in this project are part of *ebnm*. This project is
 distributed in the hope that it will be useful, but **without any
 warranty**; without even the implied warranty of **merchantability or
-fitness for a particular purpose**. See file [LICENSE](LICENSE) for
-the full text of the license.
+fitness for a particular purpose**.
 
 ## Quick Start
 
