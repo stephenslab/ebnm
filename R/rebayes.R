@@ -1,4 +1,3 @@
-#' @importFrom REBayes GLmix
 #' @importFrom ashr normalmix
 #'
 rebayes_workhorse <- function(x = x,
@@ -35,7 +34,7 @@ rebayes_workhorse <- function(x = x,
       n_gridpts <- (max(x) - min(x)) / scale
     }
 
-    rebayes_res <- do.call(GLmix,
+    rebayes_res <- do.call(REBayes::GLmix,
                            c(list(x = x,
                                   sigma = s,
                                   v = n_gridpts),
