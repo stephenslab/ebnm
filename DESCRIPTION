@@ -4,7 +4,6 @@ Type: Package
 Version: 1.0-0
 Date: 2022-02-28
 Title: Solve the Empirical Bayes Normal Means Problem
-Maintainer: Peter Carbonetto <peter.carbonetto@gmail.com>
 Authors@R: c(person("Willwerscheid", "Jason", role = "aut"),
              person("Stephens", "Matthew", role = "aut"),
              person("Carbonetto", "Peter", role = c("aut", "cre"),
