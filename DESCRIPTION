@@ -1,7 +1,7 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 1.0-0
+Version: 1.0-1
 Date: 2022-02-28
 Title: Solve the Empirical Bayes Normal Means Problem
 Authors@R: c(person("Willwerscheid", "Jason", role = "aut"),
@@ -16,7 +16,6 @@ Description: Provides simple, fast, and stable functions to fit the normal
     function ebnm(). A comprehensive introduction to the package is provided
     by Willwerscheid and Stephens (2021) <arXiV:2110.00152>.
 License: GPL (>=3)
-LazyData: true
 NeedsCompilation: no
 Depends: R (>= 3.3.0)
 Imports:
