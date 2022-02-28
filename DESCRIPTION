@@ -6,8 +6,8 @@ Date: 2022-02-28
 Title: Solve the Empirical Bayes Normal Means Problem
 Maintainer: Peter Carbonetto <peter.carbonetto@gmail.com>
 Authors@R: c(person("Willwerscheid", "Jason", role = "aut"),
-             person("Carbonetto", "Peter", role = c("aut", "cre")),
              person("Stephens", "Matthew", role = "aut"),
+             person("Carbonetto", "Peter", role = c("aut", "cre")),
              person("Goldstein", "Andrew", role = "ctb"))
 URL: https://github.com/stephenslab/ebnm
 BugReports: https://github.com/stephenslab/ebnm/issues
