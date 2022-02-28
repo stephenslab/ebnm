@@ -11,6 +11,10 @@ rebayes_workhorse <- function(x = x,
                               control = control,
                               call = call,
                               ...) {
+  if (!requireNamespace("REBayes", quietly = TRUE)) {
+    stop("Package REBayes must be installed to use optmethod = 'REBayes'.")
+  }
+
   if (!is.null(call$mode)) {
     warning("mode parameter is ignored by ebnm_npmle.")
   }

@@ -1,29 +1,28 @@
 #' Solve the EBNM problem
 #'
-#' Solves the empirical Bayes normal means problem using a specified family of
-#'   priors \eqn{G}.
+#' Solves the empirical Bayes normal means (EBNM) problem using a specified
+#'   family of priors. For a comprehensive introduction to the package, see
+#'   the paper cited in \strong{References} below.
 #'
-#' Given vectors of data \code{x} and standard errors \code{s},
-#'   solve the "empirical Bayes normal means" (EBNM) problem for various
+#' Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
+#'   solves the "empirical Bayes normal means" (EBNM) problem for various
 #'   choices of prior family.
 #'   The model is \deqn{x_j | \theta_j, s_j \sim N(\theta_j, s_j^2)}
-#'   \deqn{\theta_j | s_j \sim g \in G} where the distribution \eqn{g} is to
-#'   be estimated.
-#'   The distribution \eqn{g} is referred to as the "prior distribution" for
-#'   \eqn{\theta}
-#'   and \eqn{G} is a specified family of prior distributions. Several options
+#'   \deqn{\theta_j \sim g \in G,} where \eqn{g}, which is referred to as the
+#'   "prior distribution" for \eqn{\theta}, is to be estimated from among
+#'   some specified family of prior distributions \eqn{G}. Several options
 #'   for \eqn{G} are implemented, some parametric and others non-parametric;
 #'   see below for examples.
 #'
 #'   Solving the EBNM problem involves
-#'   two steps. First, estimate \eqn{g \in  G} via maximum marginal likelihood,
-#'   yielding an estimate \deqn{\hat{g} := \arg\max_{g \in G} L(g)} where
-#'   \deqn{L(g) := \prod_j \int p(x_j | \theta_j, s_j)  g(d\theta_j)}
-#'   Second, compute the posterior distributions
+#'   two steps. First, \eqn{g \in  G} is estimated via maximum marginal likelihood:
+#'   \deqn{\hat{g} := \arg\max_{g \in G} L(g),} where
+#'   \deqn{L(g) := \prod_j \int p(x_j | \theta_j, s_j)  g(d\theta_j).}
+#'   Second, posterior distributions
 #'   \eqn{p(\theta_j | x_j, s_j, \hat{g})} and/or summaries
-#'   such as posterior means and posterior second moments.
+#'   such as posterior means and posterior second moments are computed.
 #'
-#'   The prior families that have been implemented include:
+#'   Implemented prior families include:
 #'     \describe{
 #'       \item{\code{point_normal}}{The family of mixtures where one
 #'         component is a point mass at \eqn{\mu} and the other is a normal
@@ -50,7 +49,8 @@
 #'         a natural spline basis. Like \code{npmle}, there is no unimodal
 #'         assumption, but whereas \code{npmle} produces spiky estimates for
 #'         \eqn{g}, \code{deconvolver} estimates are much more regular. See
-#'         Narasimhan and Efron (2020) for details.}
+#'         \code{\link[deconvolveR]{deconvolveR-package}} for details and
+#'         references.}
 #'     }
 #'
 #' @param x A vector of observations. Missing observations (\code{NA}s) are
@@ -160,12 +160,18 @@
 #'         \eqn{L(\hat{g})}.}
 #'       \item{\code{posterior_sampler}}{A function that can be used to
 #'         produce samples from the posterior. For all prior families other
-#'         than the horseshoe, it takes a single parameter
+#'         than the horseshoe, the sampler takes a single parameter
 #'         \code{nsamp}, the number of posterior samples to return per
 #'         observation. Since \code{ebnm_horseshoe} returns an MCMC sampler,
 #'         it additionally takes parameter \code{burn}, the number of burn-in
 #'         samples to discard.}
 #'      }
+#'
+#' @references
+#' Jason Willwerscheid and Matthew Stephens (2021).
+#'   \code{ebnm}: an \code{R} Package for solving the empirical Bayes
+#'   normal means problem using a variety of prior families. arXiv,
+#'   2110.00152, 2021.
 #'
 #' @seealso A plotting method is available for \code{ebnm} objects: see
 #'   \code{\link{plot.ebnm}}.
@@ -279,6 +285,7 @@ ebnm_workhorse <- function(x,
                            call,
                            ...) {
   check_args(x, s, g_init, fix_g, output, mode)
+  s <- handle_standard_errors(x, s)
   mode <- handle_mode_parameter(mode)
   scale <- handle_scale_parameter(scale)
   if (is.null(control)) {
@@ -456,6 +463,7 @@ ebnm_workhorse <- function(x,
                                   ...)
   } else if (prior_family == "npmle"
              && !is.null(optmethod) && optmethod == "REBayes") {
+    # This option is not documented but is used in the paper.
     retlist <- rebayes_workhorse(x = x,
                                  s = s,
                                  mode = mode,
@@ -509,23 +517,16 @@ check_args <- function(x, s, g_init, fix_g, output, mode) {
          "argument 'x'.")
   }
 
-  # if (any(is.na(x)) && !all(is.infinite(s[is.na(x)]))) {
-  #   stop("All missing observations must have infinite SEs.")
-  # }
-
   if (any(is.na(x))) {
     stop("Missing observations are not allowed.")
   }
 
+  # if (any(is.na(x)) && !all(is.infinite(s[is.na(x)]))) {
+  #   stop("All missing observations must have infinite SEs.")
+  # }
+
   if (any(is.na(s))) {
     stop("Missing standard errors are not allowed.")
-  }
-
-  # Remove this check when handling of zero SEs has been implemented for
-  #   point-Laplace and normal-mixture priors and issue #84 in ashr has been
-  #   fixed.
-  if (any(s <= 0)) {
-    stop("Standard errors must be positive (and nonzero).")
   }
 
   if (any(is.infinite(s))) {
@@ -540,6 +541,23 @@ check_args <- function(x, s, g_init, fix_g, output, mode) {
     stop("Invalid argument to output. See function output_all() for a list ",
          "of valid outputs.")
   }
+}
+
+handle_standard_errors <- function(x, s) {
+  # Remove this check when handling of zero SEs has been implemented for
+  #   point-Laplace and normal-mixture priors and issue #84 in ashr has been
+  #   fixed.
+  if (any(s <= 0)) {
+    if (any(s > 0)) {
+      min.s <- min(s[s > 0])
+    } else {
+      min.s <- Inf
+    }
+    s[s <= 0] <- min(min.s, (max(x) - min(x)) * sqrt(.Machine$double.eps))
+    warning("Nonpositive SEs have been replaced by small positive SEs.")
+  }
+
+  return(s)
 }
 
 handle_mode_parameter <- function(mode) {
