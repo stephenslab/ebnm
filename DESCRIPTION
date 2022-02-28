@@ -1,14 +1,20 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 0.1-67
+Version: 1.0-0
 Date: 2022-02-28
 Title: Solve the Empirical Bayes Normal Means Problem
-Author: Matthew Stephens, Jason Willwerscheid, Andrew Goldstein
 Maintainer: Peter Carbonetto <peter.carbonetto@gmail.com>
+Authors@R: c(person("Willwerscheid", "Jason", role = "aut"),
+             person("Stephens", "Matthew", role = "aut"),
+             person("Carbonetto", "Peter", role = c("aut", "cre")),
+             person("Goldstein", "Andrew", role = "ctb"))
+URL: https://github.com/stephenslab/ebnm
+BugReports: https://github.com/stephenslab/ebnm/issues
 Description: Provides simple, fast, and stable functions to fit the normal
     means model using empirical Bayes. For available models and details, see 
-    function ebnm.
+    function ebnm(). A comprehensive introduction to the package is provided
+    by Willwerscheid and Stephens (2021) <arXiV:2110.00152>.
 License: GPL (>=3)
 LazyData: true
 NeedsCompilation: no
@@ -33,7 +39,5 @@ Suggests:
     microbenchmark,
     numDeriv,
     REBayes
-URL: https://github.com/stephenslab/ebnm
-BugReports: https://github.com/stephenslab/ebnm/issues
 RoxygenNote: 7.1.2
 VignetteBuilder: knitr
