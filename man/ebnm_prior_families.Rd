@@ -14,7 +14,7 @@
 \alias{ebnm_ash}
 \alias{ebnm_npmle}
 \alias{ebnm_deconvolver}
-\title{Solve the EBNM Problem Using a Specified Prior}
+\title{Solve the EBNM Problem Using Specified Prior}
 \usage{
 ebnm_point_normal(
   x,
@@ -262,7 +262,7 @@ is set, an \code{ashr}-style grid will be used instead of the default
 Describe return value here.
 }
 \description{
-Solve the EBNM Problem Using a Specified Prior
+Solve the EBNM Problem Using Specified Prior
 }
 \details{
 \code{ebnm_point_normal} uses a point-normal prior;

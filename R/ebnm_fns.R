@@ -1,6 +1,8 @@
 #' @rdname ebnm_prior_families
 #' 
-#' @title Solve the EBNM Problem Using a Specified Prior
+#' @title Solve the EBNM Problem Using Specified Prior
+#'
+#' @description Solve the EBNM Problem Using Specified Prior
 #'
 #' @details \code{ebnm_point_normal} uses a point-normal prior;
 #'   \code{ebnm_point_laplace} uses a point-Laplace prior;
