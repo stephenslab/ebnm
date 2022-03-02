@@ -10,6 +10,8 @@
 #'
 #' @param scale The scale parameter (must be a scalar).
 #'
+#' @return Describe return value here.
+#' 
 #' @export
 #'
 horseshoe <- function(scale) {

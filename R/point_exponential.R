@@ -3,10 +3,15 @@
 #' Creates a finite mixture of gamma distributions.
 #'
 #' @param pi A vector of mixture proportions.
+#' 
 #' @param shape A vector of shape parameters.
+#' 
 #' @param scale A vector of scale parameters.
+#' 
 #' @param shift A vector of shift parameters.
 #'
+#' @return Describe return value here.
+#' 
 #' @export
 #'
 gammamix <- function(pi, shape, scale, shift = rep(0, length(pi))) {
