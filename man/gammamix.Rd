@@ -16,7 +16,8 @@ gammamix(pi, shape, scale, shift = rep(0, length(pi)))
 \item{shift}{A vector of shift parameters.}
 }
 \value{
-Describe return value here.
+An object of class \code{gammamix} (a list with elements
+  \code{pi}, \code{shape}, \code{scale}, and \code{shift}, described above).
 }
 \description{
 Creates a finite mixture of gamma distributions.

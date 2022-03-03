@@ -1,27 +1,47 @@
+#' Solve the EBNM problem using a specified family of priors
+#'
+#' Each of the functions listed below solves the empirical Bayes normal means
+#'   (EBNM) problem using a specified family of priors. Calling function
+#'   \code{ebnm_xxx} is equivalent to calling function \code{ebnm} with argument
+#'   \code{prior_family = "xxx"}. For details about the model, see
+#'   \code{\link{ebnm}} or the paper cited in \strong{References} below.
+#'
+#'   Implemented prior families include:
+#'     \describe{
+#'       \item{\code{ebnm_point_normal}}{The family of mixtures where one
+#'         component is a point mass at \eqn{\mu} and the other is a normal
+#'         distribution centered at \eqn{\mu}.}
+#'       \item{\code{ebnm_point_laplace}}{The family of mixtures where one
+#'         component is a point mass at zero and the other is a
+#'         double-exponential distribution.}
+#'       \item{\code{ebnm_point_exponential}}{The family of mixtures where one
+#'         component is a point mass at zero and the other is a
+#'         (nonnegative) exponential distribution.}
+#'       \item{\code{ebnm_normal}}{The family of normal distributions.}
+#'       \item{\code{ebnm_horseshoe}}{The family of \link{horseshoe} distributions.}
+#'       \item{\code{ebnm_normal_scale_mixture}}{The family of scale mixtures of
+#'         normals.}
+#'       \item{\code{ebnm_unimodal}}{The family of all unimodal distributions.}
+#'       \item{\code{ebnm_unimodal_symmetric}}{The family of symmetric unimodal
+#'         distributions.}
+#'       \item{\code{ebnm_unimodal_nonnegative}}{The family of unimodal
+#'         distributions with support constrained to be greater than the mode.}
+#'       \item{\code{ebnm_unimodal_nonpositive}}{The family of unimodal
+#'         distributions with support constrained to be less than the mode.}
+#'       \item{\code{ebnm_npmle}}{The family of all distributions.}
+#'       \item{\code{ebnm_deconvolver}}{A non-parametric exponential family with
+#'         a natural spline basis. Like \code{npmle}, there is no unimodal
+#'         assumption, but whereas \code{npmle} produces spiky estimates for
+#'         \eqn{g}, \code{deconvolver} estimates are much more regular. See
+#'         \code{\link[deconvolveR]{deconvolveR-package}} for details and
+#'         references.}
+#'     }
+#'
+#' @inherit ebnm
+#'
+#' @seealso \code{\link{ebnm}}
+#'
 #' @rdname ebnm_prior_families
-#' 
-#' @title Solve the EBNM Problem Using Specified Prior
-#'
-#' @description Solve the EBNM Problem Using Specified Prior
-#'
-#' @details \code{ebnm_point_normal} uses a point-normal prior;
-#'   \code{ebnm_point_laplace} uses a point-Laplace prior;
-#'   \code{ebnm_point_exponential} uses a point-exponential prior;
-#'   \code{ebnm_normal} uses a normal prior; \code{ebnm_horseshoe} uses
-#'   a horseshoe prior; \code{ebnm_normal_scale_mixture} uses a scale
-#'   mixture of normals; \code{ebnm_unimodal} uses a unimodal
-#'   distribution; \code{ebnm_unimodal_symmetric} uses a symmetric
-#'   unimodal distribution; \code{ebnm_unimodal_nonnegative} uses a
-#'   nonnegative unimodal distribution; \code{ebnm_unimodal_nonpositive}
-#'   uses a nonpositive unimodal distribution; \code{ebnm_ash} uses an
-#'   adaptive shrinkage (\dQuote{ash}) prior; \code{ebnm_npmle} solves
-#'   the EBNM problem using a completely nonparametric approach; and
-#'   \code{ebnm_deconvoler} solves the EBNM problem using the
-#'   \code{deconvolveR} pacakage.
-#'
-#' @inheritParams ebnm
-#'
-#' @return Describe return value here.
 #'
 #' @export
 #'
@@ -47,7 +67,7 @@ ebnm_point_normal <- function(x,
                         call = match.call()))
 }
 
-#' @rdname ebnm_prior_families 
+#' @rdname ebnm_prior_families
 #'
 #' @export
 #'
@@ -74,7 +94,7 @@ ebnm_point_laplace <- function(x,
 }
 
 #' @rdname ebnm_prior_families
-#' 
+#'
 #' @export
 #'
 ebnm_point_exponential <- function(x,
@@ -126,7 +146,7 @@ ebnm_normal <- function(x,
 }
 
 #' @rdname ebnm_prior_families
-#' 
+#'
 #' @export
 #'
 ebnm_horseshoe <- function(x,
@@ -150,7 +170,7 @@ ebnm_horseshoe <- function(x,
 }
 
 #' @rdname ebnm_prior_families
-#' 
+#'
 #' @export
 #'
 ebnm_normal_scale_mixture <- function(x,
@@ -204,7 +224,7 @@ ebnm_unimodal <- function(x,
 }
 
 #' @rdname ebnm_prior_families
-#' 
+#'
 #' @export
 #'
 ebnm_unimodal_symmetric <- function(x,
@@ -258,7 +278,7 @@ ebnm_unimodal_nonnegative <- function(x,
 }
 
 #' @rdname ebnm_prior_families
-#' 
+#'
 #' @export
 #'
 ebnm_unimodal_nonpositive <- function(x,
@@ -285,7 +305,7 @@ ebnm_unimodal_nonpositive <- function(x,
 }
 
 #' @rdname ebnm_prior_families
-#' 
+#'
 #' @export
 #'
 ebnm_ash <- function(x,
@@ -339,7 +359,7 @@ ebnm_npmle <- function(x,
 }
 
 #' @rdname ebnm_prior_families
-#' 
+#'
 #' @export
 #'
 ebnm_deconvolver <- function(x,

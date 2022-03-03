@@ -10,7 +10,8 @@ horseshoe(scale)
 \item{scale}{The scale parameter (must be a scalar).}
 }
 \value{
-Describe return value here.
+An object of class \code{horseshoe} (a list with a single element
+  \code{scale}, described above).
 }
 \description{
 Creates a horseshoe prior (see Carvalho, Polson, and Scott (2010)). The

@@ -3,15 +3,16 @@
 #' Creates a finite mixture of gamma distributions.
 #'
 #' @param pi A vector of mixture proportions.
-#' 
+#'
 #' @param shape A vector of shape parameters.
-#' 
+#'
 #' @param scale A vector of scale parameters.
-#' 
+#'
 #' @param shift A vector of shift parameters.
 #'
-#' @return Describe return value here.
-#' 
+#' @return An object of class \code{gammamix} (a list with elements
+#'   \code{pi}, \code{shape}, \code{scale}, and \code{shift}, described above).
+#'
 #' @export
 #'
 gammamix <- function(pi, shape, scale, shift = rep(0, length(pi))) {
