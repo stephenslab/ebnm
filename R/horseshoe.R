@@ -10,8 +10,9 @@
 #'
 #' @param scale The scale parameter (must be a scalar).
 #'
-#' @return Describe return value here.
-#' 
+#' @return An object of class \code{horseshoe} (a list with a single element
+#'   \code{scale}, described above).
+#'
 #' @export
 #'
 horseshoe <- function(scale) {

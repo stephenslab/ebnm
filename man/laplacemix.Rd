@@ -14,7 +14,8 @@ laplacemix(pi, mean, scale)
 \item{scale}{A vector of scale parameters.}
 }
 \value{
-Describe the return value here.
+An object of class \code{laplacemix} (a list with elements
+  \code{pi}, \code{mean}, and \code{scale}, described above).
 }
 \description{
 Creates a finite mixture of Laplace distributions.

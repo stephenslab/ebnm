@@ -3,12 +3,13 @@
 #' Creates a finite mixture of Laplace distributions.
 #'
 #' @param pi A vector of mixture proportions.
-#' 
+#'
 #' @param mean A vector of means.
-#' 
+#'
 #' @param scale A vector of scale parameters.
 #'
-#' @return Describe the return value here.
+#' @return An object of class \code{laplacemix} (a list with elements
+#'   \code{pi}, \code{mean}, and \code{scale}, described above).
 #'
 #' @export
 #'
