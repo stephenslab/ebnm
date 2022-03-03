@@ -33,30 +33,29 @@ not allowed.}
 \item{s}{A vector of standard errors (or a scalar if all are equal).
 Standard errors may not be exactly zero, and
 missing standard errors are not allowed. Two prior families have
-additional restrictions: when \code{prior_family = "horseshoe"}, errors
+additional restrictions: when horseshoe priors are used, errors
 must be homoskedastic; and since function
 \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR} takes
-\eqn{z}-scores, all standard errors must be equal to 1 when
-\code{prior_family = "deconvolver"}.}
+\eqn{z}-scores, all standard errors must be equal to 1 when the
+"deconvolver" family is used.}
 
 \item{prior_family}{A character string that specifies the prior family
 \eqn{G}. See "Details" below.}
 
 \item{mode}{A scalar specifying the mode of the prior \eqn{g} or
 \code{"estimate"} if the mode is to be estimated from the data. This
-parameter is ignored when \code{prior_family} is \code{"npmle"} or
-\code{"deconvolver"}.}
+parameter is ignored by the NPMLE and \code{deconvolveR} prior family.}
 
 \item{scale}{A scalar or vector specifying the scale parameter(s) of the
 prior or \code{"estimate"} if the scale parameters are to be estimated
-from the data. The interpretation of \code{scale} depends on
-\code{prior_family}. For normal and point-normal families, it is a scalar
+from the data. The interpretation of \code{scale} depends on the prior
+family. For normal and point-normal families, it is a scalar
 specifying the standard deviation of the normal component. For
 point-Laplace and point-exponential families, it is a scalar specifying
 the scale parameter of the Laplace or exponential component. For the horseshoe
 family, it corresponds to \eqn{s\tau} in the usual parametrization of
-the \code{\link{horseshoe}} distribution. For \code{"npmle"} and
-\code{"deconvolver"}, it is a scalar specifying the distance between support
+the \code{\link{horseshoe}} distribution. For the NPMLE and \code{deconvolveR}
+prior family, it is a scalar specifying the distance between support
 points. For all other prior families, which are implemented using the function
 \code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
 the parameter \code{mixsd} to be passed to \code{ash} or \code{"estimate"}
@@ -73,9 +72,9 @@ example, to do computations with the "true" \eqn{g} in simulations). If
 specifies the initial value of \eqn{g} used during optimization. For
 non-parametric priors, this has the side effect of fixing the \code{mode}
 and \code{scale} parameters. If \code{g_init} is supplied, it should be
-an object of class \code{\link[ashr]{normalmix}} for prior families
-\code{normal}, \code{point_normal}, \code{normal_scale_mixture},
-\code{npmle}, and \code{deconvolver}; class \code{\link{laplacemix}} for
+an object of class \code{\link[ashr]{normalmix}} for normal, point-normal,
+scale mixture of normals, and \code{deconvolveR} prior families, as well as
+for the NPMLE; class \code{\link{laplacemix}} for
 point-Laplace families; class \code{\link{gammamix}} for point-exponential
 families; class \code{\link{horseshoe}} for horseshoe families; and class
 \code{\link[ashr]{unimix}} for \code{unimodal_} families.}
@@ -99,21 +98,20 @@ is only available for parametric families (point-normal, point-Laplace,
 point-exponential, and normal).}
 
 \item{control}{A list of control parameters to be passed to the optimization
-function. \code{\link[stats]{optimize}} is used for
-\code{prior_family = "normal"} and \code{prior_family = "horseshoe"},
-while \code{\link[stats]{nlm}} is used for parametric families unless
-parameter \code{optmethod} specifies otherwise. \code{\link[stats]{nlm}} is
-also used for \code{prior_family = "deconvolver"}.
-For ash families (including \code{normal_scale_mixture}, \code{npmle}, and
+function. \code{\link[stats]{optimize}} is used for normal and horseshoe
+prior families, while \code{\link[stats]{nlm}} is used for parametric
+families unless parameter \code{optmethod} specifies otherwise.
+\code{\link[stats]{nlm}} is also used for the \code{deconvolveR} prior family.
+For ash families (including scale mixtures of normals, the NPMLE, and
 all \code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
 package \code{mixsqp} is the default.}
 
-\item{...}{Additional parameters. When \code{prior_family = "ash"} or when
-a \code{unimodal_} prior is used, these parameters are passed to
+\item{...}{Additional parameters. When a \code{unimodal_} prior family is used,
+these parameters are passed to
 function \code{\link[ashr]{ash}} in package \code{ashr}. When
-\code{prior_family = "deconvolver"}, they are passed to function
+the "deconvolver" family is used, they are passed to function
 \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR}. Although it
-does not call into \code{ashr}, \code{normal_scale_mixture} accepts
+does not call into \code{ashr}, the scale mixture of normals family accepts
 parameter \code{gridmult} for purposes of comparison. When \code{gridmult}
 is set, an \code{ashr}-style grid will be used instead of the default
 \code{ebnm} grid. In all other cases, additional parameters are ignored.}
