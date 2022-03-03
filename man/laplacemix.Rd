@@ -13,6 +13,9 @@ laplacemix(pi, mean, scale)
 
 \item{scale}{A vector of scale parameters.}
 }
+\value{
+Describe the return value here.
+}
 \description{
 Creates a finite mixture of Laplace distributions.
 }

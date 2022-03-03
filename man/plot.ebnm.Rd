@@ -16,6 +16,9 @@ will include the line \eqn{y = x} by default. If
 \item{...}{Additional parameters to be passed to \code{ggplot2} function
 \code{\link[ggplot2]{geom_point}}.}
 }
+\value{
+A \code{ggplot} object.
+}
 \description{
 Given a fitted \code{ebnm} object, produces a plot of posterior means vs.
   observations.

@@ -1,8 +1,27 @@
-#' Solve the EBNM problem using a point-normal prior
+#' @rdname ebnm_prior_families
+#' 
+#' @title Solve the EBNM Problem Using Specified Prior
 #'
-#' See \code{\link{ebnm}} for details.
+#' @description Solve the EBNM Problem Using Specified Prior
+#'
+#' @details \code{ebnm_point_normal} uses a point-normal prior;
+#'   \code{ebnm_point_laplace} uses a point-Laplace prior;
+#'   \code{ebnm_point_exponential} uses a point-exponential prior;
+#'   \code{ebnm_normal} uses a normal prior; \code{ebnm_horseshoe} uses
+#'   a horseshoe prior; \code{ebnm_normal_scale_mixture} uses a scale
+#'   mixture of normals; \code{ebnm_unimodal} uses a unimodal
+#'   distribution; \code{ebnm_unimodal_symmetric} uses a symmetric
+#'   unimodal distribution; \code{ebnm_unimodal_nonnegative} uses a
+#'   nonnegative unimodal distribution; \code{ebnm_unimodal_nonpositive}
+#'   uses a nonpositive unimodal distribution; \code{ebnm_ash} uses an
+#'   adaptive shrinkage (\dQuote{ash}) prior; \code{ebnm_npmle} solves
+#'   the EBNM problem using a completely nonparametric approach; and
+#'   \code{ebnm_deconvoler} solves the EBNM problem using the
+#'   \code{deconvolveR} pacakage.
 #'
 #' @inheritParams ebnm
+#'
+#' @return Describe return value here.
 #'
 #' @export
 #'
@@ -28,11 +47,7 @@ ebnm_point_normal <- function(x,
                         call = match.call()))
 }
 
-#' Solve the EBNM problem using a point-Laplace prior
-#'
-#' See \code{\link{ebnm}} for details.
-#'
-#' @inheritParams ebnm
+#' @rdname ebnm_prior_families 
 #'
 #' @export
 #'
@@ -58,12 +73,8 @@ ebnm_point_laplace <- function(x,
                         call = match.call()))
 }
 
-#' Solve the EBNM problem using a point-exponential prior
-#'
-#' See \code{\link{ebnm}} for details.
-#'
-#' @inheritParams ebnm
-#'
+#' @rdname ebnm_prior_families
+#' 
 #' @export
 #'
 ebnm_point_exponential <- function(x,
@@ -88,11 +99,7 @@ ebnm_point_exponential <- function(x,
                         call = match.call()))
 }
 
-#' Solve the EBNM problem using a normal prior
-#'
-#' See \code{\link{ebnm}} for details.
-#'
-#' @inheritParams ebnm
+#' @rdname ebnm_prior_families
 #'
 #' @export
 #'
@@ -118,12 +125,8 @@ ebnm_normal <- function(x,
                         call = match.call()))
 }
 
-#' Solve the EBNM problem using a horseshoe prior
-#'
-#' See \code{\link{ebnm}} for details.
-#'
-#' @inheritParams ebnm
-#'
+#' @rdname ebnm_prior_families
+#' 
 #' @export
 #'
 ebnm_horseshoe <- function(x,
@@ -146,12 +149,8 @@ ebnm_horseshoe <- function(x,
                         call = match.call()))
 }
 
-#' Solve the EBNM problem using a scale mixture of normals
-#'
-#' See \code{\link{ebnm}} for details.
-#'
-#' @inheritParams ebnm
-#'
+#' @rdname ebnm_prior_families
+#' 
 #' @export
 #'
 ebnm_normal_scale_mixture <- function(x,
@@ -177,11 +176,7 @@ ebnm_normal_scale_mixture <- function(x,
                         ...))
 }
 
-#' Solve the EBNM problem using a unimodal distribution
-#'
-#' See \code{\link{ebnm}} for details.
-#'
-#' @inheritParams ebnm
+#' @rdname ebnm_prior_families
 #'
 #' @export
 #'
@@ -208,12 +203,8 @@ ebnm_unimodal <- function(x,
                         ...))
 }
 
-#' Solve the EBNM problem using a symmetric unimodal distribution
-#'
-#' See \code{\link{ebnm}} for details.
-#'
-#' @inheritParams ebnm
-#'
+#' @rdname ebnm_prior_families
+#' 
 #' @export
 #'
 ebnm_unimodal_symmetric <- function(x,
@@ -239,11 +230,7 @@ ebnm_unimodal_symmetric <- function(x,
                         ...))
 }
 
-#' Solve the EBNM problem using a nonnegative unimodal distribution
-#'
-#' See \code{\link{ebnm}} for details.
-#'
-#' @inheritParams ebnm
+#' @rdname ebnm_prior_families
 #'
 #' @export
 #'
@@ -270,12 +257,8 @@ ebnm_unimodal_nonnegative <- function(x,
                         ...))
 }
 
-#' Solve the EBNM problem using a nonpositive unimodal distribution
-#'
-#' See \code{\link{ebnm}} for details.
-#'
-#' @inheritParams ebnm
-#'
+#' @rdname ebnm_prior_families
+#' 
 #' @export
 #'
 ebnm_unimodal_nonpositive <- function(x,
@@ -301,13 +284,8 @@ ebnm_unimodal_nonpositive <- function(x,
                         ...))
 }
 
-#' Solve the EBNM problem using an ash opior
-#'
-#' A generic function for solving the EBNM problem using an
-#'   adaptive shrinkage (ash) prior. See \code{\link{ebnm}} for details.
-#'
-#' @inheritParams ebnm
-#'
+#' @rdname ebnm_prior_families
+#' 
 #' @export
 #'
 ebnm_ash <- function(x,
@@ -333,11 +311,7 @@ ebnm_ash <- function(x,
                         ...))
 }
 
-#' Solve the EBNM problem using a completely nonparametric problem
-#'
-#' See \code{\link{ebnm}} for details.
-#'
-#' @inheritParams ebnm
+#' @rdname ebnm_prior_families
 #'
 #' @export
 #'
@@ -364,12 +338,8 @@ ebnm_npmle <- function(x,
                         ...))
 }
 
-#' Solve the EBNM problem using package deconvolveR
-#'
-#' See \code{\link{ebnm}} for details.
-#'
-#' @inheritParams ebnm
-#'
+#' @rdname ebnm_prior_families
+#' 
 #' @export
 #'
 ebnm_deconvolver <- function(x,

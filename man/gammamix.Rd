@@ -15,6 +15,9 @@ gammamix(pi, shape, scale, shift = rep(0, length(pi)))
 
 \item{shift}{A vector of shift parameters.}
 }
+\value{
+Describe return value here.
+}
 \description{
 Creates a finite mixture of gamma distributions.
 }

@@ -9,6 +9,9 @@ horseshoe(scale)
 \arguments{
 \item{scale}{The scale parameter (must be a scalar).}
 }
+\value{
+Describe return value here.
+}
 \description{
 Creates a horseshoe prior (see Carvalho, Polson, and Scott (2010)). The
   horseshoe is usually parametrized as
