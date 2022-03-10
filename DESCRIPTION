@@ -1,14 +1,14 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 1.0-8
+Version: 1.0-9
 Date: 2022-03-02
 Title: Solve the Empirical Bayes Normal Means Problem
-Authors@R: c(person("Willwerscheid", "Jason", role = "aut"),
-             person("Stephens", "Matthew", role = "aut"),
-             person("Carbonetto", "Peter", role = c("aut", "cre"),
+Authors@R: c(person("Jason", "Willwerscheid", role = "aut"),
+             person("Matthew", "Stephens", role = "aut"),
+             person("Peter", "Carbonetto", role = c("aut", "cre"),
                     email = "peter.carbonetto@gmail.com"),
-             person("Goldstein", "Andrew", role = "ctb"))
+             person("Andrew", "Goldstein", role = "ctb"))
 URL: https://github.com/stephenslab/ebnm
 BugReports: https://github.com/stephenslab/ebnm/issues
 Description: Provides simple, fast, and stable functions to fit the normal
