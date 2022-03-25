@@ -167,6 +167,8 @@ ebnm_normal_mix_workhorse <- function(x,
       zero_comps <- which(fitted_g$sd == 0)
       if (length(zero_comps) > 0) {
         probzero <- rowSums(comp_postprob[, zero_comps, drop = FALSE])
+      } else {
+        probzero <- 0
       }
       probneg <- 1 - (probpos + probzero)
       posterior$lfsr <- probzero + pmin(probneg, probpos)
