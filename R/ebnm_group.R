@@ -1,3 +1,70 @@
+#' Solve the EBNM problem for grouped data
+#'
+#' Solves the empirical Bayes normal means (EBNM) problem for observations
+#'   belonging to distinct groups.
+#'
+#' The EBNM model for grouped data, with observations \eqn{x_j} grouped into
+#'   groups \eqn{k = 1, ..., K}, is
+#'   \deqn{x_j | \theta_j, s_j \sim N(\theta_j, s_j^2)}
+#'   \deqn{\theta_j \sim g_{k(j)} \in G_{k(j)}.}
+#'
+#' Solving the EBNM problem for grouped data is equivalent to solving a
+#'   separate EBNM problem for each group \eqn{k = 1, ..., K}, with the optimal
+#'   log likelihood equal to the sum of the optimal log likelihoods for each
+#'   separate problem.
+#'
+#' @inherit ebnm
+#'
+#' @param group A vector that gives the group to which each observation belongs.
+#'   It must have the same length as argument \code{x}.
+#'
+#' @param prior_family A named vector that specifies the prior family \eqn{G}
+#'   for each group. If the same prior family is to be used for all groups, then
+#'   a character string may be used instead.
+#'
+#' @param mode A named list that specifies, for each group, the mode of the
+#'   respective prior \eqn{g}, or \code{"estimate"} if the mode is to be
+#'   estimated from the data. If the mode is the same across groups, then a
+#'   scalar may be used instead. If all modes are to be estimated, then
+#'   \code{mode = "estimate"} may be used.
+#'
+#' @param scale A named list that specifies, for each group, the scale
+#'   parameter(s) of the respective prior, or \code{"estimate"} if the scale
+#'   parameters are to be estimated from the data. If the scale parameter is the
+#'   same across groups, then a scalar may be used instead. If all scales are to
+#'   be estimated, then \code{scale = "estimate"} may be used.
+#'
+#' @param g_init The prior distributions \eqn{g}. Usually this is left
+#'   unspecified (\code{NULL}) and estimated from the data. However, it can be
+#'   used in conjuction with \code{fix_g = TRUE} to fix the prior (useful, for
+#'   example, to do computations with the "true" \eqn{g} in simulations). If
+#'   \code{g_init} is specified but \code{fix_g = FALSE}, \code{g_init}
+#'   specifies the initial value of \eqn{g} used during optimization. If
+#'   \code{g_init} is supplied, it should be a named list that specifies, for
+#'   each group, a prior of the appropriate class (\code{\link[ashr]{normalmix}}
+#'   for normal, point-normal,
+#'   scale mixture of normals, and \code{deconvolveR} prior families, as well as
+#'   for the NPMLE; class \code{\link{laplacemix}} for
+#'   point-Laplace families; class \code{\link{gammamix}} for point-exponential
+#'   families; class \code{\link{horseshoe}} for horseshoe families; and class
+#'   \code{\link[ashr]{unimix}} for \code{unimodal_} families).
+#'
+#' @seealso \code{\link{ebnm}}
+#'
+#' @examples
+#' group <- c(rep("small_sd", 100), rep("large_sd", 100))
+#' theta <- c(rnorm(100, sd = 1), rnorm(100, sd = 10))
+#' s <- 1
+#' x <- theta + rnorm(200, 0, s)
+#'
+#' ebnm.group.res <- ebnm_group(x, s, group)
+#'
+#' # Use different prior families for each group:
+#' ebnm.group.res <- ebnm_group(
+#'   x, s, group,
+#'   prior_family = c(small_sd = "normal", large_sd = "normal_scale_mixture")
+#' )
+#'
 ebnm_group <- function(x,
                        s = 1,
                        group,
@@ -10,6 +77,7 @@ ebnm_group <- function(x,
                        ...) {
   # Check group parameter.
   # Check prior_family parameter.
+  # Check mode, scale.
   # Check g_init.
 
   args_list <- sapply(unique(group), function(grp) {
