@@ -30,6 +30,7 @@ samp_arg_str <- function() "posterior_sampler"
 data_ret_str <- function() "data"
 obs_ret_str  <- function() "x"
 se_ret_str   <- function() "s"
+grp_ret_str  <- function() "group" # Used by ebnm_group.
 df_ret_str   <- function() "posterior"
 pm_ret_str   <- function() "mean"
 psd_ret_str  <- function() "sd"
