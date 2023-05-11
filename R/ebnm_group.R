@@ -3,7 +3,7 @@
 #' Solves the empirical Bayes normal means (EBNM) problem for observations
 #'   belonging to distinct groups.
 #'
-#' The EBNM model for grouped data, with observations \eqn{x_j} grouped into
+#' The EBNM model for grouped data, with observations \eqn{x_j} belonging to
 #'   groups \eqn{k = 1, ..., K}, is
 #'   \deqn{x_j | \theta_j, s_j \sim N(\theta_j, s_j^2)}
 #'   \deqn{\theta_j \sim g_{k(j)} \in G_{k(j)}.}
@@ -75,23 +75,22 @@ ebnm_group <- function(x,
                        fix_g = FALSE,
                        output = output_default(),
                        ...) {
-  # Check group parameter.
-  # Check prior_family parameter.
-  # Check mode, scale.
-  # Check g_init.
+  check_args_group(x, group, prior_family, mode, scale, g_init)
 
   args_list <- sapply(unique(group), function(grp) {
     idx = which(group == grp)
     grp_args <- list(
+      group = grp,
       x = x[idx],
       s = ifelse(length(s) == 1, s, s[idx]),
-      prior_family = ifelse(length(prior_family) == 1, prior_family, prior_family[grp]),
-      g_init = NULL,
+      prior_family = ifelse(is.list(prior_family), prior_family[[grp]], prior_family),
+      mode = ifelse(is.list(mode), mode[[grp]], mode),
+      scale = ifelse(is.list(scale), scale[[grp]], scale),
       fix_g = fix_g,
       output = output
     )
     if (!is.null(g_init)) {
-      grp_args$g_init <- g_init[[grp]]
+      grp_args[["g_init"]] <- g_init[[grp]]
     }
     return(grp_args)
   }, simplify = FALSE)
@@ -160,4 +159,36 @@ ebnm_group <- function(x,
   }
 
   return(as_ebnm(retlist, match.call()))
+}
+
+check_args_group <- function(x, group, prior_family, mode, scale, g_init) {
+  if (!(length(group) == length(x))) {
+    stop("Argument 'group' must be the same length as argument 'x'.")
+  }
+
+  if (any(is.na(group))) {
+    stop("Missing group assignments are not allowed.")
+  }
+
+  grps <- unique(group)
+
+  check_named_list_arg(prior_family, grps, "prior_family")
+  check_named_list_arg(mode, grps, "mode")
+  check_named_list_arg(scale, grps, "scale")
+
+  if (!is.null(g_init)) {
+    if (!(is.list(g_init) && all(grps %in% names(g_init)))) {
+      stop("Argument 'g_init' must either be NULL or a named list with names ",
+           "corresponding to the unique values in argument 'group'.")
+    }
+  }
+}
+
+check_named_list_arg <- function(arg, grps, arg_name) {
+  if (!(is.list(arg) && all(grps %in% names(arg)))) {
+    if (length(arg) != 1) {
+      stop("Argument ", arg_name, " must either have length 1 or be a named list ",
+           "with names corresponding to the unique values in argument 'group'.")
+    }
+  }
 }
