@@ -110,7 +110,7 @@ Solves the empirical Bayes normal means (EBNM) problem for observations
   belonging to distinct groups.
 }
 \details{
-The EBNM model for grouped data, with observations \eqn{x_j} grouped into
+The EBNM model for grouped data, with observations \eqn{x_j} belonging to
   groups \eqn{k = 1, ..., K}, is
   \deqn{x_j | \theta_j, s_j \sim N(\theta_j, s_j^2)}
   \deqn{\theta_j \sim g_{k(j)} \in G_{k(j)}.}
@@ -131,7 +131,14 @@ ebnm.group.res <- ebnm_group(x, s, group)
 # Use different prior families for each group:
 ebnm.group.res <- ebnm_group(
   x, s, group,
-  prior_family = c(small_sd = "normal", large_sd = "normal_scale_mixture")
+  prior_family = list(small_sd = "normal", large_sd = "normal_scale_mixture")
+)
+
+# Different modes and scales can be set similarly:
+ebnm.group.res <- ebnm_group(
+  x, s, group,
+  mode = list(small_sd = 0, large_sd = "estimate"),
+  scale = list(small_sd = 1, large_sd = "estimate")
 )
 
 }

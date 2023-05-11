@@ -62,8 +62,17 @@
 #' # Use different prior families for each group:
 #' ebnm.group.res <- ebnm_group(
 #'   x, s, group,
-#'   prior_family = c(small_sd = "normal", large_sd = "normal_scale_mixture")
+#'   prior_family = list(small_sd = "normal", large_sd = "normal_scale_mixture")
 #' )
+#'
+#' # Different modes and scales can be set similarly:
+#' ebnm.group.res <- ebnm_group(
+#'   x, s, group,
+#'   mode = list(small_sd = 0, large_sd = "estimate"),
+#'   scale = list(small_sd = 1, large_sd = "estimate")
+#' )
+#'
+#' @export
 #'
 ebnm_group <- function(x,
                        s = 1,
