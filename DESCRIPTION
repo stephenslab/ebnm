@@ -35,4 +35,4 @@ Suggests:
     testthat, 
     numDeriv,
     REBayes
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.2
