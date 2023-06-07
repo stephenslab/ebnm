@@ -30,8 +30,9 @@ must be homoskedastic; and since function
 \eqn{z}-scores, all standard errors must be equal to 1 when the
 "deconvolver" family is used.}
 
-\item{group}{A vector that gives the group to which each observation belongs.
-It must have the same length as argument \code{x}.}
+\item{group}{A vector of character strings that gives the group to which each
+observation belongs. It must have the same length as argument \code{x}. For
+an example of usage, see Examples below.}
 
 \item{prior_family}{A named vector that specifies the prior family \eqn{G}
 for each group. If the same prior family is to be used for all groups, then

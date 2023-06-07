@@ -15,8 +15,9 @@
 #'
 #' @inherit ebnm
 #'
-#' @param group A vector that gives the group to which each observation belongs.
-#'   It must have the same length as argument \code{x}.
+#' @param group A vector of character strings that gives the group to which each
+#'   observation belongs. It must have the same length as argument \code{x}. For
+#'   an example of usage, see Examples below.
 #'
 #' @param prior_family A named vector that specifies the prior family \eqn{G}
 #'   for each group. If the same prior family is to be used for all groups, then
@@ -149,13 +150,13 @@ ebnm_group <- function(x,
     retlist <- add_llik_to_retlist(retlist, loglik)
   }
 
-  # TODO: Posterior sampler. Handle ebnm_horseshoe.
+  # TODO: There is as yet no way to set parameter burn for ebnm_horseshoe.
   if (sampler_in_output(output)) {
     post_sampler <- function(nsamp) {
       samp <- matrix(nrow = nsamp, ncol = length(x))
       samp_res <- sapply(
         ebnm_res,
-        function (grp) grp[[samp_ret_str()]](nsamp),
+        function(grp) grp[[samp_ret_str()]](nsamp),
         simplify = FALSE
       )
       for (grp in unique(group)) {
