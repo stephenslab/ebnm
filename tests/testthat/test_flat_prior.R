@@ -1,4 +1,4 @@
-context("Flat")
+context("flat")
 
 x <- 1:10
 s <- 1
