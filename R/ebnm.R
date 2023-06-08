@@ -242,6 +242,8 @@ ebnm <- function(x,
                                   "unimodal_nonpositive",
                                   "npmle",
                                   "deconvolver",
+                                  "flat",
+                                  "point_mass",
                                   "ash"),
                  mode = 0,
                  scale = "estimate",
@@ -284,8 +286,20 @@ ebnm_workhorse <- function(x,
                            ...) {
   check_args(x, s, g_init, fix_g, output, mode)
   s <- handle_standard_errors(x, s)
+
+  # Convenience function:
+  if (prior_family == "point_mass") {
+    prior_family <- "normal"
+    if (!is.null(call$scale)) {
+      warning("scale parameter is ignored by ebnm_point_mass.")
+      call$scale <- NULL
+    }
+    scale <- 0
+  }
+
   mode <- handle_mode_parameter(mode)
   scale <- handle_scale_parameter(scale)
+
   if (is.null(control)) {
     control <- list()
   }
@@ -504,6 +518,27 @@ ebnm_workhorse <- function(x,
                                      control = control,
                                      call = call,
                                      ...)
+  } else if (prior_family == "flat") {
+    if (!(is.null(call$mode) && is.null(call$scale))) {
+      warning("mode and scale parameters are ignored by ebnm_flat.")
+      call$mode <- NULL
+      call$scale <- NULL
+    }
+    if (!(is.null(call$g_init) && is.null(call$fixg))) {
+      warning("g_init and fixg parameters are ignored by ebnm_flat.")
+      call$g_init <- NULL
+      call$fixg <- NULL
+    }
+    retlist <- flat_workhorse(x = x,
+                              s = s,
+                              mode = mode,
+                              scale = scale,
+                              g_init = g_init,
+                              fix_g = fix_g,
+                              output = output,
+                              control = control,
+                              call = call,
+                              ...)
   }
 
   return(as_ebnm(retlist, call))
