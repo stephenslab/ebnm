@@ -389,8 +389,7 @@ ebnm_deconvolver <- function(x,
 #'
 ebnm_flat <- function(x,
                       s = 1,
-                      output = output_default(),
-                      ...) {
+                      output = output_default()) {
   return(ebnm_workhorse(x = x,
                         s = s,
                         mode = 0,
@@ -400,8 +399,7 @@ ebnm_flat <- function(x,
                         output = output,
                         control = NULL,
                         prior_family = "flat",
-                        call = match.call(),
-                        ...))
+                        call = match.call()))
 }
 
 #' @rdname ebnm_prior_families
@@ -415,8 +413,7 @@ ebnm_point_mass <- function(x,
                             fix_g = FALSE,
                             output = output_default(),
                             optmethod = NULL,
-                            control = NULL,
-                            ...) {
+                            control = NULL) {
   return(ebnm_workhorse(x = x,
                         s = s,
                         mode = mode,
@@ -427,6 +424,5 @@ ebnm_point_mass <- function(x,
                         optmethod = optmethod,
                         control = control,
                         prior_family = "point_mass",
-                        call = match.call(),
-                        ...))
+                        call = match.call()))
 }

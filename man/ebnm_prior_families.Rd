@@ -14,6 +14,8 @@
 \alias{ebnm_ash}
 \alias{ebnm_npmle}
 \alias{ebnm_deconvolver}
+\alias{ebnm_flat}
+\alias{ebnm_point_mass}
 \title{Solve the EBNM problem using a specified family of priors}
 \usage{
 ebnm_point_normal(
@@ -167,6 +169,19 @@ ebnm_deconvolver(
   output = output_default(),
   control = NULL,
   ...
+)
+
+ebnm_flat(x, s = 1, output = output_default())
+
+ebnm_point_mass(
+  x,
+  s = 1,
+  mode = 0,
+  g_init = NULL,
+  fix_g = FALSE,
+  output = output_default(),
+  optmethod = NULL,
+  control = NULL
 )
 }
 \arguments{
