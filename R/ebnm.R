@@ -295,6 +295,16 @@ ebnm_workhorse <- function(x,
       call$scale <- NULL
     }
     scale <- 0
+    if (!(is.null(call$g_init) && is.null(call$fixg))) {
+      warning("g_init and fixg parameters are ignored by ebnm_point_mass. ",
+              "To estimate the location of the point mass, set mode = ",
+              "\"estimate\". Otherwise the location will be fixed at the ",
+              "value given by parameter mode.")
+      call$g_init <- NULL
+      call$fixg <- NULL
+    }
+    g_init <- NULL
+    fix_g <- FALSE
   }
 
   mode <- handle_mode_parameter(mode)
