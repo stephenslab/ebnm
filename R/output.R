@@ -38,6 +38,7 @@ lfsr_ret_str <- function() "lfsr"
 g_ret_str    <- function() "fitted_g"
 llik_ret_str <- function() "log_likelihood"
 samp_ret_str <- function() "posterior_sampler"
+grp_ret_str  <- function() "group"
 
 # Postprocessing of the returned object is done here.
 as_ebnm <- function(retlist, call) {
