@@ -35,6 +35,10 @@
 #'         \eqn{g}, \code{deconvolver} estimates are much more regular. See
 #'         \code{\link[deconvolveR]{deconvolveR-package}} for details and
 #'         references.}
+#'       \item{\code{flat}}{The "non-informative" improper uniform prior, which
+#'         yields posteriors \deqn{\theta_j | x_j, s_j \sim N(x_j, s_j^2).}}
+#'       \item{\code{point_mass}}{The family of point masses \eqn{\delta_\mu}.
+#'         Posteriors are likewise point masses at \eqn{\mu}.}
 #'     }
 #'
 #' @inherit ebnm

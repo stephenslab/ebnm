@@ -51,6 +51,10 @@
 #'         \eqn{g}, \code{deconvolver} estimates are much more regular. See
 #'         \code{\link[deconvolveR]{deconvolveR-package}} for details and
 #'         references.}
+#'       \item{\code{flat}}{The "non-informative" improper uniform prior, which
+#'         yields posteriors \deqn{\theta_j | x_j, s_j \sim N(x_j, s_j^2).}}
+#'       \item{\code{point_mass}}{The family of point masses \eqn{\delta_\mu}.
+#'         Posteriors are likewise point masses at \eqn{\mu}.}
 #'     }
 #'
 #' @param x A vector of observations. Missing observations (\code{NA}s) are
@@ -70,11 +74,15 @@
 #'
 #' @param mode A scalar specifying the mode of the prior \eqn{g} or
 #'   \code{"estimate"} if the mode is to be estimated from the data. This
-#'   parameter is ignored by the NPMLE and \code{deconvolveR} prior family.
+#'   parameter is ignored by the NPMLE, the \code{deconvolveR} prior family,
+#'   and the improper uniform or "flat" prior.
 #'
 #' @param scale A scalar or vector specifying the scale parameter(s) of the
 #'   prior or \code{"estimate"} if the scale parameters are to be estimated
-#'   from the data. The interpretation of \code{scale} depends on the prior
+#'   from the data. This parameter is ignored by the flat prior and the point
+#'   mass prior family.
+#'
+#'   The interpretation of \code{scale} depends on the prior
 #'   family. For normal and point-normal families, it is a scalar
 #'   specifying the standard deviation of the normal component. For
 #'   point-Laplace and point-exponential families, it is a scalar specifying
@@ -103,7 +111,8 @@
 #'   for the NPMLE; class \code{\link{laplacemix}} for
 #'   point-Laplace families; class \code{\link{gammamix}} for point-exponential
 #'   families; class \code{\link{horseshoe}} for horseshoe families; and class
-#'   \code{\link[ashr]{unimix}} for \code{unimodal_} families.
+#'   \code{\link[ashr]{unimix}} for \code{unimodal_} families. This parameter is
+#'   ignored by the flat prior and point mass prior family.
 #'
 #' @param fix_g If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
 #'   of estimating it.
@@ -182,7 +191,8 @@
 #'   \code{\link{ebnm_unimodal_symmetric}},
 #'   \code{\link{ebnm_unimodal_nonnegative}},
 #'   \code{\link{ebnm_unimodal_nonpositive}}, \code{\link{ebnm_npmle}},
-#'   \code{\link{ebnm_deconvolver}}, and \code{\link{ebnm_ash}}
+#'   \code{\link{ebnm_deconvolver}}, \code{\link{ebnm_flat}},
+#'   \code{\link{ebnm_point_mass}}, and \code{\link{ebnm_ash}}
 #'   is equivalent to calling \code{ebnm} with \code{prior_family} set
 #'   accordingly.
 #'
