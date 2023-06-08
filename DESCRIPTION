@@ -30,7 +30,8 @@ Imports:
     magrittr,
     rlang,
     dplyr,
-    ggplot2
+    ggplot2,
+    labeling
 Suggests: 
     testthat, 
     numDeriv,
