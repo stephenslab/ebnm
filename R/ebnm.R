@@ -51,6 +51,10 @@
 #'         \eqn{g}, \code{deconvolver} estimates are much more regular. See
 #'         \code{\link[deconvolveR]{deconvolveR-package}} for details and
 #'         references.}
+#'       \item{\code{flat}}{The "non-informative" improper uniform prior, which
+#'         yields posteriors \deqn{\theta_j | x_j, s_j \sim N(x_j, s_j^2).}}
+#'       \item{\code{point_mass}}{The family of point masses \eqn{\delta_\mu}.
+#'         Posteriors are likewise point masses at \eqn{\mu}.}
 #'     }
 #'
 #' @param x A vector of observations. Missing observations (\code{NA}s) are
@@ -70,11 +74,15 @@
 #'
 #' @param mode A scalar specifying the mode of the prior \eqn{g} or
 #'   \code{"estimate"} if the mode is to be estimated from the data. This
-#'   parameter is ignored by the NPMLE and \code{deconvolveR} prior family.
+#'   parameter is ignored by the NPMLE, the \code{deconvolveR} prior family,
+#'   and the improper uniform or "flat" prior.
 #'
 #' @param scale A scalar or vector specifying the scale parameter(s) of the
 #'   prior or \code{"estimate"} if the scale parameters are to be estimated
-#'   from the data. The interpretation of \code{scale} depends on the prior
+#'   from the data. This parameter is ignored by the flat prior and the point
+#'   mass prior family.
+#'
+#'   The interpretation of \code{scale} depends on the prior
 #'   family. For normal and point-normal families, it is a scalar
 #'   specifying the standard deviation of the normal component. For
 #'   point-Laplace and point-exponential families, it is a scalar specifying
@@ -103,7 +111,8 @@
 #'   for the NPMLE; class \code{\link{laplacemix}} for
 #'   point-Laplace families; class \code{\link{gammamix}} for point-exponential
 #'   families; class \code{\link{horseshoe}} for horseshoe families; and class
-#'   \code{\link[ashr]{unimix}} for \code{unimodal_} families.
+#'   \code{\link[ashr]{unimix}} for \code{unimodal_} families. This parameter is
+#'   ignored by the flat prior and point mass prior family.
 #'
 #' @param fix_g If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
 #'   of estimating it.
@@ -182,7 +191,8 @@
 #'   \code{\link{ebnm_unimodal_symmetric}},
 #'   \code{\link{ebnm_unimodal_nonnegative}},
 #'   \code{\link{ebnm_unimodal_nonpositive}}, \code{\link{ebnm_npmle}},
-#'   \code{\link{ebnm_deconvolver}}, and \code{\link{ebnm_ash}}
+#'   \code{\link{ebnm_deconvolver}}, \code{\link{ebnm_flat}},
+#'   \code{\link{ebnm_point_mass}}, and \code{\link{ebnm_ash}}
 #'   is equivalent to calling \code{ebnm} with \code{prior_family} set
 #'   accordingly.
 #'
@@ -242,6 +252,8 @@ ebnm <- function(x,
                                   "unimodal_nonpositive",
                                   "npmle",
                                   "deconvolver",
+                                  "flat",
+                                  "point_mass",
                                   "ash"),
                  mode = 0,
                  scale = "estimate",
@@ -284,8 +296,30 @@ ebnm_workhorse <- function(x,
                            ...) {
   check_args(x, s, g_init, fix_g, output, mode)
   s <- handle_standard_errors(x, s)
+
+  # Convenience function:
+  if (prior_family == "point_mass") {
+    prior_family <- "normal"
+    if (!is.null(call$scale)) {
+      warning("scale parameter is ignored by ebnm_point_mass.")
+      call$scale <- NULL
+    }
+    scale <- 0
+    if (!(is.null(call$g_init) && is.null(call$fixg))) {
+      warning("g_init and fixg parameters are ignored by ebnm_point_mass. ",
+              "To estimate the location of the point mass, set mode = ",
+              "\"estimate\". Otherwise the location will be fixed at the ",
+              "value given by parameter mode.")
+      call$g_init <- NULL
+      call$fixg <- NULL
+    }
+    g_init <- NULL
+    fix_g <- FALSE
+  }
+
   mode <- handle_mode_parameter(mode)
   scale <- handle_scale_parameter(scale)
+
   if (is.null(control)) {
     control <- list()
   }
@@ -504,6 +538,27 @@ ebnm_workhorse <- function(x,
                                      control = control,
                                      call = call,
                                      ...)
+  } else if (prior_family == "flat") {
+    if (!(is.null(call$mode) && is.null(call$scale))) {
+      warning("mode and scale parameters are ignored by ebnm_flat.")
+      call$mode <- NULL
+      call$scale <- NULL
+    }
+    if (!(is.null(call$g_init) && is.null(call$fixg))) {
+      warning("g_init and fixg parameters are ignored by ebnm_flat.")
+      call$g_init <- NULL
+      call$fixg <- NULL
+    }
+    retlist <- flat_workhorse(x = x,
+                              s = s,
+                              mode = mode,
+                              scale = scale,
+                              g_init = g_init,
+                              fix_g = fix_g,
+                              output = output,
+                              control = control,
+                              call = call,
+                              ...)
   }
 
   return(as_ebnm(retlist, call))

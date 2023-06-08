@@ -1,8 +1,8 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 1.0-11
-Date: 2022-03-25
+Version: 1.0-12
+Date: 2023-06-08
 Title: Solve the Empirical Bayes Normal Means Problem
 Authors@R: c(person("Jason", "Willwerscheid", role = "aut"),
              person("Matthew", "Stephens", role = "aut"),
@@ -30,9 +30,10 @@ Imports:
     magrittr,
     rlang,
     dplyr,
-    ggplot2
+    ggplot2,
+    labeling
 Suggests: 
     testthat, 
     numDeriv,
     REBayes
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.2

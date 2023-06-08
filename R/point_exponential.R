@@ -64,7 +64,7 @@ pe_initpar <- function(g_init, mode, scale, pointmass, x, s) {
       }
       par$beta <- -log(scale)
     } else {
-      par$beta <- -0.5 * log(mean(x^2) / 2) # default (TODO)
+      par$beta <- -0.5 * log(mean(x^2) / 2) # default
     }
     if (!identical(mode, "estimate")) {
       par$mu <- mode

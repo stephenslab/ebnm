@@ -35,6 +35,10 @@
 #'         \eqn{g}, \code{deconvolver} estimates are much more regular. See
 #'         \code{\link[deconvolveR]{deconvolveR-package}} for details and
 #'         references.}
+#'       \item{\code{flat}}{The "non-informative" improper uniform prior, which
+#'         yields posteriors \deqn{\theta_j | x_j, s_j \sim N(x_j, s_j^2).}}
+#'       \item{\code{point_mass}}{The family of point masses \eqn{\delta_\mu}.
+#'         Posteriors are likewise point masses at \eqn{\mu}.}
 #'     }
 #'
 #' @inherit ebnm
@@ -381,4 +385,44 @@ ebnm_deconvolver <- function(x,
                         prior_family = "deconvolver",
                         call = match.call(),
                         ...))
+}
+
+#' @rdname ebnm_prior_families
+#'
+#' @export
+#'
+ebnm_flat <- function(x,
+                      s = 1,
+                      output = output_default()) {
+  return(ebnm_workhorse(x = x,
+                        s = s,
+                        mode = 0,
+                        scale = 0,
+                        g_init = NULL,
+                        fix_g = FALSE,
+                        output = output,
+                        control = NULL,
+                        prior_family = "flat",
+                        call = match.call()))
+}
+
+#' @rdname ebnm_prior_families
+#'
+#' @export
+#'
+ebnm_point_mass <- function(x,
+                            s = 1,
+                            mode = 0,
+                            output = output_default()) {
+  return(ebnm_workhorse(x = x,
+                        s = s,
+                        mode = mode,
+                        scale = 0,
+                        g_init = NULL,
+                        fix_g = FALSE,
+                        output = output,
+                        optmethod = NULL,
+                        control = NULL,
+                        prior_family = "point_mass",
+                        call = match.call()))
 }

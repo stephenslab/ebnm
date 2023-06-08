@@ -146,8 +146,13 @@ pn_nllik <- function(par, x, s, par_init, fix_par,
     nllik <- -n0 * log(logist.alpha)
   }
   nllik <- nllik - (n1 + n2) * (log(logist.nalpha))
-  nllik <- nllik + 0.5 * (n1 * beta + sum1 * exp(-beta) + sum_z)
-  nllik <- nllik - sum(log(exp(y - C) + exp(alpha - C)) + C)
+  if (n1 > 0) {
+    nllik <- nllik + 0.5 * n1 * beta
+  }
+  if (sum1 > 0) {
+    nllik <- nllik + 0.5 * sum1 * exp(-beta)
+  }
+  nllik <- nllik + 0.5 * sum_z - sum(log(exp(y - C) + exp(alpha - C)) + C)
 
   if (calc_grad || calc_hess) {
     dlogist.beta  <- logist.beta * logist.nbeta
@@ -310,7 +315,11 @@ wpost_normal <- function(x, s, w, a, mu) {
 
 # Posterior means for non-null effects.
 pmean_cond_normal <- function(x, s, a, mu) {
-  pm <- (x + s^2 * a * mu) / (1 + s^2 * a)
+  if (is.infinite(a)) {
+    pm <- rep(mu, length(x))
+  } else {
+    pm <- (x + s^2 * a * mu) / (1 + s^2 * a)
+  }
 
   if (any(is.infinite(s))) {
     pm[is.infinite(s)] <- mu
