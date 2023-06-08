@@ -147,9 +147,12 @@ pn_nllik <- function(par, x, s, par_init, fix_par,
   }
   nllik <- nllik - (n1 + n2) * (log(logist.nalpha))
   if (n1 > 0) {
-    nllik <- nllik + 0.5 * (n1 * beta + sum1 * exp(-beta) + sum_z)
+    nllik <- nllik + 0.5 * n1 * beta
   }
-  nllik <- nllik - sum(log(exp(y - C) + exp(alpha - C)) + C)
+  if (sum1 > 0) {
+    nllik <- nllik + 0.5 * sum1 * exp(-beta)
+  }
+  nllik <- nllik + 0.5 * sum_z - sum(log(exp(y - C) + exp(alpha - C)) + C)
 
   if (calc_grad || calc_hess) {
     dlogist.beta  <- logist.beta * logist.nbeta
