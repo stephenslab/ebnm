@@ -4,17 +4,17 @@
 \alias{plot.ebnm}
 \title{Plot an ebnm object}
 \usage{
-\method{plot}{ebnm}(x, remove_abline = FALSE, ...)
+\method{plot}{ebnm}(x, ..., remove_abline = FALSE)
 }
 \arguments{
 \item{x}{The fitted \code{ebnm} object.}
 
+\item{...}{Additional parameters to be passed to \code{ggplot2} function
+\code{\link[ggplot2]{geom_point}}.}
+
 \item{remove_abline}{To better illustrate shrinkage effects, the plot
 will include the line \eqn{y = x} by default. If
 \code{remove_abline = TRUE}, then this line will not be drawn.}
-
-\item{...}{Additional parameters to be passed to \code{ggplot2} function
-\code{\link[ggplot2]{geom_point}}.}
 }
 \value{
 A \code{ggplot} object.

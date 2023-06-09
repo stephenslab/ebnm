@@ -38,8 +38,8 @@
 #'
 #' @export
 #'
-plot.ebnm <- function(x, remove_abline = FALSE, ...) {
-  if (!is(x,"ebnm")) {
+plot.ebnm <- function(x, ..., remove_abline = FALSE) {
+  if (!inherits(x, "ebnm")) {
     stop("Input argument x must be an instance of class \"ebnm\".")
   }
 
@@ -51,15 +51,70 @@ plot.ebnm <- function(x, remove_abline = FALSE, ...) {
     stop("Posterior means not found in ebnm object. Results cannot be plotted.")
   }
 
+  model_num <- 1
+  ebnm_label <- "Model 1"
+  llik <- as.numeric(x[[llik_ret_str()]])
+  if (!is.null(llik)) {
+    ebnm_label <- paste0(
+      ebnm_label, " (llik: ", round(llik, 2), ")"
+    )
+  }
+
   df <- data.frame(
     x = x[[data_ret_str()]][[obs_ret_str()]],
-    pm = x[[df_ret_str()]][[pm_ret_str()]]
+    pm = x[[df_ret_str()]][[pm_ret_str()]],
+    label = ebnm_label
   )
 
-  plt <- ggplot(df, aes(x = x, y = pm)) +
-    geom_point(...) +
-    labs(x = "Observations", y = "Posterior means") +
-    theme_minimal()
+  args <- list(...)
+  if (length(args) > 0) {
+    ebnm_idx <- which(sapply(args, inherits, "ebnm"))
+    for (idx in ebnm_idx) {
+      next_ebnm <- args[[idx]]
+      if (is.null(next_ebnm[[data_ret_str()]])) {
+        warning("An additional ebnm object was included as argument, but it does ",
+                "not include a data field. Object will be ignored.")
+      } else if (is.null(next_ebnm[[df_ret_str()]][[pm_ret_str()]])) {
+        warning("An additional ebnm object was included as argument, but it does ",
+                "not include posterior means. Object will be ignored.")
+      } else if (!identical(x[[data_ret_str()]], next_ebnm[[data_ret_str()]])) {
+        warning("An additional ebnm object was included as argument, but a different ",
+                "dataset was used to fit that model. Object will be ignored.")
+      } else {
+        next_df <- data.frame(
+          x = next_ebnm[[data_ret_str()]][[obs_ret_str()]],
+          pm = next_ebnm[[df_ret_str()]][[pm_ret_str()]]
+        )
+
+        model_num <- model_num + 1
+        ebnm_label <- paste("Model", model_num)
+        llik <- as.numeric(next_ebnm[[llik_ret_str()]])
+        if (!is.null(llik)) {
+          ebnm_label <- paste0(
+            ebnm_label, " (llik: ", round(llik, 2), ")"
+          )
+        }
+        next_df$label <- ebnm_label
+
+        df <- rbind(df, next_df)
+      }
+    }
+    args <- args[-ebnm_idx]
+  }
+
+  if (length(unique(df$label)) > 1) {
+    plt <- ggplot(df, aes(x = x, y = pm, color = label)) +
+      do.call(geom_point, args) +
+      labs(x = "Observations", y = "Posterior means",
+           color = "Fitted EBNM models") +
+      theme_minimal()
+  } else {
+    plt <- ggplot(df, aes(x = x, y = pm)) +
+      do.call(geom_point, args) +
+      labs(x = "Observations", y = "Posterior means",
+           title = paste("Log likelihood for model:", round(llik, 2))) +
+      theme_minimal()
+  }
 
   if (!remove_abline) {
     plt <- plt + geom_abline(slope = 1, linetype = "dashed")
