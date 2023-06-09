@@ -263,6 +263,31 @@ ebnm <- function(x,
                  optmethod = NULL,
                  control = NULL,
                  ...) {
+
+  # Allow the prior family to remain unspecified if it can be inferred from
+  #   g_init. This functionality is not currently documented, and has thus not
+  #   been tested exhaustively, but it is needed by method predict.
+  if (missing(prior_family) && !is.null(g_init)) {
+    if (class(g_init) %in% c("unimix", "normalmix")) {
+      prior_family <- "ash"
+    } else if (class(g_init) == "horseshoe") {
+      prior_family <- "horseshoe"
+    } else if (class(g_init) == "laplacemix") {
+      if (length(g_init$scale) == 2
+          && g_init$scale[1] == 0
+          && g_init$mean[1] == g_init$mean[2]) {
+        prior_family <- "point_laplace"
+      }
+    } else if (class(g_init) == "gammamix") {
+      if (length(g_init$scale) == 2
+          && g_init$scale[1] == 0
+          && g_init$shape[1] == 1
+          && g_init$shape[2] == 1
+          && g_init$shift[1] == g_init$shift[2])
+      prior_family <- "point_exponential"
+    }
+  }
+
   prior_family <- match.arg(prior_family)
 
   return(ebnm_workhorse(x = x,

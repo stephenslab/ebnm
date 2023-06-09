@@ -70,3 +70,8 @@ test_that("df is correct for returned logLik", {
   expect_equal(attr(logLik(hs.res2), "df"), 0)
 })
 
+test_that("predict method works as expected", {
+  hs.res <- ebnm_horseshoe(x, s)
+  hs.res2 <- predict(hs.res, list(x = 1:10, s = 1))
+  expect_equal(hs.res$fitted_g, hs.res2$fitted_g)
+})

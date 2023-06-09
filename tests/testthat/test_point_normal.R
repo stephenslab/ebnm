@@ -125,3 +125,9 @@ test_that("df is correct for returned logLik", {
   pn.res4 <- ebnm_point_normal(x, s, g_init = pn.res3$fitted_g, fix_g = TRUE)
   expect_equal(attr(logLik(pn.res4), "df"), 0)
 })
+
+test_that("predict method works as expected", {
+  pn.res <- ebnm_point_normal(x, s)
+  pn.res2 <- predict(pn.res, list(x = 1:10, s = 1))
+  expect_equal(pn.res$fitted_g, pn.res2$fitted_g)
+})

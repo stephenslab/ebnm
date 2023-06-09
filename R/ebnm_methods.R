@@ -157,6 +157,43 @@ fitted.ebnm <- function(object, ...) {
   return(object[[df_ret_str()]][[pm_ret_str()]])
 }
 
+#' Use the fitted prior from a given ebnm object to solve the EBNM problem for
+#'   new data
+#'
+#' The \code{\link[stats]{predict}} method for class \code{ebnm}.
+#'
+#' @param object The fitted \code{ebnm} object.
+#'
+#' @param newdata A list that includes fields \code{x} (the new observations)
+#'   and \code{s} (corresponding standard errors). See \code{\link{ebnm}} for
+#'   details about how to specify \code{x} and \code{s}.
+#'
+#' @param output A character vector indicating which values are to be returned.
+#'   See \code{\link{ebnm}} for details.
+#'
+#' @param ... Not used. Included for consistency as an S3 method.
+#'
+#' @return An \code{ebnm} object. See \code{\link{ebnm}} for details.
+#'
+#' @method predict ebnm
+#'
+#' @export
+#'
+predict.ebnm <- function(object, newdata, output = output_default(), ...) {
+  if (!("x" %in% names(newdata) && "s" %in% names(newdata))) {
+    stop("Argument 'newdata' must be a list with fields 'x' (the new ",
+         "observations) and 's' (corresponding standard errors).")
+  }
+  g_init <- object[[g_ret_str()]]
+  return(ebnm(
+    newdata$x,
+    newdata$s,
+    g_init = g_init,
+    fix_g = TRUE,
+    output = output
+  ))
+}
+
 #' Get the number of observations in an ebnm object
 #'
 #' The \code{\link[stats]{nobs}} method for class \code{ebnm}.

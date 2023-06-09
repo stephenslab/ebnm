@@ -73,3 +73,9 @@ test_that("Null case estimates pi0 = 1", {
   pe.res <- ebnm_point_exponential(x, s = 1, scale = 1)
   expect_equal(pe.res[[g_ret_str()]]$pi[1], 1)
 })
+
+test_that("predict method works as expected", {
+  pe.res <- ebnm_point_exponential(x, s)
+  pe.res2 <- predict(pe.res, list(x = 1:10, s = 1))
+  expect_equal(pe.res$fitted_g, pe.res2$fitted_g)
+})
