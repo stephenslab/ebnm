@@ -68,11 +68,111 @@ plot.ebnm <- function(x, remove_abline = FALSE, ...) {
   return(plt)
 }
 
+#' Summarize an ebnm object
+#'
+#' The \code{summary} method for class \code{ebnm}.
+#'
+#' @param object The fitted \code{ebnm} object.
+#'
+#' @param ... Not used. Included for consistency as an S3 method.
+#'
+#' @return A \code{summary.ebnm} object.
+#'
+#' @method summary ebnm
+#'
+#' @export
+#'
+summary.ebnm <- function(object, ...) {
+  retlist <- list()
+
+  dat <- object[[data_ret_str()]]
+  if (!is.null(dat)) {
+    retlist$nobs <- length(dat[[obs_ret_str()]])
+    retlist$heteroskedastic <- (diff(range(dat[[se_ret_str()]])) > 0)
+  } else {
+    retlist$nobs <- NA
+    retlist$heteroskedastic <- NA
+  }
+
+  g <- object[[g_ret_str()]]
+
+  if (!is.null(g)) {
+    retlist$prior_class <- class(g)
+
+    # Identify pointmass.
+    if (class(g) == "normalmix") {
+      pointmass_idx <- which(g$sd == 0)
+    } else if (class(g) %in% c("laplacemix", "gammamix")) {
+      pointmass_idx <- which(g$scale == 0)
+    } else if (class(g) == "unimix") {
+      pointmass_idx <- which(g$a == g$b)
+    } else {
+      pointmass_idx <- numeric(0)
+    }
+    if (length(pointmass_idx) == 1) {
+      if (class(g) %in% c("normalmix", "laplacemix")) {
+        retlist$pointmass_location <- g$mean[pointmass_idx]
+      } else if (class(g) == "gammamix") {
+        retlist$pointmass_location <- g$shift[pointmass_idx]
+      } else if (class(g) == "unimix") {
+        retlist$pointmass_location <- g$a[pointmass_idx]
+      } else {
+        retlist$pointmass_location <- NA
+      }
+      retlist$pointmass_weight <- g$pi[pointmass_idx]
+    } else {
+      retlist$pointmass_weight <- NA
+    }
+  } else {
+    retlist$prior_class <- NA
+    retlist$pointmass_location <- NA
+    retlist$pointmass_weight <- NA
+  }
+
+  retlist$log_likelihood <- object[[llik_ret_str()]]
+  if (is.null(retlist$log_likelihood)) {
+    retlist$log_likelihood <- NA
+  }
+
+  retlist$posterior_summaries <- names(object[[df_ret_str()]])
+  if (is.null(retlist$posterior_summaries)) {
+    retlist$posterior_summaries <- NA
+  }
+
+  retlist$sampler_included <- !is.null(object[[samp_ret_str()]])
+
+  retlist$call <- object[["call"]]
+
+  class(retlist) <- c("summary.ebnm", "list")
+
+  return(retlist)
+}
+
+#' Print a summary.ebnm object
+#'
+#' The \code{print} method for class \code{summary.ebnm}.
+#'
+#' @param x The \code{summary.ebnm} object.
+#'
+#' @param digits Number of significant digits to use.
+#'
+#' @param ... Not used. Included for consistency as an S3 method.
+#'
+#' @method print summary.ebnm
+#'
+#' @export
+#'
+print.summary.ebnm <- function(x, digits = 2, ...) {
+  print_it(x, digits, summary = TRUE)
+}
+
 #' Print an ebnm object
 #'
 #' The \code{print} method for class \code{ebnm}.
 #'
 #' @param x The fitted \code{ebnm} object.
+#'
+#' @param digits Number of significant digits to use.
 #'
 #' @param ... Not used. Included for consistency as an S3 method.
 #'
@@ -80,40 +180,52 @@ plot.ebnm <- function(x, remove_abline = FALSE, ...) {
 #'
 #' @export
 #'
-print.ebnm <- function(x, ...) {
-  cat("Call:\n")
+print.ebnm <- function(x, digits = 2, ...) {
+  print_it(summary(x), digits, summary = FALSE)
+}
+
+print_it <- function(x, digits, summary) {
+  cat("\nCall:\n")
   print(x$call)
   cat("\n")
 
-  skipline <- FALSE
-  if (!is.null(x[[data_ret_str()]])) {
-    cat("Sample size:", length(x[[data_ret_str()]][[1]]), "\n")
-    skipline <- TRUE
-  }
-  if (!is.null(x[[g_ret_str()]])) {
-    cat("Prior class:", class(x[[g_ret_str()]]), "\n")
-    skipline <- TRUE
-  }
-  if(skipline) {
+  if (!is.null(x$nobs)) {
+    cat("EBNM model was fitted to", x$nobs, "observations with",
+        ifelse(x$heteroskedastic, "_heteroskedastic_", "_homoskedastic_"),
+        "standard errors.\n")
     cat("\n")
   }
 
-  skipline <- FALSE
-  if (!is.null(x[[llik_ret_str()]])) {
-    cat("Log likelihood of fitted model:", x[[llik_ret_str()]], "\n")
-    skipline <- TRUE
-  }
-  if (!is.null(x[[df_ret_str()]])) {
-    cat("Posterior summaries included: ")
-    cat(paste(names(x[[df_ret_str()]]), collapse = ", "), "\n")
-    skipline <- TRUE
-  }
-  if (!is.null(x[[samp_ret_str()]])) {
-    cat("Posterior sampler included. \n")
-    skipline <- TRUE
-  }
-  if(skipline) {
+  if (!is.null(x$prior_class)) {
+    cat("The fitted prior is of class", paste0("_", x$prior_class, "_.\n"))
+    if (!is.null(x$pointmass_location)) {
+      cat("It includes a point mass at",
+          signif(x$pointmass_location, digits = digits),
+          "with component weight equal to",
+          paste0(signif(x$pointmass_weight, digits = digits), ".\n"))
+    }
     cat("\n")
+  }
+
+  if (!is.null(x$log_likelihood)) {
+    cat(attr(x$log_likelihood, "df"),
+        "degrees of freedom were used to estimate the model.\n")
+    cat("The likelihood is",
+        paste0(round(as.numeric(x$log_likelihood), digits = digits), ".\n\n"))
+  }
+
+  if (summary) {
+    if (length(x$posterior_summaries) > 0) {
+      cat("Available posterior summaries:",
+          paste0(paste(x$posterior_summaries, collapse = ", "), ".\n"))
+    } else {
+      cat("Posterior summaries are not available.\n")
+    }
+    if (x$sampler_included) {
+      cat("A posterior sampler _is_ available.\n")
+    } else {
+      cat("A posterior sampler is _not_ available.\n")
+    }
   }
 
   return(invisible(x))
