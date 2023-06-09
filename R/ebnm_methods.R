@@ -119,7 +119,7 @@ print.ebnm <- function(x, ...) {
   return(invisible(x))
 }
 
-#' Extract the log likelihood from an ebnm object
+#' Extract the log likelihood from a fitted EBNM model
 #'
 #' The \code{\link[stats]{logLik}} method for class \code{ebnm}.
 #'
@@ -139,7 +139,7 @@ logLik.ebnm <- function(object, ...) {
   return(object[[llik_ret_str()]])
 }
 
-#' Extract the posterior means from an ebnm object
+#' Extract the posterior means from a fitted EBNM model
 #'
 #' The \code{\link[stats]{fitted}} method for class \code{ebnm}.
 #'
@@ -157,7 +157,7 @@ fitted.ebnm <- function(object, ...) {
   return(object[[df_ret_str()]][[pm_ret_str()]])
 }
 
-#' Use the fitted prior from a given ebnm object to solve the EBNM problem for
+#' Use the estimated prior from a fitted EBNM model to solve the EBNM problem for
 #'   new data
 #'
 #' The \code{\link[stats]{predict}} method for class \code{ebnm}.
@@ -194,7 +194,7 @@ predict.ebnm <- function(object, newdata, output = output_default(), ...) {
   ))
 }
 
-#' Get the number of observations in an ebnm object
+#' Get the number of observations used to fit an EBNM model
 #'
 #' The \code{\link[stats]{nobs}} method for class \code{ebnm}.
 #'
@@ -215,4 +215,37 @@ nobs.ebnm <- function(object, ...) {
   } else {
     return(NULL)
   }
+}
+
+#' Sample from the posterior of a fitted EBNM model
+#'
+#' A convenience function that extracts the \code{posterior_sampler} from an
+#'   object of class \code{ebnm} and returns a specified number of samples.
+#'
+#' @param object The fitted \code{ebnm} object.
+#'
+#' @param nsamp The number of posterior samples to return per observation.
+#'
+#' @param ... Additional arguments to be passed to the posterior sampler
+#'   function. Since \code{ebnm_horseshoe} returns an MCMC sampler, it takes
+#'   parameter \code{burn}, the number of burn-in samples to discard.  At
+#'   present, no other samplers take any additional parameters.
+#'
+#' @return The number of observations used to fit the \code{ebnm} object.
+#'
+#' @method samp ebnm
+#'
+#' @export
+#'
+samp.ebnm <- function(object, nsamp, ...) {
+  if (is.null(object[[samp_ret_str()]])) {
+    stop("Object does not contain a posterior sampler. Note that samplers are ",
+         "not returned by default. To obtain one, include argument ",
+         "'output = output_all()' in the call to ebnm.")
+  }
+  object[[samp_ret_str()]](nsamp, ...)
+}
+
+samp <- function(object, ...) {
+  UseMethod("samp")
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/ebnm_methods.R
 \name{nobs.ebnm}
 \alias{nobs.ebnm}
-\title{Get the number of observations in an ebnm object}
+\title{Get the number of observations used to fit an EBNM model}
 \usage{
 \method{nobs}{ebnm}(object, ...)
 }

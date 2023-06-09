@@ -2,7 +2,7 @@
 % Please edit documentation in R/ebnm_methods.R
 \name{predict.ebnm}
 \alias{predict.ebnm}
-\title{Use the fitted prior from a given ebnm object to solve the EBNM problem for
+\title{Use the estimated prior from a fitted EBNM model to solve the EBNM problem for
   new data}
 \usage{
 \method{predict}{ebnm}(object, newdata, output = output_default(), ...)

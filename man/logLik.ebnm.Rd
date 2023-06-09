@@ -2,7 +2,7 @@
 % Please edit documentation in R/ebnm_methods.R
 \name{logLik.ebnm}
 \alias{logLik.ebnm}
-\title{Extract the log likelihood from an ebnm object}
+\title{Extract the log likelihood from a fitted EBNM model}
 \usage{
 \method{logLik}{ebnm}(object, ...)
 }

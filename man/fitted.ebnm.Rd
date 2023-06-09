@@ -2,7 +2,7 @@
 % Please edit documentation in R/ebnm_methods.R
 \name{fitted.ebnm}
 \alias{fitted.ebnm}
-\title{Extract the posterior means from an ebnm object}
+\title{Extract the posterior means from a fitted EBNM model}
 \usage{
 \method{fitted}{ebnm}(object, ...)
 }
