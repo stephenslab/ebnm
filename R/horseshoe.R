@@ -52,6 +52,10 @@ horseshoe_workhorse <- function(x = x,
                class_name = "horseshoe",
                scale_name = "scale")
 
+  if (fix_g) {
+    scale <- g_init$scale
+  }
+
   if (identical(scale, "estimate")) {
     optres <- myHS.MMLE(y = x, Sigma2 = s^2, control = control)
     tau <- optres$maximum
@@ -92,7 +96,8 @@ horseshoe_workhorse <- function(x = x,
   if (llik_in_output(output)) {
     n       <- length(x)
     loglik  <- obj - 1.5 * n * log(pi) - 0.5 * n * log(2) - n * sum(log(s))
-    retlist <- add_llik_to_retlist(retlist, loglik)
+    df      <- 1 * identical(scale, "estimate")
+    retlist <- add_llik_to_retlist(retlist, loglik, x, df = df)
   }
 
   if (sampler_in_output(output)) {

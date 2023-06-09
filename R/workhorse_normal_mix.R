@@ -184,7 +184,8 @@ ebnm_normal_mix_workhorse <- function(x,
   if (llik_in_output(output)) {
     loglik  <- sum(log(L_mat %*% pi_est))
     loglik  <- loglik + sum(llik_norms) - n_obs * log(2 * pi) / 2
-    retlist <- add_llik_to_retlist(retlist, loglik)
+    df      <- (1 - fix_g) * (length(fitted_g$pi) - 1)
+    retlist <- add_llik_to_retlist(retlist, loglik, x, df = df)
   }
 
   if (sampler_in_output(output)) {

@@ -118,3 +118,23 @@ print.ebnm <- function(x, ...) {
 
   return(invisible(x))
 }
+
+#' Extract the log likelihood from an ebnm object
+#'
+#' The \code{\link[stats]{logLik}} method for class \code{ebnm}.
+#'
+#' @param object The fitted \code{ebnm} object.
+#'
+#' @param ... Not used. Included for consistency as an S3 method.
+#'
+#' @return An object of class \code{logLik}, which includes attributes \code{df},
+#'   the degrees of freedom --- i.e., number of parameters in the model ---, and
+#'   \code{nobs}, the number of observations in the data.
+#'
+#' @method logLik ebnm
+#'
+#' @export
+#'
+logLik.ebnm <- function(object, ...) {
+  return(object$log_likelihood)
+}

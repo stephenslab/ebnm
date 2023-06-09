@@ -146,8 +146,10 @@ ebnm_group <- function(x,
   }
 
   if (llik_in_output(output)) {
-    loglik  <- sum(sapply(ebnm_res, `[[`, llik_ret_str()))
-    retlist <- add_llik_to_retlist(retlist, loglik)
+    lliks   <- lapply(ebnm_res, `[[`, llik_ret_str())
+    loglik  <- as.numeric(Reduce(`+`, lliks))
+    df      <- sum(sapply(lliks, attr, "df"))
+    retlist <- add_llik_to_retlist(retlist, loglik, x, df)
   }
 
   # TODO: There is as yet no way to set parameter burn for ebnm_horseshoe.

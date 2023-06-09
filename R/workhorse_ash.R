@@ -75,7 +75,8 @@ ebnm_ash_workhorse <- function(x,
   }
 
   if (llik_in_output(output)) {
-    retlist <- add_llik_to_retlist(retlist, ash_res$loglik)
+    df <- (1 - fix_g) * (length(ash_res$fitted_g$pi) - 1)
+    retlist <- add_llik_to_retlist(retlist, ash_res$loglik, x, df = df)
   }
 
   if (sampler_in_output(output)) {

@@ -51,8 +51,8 @@ test_that("compute_summary_results gives same results as ashr", {
                ash.res[[df_ret_str()]][[psd_ret_str()]], tol = 1e-6)
   expect_equal(norm.res[[df_ret_str()]][[lfsr_ret_str()]],
                ash.res[[df_ret_str()]][[lfsr_ret_str()]], tol = 1e-6)
-  expect_equal(norm.res[[llik_ret_str()]],
-               ash.res[[llik_ret_str()]], tol = 1e-6)
+  expect_equal(as.numeric(norm.res[[llik_ret_str()]]),
+               as.numeric(ash.res[[llik_ret_str()]]), tol = 1e-6)
 })
 
 # test_that("Infinite and zero SEs give expected results", {

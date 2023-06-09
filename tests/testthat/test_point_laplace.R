@@ -37,7 +37,7 @@ test_that("Fixing the scale works", {
 test_that("Fixing g works", {
   pl.res2 <- ebnm_point_laplace(x, s, g_init = pl.res[[g_ret_str()]], fix_g = TRUE)
   expect_identical(pl.res[[g_ret_str()]], pl.res2[[g_ret_str()]])
-  expect_equal(pl.res[[llik_ret_str()]], pl.res2[[llik_ret_str()]])
+  expect_equal(as.numeric(pl.res[[llik_ret_str()]]), as.numeric(pl.res2[[llik_ret_str()]]))
 })
 
 test_that("Initializing g works", {

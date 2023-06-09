@@ -38,7 +38,7 @@ test_that("Fixing the scale works", {
 test_that("Fixing g works", {
   pe.res2 <- ebnm_point_exponential(x, s, g_init = pe.res[[g_ret_str()]], fix_g = TRUE)
   expect_identical(pe.res[[g_ret_str()]], pe.res2[[g_ret_str()]])
-  expect_equal(pe.res[[llik_ret_str()]], pe.res2[[llik_ret_str()]])
+  expect_equal(as.numeric(pe.res[[llik_ret_str()]]), as.numeric(pe.res2[[llik_ret_str()]]))
 })
 
 test_that("Initializing g works", {

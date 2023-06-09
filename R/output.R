@@ -115,7 +115,10 @@ llik_in_output <- function(output) {
   return(llik_arg_str() %in% output)
 }
 
-add_llik_to_retlist <- function(retlist, llik) {
+add_llik_to_retlist <- function(retlist, llik, x, df) {
+  attr(llik, "nobs") <- length(x)
+  attr(llik, "df") <- df
+  class(llik) <- "logLik"
   retlist[[llik_ret_str()]] <- llik
   return(retlist)
 }

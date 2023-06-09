@@ -114,7 +114,7 @@ parametric_workhorse <- function(x,
 
   if (llik_in_output(output)) {
     loglik  <- optres$val
-    retlist <- add_llik_to_retlist(retlist, loglik)
+    retlist <- add_llik_to_retlist(retlist, loglik, x, df = sum(!fix_par))
   }
 
   if (sampler_in_output(output)) {
