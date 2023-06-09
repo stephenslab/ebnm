@@ -136,5 +136,46 @@ print.ebnm <- function(x, ...) {
 #' @export
 #'
 logLik.ebnm <- function(object, ...) {
-  return(object$log_likelihood)
+  return(object[[llik_ret_str()]])
+}
+
+#' Extract the posterior means from an ebnm object
+#'
+#' The \code{\link[stats]{fitted}} method for class \code{ebnm}.
+#'
+#' @param object The fitted \code{ebnm} object.
+#'
+#' @param ... Not used. Included for consistency as an S3 method.
+#'
+#' @return The posterior means \eqn{\hat{\theta}} in a fitted \code{ebnm} model.
+#'
+#' @method fitted ebnm
+#'
+#' @export
+#'
+fitted.ebnm <- function(object, ...) {
+  return(object[[df_ret_str()]][[pm_ret_str()]])
+}
+
+#' Get the number of observations in an ebnm object
+#'
+#' The \code{\link[stats]{nobs}} method for class \code{ebnm}.
+#'
+#' @param object The fitted \code{ebnm} object.
+#'
+#' @param ... Not used. Included for consistency as an S3 method.
+#'
+#' @return The number of observations used to fit the \code{ebnm} object.
+#'
+#' @method nobs ebnm
+#'
+#' @export
+#'
+nobs.ebnm <- function(object, ...) {
+  retval <- length(object[[data_ret_str()]][[obs_ret_str()]])
+  if (retval > 0) {
+    return(retval)
+  } else {
+    return(NULL)
+  }
 }
