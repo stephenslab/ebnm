@@ -14,5 +14,5 @@
 \item{...}{Not used. Included for consistency as an S3 method.}
 }
 \description{
-The \code{print} method for class \code{summary.ebnm}.
+The \code{print} method for class \code{\link{summary.ebnm}}.
 }

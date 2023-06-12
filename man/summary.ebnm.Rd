@@ -15,5 +15,5 @@
 A \code{summary.ebnm} object.
 }
 \description{
-The \code{summary} method for class \code{ebnm}.
+The \code{summary} method for class \code{\link{ebnm}}.
 }

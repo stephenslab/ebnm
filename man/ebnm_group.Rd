@@ -105,6 +105,10 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
         it additionally takes parameter \code{burn}, the number of burn-in
         samples to discard.}
      }
+   S3 methods \code{confint}, \code{fitted}, \code{logLik}, \code{nobs},
+   \code{plot}, \code{predict}, \code{print}, \code{samp}, and \code{summary}
+   have been implemented for \code{ebnm} objects. For details, see the
+   respective help pages, linked in \code{\link{ebnm}} under \strong{See Also}.
 }
 \description{
 Solves the empirical Bayes normal means (EBNM) problem for observations

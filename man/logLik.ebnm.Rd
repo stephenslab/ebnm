@@ -17,5 +17,5 @@ An object of class \code{logLik}, which includes attributes \code{df},
   \code{nobs}, the number of observations in the data.
 }
 \description{
-The \code{\link[stats]{logLik}} method for class \code{ebnm}.
+The \code{\link[stats]{logLik}} method for class \code{\link{ebnm}}.
 }

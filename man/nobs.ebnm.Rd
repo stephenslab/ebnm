@@ -15,5 +15,5 @@
 The number of observations used to fit the \code{ebnm} object.
 }
 \description{
-The \code{\link[stats]{nobs}} method for class \code{ebnm}.
+The \code{\link[stats]{nobs}} method for class \code{\link{ebnm}}.
 }

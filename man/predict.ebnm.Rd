@@ -23,5 +23,5 @@ See \code{\link{ebnm}} for details.}
 An \code{ebnm} object. See \code{\link{ebnm}} for details.
 }
 \description{
-The \code{\link[stats]{predict}} method for class \code{ebnm}.
+The \code{\link[stats]{predict}} method for class \code{\link{ebnm}}.
 }

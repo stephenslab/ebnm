@@ -19,8 +19,8 @@ includes the line \eqn{y = x} by default. If
 A \code{ggplot} object.
 }
 \description{
-Given one or more fitted \code{ebnm} object(s), produces a plot of posterior
-  means vs. observations.
+Given one or more fitted \code{\link{ebnm}} object(s), produces a plot of
+  posterior means vs. observations.
 }
 \details{
 An object of class \code{ggplot} is returned, so that the plot can be

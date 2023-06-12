@@ -17,9 +17,10 @@ parameter \code{burn}, the number of burn-in samples to discard.  At
 present, no other samplers take any additional parameters.}
 }
 \value{
-The number of observations used to fit the \code{ebnm} object.
+A matrix of posterior samples, with rows corresponding to
+  distinct samples and columns corresponding to observations.
 }
 \description{
-A convenience function that extracts the \code{posterior_sampler} from an
-  object of class \code{ebnm} and returns a specified number of samples.
+A convenience function that extracts the posterior sampler from an object
+  of class \code{\link{ebnm}} and returns a specified number of samples.
 }

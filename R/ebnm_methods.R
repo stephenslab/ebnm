@@ -1,7 +1,7 @@
 #' Plot an ebnm object
 #'
-#' Given one or more fitted \code{ebnm} object(s), produces a plot of posterior
-#'   means vs. observations.
+#' Given one or more fitted \code{\link{ebnm}} object(s), produces a plot of
+#'   posterior means vs. observations.
 #'
 #' An object of class \code{ggplot} is returned, so that the plot can be
 #'   customized in the usual \code{\link[ggplot2]{ggplot2}} fashion.
@@ -132,7 +132,7 @@ plot.ebnm <- function(x, ..., remove_abline = FALSE) {
 
 #' Summarize an ebnm object
 #'
-#' The \code{summary} method for class \code{ebnm}.
+#' The \code{summary} method for class \code{\link{ebnm}}.
 #'
 #' @param object The fitted \code{ebnm} object.
 #'
@@ -212,7 +212,7 @@ summary.ebnm <- function(object, ...) {
 
 #' Print a summary.ebnm object
 #'
-#' The \code{print} method for class \code{summary.ebnm}.
+#' The \code{print} method for class \code{\link{summary.ebnm}}.
 #'
 #' @param x The \code{summary.ebnm} object.
 #'
@@ -230,7 +230,7 @@ print.summary.ebnm <- function(x, digits = 2, ...) {
 
 #' Print an ebnm object
 #'
-#' The \code{print} method for class \code{ebnm}.
+#' The \code{print} method for class \code{\link{ebnm}}.
 #'
 #' @param x The fitted \code{ebnm} object.
 #'
@@ -304,7 +304,7 @@ print_it <- function(x, digits, summary) {
 
 #' Extract the log likelihood from a fitted EBNM model
 #'
-#' The \code{\link[stats]{logLik}} method for class \code{ebnm}.
+#' The \code{\link[stats]{logLik}} method for class \code{\link{ebnm}}.
 #'
 #' @param object The fitted \code{ebnm} object.
 #'
@@ -324,12 +324,12 @@ logLik.ebnm <- function(object, ...) {
 
 #' Extract posterior estimates from a fitted EBNM model
 #'
-#' The \code{\link[stats]{fitted}} method for class \code{ebnm}.
+#' The \code{\link[stats]{fitted}} method for class \code{\link{ebnm}}.
 #'
 #' @param object The fitted \code{ebnm} object.
 #'
 #' @param only_means Return only posterior means, or return a data frame that
-#'   includes (when available) standard deviations and local false sign rates?
+#'   includes standard deviations and local false sign rates (when available)?
 #'
 #' @param ... Not used. Included for consistency as an S3 method.
 #'
@@ -348,7 +348,7 @@ fitted.ebnm <- function(object, only_means = TRUE, ...) {
 #' Use the estimated prior from a fitted EBNM model to solve the EBNM problem for
 #'   new data
 #'
-#' The \code{\link[stats]{predict}} method for class \code{ebnm}.
+#' The \code{\link[stats]{predict}} method for class \code{\link{ebnm}}.
 #'
 #' @param object The fitted \code{ebnm} object.
 #'
@@ -384,7 +384,7 @@ predict.ebnm <- function(object, newdata, output = output_default(), ...) {
 
 #' Get the number of observations used to fit an EBNM model
 #'
-#' The \code{\link[stats]{nobs}} method for class \code{ebnm}.
+#' The \code{\link[stats]{nobs}} method for class \code{\link{ebnm}}.
 #'
 #' @param object The fitted \code{ebnm} object.
 #'
@@ -407,8 +407,8 @@ nobs.ebnm <- function(object, ...) {
 
 #' Sample from the posterior of a fitted EBNM model
 #'
-#' A convenience function that extracts the \code{posterior_sampler} from an
-#'   object of class \code{ebnm} and returns a specified number of samples.
+#' A convenience function that extracts the posterior sampler from an object
+#'   of class \code{\link{ebnm}} and returns a specified number of samples.
 #'
 #' @param object The fitted \code{ebnm} object.
 #'
@@ -419,7 +419,8 @@ nobs.ebnm <- function(object, ...) {
 #'   parameter \code{burn}, the number of burn-in samples to discard.  At
 #'   present, no other samplers take any additional parameters.
 #'
-#' @return The number of observations used to fit the \code{ebnm} object.
+#' @return A matrix of posterior samples, with rows corresponding to
+#'   distinct samples and columns corresponding to observations.
 #'
 #' @method samp ebnm
 #'
@@ -436,4 +437,40 @@ samp.ebnm <- function(object, nsamp, ...) {
 
 samp <- function(object, ...) {
   UseMethod("samp")
+}
+
+#' Obtain confidence intervals using a fitted EBNM model
+#'
+#' The \code{\link[stats]{confint}} method for class \code{\link{ebnm}}.
+#'   Confidence intervals for means \eqn{\theta_i} are obtained by sampling from
+#'   the posterior. By default, \code{\link{ebnm}} does not return a posterior
+#'   sampler; one can be obtained by setting \code{output = output_all()} in the
+#'   call to \code{ebnm}.
+#'
+#' @param object The fitted \code{ebnm} object.
+#'
+#' @param level The confidence level required.
+#'
+#' @param nsamp The number of samples to use to estimate confidence intervals.
+#'
+#' @param ... Additional arguments to be passed to the posterior sampler
+#'   function. Since \code{ebnm_horseshoe} returns an MCMC sampler, it takes
+#'   parameter \code{burn}, the number of burn-in samples to discard.  At
+#'   present, no other samplers take any additional parameters.
+#'
+#' @return A matrix with columns giving lower and upper confidence limits for
+#'   each mean \eqn{\theta_i}.
+#'
+#' @method confint ebnm
+#'
+#' @export
+#'
+confint.ebnm <- function(object, level = 0.95, nsamp = 1000, ...) {
+  if (is.null(object[[samp_ret_str()]])) {
+    stop("Confidence intervals are obtained by sampling from the posterior. ",
+         "To obtain a posterior sampler, include argument 'output = output_all()' ",
+         "in the call to ebnm.")
+  }
+  samp <- samp(object, nsamp = nsamp, ...)
+  return(t(apply(samp, 2, quantile, probs = 0.5 + c(-1, 1) * level / 2)))
 }

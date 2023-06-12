@@ -173,6 +173,10 @@
 #'         it additionally takes parameter \code{burn}, the number of burn-in
 #'         samples to discard.}
 #'      }
+#'    S3 methods \code{confint}, \code{fitted}, \code{logLik}, \code{nobs},
+#'    \code{plot}, \code{predict}, \code{print}, \code{samp}, and \code{summary}
+#'    have been implemented for \code{ebnm} objects. For details, see the
+#'    respective help pages, linked in \code{\link{ebnm}} under \strong{See Also}.
 #'
 #' @references
 #' Jason Willwerscheid and Matthew Stephens (2021).
@@ -183,7 +187,13 @@
 #' @seealso A plotting method is available for \code{ebnm} objects: see
 #'   \code{\link{plot.ebnm}}.
 #'
-#'   Calling functions \code{\link{ebnm_point_normal}},
+#'   For other methods, see \code{\link{confint.ebnm}},
+#'    \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
+#'    \code{\link{nobs.ebnm}}, \code{\link{predict.ebnm}},
+#'    \code{\link{print.ebnm}}, \code{\link{print.summary.ebnm}},
+#'    \code{\link{samp.ebnm}}, and \code{\link{summary.ebnm}}.
+#'
+#'   Calling into functions \code{\link{ebnm_point_normal}},
 #'   \code{\link{ebnm_point_laplace}},
 #'   \code{\link{ebnm_point_exponential}}, \code{\link{ebnm_normal}},
 #'   \code{\link{ebnm_horseshoe}},
@@ -193,7 +203,7 @@
 #'   \code{\link{ebnm_unimodal_nonpositive}}, \code{\link{ebnm_npmle}},
 #'   \code{\link{ebnm_deconvolver}}, \code{\link{ebnm_flat}},
 #'   \code{\link{ebnm_point_mass}}, and \code{\link{ebnm_ash}}
-#'   is equivalent to calling \code{ebnm} with \code{prior_family} set
+#'   is equivalent to calling into \code{ebnm} with \code{prior_family} set
 #'   accordingly.
 #'
 #' @examples
