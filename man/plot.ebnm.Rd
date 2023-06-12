@@ -9,19 +9,18 @@
 \arguments{
 \item{x}{The fitted \code{ebnm} object.}
 
-\item{...}{Additional parameters to be passed to \code{ggplot2} function
-\code{\link[ggplot2]{geom_point}}.}
+\item{...}{Additional \code{ebnm} objects to be included on the same plot.}
 
 \item{remove_abline}{To better illustrate shrinkage effects, the plot
-will include the line \eqn{y = x} by default. If
+includes the line \eqn{y = x} by default. If
 \code{remove_abline = TRUE}, then this line will not be drawn.}
 }
 \value{
 A \code{ggplot} object.
 }
 \description{
-Given a fitted \code{ebnm} object, produces a plot of posterior means vs.
-  observations.
+Given one or more fitted \code{ebnm} object(s), produces a plot of posterior
+  means vs. observations.
 }
 \details{
 An object of class \code{ggplot} is returned, so that the plot can be
@@ -29,14 +28,18 @@ An object of class \code{ggplot} is returned, so that the plot can be
 }
 \examples{
 theta <- c(rep(0, 100), rexp(100))
+theta[1:50] <- 0
 s <- 1
 x <- theta + rnorm(200, 0, s)
-ebnm.res <- ebnm(x, s)
-plot(ebnm.res)
+pn.res <- ebnm_point_normal(x, s)
+plot(pn.res)
+
+pe.res <- ebnm_point_exponential(x, s)
+plot(pn.res, pe.res)
 
 # Customize plot:
 library(ggplot2)
-plot(ebnm.res, color = "blue", remove_abline = TRUE) +
+plot(pn.res, pe.res, remove_abline = TRUE) +
   theme_bw() +
   labs(x = "Simulated data")
 

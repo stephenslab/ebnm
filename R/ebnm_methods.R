@@ -1,7 +1,7 @@
 #' Plot an ebnm object
 #'
-#' Given a fitted \code{ebnm} object, produces a plot of posterior means vs.
-#'   observations.
+#' Given one or more fitted \code{ebnm} object(s), produces a plot of posterior
+#'   means vs. observations.
 #'
 #' An object of class \code{ggplot} is returned, so that the plot can be
 #'   customized in the usual \code{\link[ggplot2]{ggplot2}} fashion.
@@ -9,11 +9,10 @@
 #' @param x The fitted \code{ebnm} object.
 #'
 #' @param remove_abline To better illustrate shrinkage effects, the plot
-#'   will include the line \eqn{y = x} by default. If
+#'   includes the line \eqn{y = x} by default. If
 #'   \code{remove_abline = TRUE}, then this line will not be drawn.
 #'
-#' @param ... Additional parameters to be passed to \code{ggplot2} function
-#'   \code{\link[ggplot2]{geom_point}}.
+#' @param ... Additional \code{ebnm} objects to be included on the same plot.
 #'
 #' @return A \code{ggplot} object.
 #'
@@ -25,14 +24,18 @@
 #'
 #' @examples
 #' theta <- c(rep(0, 100), rexp(100))
+#' theta[1:50] <- 0
 #' s <- 1
 #' x <- theta + rnorm(200, 0, s)
-#' ebnm.res <- ebnm(x, s)
-#' plot(ebnm.res)
+#' pn.res <- ebnm_point_normal(x, s)
+#' plot(pn.res)
+#'
+#' pe.res <- ebnm_point_exponential(x, s)
+#' plot(pn.res, pe.res)
 #'
 #' # Customize plot:
 #' library(ggplot2)
-#' plot(ebnm.res, color = "blue", remove_abline = TRUE) +
+#' plot(pn.res, pe.res, remove_abline = TRUE) +
 #'   theme_bw() +
 #'   labs(x = "Simulated data")
 #'
@@ -51,22 +54,22 @@ plot.ebnm <- function(x, ..., remove_abline = FALSE) {
     stop("Posterior means not found in ebnm object. Results cannot be plotted.")
   }
 
-  model_num <- 1
-  ebnm_label <- "Model 1"
+  ebnm_label <- deparse(substitute(x))
   llik <- as.numeric(x[[llik_ret_str()]])
   if (!is.null(llik)) {
     ebnm_label <- paste0(
-      ebnm_label, " (llik: ", round(llik, 2), ")"
+      ebnm_label, " (llik: ", format(round(llik, 2), nsmall = 2), ")"
     )
   }
 
   df <- data.frame(
-    x = x[[data_ret_str()]][[obs_ret_str()]],
+    obs = x[[data_ret_str()]][[obs_ret_str()]],
     pm = x[[df_ret_str()]][[pm_ret_str()]],
-    label = ebnm_label
+    label = factor(ebnm_label)
   )
 
   args <- list(...)
+  varnames <- sapply(substitute(list(...))[-1], deparse)
   if (length(args) > 0) {
     ebnm_idx <- which(sapply(args, inherits, "ebnm"))
     for (idx in ebnm_idx) {
@@ -79,38 +82,42 @@ plot.ebnm <- function(x, ..., remove_abline = FALSE) {
                 "not include posterior means. Object will be ignored.")
       } else if (!identical(x[[data_ret_str()]], next_ebnm[[data_ret_str()]])) {
         warning("An additional ebnm object was included as argument, but a different ",
-                "dataset was used to fit that model. Object will be ignored.")
+                "dataset was used to fit the model. Object will be ignored.")
       } else {
         next_df <- data.frame(
-          x = next_ebnm[[data_ret_str()]][[obs_ret_str()]],
+          obs = next_ebnm[[data_ret_str()]][[obs_ret_str()]],
           pm = next_ebnm[[df_ret_str()]][[pm_ret_str()]]
         )
 
-        model_num <- model_num + 1
-        ebnm_label <- paste("Model", model_num)
+        ebnm_label <- varnames[idx]
         llik <- as.numeric(next_ebnm[[llik_ret_str()]])
         if (!is.null(llik)) {
           ebnm_label <- paste0(
-            ebnm_label, " (llik: ", round(llik, 2), ")"
+            ebnm_label, " (llik: ", format(round(llik, 2), nsmall = 2), ")"
           )
         }
         next_df$label <- ebnm_label
 
+        levels(df$label) <- c(levels(df$label), ebnm_label)
         df <- rbind(df, next_df)
       }
     }
     args <- args[-ebnm_idx]
+    if (length(args) > 0) {
+      warning("Additional arguments not of class ebnm were included. They will ",
+              "be ignored.")
+    }
   }
 
   if (length(unique(df$label)) > 1) {
-    plt <- ggplot(df, aes(x = x, y = pm, color = label)) +
-      do.call(geom_point, args) +
+    plt <- ggplot(df, aes(x = obs, y = pm, color = label)) +
+      geom_point() +
       labs(x = "Observations", y = "Posterior means",
            color = "Fitted EBNM models") +
       theme_minimal()
   } else {
-    plt <- ggplot(df, aes(x = x, y = pm)) +
-      do.call(geom_point, args) +
+    plt <- ggplot(df, aes(x = obs, y = pm)) +
+      geom_point() +
       labs(x = "Observations", y = "Posterior means",
            title = paste("Log likelihood for model:", round(llik, 2))) +
       theme_minimal()
