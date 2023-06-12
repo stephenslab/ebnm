@@ -2,17 +2,17 @@
 % Please edit documentation in R/ebnm_methods.R
 \name{fitted.ebnm}
 \alias{fitted.ebnm}
-\title{Extract the posterior means from a fitted EBNM model}
+\title{Extract posterior estimates from a fitted EBNM model}
 \usage{
-\method{fitted}{ebnm}(object, ...)
+\method{fitted}{ebnm}(object, only_means = TRUE, ...)
 }
 \arguments{
 \item{object}{The fitted \code{ebnm} object.}
 
+\item{only_means}{Return only posterior means, or return a data frame that
+includes (when available) standard deviations and local false sign rates?}
+
 \item{...}{Not used. Included for consistency as an S3 method.}
-}
-\value{
-The posterior means \eqn{\hat{\theta}} in a fitted \code{ebnm} model.
 }
 \description{
 The \code{\link[stats]{fitted}} method for class \code{ebnm}.

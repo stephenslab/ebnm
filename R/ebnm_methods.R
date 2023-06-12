@@ -279,15 +279,24 @@ print_it <- function(x, digits, summary) {
   if (summary) {
     if (length(x$posterior_summaries) > 0) {
       cat("Available posterior summaries:",
-          paste0(paste(x$posterior_summaries, collapse = ", "), ".\n"))
+          paste0("_", paste(x$posterior_summaries, collapse = "_, _"), "_.\n"))
+      if (pm_ret_str() %in% x$posterior_summaries) {
+        cat("Use method fitted() with 'only_means = FALSE' to access all",
+            "available summaries.\n")
+      }
     } else {
       cat("Posterior summaries are not available.\n")
     }
+    cat("\n")
+
     if (x$sampler_included) {
-      cat("A posterior sampler _is_ available.\n")
+      cat("A posterior sampler _is_ available and can be accessed using",
+          "method samp().\n")
     } else {
-      cat("A posterior sampler is _not_ available.\n")
+      cat("A posterior sampler is _not_ available.\nOne can be obtained by",
+          "re-running ebnm() with argument 'output = output_all()'.\n")
     }
+    cat("\n")
   }
 
   return(invisible(x))
@@ -313,22 +322,27 @@ logLik.ebnm <- function(object, ...) {
   return(object[[llik_ret_str()]])
 }
 
-#' Extract the posterior means from a fitted EBNM model
+#' Extract posterior estimates from a fitted EBNM model
 #'
 #' The \code{\link[stats]{fitted}} method for class \code{ebnm}.
 #'
 #' @param object The fitted \code{ebnm} object.
 #'
-#' @param ... Not used. Included for consistency as an S3 method.
+#' @param only_means Return only posterior means, or return a data frame that
+#'   includes (when available) standard deviations and local false sign rates?
 #'
-#' @return The posterior means \eqn{\hat{\theta}} in a fitted \code{ebnm} model.
+#' @param ... Not used. Included for consistency as an S3 method.
 #'
 #' @method fitted ebnm
 #'
 #' @export
 #'
-fitted.ebnm <- function(object, ...) {
-  return(object[[df_ret_str()]][[pm_ret_str()]])
+fitted.ebnm <- function(object, only_means = TRUE, ...) {
+  if (only_means) {
+    return(object[[df_ret_str()]][[pm_ret_str()]])
+  } else {
+    return(object[[df_ret_str()]])
+  }
 }
 
 #' Use the estimated prior from a fitted EBNM model to solve the EBNM problem for
