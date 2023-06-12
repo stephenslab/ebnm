@@ -63,6 +63,12 @@ The family of all distributions.
 "deconvolver":
 A non-parametric exponential family with a natural spline basis. Like npmle, there is no unimodal assumption, but whereas npmle produces spiky estimates for g, deconvolver estimates are much more regular. See Narasimhan and Efron (2020) for details.
 
+"flat":
+A "non-informative" improper uniform prior.
+
+"point_mass":
+The family of all point masses.
+
 ## License
 
 The *ebnm* source code repository is free software: you can
