@@ -14,8 +14,12 @@ test_that("Basic functionality works", {
 
 test_that("Parameters that do nothing are ignored", {
   expect_warning(pm.res <- ebnm(x, s, prior_family = "point_mass", scale = 1))
-  expect_warning(pm.res <- ebnm(x, s, prior_family = "point_mass",
-                                g_init = ashr::normalmix(1, 1, 0)))
+})
+
+test_that("Fixing g works", {
+  g <- ashr::normalmix(1, 0, 0)
+  pm.res <- ebnm_point_mass(x, s, g_init = g, fix_g = TRUE)
+  expect_true(all(pm.res$posterior$mean == 0))
 })
 
 test_that("Setting the mode works", {

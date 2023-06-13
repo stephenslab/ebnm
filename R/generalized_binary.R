@@ -21,16 +21,17 @@ truncnormmix <- function(pi, a, b, mean, sd) {
   structure(data.frame(pi, a, b, mean, sd), class="truncnormmix")
 }
 
-### mode corresponds to mode of truncated normal component.
-### scale corresponds to sigma / mu.
+### Author: Yusha Liu (with edits by J. Willwerscheid).
+###   mode corresponds to mode of truncated normal component.
+###   scale corresponds to sigma / mu.
 
-ebnm_generalized_binary_defaults <- function() {
+ebnm_generalized_binary_defaults <- function(x, s) {
   return(list(
     maxiter = 50,
     tol = 1e-3,
-    wlist = c(1e-5, 1e-2, 1e-1, 2.5e-1, 9e-1),
-    mu_init = 1,
-    mu_range = c(1e-3, 32)
+    wlist = c(1e-5, 1e-2, 1e-1, 2.5e-1, 9e-1, 1),
+    mu_init = mean(x),
+    mu_range = c(min(s) / 10, max(x - s))
   ))
 }
 
@@ -44,8 +45,9 @@ gb_workhorse <- function(x,
                          fix_g,
                          output,
                          control,
+                         call,
                          ...) {
-  args <- ebnm_generalized_binary_defaults()
+  args <- ebnm_generalized_binary_defaults(x, s)
   for (arg in names(list(...))) {
     if (!(arg %in% names(args))) {
       warning("Argument ", arg, " is not recognized by ebnm_generalized_binary.")
@@ -84,6 +86,7 @@ gb_workhorse <- function(x,
 
   if (fix_g) {
     g <- g_init
+    llik <- calc_gb_posterior(x, s, g, output = "llik")
   } else {
     s2 <- s^2
 

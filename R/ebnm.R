@@ -28,11 +28,11 @@
 #'         component is a point mass at \eqn{\mu} and the other is a normal
 #'         distribution centered at \eqn{\mu}.}
 #'       \item{\code{point_laplace}}{The family of mixtures where one
-#'         component is a point mass at zero and the other is a
-#'         double-exponential distribution.}
+#'         component is a point mass at \eqn{\mu} and the other is a
+#'         double-exponential distribution centered at \eqn{\mu}.}
 #'       \item{\code{point_exponential}}{The family of mixtures where one
-#'         component is a point mass at zero and the other is a
-#'         (nonnegative) exponential distribution.}
+#'         component is a point mass at \eqn{\mu} and the other is a
+#'         (nonnegative) exponential distribution with mode \eqn{\mu}.}
 #'       \item{\code{normal}}{The family of normal distributions.}
 #'       \item{\code{horseshoe}}{The family of \link{horseshoe} distributions.}
 #'       \item{\code{normal_scale_mixture}}{The family of scale mixtures of
@@ -129,7 +129,8 @@
 #'
 #' @param output A character vector indicating which values are to be returned.
 #'   Function \code{output_default()} provides the default return values, while
-#'   \code{output_all()} lists all possible return values. See "Value" below.
+#'   \code{output_all()} lists all possible return values. See \strong{Value}
+#'   below.
 #'
 #' @param optmethod A string specifying which optimization function is to be
 #'   used. Options include \code{"nlm"}, \code{"lbfgsb"} (which calls
@@ -153,9 +154,8 @@
 #'   function \code{\link[stats]{optim}} is used with \code{method = "L-BFGS-B"}.
 #'
 #' @param ... Additional parameters. When a \code{unimodal_} prior family is used,
-#'   these parameters are passed to
-#'   function \code{\link[ashr]{ash}} in package \code{ashr}. When
-#'   the "deconvolver" family is used, they are passed to function
+#'   these parameters are passed to function \code{\link[ashr]{ash}} in package
+#'   \code{ashr}. When the "deconvolver" family is used, they are passed to function
 #'   \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR}. Although it
 #'   does not call into \code{ashr}, the scale mixture of normals family accepts
 #'   parameter \code{gridmult} for purposes of comparison. When \code{gridmult}
@@ -174,8 +174,8 @@
 #'         rates).}
 #'       \item{\code{fitted_g}}{The fitted prior \eqn{\hat{g}} (an object of
 #'         class \code{\link[ashr]{normalmix}}, \code{\link{laplacemix}},
-#'         \code{\link{gammamix}}, \code{\link[ashr]{unimix}}, or
-#'         \code{\link{horseshoe}}).}
+#'         \code{\link{gammamix}}, \code{\link[ashr]{unimix}},
+#'         \code{\link{truncnormmix}}, or \code{\link{horseshoe}}).}
 #'       \item{\code{log_likelihood}}{The optimal log likelihood attained,
 #'         \eqn{L(\hat{g})}.}
 #'       \item{\code{posterior_sampler}}{A function that can be used to
@@ -189,7 +189,7 @@
 #'    S3 methods \code{confint}, \code{fitted}, \code{logLik}, \code{nobs},
 #'    \code{plot}, \code{predict}, \code{print}, \code{samp}, and \code{summary}
 #'    have been implemented for \code{ebnm} objects. For details, see the
-#'    respective help pages, linked in \code{\link{ebnm}} under \strong{See Also}.
+#'    respective help pages, linked below under \strong{See Also}.
 #'
 #' @references
 #' Jason Willwerscheid and Matthew Stephens (2021).
@@ -357,21 +357,19 @@ ebnm_workhorse <- function(x,
   # Convenience function:
   if (prior_family == "point_mass") {
     prior_family <- "normal"
-    if (!is.null(call$scale)) {
+    if (is.null(g_init) && !is.null(call$scale)) {
       warning("scale parameter is ignored by ebnm_point_mass.")
       call$scale <- NULL
     }
     scale <- 0
-    if (!(is.null(call$g_init) && is.null(call$fixg))) {
-      warning("g_init and fixg parameters are ignored by ebnm_point_mass. ",
-              "To estimate the location of the point mass, set mode = ",
-              "\"estimate\". Otherwise the location will be fixed at the ",
-              "value given by parameter mode.")
-      call$g_init <- NULL
-      call$fixg <- NULL
+
+    if (!is.null(g_init) &&
+        (!inherits(g_init, "normalmix") ||
+          !(length(g_init$pi) == 1) ||
+          !(g_init$sd == 0))) {
+      stop("If specified, g_init must be an object of class normalmix consisting ",
+           "of a single mixture component with standard deviation zero.")
     }
-    g_init <- NULL
-    fix_g <- FALSE
   }
 
   mode <- handle_mode_parameter(mode)
@@ -611,6 +609,7 @@ ebnm_workhorse <- function(x,
                             fix_g = fix_g,
                             output = output,
                             control = control,
+                            call = call,
                             ...)
   } else if (prior_family == "flat") {
     if (!(is.null(call$mode) && is.null(call$scale))) {

@@ -70,12 +70,12 @@ of estimating it.}
 
 \item{output}{A character vector indicating which values are to be returned.
 Function \code{output_default()} provides the default return values, while
-\code{output_all()} lists all possible return values. See "Value" below.}
+\code{output_all()} lists all possible return values. See \strong{Value}
+below.}
 
 \item{...}{Additional parameters. When a \code{unimodal_} prior family is used,
-these parameters are passed to
-function \code{\link[ashr]{ash}} in package \code{ashr}. When
-the "deconvolver" family is used, they are passed to function
+these parameters are passed to function \code{\link[ashr]{ash}} in package
+\code{ashr}. When the "deconvolver" family is used, they are passed to function
 \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR}. Although it
 does not call into \code{ashr}, the scale mixture of normals family accepts
 parameter \code{gridmult} for purposes of comparison. When \code{gridmult}
@@ -95,8 +95,8 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
         rates).}
       \item{\code{fitted_g}}{The fitted prior \eqn{\hat{g}} (an object of
         class \code{\link[ashr]{normalmix}}, \code{\link{laplacemix}},
-        \code{\link{gammamix}}, \code{\link[ashr]{unimix}}, or
-        \code{\link{horseshoe}}).}
+        \code{\link{gammamix}}, \code{\link[ashr]{unimix}},
+        \code{\link{truncnormmix}}, or \code{\link{horseshoe}}).}
       \item{\code{log_likelihood}}{The optimal log likelihood attained,
         \eqn{L(\hat{g})}.}
       \item{\code{posterior_sampler}}{A function that can be used to
@@ -110,7 +110,7 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
    S3 methods \code{confint}, \code{fitted}, \code{logLik}, \code{nobs},
    \code{plot}, \code{predict}, \code{print}, \code{samp}, and \code{summary}
    have been implemented for \code{ebnm} objects. For details, see the
-   respective help pages, linked in \code{\link{ebnm}} under \strong{See Also}.
+   respective help pages, linked below under \strong{See Also}.
 }
 \description{
 Solves the empirical Bayes normal means (EBNM) problem for observations

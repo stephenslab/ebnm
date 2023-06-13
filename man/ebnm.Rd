@@ -97,7 +97,8 @@ of estimating it.}
 
 \item{output}{A character vector indicating which values are to be returned.
 Function \code{output_default()} provides the default return values, while
-\code{output_all()} lists all possible return values. See "Value" below.}
+\code{output_all()} lists all possible return values. See \strong{Value}
+below.}
 
 \item{optmethod}{A string specifying which optimization function is to be
 used. Options include \code{"nlm"}, \code{"lbfgsb"} (which calls
@@ -121,9 +122,8 @@ package \code{mixsqp} is the default. For generalized binary priors,
 function \code{\link[stats]{optim}} is used with \code{method = "L-BFGS-B"}.}
 
 \item{...}{Additional parameters. When a \code{unimodal_} prior family is used,
-these parameters are passed to
-function \code{\link[ashr]{ash}} in package \code{ashr}. When
-the "deconvolver" family is used, they are passed to function
+these parameters are passed to function \code{\link[ashr]{ash}} in package
+\code{ashr}. When the "deconvolver" family is used, they are passed to function
 \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR}. Although it
 does not call into \code{ashr}, the scale mixture of normals family accepts
 parameter \code{gridmult} for purposes of comparison. When \code{gridmult}
@@ -143,8 +143,8 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
         rates).}
       \item{\code{fitted_g}}{The fitted prior \eqn{\hat{g}} (an object of
         class \code{\link[ashr]{normalmix}}, \code{\link{laplacemix}},
-        \code{\link{gammamix}}, \code{\link[ashr]{unimix}}, or
-        \code{\link{horseshoe}}).}
+        \code{\link{gammamix}}, \code{\link[ashr]{unimix}},
+        \code{\link{truncnormmix}}, or \code{\link{horseshoe}}).}
       \item{\code{log_likelihood}}{The optimal log likelihood attained,
         \eqn{L(\hat{g})}.}
       \item{\code{posterior_sampler}}{A function that can be used to
@@ -158,7 +158,7 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
    S3 methods \code{confint}, \code{fitted}, \code{logLik}, \code{nobs},
    \code{plot}, \code{predict}, \code{print}, \code{samp}, and \code{summary}
    have been implemented for \code{ebnm} objects. For details, see the
-   respective help pages, linked in \code{\link{ebnm}} under \strong{See Also}.
+   respective help pages, linked below under \strong{See Also}.
 }
 \description{
 Solves the empirical Bayes normal means (EBNM) problem using a specified
@@ -190,11 +190,11 @@ Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
         component is a point mass at \eqn{\mu} and the other is a normal
         distribution centered at \eqn{\mu}.}
       \item{\code{point_laplace}}{The family of mixtures where one
-        component is a point mass at zero and the other is a
-        double-exponential distribution.}
+        component is a point mass at \eqn{\mu} and the other is a
+        double-exponential distribution centered at \eqn{\mu}.}
       \item{\code{point_exponential}}{The family of mixtures where one
-        component is a point mass at zero and the other is a
-        (nonnegative) exponential distribution.}
+        component is a point mass at \eqn{\mu} and the other is a
+        (nonnegative) exponential distribution with mode \eqn{\mu}.}
       \item{\code{normal}}{The family of normal distributions.}
       \item{\code{horseshoe}}{The family of \link{horseshoe} distributions.}
       \item{\code{normal_scale_mixture}}{The family of scale mixtures of
