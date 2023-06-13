@@ -11,6 +11,7 @@
 \alias{ebnm_unimodal_symmetric}
 \alias{ebnm_unimodal_nonnegative}
 \alias{ebnm_unimodal_nonpositive}
+\alias{ebnm_generalized_binary}
 \alias{ebnm_ash}
 \alias{ebnm_npmle}
 \alias{ebnm_deconvolver}
@@ -129,6 +130,18 @@ ebnm_unimodal_nonpositive(
   s = 1,
   mode = 0,
   scale = "estimate",
+  g_init = NULL,
+  fix_g = FALSE,
+  output = output_default(),
+  control = NULL,
+  ...
+)
+
+ebnm_generalized_binary(
+  x,
+  s = 1,
+  mode = "estimate",
+  scale = 0.1,
   g_init = NULL,
   fix_g = FALSE,
   output = output_default(),

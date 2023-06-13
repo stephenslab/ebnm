@@ -312,6 +312,33 @@ ebnm_unimodal_nonpositive <- function(x,
 #'
 #' @export
 #'
+ebnm_generalized_binary <- function(x,
+                                    s = 1,
+                                    mode = "estimate",
+                                    scale = 0.1,
+                                    g_init = NULL,
+                                    fix_g = FALSE,
+                                    output = output_default(),
+                                    control = NULL,
+                                    ...) {
+  return(ebnm_workhorse(x = x,
+                        s = s,
+                        mode = mode,
+                        scale = scale,
+                        g_init = g_init,
+                        fix_g = fix_g,
+                        output = output,
+                        optmethod = NULL,
+                        control = control,
+                        prior_family = "generalized_binary",
+                        call = match.call(),
+                        ...))
+}
+
+#' @rdname ebnm_prior_families
+#'
+#' @export
+#'
 ebnm_ash <- function(x,
                      s = 1,
                      mode = 0,

@@ -260,6 +260,7 @@ ebnm <- function(x,
                                   "unimodal_symmetric",
                                   "unimodal_nonnegative",
                                   "unimodal_nonpositive",
+                                  "generalized_binary",
                                   "npmle",
                                   "deconvolver",
                                   "flat",
@@ -295,6 +296,13 @@ ebnm <- function(x,
           && g_init$shape[2] == 1
           && g_init$shift[1] == g_init$shift[2])
       prior_family <- "point_exponential"
+    } else if (class(g_init) == "truncnormmix") {
+      if (length(g_init$mean) == 2
+          && g_init$mean[1] == 0
+          && g_init$sd[1] == 0
+          && g_init$a[2] == 0
+          && g_init$b[2] == Inf)
+      prior_family <- "generalized_binary"
     }
   }
 
@@ -573,6 +581,23 @@ ebnm_workhorse <- function(x,
                                      control = control,
                                      call = call,
                                      ...)
+  } else if (prior_family == "generalized_binary") {
+    # Generalized binary priors have different defaults from other families:
+    if (is.null(call$mode)) {
+      mode <- "estimate"
+    }
+    if (is.null(call$scale)) {
+      scale <- 0.1
+    }
+    retlist <- gb_workhorse(x = x,
+                            s = s,
+                            mode = mode,
+                            scale = scale,
+                            g_init = g_init,
+                            fix_g = fix_g,
+                            output = output,
+                            control = control,
+                            ...)
   } else if (prior_family == "flat") {
     if (!(is.null(call$mode) && is.null(call$scale))) {
       warning("mode and scale parameters are ignored by ebnm_flat.")
