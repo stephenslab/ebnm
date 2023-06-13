@@ -24,6 +24,16 @@ truncnormmix <- function(pi, a, b, mean, sd) {
 ### mode corresponds to mode of truncated normal component.
 ### scale corresponds to sigma / mu.
 
+ebnm_generalized_binary_defaults <- function() {
+  return(list(
+    maxiter = 50,
+    tol = 1e-3,
+    wlist = c(1e-5, 1e-2, 1e-1, 2.5e-1, 9e-1),
+    mu_init = 1,
+    mu_range = c(1e-3, 32)
+  ))
+}
+
 #' @importFrom stats pnorm optim
 #'
 gb_workhorse <- function(x,
@@ -33,19 +43,37 @@ gb_workhorse <- function(x,
                          g_init,
                          fix_g,
                          output,
-                         control) {
-  maxiter <- 50 # add to control?
-  tol <- 1e-3
-  wlist <- c(1e-5, 1e-2, 1e-1, 2.5e-1, 9e-1)
-  mu_init <- 1
-  mu_range <- c(1e-3, 32)
+                         control,
+                         ...) {
+  args <- ebnm_generalized_binary_defaults()
+  for (arg in names(list(...))) {
+    if (!(arg %in% names(args))) {
+      warning("Argument ", arg, " is not recognized by ebnm_generalized_binary.")
+    } else {
+      args[[arg]] <- list(...)[[arg]]
+    }
+  }
+
+  maxiter <- args$maxiter
+  tol <- args$tol
+  wlist <- args$wlist
+  mu_init <- args$mu_init
+  mu_range <- args$mu_range
 
   if (!is.null(g_init) && !inherits(g_init, "truncnormmix")) {
     stop("g_init must be NULL or an object of class truncnormmix.")
   }
-  # TODO: check g.
 
   if (!is.null(g_init)) {
+    if (!(length(g_init$pi) == 2 &&
+          g_init$mean[1] == 0 &&
+          g_init$sd[1] == 0 &&
+          g_init$a[2] == 0 &&
+          g_init$b[2] == Inf)) {
+      stop("g_init is a truncnormmix object, but it is not a generalized ",
+           "binary prior (i.e., a mixture of a point mass at zero and a ",
+           "truncated normal component with lower bound zero).")
+    }
     if (!is.null(call$mode) || !is.null(call$scale)) {
       warning("mode and scale parameters are ignored when g_init is supplied.")
     }
