@@ -80,7 +80,9 @@ the "deconvolver" family is used, they are passed to function
 does not call into \code{ashr}, the scale mixture of normals family accepts
 parameter \code{gridmult} for purposes of comparison. When \code{gridmult}
 is set, an \code{ashr}-style grid will be used instead of the default
-\code{ebnm} grid. In all other cases, additional parameters are ignored.}
+\code{ebnm} grid. Families of generalized binary priors take several
+additional parameters; see \code{\link{ebnm_generalized_binary}}. In all
+other cases, additional parameters are ignored.}
 }
 \value{
 An \code{ebnm} object. Depending on the argument to \code{output}, the

@@ -41,12 +41,14 @@ must be homoskedastic; and since function
 "deconvolver" family is used.}
 
 \item{prior_family}{A character string that specifies the prior family
-\eqn{G}. See "Details" below.}
+\eqn{G}. See \strong{Details} below.}
 
 \item{mode}{A scalar specifying the mode of the prior \eqn{g} or
 \code{"estimate"} if the mode is to be estimated from the data. This
-parameter is ignored by the NPMLE, the \code{deconvolveR} prior family,
-and the improper uniform or "flat" prior.}
+parameter is ignored by the NPMLE, the \code{deconvolveR} family,
+and the improper uniform (or "flat") prior. For generalized binary priors,
+the mode parameter specifies the mode of the truncated normal component,
+with the location of the point mass fixed at zero.}
 
 \item{scale}{A scalar or vector specifying the scale parameter(s) of the
   prior or \code{"estimate"} if the scale parameters are to be estimated
@@ -59,8 +61,12 @@ and the improper uniform or "flat" prior.}
   point-Laplace and point-exponential families, it is a scalar specifying
   the scale parameter of the Laplace or exponential component. For the horseshoe
   family, it corresponds to \eqn{s\tau} in the usual parametrization of
-  the \code{\link{horseshoe}} distribution. For the NPMLE and \code{deconvolveR}
-  prior family, it is a scalar specifying the distance between support
+  the \code{\link{horseshoe}} distribution. For the family of generalized
+  binary priors, it specifies the ratio of the (untruncated) standard
+  deviation of the truncated normal component to its mode.
+  This ratio must be fixed in advance (i.e., argument \code{"estimate"} is
+  unavailable for generalized binary priors). For the NPMLE and \code{deconvolveR}
+  prior family, \code{scale} is a scalar specifying the distance between support
   points. For all other prior families, which are implemented using the function
   \code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
   the parameter \code{mixsd} to be passed to \code{ash} or \code{"estimate"}
@@ -81,9 +87,10 @@ an object of class \code{\link[ashr]{normalmix}} for normal, point-normal,
 scale mixture of normals, and \code{deconvolveR} prior families, as well as
 for the NPMLE; class \code{\link{laplacemix}} for
 point-Laplace families; class \code{\link{gammamix}} for point-exponential
-families; class \code{\link{horseshoe}} for horseshoe families; and class
-\code{\link[ashr]{unimix}} for \code{unimodal_} families. This parameter is
-ignored by the flat prior and point mass prior family.}
+families; class \code{\link{horseshoe}} for horseshoe families; class
+\code{\link[ashr]{unimix}} for \code{unimodal_} families; and class
+\code{\link[ashr]{truncnormmix}} for generalized binary priors. This
+parameter is ignored by the flat prior and point mass prior family.}
 
 \item{fix_g}{If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
 of estimating it.}
@@ -110,7 +117,8 @@ families unless parameter \code{optmethod} specifies otherwise.
 \code{\link[stats]{nlm}} is also used for the \code{deconvolveR} prior family.
 For ash families (including scale mixtures of normals, the NPMLE, and
 all \code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
-package \code{mixsqp} is the default.}
+package \code{mixsqp} is the default. For generalized binary priors,
+function \code{\link[stats]{optim}} is used with \code{method = "L-BFGS-B"}.}
 
 \item{...}{Additional parameters. When a \code{unimodal_} prior family is used,
 these parameters are passed to
@@ -120,7 +128,9 @@ the "deconvolver" family is used, they are passed to function
 does not call into \code{ashr}, the scale mixture of normals family accepts
 parameter \code{gridmult} for purposes of comparison. When \code{gridmult}
 is set, an \code{ashr}-style grid will be used instead of the default
-\code{ebnm} grid. In all other cases, additional parameters are ignored.}
+\code{ebnm} grid. Families of generalized binary priors take several
+additional parameters; see \code{\link{ebnm_generalized_binary}}. In all
+other cases, additional parameters are ignored.}
 }
 \value{
 An \code{ebnm} object. Depending on the argument to \code{output}, the
@@ -196,6 +206,9 @@ Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
         distributions with support constrained to be greater than the mode.}
       \item{\code{unimodal_nonpositive}}{The family of unimodal
         distributions with support constrained to be less than the mode.}
+      \item{\code{generalized_binary}}{The family of mixtures where one
+        component is a point mass at zero and the other is a truncated
+        normal distribution with lower bound zero.}
       \item{\code{npmle}}{The family of all distributions.}
       \item{\code{deconvolver}}{A non-parametric exponential family with
         a natural spline basis. Like \code{npmle}, there is no unimodal
@@ -280,7 +293,8 @@ A plotting method is available for \code{ebnm} objects: see
   \code{\link{ebnm_normal_scale_mixture}}, \code{\link{ebnm_unimodal}},
   \code{\link{ebnm_unimodal_symmetric}},
   \code{\link{ebnm_unimodal_nonnegative}},
-  \code{\link{ebnm_unimodal_nonpositive}}, \code{\link{ebnm_npmle}},
+  \code{\link{ebnm_unimodal_nonpositive}},
+  \code{\link{ebnm_generalized_binary}}, \code{\link{ebnm_npmle}},
   \code{\link{ebnm_deconvolver}}, \code{\link{ebnm_flat}},
   \code{\link{ebnm_point_mass}}, and \code{\link{ebnm_ash}}
   is equivalent to calling into \code{ebnm} with \code{prior_family} set

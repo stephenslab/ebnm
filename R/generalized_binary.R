@@ -21,12 +21,8 @@ truncnormmix <- function(pi, a, b, mean, sd) {
   structure(data.frame(pi, a, b, mean, sd), class="truncnormmix")
 }
 
-### Define the generalized binary prior (1-pi)*delta_0 + pi*N+(mu, sigma^2),
-###   where N+ represents truncated normal on [0, \infty), mu/sigma = 10.
-### Split the optimization problem into several subproblems with different
-###   ranges of pi to optimize over.
-### Mode: where is TN. Scale: what is sigma/mu.
-
+### mode corresponds to mode of truncated normal component.
+### scale corresponds to sigma / mu.
 
 #' @importFrom stats pnorm optim
 #'
@@ -105,7 +101,7 @@ gb_workhorse <- function(x,
               pnorm(-post_mean / post_sd, lower.tail = FALSE, log.p = TRUE) -
               pnorm(-par / sqrt(par_sigma2), lower.tail = FALSE, log.p = TRUE)
             # calculate objective function
-            return(sum(zeta * llik))
+            return(-sum(zeta * llik))
           }
 
           # update mu
@@ -115,7 +111,7 @@ gb_workhorse <- function(x,
             lower = mu_range[1],
             upper = mu_range[2],
             method = "L-BFGS-B",
-            control = list(fnscale = -1)
+            control = control
           )$par
         }
 

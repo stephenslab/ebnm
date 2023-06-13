@@ -28,6 +28,9 @@
 #'         distributions with support constrained to be greater than the mode.}
 #'       \item{\code{ebnm_unimodal_nonpositive}}{The family of unimodal
 #'         distributions with support constrained to be less than the mode.}
+#'       \item{\code{ebnm_generalized_binary}}{The family of mixtures where one
+#'         component is a point mass at zero and the other is a truncated
+#'         normal distribution with lower bound zero.}
 #'       \item{\code{ebnm_npmle}}{The family of all distributions.}
 #'       \item{\code{ebnm_deconvolver}}{A non-parametric exponential family with
 #'         a natural spline basis. Like \code{npmle}, there is no unimodal
