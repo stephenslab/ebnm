@@ -38,7 +38,7 @@ flat_workhorse <- function(x,
 
   if (llik_in_output(output)) {
     # Log likelihood is not well defined so just return zero.
-    retlist <- add_llik_to_retlist(retlist, 0, x, df = 0)
+    retlist <- add_llik_to_retlist(retlist, NA, x, df = 0)
   }
 
   if (sampler_in_output(output)) {
