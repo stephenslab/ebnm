@@ -23,8 +23,18 @@ not allowed.}
 Standard errors may not be exactly zero, and missing standard errors are
 not allowed.}
 
-\item{scale}{A scalar specifying the distance between successive grid points
-for the approximating family of point masses.}
+\item{scale}{The nonparametric family of all distributions is
+approximated via a finite mixture of point masses
+\deqn{\pi_1 \delta_{\mu_1} + \ldots + \pi_K \delta_{\mu_K},}
+where parameters \eqn{\pi_k} are estimated and the point masses are
+evenly spaced over \eqn{(\mu_1, \mu_K)}. By taking a sufficiently dense
+grid of point masses, one can obtain an arbitrarily good
+approximation. The distance between successive point masses can be
+specified by the user via parameter
+\code{scale}, in which case the argument should be a scalar specifying the
+distance \eqn{d = \mu_2 - \mu_1 = \cdots = \mu_K - \mu_{K - 1}};
+alternatively, if \code{scale = "estimate"}, then \code{ebnm} sets the grid
+via function \code{\link{init_g_for_npmle}}.}
 
 \item{g_init}{The prior distribution \eqn{g}. Usually this is left
 unspecified (\code{NULL}) and estimated from the data. However, it can be
@@ -70,19 +80,15 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
 }
 \description{
 Solves the empirical Bayes normal means (EBNM) problem using the family
-  of all distributions. This family is approximated by the family of mixtures
-  over an evenly spaced grid of point masses whose support points are fixed in
-  advance. Identical to function \code{\link{ebnm}} with argument
+  of all distributions. Identical to function \code{\link{ebnm}} with argument
   \code{prior_family = "npmle"}. For details about the model, see
   \code{\link{ebnm}}.
 }
 \seealso{
-A plotting method is available for \code{ebnm} objects: see
-  \code{\link{plot.ebnm}}.
-
-  For other methods, see \code{\link{confint.ebnm}},
+Available S3 methods include \code{\link{confint.ebnm}},
    \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
-   \code{\link{nobs.ebnm}}, \code{\link{predict.ebnm}},
+   \code{\link{nobs.ebnm}}, \code{\link{plot.ebnm}},
+   \code{\link{predict.ebnm}},
    \code{\link{print.ebnm}}, \code{\link{print.summary.ebnm}},
    \code{\link{samp.ebnm}}, and \code{\link{summary.ebnm}}.
 }

@@ -56,8 +56,8 @@ calls into package \code{trust}). Other options are \code{"nohess_nlm"},
 approximations rather than exact expressions for the Hessian and (for
 the latter two) the gradient. The default option is \code{"nohess_nlm"}.}
 
-\item{control}{A list of control parameters to be passed to function
-\code{\link[stats]{optimize}}.}
+\item{control}{A list of control parameters to be passed to the
+optimization function specified by parameter \code{optmethod}.}
 }
 \value{
 An \code{ebnm} object. Depending on the argument to \code{output}, the
@@ -88,12 +88,10 @@ Solves the empirical Bayes normal means (EBNM) problem using the family of
   \code{\link{ebnm}}.
 }
 \seealso{
-A plotting method is available for \code{ebnm} objects: see
-  \code{\link{plot.ebnm}}.
-
-  For other methods, see \code{\link{confint.ebnm}},
+Available S3 methods include \code{\link{confint.ebnm}},
    \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
-   \code{\link{nobs.ebnm}}, \code{\link{predict.ebnm}},
+   \code{\link{nobs.ebnm}}, \code{\link{plot.ebnm}},
+   \code{\link{predict.ebnm}},
    \code{\link{print.ebnm}}, \code{\link{print.summary.ebnm}},
    \code{\link{samp.ebnm}}, and \code{\link{summary.ebnm}}.
 }

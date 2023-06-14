@@ -19,14 +19,18 @@ ebnm_deconvolver(
 \item{x}{A vector of observations. Missing observations (\code{NA}s) are
 not allowed.}
 
-\item{s}{Standard errors. Since function \code{\link[deconvolveR]{deconv}}
-in package \code{deconvolveR} takes \eqn{z}-scores, all standard errors
-must be equal to 1 (i.e., \code{s = 1}).}
+\item{s}{Standard errors, which must be uniformly equal to 1 (i.e.,
+\code{s = 1}) since the deconvolveR method takes \eqn{z}-scores as input.}
 
-\item{scale}{A scalar specifying the distance between successive grid points
-for the deconvolveR family of distributions. Closely related to the
-\code{scale} parameter in function \code{\link{ebnm_npmle}}. See
-\code{\link[deconvolveR]{deconvolveR-package}} for details.}
+\item{scale}{A deconvolveR prior is a finite mixture of point masses
+\deqn{\pi_1 \delta_{\mu_1} + \ldots + \pi_K \delta_{\mu_K},}
+where parameters \eqn{\pi_k} are estimated and the point masses are
+evenly spaced over \eqn{(\mu_1, \mu_K)}.The distance between successive
+point masses can be specified by the user via parameter
+\code{scale}, in which case the argument should be a scalar specifying the
+distance \eqn{d = \mu_2 - \mu_1 = \cdots = \mu_K - \mu_{K - 1}};
+alternatively, if \code{scale = "estimate"}, then \code{ebnm} sets the grid
+via function \code{\link{init_g_for_npmle}}.}
 
 \item{g_init}{The prior distribution \eqn{g}. Usually this is left
 unspecified (\code{NULL}) and estimated from the data. However, it can be
@@ -84,12 +88,10 @@ Solves the empirical Bayes normal means (EBNM) problem using a non-parametric
   \code{prior_family = "deconvolver"}.
 }
 \seealso{
-A plotting method is available for \code{ebnm} objects: see
-  \code{\link{plot.ebnm}}.
-
-  For other methods, see \code{\link{confint.ebnm}},
+Available S3 methods include \code{\link{confint.ebnm}},
    \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
-   \code{\link{nobs.ebnm}}, \code{\link{predict.ebnm}},
+   \code{\link{nobs.ebnm}}, \code{\link{plot.ebnm}},
+   \code{\link{predict.ebnm}},
    \code{\link{print.ebnm}}, \code{\link{print.summary.ebnm}},
    \code{\link{samp.ebnm}}, and \code{\link{summary.ebnm}}.
 }

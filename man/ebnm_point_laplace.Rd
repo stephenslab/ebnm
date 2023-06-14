@@ -28,7 +28,7 @@ not allowed.}
 \code{"estimate"} if the mode is to be estimated from the data.}
 
 \item{scale}{A scalar specifying the scale parameter of the Laplace
-component or \code{"estimate"} if the scale parameter is to be estimated
+component or \code{"estimate"} if the scale is to be estimated
 from the data.}
 
 \item{g_init}{The prior distribution \eqn{g}. Usually this is left
@@ -90,12 +90,10 @@ Solves the empirical Bayes normal means (EBNM) problem using the family of
   \code{\link{ebnm}}.
 }
 \seealso{
-A plotting method is available for \code{ebnm} objects: see
-  \code{\link{plot.ebnm}}.
-
-  For other methods, see \code{\link{confint.ebnm}},
+Available S3 methods include \code{\link{confint.ebnm}},
    \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
-   \code{\link{nobs.ebnm}}, \code{\link{predict.ebnm}},
+   \code{\link{nobs.ebnm}}, \code{\link{plot.ebnm}},
+   \code{\link{predict.ebnm}},
    \code{\link{print.ebnm}}, \code{\link{print.summary.ebnm}},
    \code{\link{samp.ebnm}}, and \code{\link{summary.ebnm}}.
 }

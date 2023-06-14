@@ -26,10 +26,10 @@ not allowed.}
 
 \item{mode}{A scalar specifying the mode of the truncated normal component,
 or \code{"estimate"} if the mode is to be estimated from the data (the
-location of the point mass is always fixed at zero).}
+location of the point mass is fixed at zero).}
 
 \item{scale}{A scalar specifying the ratio of the (untruncated) standard
-deviation of the truncated normal component to its mode. This ratio must be
+deviation of the normal component to its mode. This ratio must be
 fixed in advance (i.e., it is not possible to set \code{scale = "estimate"}
 when using generalized binary priors).}
 
@@ -51,26 +51,28 @@ Function \code{output_default()} provides the default return values, while
 below.}
 
 \item{control}{A list of control parameters to be passed to function
-\code{\link[stats]{optim}}, with \code{method} set to \code{"L-BFGS-B"}.}
+\code{\link[stats]{optim}}, where \code{method} has been set to
+\code{"L-BFGS-B"}.}
 
 \item{...}{The following additional arguments act as control parameters for
-the outer EM loops, which iteratively update parameters \eqn{w} (the
+the outer EM loops in the fitting algorithm. Each loop iteratively updates
+parameters \eqn{w} (the
 mixture proportion corresponding to the truncated normal component) and
 \eqn{\mu} (the mode of the truncated normal component):
   \describe{
-     \item{\code{maxiter}}{A scalar specifying the maximum number of
-       iterations to perform in the outer EM loops.}
-     \item{\code{tol}}{A scalar specifying the convergence tolerance
-       parameter for the outer EM loops.}
      \item{\code{wlist}}{A vector defining intervals of \eqn{w} for which
        optimal solutions will separately be found. For example, if
        \code{wlist = c(0, 0.5, 1)}, then two optimal priors will be found:
        one such that \eqn{w} is constrained to be less than 0.5 and one
        such that it is constrained to be greater than 0.5.}
+     \item{\code{maxiter}}{A scalar specifying the maximum number of
+       iterations to perform in each outer EM loop.}
+     \item{\code{tol}}{A scalar specifying the convergence tolerance
+       parameter for each outer EM loop.}
      \item{\code{mu_init}}{A scalar specifying the initial value of \eqn{\mu}
-       to be used in the outer EM loops.}
+       to be used in each outer EM loop.}
      \item{\code{mu_range}}{A vector of length two specifying lower and
-       upper bounds for values of \eqn{\mu}.}
+       upper bounds for possible values of \eqn{\mu}.}
    }}
 }
 \value{
@@ -103,12 +105,10 @@ Solves the empirical Bayes normal means (EBNM) problem using the family of
   For details about the model, see \code{\link{ebnm}}.
 }
 \seealso{
-A plotting method is available for \code{ebnm} objects: see
-  \code{\link{plot.ebnm}}.
-
-  For other methods, see \code{\link{confint.ebnm}},
+Available S3 methods include \code{\link{confint.ebnm}},
    \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
-   \code{\link{nobs.ebnm}}, \code{\link{predict.ebnm}},
+   \code{\link{nobs.ebnm}}, \code{\link{plot.ebnm}},
+   \code{\link{predict.ebnm}},
    \code{\link{print.ebnm}}, \code{\link{print.summary.ebnm}},
    \code{\link{samp.ebnm}}, and \code{\link{summary.ebnm}}.
 }

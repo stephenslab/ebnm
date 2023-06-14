@@ -14,9 +14,11 @@ not allowed.}
 Standard errors may not be exactly zero, and missing standard errors are
 not allowed.}
 
-\item{g_init}{Not used by \code{ebnm_flat}.}
+\item{g_init}{Not used by \code{ebnm_flat}, but included for consistency
+with other \code{ebnm} functions.}
 
-\item{fix_g}{Not used by \code{ebnm_flat}.}
+\item{fix_g}{Not used by \code{ebnm_flat}, but included for consistency
+with other \code{ebnm} functions.}
 
 \item{output}{A character vector indicating which values are to be returned.
 Function \code{output_default()} provides the default return values, while
@@ -48,17 +50,15 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
 \description{
 Solves the empirical Bayes normal means (EBNM) problem using a
   "non-informative" improper uniform prior, which yields posteriors
-  \deqn{\theta_j | x_j, s_j \sim N(x_j, s_j^2)}. Identical to function
+  \deqn{\theta_j | x_j, s_j \sim N(x_j, s_j^2).} Identical to function
   \code{\link{ebnm}} with argument \code{prior_family = "flat"}. For details
   about the model, see \code{\link{ebnm}}.
 }
 \seealso{
-A plotting method is available for \code{ebnm} objects: see
-  \code{\link{plot.ebnm}}.
-
-  For other methods, see \code{\link{confint.ebnm}},
+Available S3 methods include \code{\link{confint.ebnm}},
    \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
-   \code{\link{nobs.ebnm}}, \code{\link{predict.ebnm}},
+   \code{\link{nobs.ebnm}}, \code{\link{plot.ebnm}},
+   \code{\link{predict.ebnm}},
    \code{\link{print.ebnm}}, \code{\link{print.summary.ebnm}},
    \code{\link{samp.ebnm}}, and \code{\link{summary.ebnm}}.
 }

@@ -70,12 +70,10 @@
 #'    have been implemented for \code{ebnm} objects. For details, see the
 #'    respective help pages, linked below under \strong{See Also}.
 #'
-#' @seealso A plotting method is available for \code{ebnm} objects: see
-#'   \code{\link{plot.ebnm}}.
-#'
-#'   For other methods, see \code{\link{confint.ebnm}},
+#' @seealso  Available S3 methods include \code{\link{confint.ebnm}},
 #'    \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
-#'    \code{\link{nobs.ebnm}}, \code{\link{predict.ebnm}},
+#'    \code{\link{nobs.ebnm}}, \code{\link{plot.ebnm}},
+#'    \code{\link{predict.ebnm}},
 #'    \code{\link{print.ebnm}}, \code{\link{print.summary.ebnm}},
 #'    \code{\link{samp.ebnm}}, and \code{\link{summary.ebnm}}.
 #'
@@ -115,7 +113,7 @@ ebnm_point_normal <- function(x,
 #' @inherit ebnm_point_normal
 #'
 #' @param scale A scalar specifying the scale parameter of the Laplace
-#'   component or \code{"estimate"} if the scale parameter is to be estimated
+#'   component or \code{"estimate"} if the scale is to be estimated
 #'   from the data.
 #'
 #' @param g_init The prior distribution \eqn{g}. Usually this is left
@@ -163,7 +161,7 @@ ebnm_point_laplace <- function(x,
 #' @inherit ebnm_point_normal
 #'
 #' @param scale A scalar specifying the scale parameter of the exponential
-#'   component or \code{"estimate"} if the scale parameter is to be estimated
+#'   component or \code{"estimate"} if the scale is to be estimated
 #'   from the data.
 #'
 #' @param g_init The prior distribution \eqn{g}. Usually this is left
@@ -212,9 +210,6 @@ ebnm_point_exponential <- function(x,
 #'   or \code{"estimate"} if the standard deviation is to be estimated from
 #'   the data.
 #'
-#' @param control A list of control parameters to be passed to function
-#'   \code{\link[stats]{optimize}}.
-#'
 #' @export
 #'
 ebnm_normal <- function(x,
@@ -248,8 +243,8 @@ ebnm_normal <- function(x,
 #'
 #' @inherit ebnm_point_normal
 #'
-#' @param s A scalar specifying the standard error of the observations (with
-#'   horseshoe priors, errors must be homoskedastic).
+#' @param s A \emph{scalar} specifying the standard error of the observations
+#'   (observations must be homoskedastic).
 #'
 #' @param scale A scalar corresponding to \eqn{s\tau} in the usual
 #'   parametrization of the \code{\link{horseshoe}} distribution, or
@@ -266,6 +261,28 @@ ebnm_normal <- function(x,
 #'
 #' @param control A list of control parameters to be passed to function
 #'   \code{\link[stats]{optimize}}.
+#'
+#' @return An \code{ebnm} object. Depending on the argument to \code{output}, the
+#'   object is a list containing elements:
+#'     \describe{
+#'       \item{\code{data}}{A data frame containing the observations \code{x}
+#'         and standard errors \code{s}.}
+#'       \item{\code{posterior}}{A data frame of summary results (posterior
+#'         means, standard deviations, second moments, and local false sign
+#'         rates).}
+#'       \item{\code{fitted_g}}{The fitted prior \eqn{\hat{g}}.}
+#'       \item{\code{log_likelihood}}{The optimal log likelihood attained,
+#'         \eqn{L(\hat{g})}.}
+#'       \item{\code{posterior_sampler}}{A function that can be used to
+#'         produce samples from the posterior. The function takes parameters
+#'         \code{nsamp}, the number of posterior samples to return per
+#'         observation, and \code{burn}, the number of burn-in samples to
+#'         discard (an MCMC sampler is used).}
+#'      }
+#'    S3 methods \code{confint}, \code{fitted}, \code{logLik}, \code{nobs},
+#'    \code{plot}, \code{predict}, \code{print}, \code{samp}, and \code{summary}
+#'    have been implemented for \code{ebnm} objects. For details, see the
+#'    respective help pages, linked below under \strong{See Also}.
 #'
 #' @export
 #'
@@ -298,12 +315,21 @@ ebnm_horseshoe <- function(x,
 #'
 #' @inherit ebnm_point_normal
 #'
-#' @param scale A vector specifying the grid of standard deviations for
-#'   underlying mixture components or \code{"estimate"} if the grid is to be
-#'   set by \code{ebnm}. (Note that \code{ebnm} sets the grid differently from
+#' @param scale The nonparametric family of scale mixtures of normals is
+#'   approximated via a finite mixture of normal distributions
+#'   \deqn{\pi_1 N(\mu, \sigma_1^2) + \ldots + \pi_K N(\mu, \sigma_K^2),}
+#'   where parameters \eqn{\pi_k} are estimated and the grid of standard
+#'   deviations \eqn{(\sigma_1, \ldots, \sigma_K)} is fixed in advance. By
+#'   making the grid sufficiently dense, one can obtain an arbitrarily good
+#'   approximation. The grid can be specified by the user via parameter
+#'   \code{scale}, in which case the argument should be the vector of
+#'   standard deviations \eqn{(\sigma_1, \ldots, \sigma_K)}; alternatively,
+#'   if \code{scale = "estimate"}, then
+#'   \code{ebnm} sets the grid via function \code{\link{default_smn_scale}}.
+#'   Note that \code{ebnm} sets the grid differently from
 #'   function \code{\link[ashr]{ash}}. To use the \code{ash} grid, set
 #'   \code{scale = "estimate"} and pass in \code{gridmult} as an additional
-#'   parameter. See \code{\link[ashr]{ash}} for defaults and details.)
+#'   parameter. See \code{\link[ashr]{ash}} for defaults and details.
 #'
 #' @param g_init The prior distribution \eqn{g}. Usually this is left
 #'   unspecified (\code{NULL}) and estimated from the data. However, it can be
@@ -320,7 +346,8 @@ ebnm_horseshoe <- function(x,
 #'
 #' @param ... When parameter \code{gridmult} is set, an
 #'   \code{\link[ashr]{ash}}-style grid will be used instead of the default
-#'   \code{ebnm} grid. Other additional parameters are ignored.
+#'   \code{ebnm} grid (see parameter \code{scale} above). Other additional
+#'   parameters are ignored.
 #'
 #' @export
 #'
@@ -356,12 +383,22 @@ ebnm_normal_scale_mixture <- function(x,
 #'
 #' @inherit ebnm_normal_scale_mixture
 #'
-#' @param scale A vector specifying the grid of lower/upper bounds for
-#'   underlying mixture components or \code{"estimate"} if the grid is to be
-#'   set by \code{ebnm}. (Note that \code{ebnm} sets the grid differently from
+#' @param scale The nonparametric family of unimodal distributions is
+#'   approximated via a finite mixture of uniform distributions
+#'   \deqn{\pi_1^l \text{Unif}(\mu - a_1, \mu) + \pi_1^u \text{Unif}(\mu, \mu + a_1)
+#'   + \ldots + \pi_K^l \text{Unif}(\mu - a_K, \mu) + \pi_K^u \text{Unif}(\mu, \mu + a_K),}
+#'   where parameters \eqn{\pi_k^l} and \eqn{\pi_k^u} are estimated and the grid
+#'   of lengths \eqn{(a_1, \ldots, a_K)} is fixed in advance. By
+#'   making the grid sufficiently dense, one can obtain an arbitrarily good
+#'   approximation. The grid can be specified by the user via parameter
+#'   \code{scale}, in which case the argument should be the vector of
+#'   lengths \eqn{(a_1, \ldots, a_K)}; alternatively, if
+#'   \code{scale = "estimate"}, then \code{ebnm} sets the grid via function
+#'   \code{\link{default_symmuni_scale}}.
+#'   Note that \code{ebnm} sets the grid differently from
 #'   function \code{\link[ashr]{ash}}. To use the \code{ash} grid, set
 #'   \code{scale = "estimate"} and pass in \code{gridmult} as an additional
-#'   parameter. See \code{\link[ashr]{ash}} for defaults and details.)
+#'   parameter. See \code{\link[ashr]{ash}} for defaults and details.
 #'
 #' @param g_init The prior distribution \eqn{g}. Usually this is left
 #'   unspecified (\code{NULL}) and estimated from the data. However, it can be
@@ -410,6 +447,23 @@ ebnm_unimodal <- function(x,
 #'
 #' @inherit ebnm_unimodal
 #'
+#' @param scale The nonparametric family of symmetric unimodal distributions is
+#'   approximated via a finite mixture of uniform distributions
+#'   \deqn{\pi_1 \text{Unif}(\mu - a_1, \mu + a_1)
+#'   + \ldots + \pi_K \text{Unif}(\mu - a_K, \mu + a_K),}
+#'   where parameters \eqn{\pi_k} are estimated and the grid
+#'   of (half-)lengths \eqn{(a_1, \ldots, a_K)} is fixed in advance. By
+#'   making the grid sufficiently dense, one can obtain an arbitrarily good
+#'   approximation. The grid can be specified by the user via parameter
+#'   \code{scale}, in which case the argument should be the vector
+#'   \eqn{(a_1, \ldots, a_K)}; alternatively, if
+#'   \code{scale = "estimate"}, then \code{ebnm} sets the grid via function
+#'   \code{\link{default_symmuni_scale}}.
+#'   Note that \code{ebnm} sets the grid differently from
+#'   function \code{\link[ashr]{ash}}. To use the \code{ash} grid, set
+#'   \code{scale = "estimate"} and pass in \code{gridmult} as an additional
+#'   parameter. See \code{\link[ashr]{ash}} for defaults and details.
+#'
 #' @export
 #'
 ebnm_unimodal_symmetric <- function(x,
@@ -445,6 +499,23 @@ ebnm_unimodal_symmetric <- function(x,
 #'
 #' @inherit ebnm_unimodal
 #'
+#' @param scale The nonparametric family of nonnegative unimodal distributions is
+#'   approximated via a finite mixture of uniform distributions
+#'   \deqn{\pi_1 \text{Unif}(\mu, \mu + a_1)
+#'   + \ldots + \pi_K \text{Unif}(\mu, \mu + a_K),}
+#'   where parameters \eqn{\pi_k} are estimated and the grid
+#'   of lengths \eqn{(a_1, \ldots, a_K)} is fixed in advance. By
+#'   making the grid sufficiently dense, one can obtain an arbitrarily good
+#'   approximation. The grid can be specified by the user via parameter
+#'   \code{scale}, in which case the argument should be the vector of
+#'   lengths \eqn{(a_1, \ldots, a_K)}; alternatively, if
+#'   \code{scale = "estimate"}, then \code{ebnm} sets the grid via function
+#'   \code{\link{default_symmuni_scale}}.
+#'   Note that \code{ebnm} sets the grid differently from
+#'   function \code{\link[ashr]{ash}}. To use the \code{ash} grid, set
+#'   \code{scale = "estimate"} and pass in \code{gridmult} as an additional
+#'   parameter. See \code{\link[ashr]{ash}} for defaults and details.
+#'
 #' @export
 #'
 ebnm_unimodal_nonnegative <- function(x,
@@ -479,6 +550,23 @@ ebnm_unimodal_nonnegative <- function(x,
 #'   see \code{\link{ebnm}}.
 #'
 #' @inherit ebnm_unimodal
+#'
+#' @param scale The nonparametric family of nonnpositive unimodal distributions is
+#'   approximated via a finite mixture of uniform distributions
+#'   \deqn{\pi_1 \text{Unif}(\mu - a_1, \mu)
+#'   + \ldots + \pi_K \text{Unif}(\mu - a_K, \mu),}
+#'   where parameters \eqn{\pi_k} are estimated and the grid
+#'   of lengths \eqn{(a_1, \ldots, a_K)} is fixed in advance. By
+#'   making the grid sufficiently dense, one can obtain an arbitrarily good
+#'   approximation. The grid can be specified by the user via parameter
+#'   \code{scale}, in which case the argument should be the vector of
+#'   lengths \eqn{(a_1, \ldots, a_K)}; alternatively, if
+#'   \code{scale = "estimate"}, then \code{ebnm} sets the grid via function
+#'   \code{\link{default_symmuni_scale}}.
+#'   Note that \code{ebnm} sets the grid differently from
+#'   function \code{\link[ashr]{ash}}. To use the \code{ash} grid, set
+#'   \code{scale = "estimate"} and pass in \code{gridmult} as an additional
+#'   parameter. See \code{\link[ashr]{ash}} for defaults and details.
 #'
 #' @export
 #'
@@ -517,10 +605,10 @@ ebnm_unimodal_nonpositive <- function(x,
 #'
 #' @param mode A scalar specifying the mode of the truncated normal component,
 #'   or \code{"estimate"} if the mode is to be estimated from the data (the
-#'   location of the point mass is always fixed at zero).
+#'   location of the point mass is fixed at zero).
 #'
 #' @param scale A scalar specifying the ratio of the (untruncated) standard
-#'   deviation of the truncated normal component to its mode. This ratio must be
+#'   deviation of the normal component to its mode. This ratio must be
 #'   fixed in advance (i.e., it is not possible to set \code{scale = "estimate"}
 #'   when using generalized binary priors).
 #'
@@ -534,26 +622,28 @@ ebnm_unimodal_nonpositive <- function(x,
 #'   \code{\link[ashr]{truncnormmix}}.
 #'
 #' @param control A list of control parameters to be passed to function
-#'   \code{\link[stats]{optim}}, with \code{method} set to \code{"L-BFGS-B"}.
+#'   \code{\link[stats]{optim}}, where \code{method} has been set to
+#'   \code{"L-BFGS-B"}.
 #'
 #' @param ... The following additional arguments act as control parameters for
-#'   the outer EM loops, which iteratively update parameters \eqn{w} (the
+#'   the outer EM loops in the fitting algorithm. Each loop iteratively updates
+#'   parameters \eqn{w} (the
 #'   mixture proportion corresponding to the truncated normal component) and
 #'   \eqn{\mu} (the mode of the truncated normal component):
 #'     \describe{
-#'        \item{\code{maxiter}}{A scalar specifying the maximum number of
-#'          iterations to perform in the outer EM loops.}
-#'        \item{\code{tol}}{A scalar specifying the convergence tolerance
-#'          parameter for the outer EM loops.}
 #'        \item{\code{wlist}}{A vector defining intervals of \eqn{w} for which
 #'          optimal solutions will separately be found. For example, if
 #'          \code{wlist = c(0, 0.5, 1)}, then two optimal priors will be found:
 #'          one such that \eqn{w} is constrained to be less than 0.5 and one
 #'          such that it is constrained to be greater than 0.5.}
+#'        \item{\code{maxiter}}{A scalar specifying the maximum number of
+#'          iterations to perform in each outer EM loop.}
+#'        \item{\code{tol}}{A scalar specifying the convergence tolerance
+#'          parameter for each outer EM loop.}
 #'        \item{\code{mu_init}}{A scalar specifying the initial value of \eqn{\mu}
-#'          to be used in the outer EM loops.}
+#'          to be used in each outer EM loop.}
 #'        \item{\code{mu_range}}{A vector of length two specifying lower and
-#'          upper bounds for values of \eqn{\mu}.}
+#'          upper bounds for possible values of \eqn{\mu}.}
 #'      }
 #'
 #' @export
@@ -581,67 +671,27 @@ ebnm_generalized_binary <- function(x,
                         ...))
 }
 
-#' Solve the EBNM problem using an ash family of distributions
-#'
-#' A wrapper to function \code{\link[ashr]{ash}} in package \code{ashr}.
-#'   Identical to function \code{\link{ebnm}} with argument
-#'   \code{prior_family = "ash"}.
-#'
-#' @inherit ebnm_normal_scale_mixture
-#'
-#' @param scale A vector specifying the grid for underlying mixture
-#'   components or \code{"estimate"} if the grid is to be
-#'   set by \code{ash}. Equivalent to parameter \code{mixsd} in function
-#'   \code{\link[ashr]{ash}}.
-#'
-#' @param g_init The prior distribution \eqn{g}. Usually this is left
-#'   unspecified (\code{NULL}) and estimated from the data. However, it can be
-#'   used in conjuction with \code{fix_g = TRUE} to fix the prior (useful, for
-#'   example, to do computations with the "true" \eqn{g} in simulations). If
-#'   \code{g_init} is specified but \code{fix_g = FALSE}, \code{g_init}
-#'   specifies the initial value of \eqn{g} used during optimization. This has
-#'   the side effect of fixing the \code{mode} and \code{scale} parameters.
-#'
-#' @param ... Additional parameters to be passed to \code{\link[ashr]{ash}}.
-#'
-#' @export
-#'
-ebnm_ash <- function(x,
-                     s = 1,
-                     mode = 0,
-                     scale = "estimate",
-                     g_init = NULL,
-                     fix_g = FALSE,
-                     output = output_default(),
-                     control = NULL,
-                     ...) {
-  return(ebnm_workhorse(x = x,
-                        s = s,
-                        mode = mode,
-                        scale = scale,
-                        g_init = g_init,
-                        fix_g = fix_g,
-                        output = output,
-                        optmethod = NULL,
-                        control = control,
-                        prior_family = "ash",
-                        call = match.call(),
-                        ...))
-}
-
 #' Solve the EBNM problem using the family of all distributions
 #'
 #' Solves the empirical Bayes normal means (EBNM) problem using the family
-#'   of all distributions. This family is approximated by the family of mixtures
-#'   over an evenly spaced grid of point masses whose support points are fixed in
-#'   advance. Identical to function \code{\link{ebnm}} with argument
+#'   of all distributions. Identical to function \code{\link{ebnm}} with argument
 #'   \code{prior_family = "npmle"}. For details about the model, see
 #'   \code{\link{ebnm}}.
 #'
 #' @inherit ebnm_normal_scale_mixture
 #'
-#' @param scale A scalar specifying the distance between successive grid points
-#'   for the approximating family of point masses.
+#' @param scale The nonparametric family of all distributions is
+#'   approximated via a finite mixture of point masses
+#'   \deqn{\pi_1 \delta_{\mu_1} + \ldots + \pi_K \delta_{\mu_K},}
+#'   where parameters \eqn{\pi_k} are estimated and the point masses are
+#'   evenly spaced over \eqn{(\mu_1, \mu_K)}. By taking a sufficiently dense
+#'   grid of point masses, one can obtain an arbitrarily good
+#'   approximation. The distance between successive point masses can be
+#'   specified by the user via parameter
+#'   \code{scale}, in which case the argument should be a scalar specifying the
+#'   distance \eqn{d = \mu_2 - \mu_1 = \cdots = \mu_K - \mu_{K - 1}};
+#'   alternatively, if \code{scale = "estimate"}, then \code{ebnm} sets the grid
+#'   via function \code{\link{init_g_for_npmle}}.
 #'
 #' @param g_init The prior distribution \eqn{g}. Usually this is left
 #'   unspecified (\code{NULL}) and estimated from the data. However, it can be
@@ -688,14 +738,18 @@ ebnm_npmle <- function(x,
 #'
 #' @inherit ebnm_npmle
 #'
-#' @param s Standard errors. Since function \code{\link[deconvolveR]{deconv}}
-#'   in package \code{deconvolveR} takes \eqn{z}-scores, all standard errors
-#'   must be equal to 1 (i.e., \code{s = 1}).
+#' @param s Standard errors, which must be uniformly equal to 1 (i.e.,
+#'   \code{s = 1}) since the deconvolveR method takes \eqn{z}-scores as input.
 #'
-#' @param scale A scalar specifying the distance between successive grid points
-#'   for the deconvolveR family of distributions. Closely related to the
-#'   \code{scale} parameter in function \code{\link{ebnm_npmle}}. See
-#'   \code{\link[deconvolveR]{deconvolveR-package}} for details.
+#' @param scale A deconvolveR prior is a finite mixture of point masses
+#'   \deqn{\pi_1 \delta_{\mu_1} + \ldots + \pi_K \delta_{\mu_K},}
+#'   where parameters \eqn{\pi_k} are estimated and the point masses are
+#'   evenly spaced over \eqn{(\mu_1, \mu_K)}.The distance between successive
+#'   point masses can be specified by the user via parameter
+#'   \code{scale}, in which case the argument should be a scalar specifying the
+#'   distance \eqn{d = \mu_2 - \mu_1 = \cdots = \mu_K - \mu_{K - 1}};
+#'   alternatively, if \code{scale = "estimate"}, then \code{ebnm} sets the grid
+#'   via function \code{\link{init_g_for_npmle}}.
 #'
 #' @param control A list of control parameters to be passed to optimization
 #'   function \code{\link[stats]{nlm}}.
@@ -730,15 +784,17 @@ ebnm_deconvolver <- function(x,
 #'
 #' Solves the empirical Bayes normal means (EBNM) problem using a
 #'   "non-informative" improper uniform prior, which yields posteriors
-#'   \deqn{\theta_j | x_j, s_j \sim N(x_j, s_j^2)}. Identical to function
+#'   \deqn{\theta_j | x_j, s_j \sim N(x_j, s_j^2).} Identical to function
 #'   \code{\link{ebnm}} with argument \code{prior_family = "flat"}. For details
 #'   about the model, see \code{\link{ebnm}}.
 #'
 #' @inherit ebnm_point_normal
 #'
-#' @param g_init Not used by \code{ebnm_flat}.
+#' @param g_init Not used by \code{ebnm_flat}, but included for consistency
+#'   with other \code{ebnm} functions.
 #'
-#' @param fix_g Not used by \code{ebnm_flat}.
+#' @param fix_g Not used by \code{ebnm_flat}, but included for consistency
+#'   with other \code{ebnm} functions.
 #'
 #' @export
 #'
@@ -800,4 +856,49 @@ ebnm_point_mass <- function(x,
                         control = NULL,
                         prior_family = "point_mass",
                         call = match.call()))
+}
+
+#' Solve the EBNM problem using an ash family of distributions
+#'
+#' A wrapper to function \code{\link[ashr]{ash}} in package \code{ashr}.
+#'   Identical to function \code{\link{ebnm}} with argument
+#'   \code{prior_family = "ash"}.
+#'
+#' @inherit ebnm_normal_scale_mixture
+#'
+#' @param mode Passed to \code{\link[ashr]{ash}} as parameter \code{mode}.
+#'
+#' @param scale Passed to \code{\link[ashr]{ash}} as parameter \code{mixsd}.
+#'
+#' @param g_init Passed to \code{\link[ashr]{ash}} as parameter \code{g}.
+#'
+#' @param fix_g Passed to \code{\link[ashr]{ash}} as parameter \code{fixg}.
+#'
+#' @param control Passed to \code{\link[ashr]{ash}}} as parameter \code{control}.
+#'
+#' @param ... Additional parameters to be passed to \code{\link[ashr]{ash}}.
+#'
+#' @export
+#'
+ebnm_ash <- function(x,
+                     s = 1,
+                     mode = 0,
+                     scale = "estimate",
+                     g_init = NULL,
+                     fix_g = FALSE,
+                     output = output_default(),
+                     control = NULL,
+                     ...) {
+  return(ebnm_workhorse(x = x,
+                        s = s,
+                        mode = mode,
+                        scale = scale,
+                        g_init = g_init,
+                        fix_g = fix_g,
+                        output = output,
+                        optmethod = NULL,
+                        control = control,
+                        prior_family = "ash",
+                        call = match.call(),
+                        ...))
 }

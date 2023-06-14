@@ -1,5 +1,7 @@
 #' @importFrom ashr normalmix
 #'
+#' @export
+#'
 init_g_for_npmle <- function(x,
                              s,
                              scale = "estimate",
@@ -44,6 +46,8 @@ init_g_for_npmle <- function(x,
 
 #' @importFrom stats approx
 #'
+#' @export
+#'
 default_smn_scale <- function(x,
                               s,
                               mode = 0,
@@ -75,6 +79,8 @@ default_smn_scale <- function(x,
 #' @importFrom magrittr `%>%`
 #' @importFrom rlang .data
 #' @importFrom dplyr filter arrange pull
+#'
+#' @export
 #'
 default_symmuni_scale <- function(x,
                                   s,

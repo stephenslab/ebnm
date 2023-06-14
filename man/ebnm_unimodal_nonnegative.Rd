@@ -27,12 +27,22 @@ not allowed.}
 \item{mode}{A scalar specifying the mode of the prior \eqn{g} or
 \code{"estimate"} if the mode is to be estimated from the data.}
 
-\item{scale}{A vector specifying the grid of lower/upper bounds for
-underlying mixture components or \code{"estimate"} if the grid is to be
-set by \code{ebnm}. (Note that \code{ebnm} sets the grid differently from
+\item{scale}{The nonparametric family of nonnegative unimodal distributions is
+approximated via a finite mixture of uniform distributions
+\deqn{\pi_1 \text{Unif}(\mu, \mu + a_1)
++ \ldots + \pi_K \text{Unif}(\mu, \mu + a_K),}
+where parameters \eqn{\pi_k} are estimated and the grid
+of lengths \eqn{(a_1, \ldots, a_K)} is fixed in advance. By
+making the grid sufficiently dense, one can obtain an arbitrarily good
+approximation. The grid can be specified by the user via parameter
+\code{scale}, in which case the argument should be the vector of
+lengths \eqn{(a_1, \ldots, a_K)}; alternatively, if
+\code{scale = "estimate"}, then \code{ebnm} sets the grid via function
+\code{\link{default_symmuni_scale}}.
+Note that \code{ebnm} sets the grid differently from
 function \code{\link[ashr]{ash}}. To use the \code{ash} grid, set
 \code{scale = "estimate"} and pass in \code{gridmult} as an additional
-parameter. See \code{\link[ashr]{ash}} for defaults and details.)}
+parameter. See \code{\link[ashr]{ash}} for defaults and details.}
 
 \item{g_init}{The prior distribution \eqn{g}. Usually this is left
 unspecified (\code{NULL}) and estimated from the data. However, it can be
@@ -88,12 +98,10 @@ Solves the empirical Bayes normal means (EBNM) problem using the family of
   see \code{\link{ebnm}}.
 }
 \seealso{
-A plotting method is available for \code{ebnm} objects: see
-  \code{\link{plot.ebnm}}.
-
-  For other methods, see \code{\link{confint.ebnm}},
+Available S3 methods include \code{\link{confint.ebnm}},
    \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
-   \code{\link{nobs.ebnm}}, \code{\link{predict.ebnm}},
+   \code{\link{nobs.ebnm}}, \code{\link{plot.ebnm}},
+   \code{\link{predict.ebnm}},
    \code{\link{print.ebnm}}, \code{\link{print.summary.ebnm}},
    \code{\link{samp.ebnm}}, and \code{\link{summary.ebnm}}.
 }

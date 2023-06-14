@@ -69,8 +69,8 @@
 #'   additional restrictions: when horseshoe priors are used, errors
 #'   must be homoskedastic; and since function
 #'   \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR} takes
-#'   \eqn{z}-scores, all standard errors must be equal to 1 when the
-#'   "deconvolver" family is used.
+#'   \eqn{z}-scores, the "deconvolver" family requires that all standard errors
+#'   be equal to 1.
 #'
 #' @param prior_family A character string that specifies the prior family
 #'   \eqn{G}. See \strong{Details} below.
@@ -79,13 +79,13 @@
 #'   \code{"estimate"} if the mode is to be estimated from the data. This
 #'   parameter is ignored by the NPMLE, the \code{deconvolveR} family,
 #'   and the improper uniform (or "flat") prior. For generalized binary priors,
-#'   the mode parameter specifies the mode of the truncated normal component,
-#'   with the location of the point mass fixed at zero.
+#'   which are bimodal, the mode parameter specifies the mode of the truncated
+#'   normal component (the location of the point mass is fixed at zero).
 #'
 #' @param scale A scalar or vector specifying the scale parameter(s) of the
 #'   prior or \code{"estimate"} if the scale parameters are to be estimated
-#'   from the data. This parameter is ignored by the flat prior and the point
-#'   mass prior family.
+#'   from the data. This parameter is ignored by the flat prior and the family
+#'   of point mass priors.
 #'
 #'   The interpretation of \code{scale} depends on the prior
 #'   family. For normal and point-normal families, it is a scalar
@@ -95,15 +95,19 @@
 #'   family, it corresponds to \eqn{s\tau} in the usual parametrization of
 #'   the \code{\link{horseshoe}} distribution. For the family of generalized
 #'   binary priors, it specifies the ratio of the (untruncated) standard
-#'   deviation of the truncated normal component to its mode.
+#'   deviation of the normal component to its mode.
 #'   This ratio must be fixed in advance (i.e., argument \code{"estimate"} is
 #'   unavailable for generalized binary priors). For the NPMLE and \code{deconvolveR}
-#'   prior family, \code{scale} is a scalar specifying the distance between support
-#'   points. For all other prior families, which are implemented using the function
+#'   prior family, \code{scale} is a scalar specifying the distance between
+#'   successive means in the grid of point masses or normal distributions
+#'   used to estimate \eqn{g}.
+#'   For all other prior families, which are implemented using the function
 #'   \code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
 #'   the parameter \code{mixsd} to be passed to \code{ash} or \code{"estimate"}
 #'   if \code{mixsd} is to be chosen by \code{ebnm}. (Note that \code{ebnm} chooses
-#'   \code{mixsd} differently from \code{ashr}. To use the \code{ashr} grid, set
+#'   \code{mixsd} differently from \code{ash}: see functions
+#'   \code{\link{default_smn_scale}}, \code{\link{default_symmuni_scale}}, and
+#'   \code{\link{init_g_for_npmle}} for details. To use the \code{ash} grid, set
 #'   \code{scale = "estimate"} and pass in \code{gridmult} as an additional
 #'   parameter. See \code{\link[ashr]{ash}} for defaults and details.)
 #'
@@ -121,8 +125,7 @@
 #'   point-Laplace families; class \code{\link{gammamix}} for point-exponential
 #'   families; class \code{\link{horseshoe}} for horseshoe families; class
 #'   \code{\link[ashr]{unimix}} for \code{unimodal_} families; and class
-#'   \code{\link[ashr]{truncnormmix}} for generalized binary priors. This
-#'   parameter is ignored by the flat prior and point mass prior family.
+#'   \code{\link[ashr]{truncnormmix}} for generalized binary priors.
 #'
 #' @param fix_g If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
 #'   of estimating it.
@@ -133,15 +136,16 @@
 #'   below.
 #'
 #' @param optmethod A string specifying which optimization function is to be
-#'   used. Options include \code{"nlm"}, \code{"lbfgsb"} (which calls
+#'   used. Since all non-parametric families rely upon external packages, this
+#'   parameter is only available for parametric families (point-normal,
+#'   point-Laplace, point-exponential, and normal). Options include \code{"nlm"},
+#'   \code{"lbfgsb"} (which calls
 #'   \code{optim} with \code{method = "L-BFGS-B"}), and \code{"trust"} (which
 #'   calls into package \code{trust}). Other options are \code{"nohess_nlm"},
 #'   \code{"nograd_nlm"}, and \code{"nograd_lbfgsb"}, which use numerical
 #'   approximations rather than exact expressions for the Hessian and (for
 #'   the latter two) the gradient. The default option is \code{"nohess_nlm"}.
-#'   Since all non-parametric families rely upon external packages, this parameter
-#'   is only available for parametric families (point-normal, point-Laplace,
-#'   point-exponential, and normal).
+#'
 #'
 #' @param control A list of control parameters to be passed to the optimization
 #'   function. \code{\link[stats]{optimize}} is used for normal and horseshoe
@@ -155,12 +159,13 @@
 #'
 #' @param ... Additional parameters. When a \code{unimodal_} prior family is used,
 #'   these parameters are passed to function \code{\link[ashr]{ash}} in package
-#'   \code{ashr}. When the "deconvolver" family is used, they are passed to function
-#'   \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR}. Although it
+#'   \code{ashr}. Although it
 #'   does not call into \code{ashr}, the scale mixture of normals family accepts
 #'   parameter \code{gridmult} for purposes of comparison. When \code{gridmult}
 #'   is set, an \code{ashr}-style grid will be used instead of the default
-#'   \code{ebnm} grid. Families of generalized binary priors take several
+#'   \code{ebnm} grid. When the "deconvolver" family is used, additional
+#'   parameters are passed to function \code{\link[deconvolveR]{deconv}} in
+#'   package \code{deconvolveR}. Families of generalized binary priors take several
 #'   additional parameters; see \code{\link{ebnm_generalized_binary}}. In all
 #'   other cases, additional parameters are ignored.
 #'

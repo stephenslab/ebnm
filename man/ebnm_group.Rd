@@ -27,8 +27,8 @@ missing standard errors are not allowed. Two prior families have
 additional restrictions: when horseshoe priors are used, errors
 must be homoskedastic; and since function
 \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR} takes
-\eqn{z}-scores, all standard errors must be equal to 1 when the
-"deconvolver" family is used.}
+\eqn{z}-scores, the "deconvolver" family requires that all standard errors
+be equal to 1.}
 
 \item{group}{A vector of character strings that gives the group to which each
 observation belongs. It must have the same length as argument \code{x}. For
@@ -75,12 +75,13 @@ below.}
 
 \item{...}{Additional parameters. When a \code{unimodal_} prior family is used,
 these parameters are passed to function \code{\link[ashr]{ash}} in package
-\code{ashr}. When the "deconvolver" family is used, they are passed to function
-\code{\link[deconvolveR]{deconv}} in package \code{deconvolveR}. Although it
+\code{ashr}. Although it
 does not call into \code{ashr}, the scale mixture of normals family accepts
 parameter \code{gridmult} for purposes of comparison. When \code{gridmult}
 is set, an \code{ashr}-style grid will be used instead of the default
-\code{ebnm} grid. Families of generalized binary priors take several
+\code{ebnm} grid. When the "deconvolver" family is used, additional
+parameters are passed to function \code{\link[deconvolveR]{deconv}} in
+package \code{deconvolveR}. Families of generalized binary priors take several
 additional parameters; see \code{\link{ebnm_generalized_binary}}. In all
 other cases, additional parameters are ignored.}
 }

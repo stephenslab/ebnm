@@ -18,8 +18,8 @@ ebnm_horseshoe(
 \item{x}{A vector of observations. Missing observations (\code{NA}s) are
 not allowed.}
 
-\item{s}{A scalar specifying the standard error of the observations (with
-horseshoe priors, errors must be homoskedastic).}
+\item{s}{A \emph{scalar} specifying the standard error of the observations
+(observations must be homoskedastic).}
 
 \item{scale}{A scalar corresponding to \eqn{s\tau} in the usual
 parametrization of the \code{\link{horseshoe}} distribution, or
@@ -58,9 +58,10 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
       \item{\code{log_likelihood}}{The optimal log likelihood attained,
         \eqn{L(\hat{g})}.}
       \item{\code{posterior_sampler}}{A function that can be used to
-        produce samples from the posterior. The sampler takes a single
-        parameter \code{nsamp}, the number of posterior samples to return per
-        observation.}
+        produce samples from the posterior. The function takes parameters
+        \code{nsamp}, the number of posterior samples to return per
+        observation, and \code{burn}, the number of burn-in samples to
+        discard (an MCMC sampler is used).}
      }
    S3 methods \code{confint}, \code{fitted}, \code{logLik}, \code{nobs},
    \code{plot}, \code{predict}, \code{print}, \code{samp}, and \code{summary}
@@ -74,12 +75,10 @@ Solves the empirical Bayes normal means (EBNM) problem using the family of
   model, see \code{\link{ebnm}}.
 }
 \seealso{
-A plotting method is available for \code{ebnm} objects: see
-  \code{\link{plot.ebnm}}.
-
-  For other methods, see \code{\link{confint.ebnm}},
+Available S3 methods include \code{\link{confint.ebnm}},
    \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
-   \code{\link{nobs.ebnm}}, \code{\link{predict.ebnm}},
+   \code{\link{nobs.ebnm}}, \code{\link{plot.ebnm}},
+   \code{\link{predict.ebnm}},
    \code{\link{print.ebnm}}, \code{\link{print.summary.ebnm}},
    \code{\link{samp.ebnm}}, and \code{\link{summary.ebnm}}.
 }

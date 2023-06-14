@@ -24,24 +24,13 @@ not allowed.}
 Standard errors may not be exactly zero, and missing standard errors are
 not allowed.}
 
-\item{mode}{A scalar specifying the mode of the prior \eqn{g} or
-\code{"estimate"} if the mode is to be estimated from the data.}
+\item{mode}{Passed to \code{\link[ashr]{ash}} as parameter \code{mode}.}
 
-\item{scale}{A vector specifying the grid for underlying mixture
-components or \code{"estimate"} if the grid is to be
-set by \code{ash}. Equivalent to parameter \code{mixsd} in function
-\code{\link[ashr]{ash}}.}
+\item{scale}{Passed to \code{\link[ashr]{ash}} as parameter \code{mixsd}.}
 
-\item{g_init}{The prior distribution \eqn{g}. Usually this is left
-unspecified (\code{NULL}) and estimated from the data. However, it can be
-used in conjuction with \code{fix_g = TRUE} to fix the prior (useful, for
-example, to do computations with the "true" \eqn{g} in simulations). If
-\code{g_init} is specified but \code{fix_g = FALSE}, \code{g_init}
-specifies the initial value of \eqn{g} used during optimization. This has
-the side effect of fixing the \code{mode} and \code{scale} parameters.}
+\item{g_init}{Passed to \code{\link[ashr]{ash}} as parameter \code{g}.}
 
-\item{fix_g}{If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
-of estimating it.}
+\item{fix_g}{Passed to \code{\link[ashr]{ash}} as parameter \code{fixg}.}
 
 \item{output}{A character vector indicating which values are to be returned.
 Function \code{output_default()} provides the default return values, while
@@ -81,12 +70,10 @@ A wrapper to function \code{\link[ashr]{ash}} in package \code{ashr}.
   \code{prior_family = "ash"}.
 }
 \seealso{
-A plotting method is available for \code{ebnm} objects: see
-  \code{\link{plot.ebnm}}.
-
-  For other methods, see \code{\link{confint.ebnm}},
+Available S3 methods include \code{\link{confint.ebnm}},
    \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
-   \code{\link{nobs.ebnm}}, \code{\link{predict.ebnm}},
+   \code{\link{nobs.ebnm}}, \code{\link{plot.ebnm}},
+   \code{\link{predict.ebnm}},
    \code{\link{print.ebnm}}, \code{\link{print.summary.ebnm}},
    \code{\link{samp.ebnm}}, and \code{\link{summary.ebnm}}.
 }
