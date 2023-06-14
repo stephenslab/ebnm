@@ -299,7 +299,13 @@ ebnm <- function(x,
   #   been tested exhaustively, but it is needed by method predict.
   if (missing(prior_family) && !is.null(g_init)) {
     if (class(g_init) %in% c("unimix", "normalmix")) {
-      prior_family <- "ash"
+      if (class(g_init) == "normalmix"
+          && length(g_init$sd) == 1
+          && g_init$sd == Inf) {
+        prior_family <- "flat"
+      } else {
+        prior_family <- "ash"
+      }
     } else if (class(g_init) == "horseshoe") {
       prior_family <- "horseshoe"
     } else if (class(g_init) == "laplacemix") {
