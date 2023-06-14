@@ -4,16 +4,15 @@
 \alias{fitted.ebnm}
 \title{Extract posterior estimates from a fitted EBNM model}
 \usage{
-\method{fitted}{ebnm}(object, only_means = TRUE, ...)
+\method{fitted}{ebnm}(object, ...)
 }
 \arguments{
 \item{object}{The fitted \code{ebnm} object.}
-
-\item{only_means}{Return only posterior means, or return a data frame that
-includes standard deviations and local false sign rates (when available)?}
 
 \item{...}{Not used. Included for consistency as an S3 method.}
 }
 \description{
 The \code{\link[stats]{fitted}} method for class \code{\link{ebnm}}.
+  Returns a data frame that includes posterior means, standard deviations,
+  and local false sign rates (when available).
 }

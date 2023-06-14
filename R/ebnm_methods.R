@@ -112,16 +112,17 @@ plot.ebnm <- function(x, ..., remove_abline = FALSE) {
   if (length(unique(df$label)) > 1) {
     plt <- ggplot(df, aes(x = obs, y = pm, color = label)) +
       geom_point() +
+      scale_color_brewer(type = "qual") +
       labs(x = "Observations", y = "Posterior means",
-           color = "Fitted EBNM models") +
-      theme_minimal()
+           color = "Fitted EBNM models")
   } else {
     plt <- ggplot(df, aes(x = obs, y = pm)) +
       geom_point() +
       labs(x = "Observations", y = "Posterior means",
-           title = paste("Log likelihood for model:", round(llik, 2))) +
-      theme_minimal()
+           title = paste("Log likelihood for model:", round(llik, 2)))
   }
+
+  plt <- plt + theme_minimal()
 
   if (!remove_abline) {
     plt <- plt + geom_abline(slope = 1, linetype = "dashed")
@@ -325,11 +326,10 @@ logLik.ebnm <- function(object, ...) {
 #' Extract posterior estimates from a fitted EBNM model
 #'
 #' The \code{\link[stats]{fitted}} method for class \code{\link{ebnm}}.
+#'   Returns a data frame that includes posterior means, standard deviations,
+#'   and local false sign rates (when available).
 #'
 #' @param object The fitted \code{ebnm} object.
-#'
-#' @param only_means Return only posterior means, or return a data frame that
-#'   includes standard deviations and local false sign rates (when available)?
 #'
 #' @param ... Not used. Included for consistency as an S3 method.
 #'
@@ -337,12 +337,57 @@ logLik.ebnm <- function(object, ...) {
 #'
 #' @export
 #'
-fitted.ebnm <- function(object, only_means = TRUE, ...) {
-  if (only_means) {
-    return(object[[df_ret_str()]][[pm_ret_str()]])
-  } else {
-    return(object[[df_ret_str()]])
-  }
+fitted.ebnm <- function(object, ...) {
+  return(object[[df_ret_str()]])
+}
+
+#' Extract posterior means from a fitted EBNM model
+#'
+#' The \code{\link[stats]{coef}} method for class \code{\link{ebnm}}.
+#'
+#' @param object The fitted \code{ebnm} object.
+#'
+#' @param ... Not used. Included for consistency as an S3 method.
+#'
+#' @method coef ebnm
+#'
+#' @export
+#'
+coef.ebnm <- function(object, ...) {
+  return(object[[df_ret_str()]][[pm_ret_str()]])
+}
+
+#' Extract posterior variances from a fitted EBNM model
+#'
+#' The \code{\link[stats]{vcov}} method for class \code{\link{ebnm}}.
+#'
+#' @param object The fitted \code{ebnm} object.
+#'
+#' @param ... Not used. Included for consistency as an S3 method.
+#'
+#' @method vcov ebnm
+#'
+#' @export
+#'
+vcov.ebnm <- function(object, ...) {
+  return(object[[df_ret_str()]][[psd_ret_str()]]^2)
+}
+
+#' Calculate residuals for a fitted EBNM model
+#'
+#' The \code{\link[stats]{residuals}} method for class \code{\link{ebnm}}.
+#'   Calculates "residuals" \eqn{\hat{\theta_i} - x_i}.
+#'
+#' @param object The fitted \code{ebnm} object.
+#'
+#' @param ... Not used. Included for consistency as an S3 method.
+#'
+#' @method residuals ebnm
+#'
+#' @export
+#'
+residuals.ebnm <- function(object, ...) {
+  return(object[[df_ret_str()]][[pm_ret_str()]] - object[[data_ret_str()]][[obs_ret_str()]])
 }
 
 #' Use the estimated prior from a fitted EBNM model to solve the EBNM problem for
@@ -350,36 +395,36 @@ fitted.ebnm <- function(object, only_means = TRUE, ...) {
 #'
 #' The \code{\link[stats]{predict}} method for class \code{\link{ebnm}}.
 #'
+#' @inheritParams ebnm
+#'
 #' @param object The fitted \code{ebnm} object.
 #'
-#' @param newdata A list that includes fields \code{x} (the new observations)
-#'   and \code{s} (corresponding standard errors). See \code{\link{ebnm}} for
-#'   details about how to specify \code{x} and \code{s}.
-#'
-#' @param output A character vector indicating which values are to be returned.
-#'   See \code{\link{ebnm}} for details.
+#' @param newdata A vector of new observations. Missing observations
+#'   (\code{NA}s) are not allowed.
 #'
 #' @param ... Not used. Included for consistency as an S3 method.
 #'
-#' @return An \code{ebnm} object. See \code{\link{ebnm}} for details.
+#' @return A data frame that includes posterior means, posterior standard
+#'   deviations, and local false sign rates for the observations in \code{newdata}.
 #'
 #' @method predict ebnm
 #'
 #' @export
 #'
-predict.ebnm <- function(object, newdata, output = output_default(), ...) {
+predict.ebnm <- function(object, newdata, s = 1, ...) {
   if (!("x" %in% names(newdata) && "s" %in% names(newdata))) {
     stop("Argument 'newdata' must be a list with fields 'x' (the new ",
          "observations) and 's' (corresponding standard errors).")
   }
   g_init <- object[[g_ret_str()]]
-  return(ebnm(
+  ebnm_res <- ebnm(
     newdata$x,
     newdata$s,
     g_init = g_init,
     fix_g = TRUE,
-    output = output
-  ))
+    output = c(pm_arg_str(), psd_arg_str(), lfsr_arg_str())
+  )
+  return(fitted(ebnm_res))
 }
 
 #' Get the number of observations used to fit an EBNM model
@@ -407,12 +452,13 @@ nobs.ebnm <- function(object, ...) {
 
 #' Sample from the posterior of a fitted EBNM model
 #'
-#' A convenience function that extracts the posterior sampler from an object
-#'   of class \code{\link{ebnm}} and returns a specified number of samples.
+#' The \code{\link[stats]{simulate}} method for class \code{\link{ebnm}}.
+#'   Extracts the posterior sampler from an object of class \code{\link{ebnm}}
+#'   and returns a specified number of samples.
 #'
 #' @param object The fitted \code{ebnm} object.
 #'
-#' @param nsamp The number of posterior samples to return per observation.
+#' @param nsim The number of posterior samples to return per observation.
 #'
 #' @param ... Additional arguments to be passed to the posterior sampler
 #'   function. Since \code{ebnm_horseshoe} returns an MCMC sampler, it takes
@@ -422,21 +468,20 @@ nobs.ebnm <- function(object, ...) {
 #' @return A matrix of posterior samples, with rows corresponding to
 #'   distinct samples and columns corresponding to observations.
 #'
-#' @method samp ebnm
+#' @method simulate ebnm
 #'
 #' @export
 #'
-samp.ebnm <- function(object, nsamp, ...) {
+simulate.ebnm <- function(object, nsim = 1, seed = NULL, ...) {
   if (is.null(object[[samp_ret_str()]])) {
     stop("Object does not contain a posterior sampler. Note that samplers are ",
          "not returned by default. To obtain one, include argument ",
          "'output = output_all()' in the call to ebnm.")
   }
-  object[[samp_ret_str()]](nsamp, ...)
-}
-
-samp <- function(object, ...) {
-  UseMethod("samp")
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
+  object[[samp_ret_str()]](nsim, ...)
 }
 
 #' Obtain confidence intervals using a fitted EBNM model

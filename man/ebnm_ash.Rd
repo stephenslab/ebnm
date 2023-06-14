@@ -37,8 +37,7 @@ Function \code{output_default()} provides the default return values, while
 \code{output_all()} lists all possible return values. See \strong{Value}
 below.}
 
-\item{control}{A list of control parameters to be passed to optimization
-function \code{\link[mixsqp]{mixsqp}}.}
+\item{control}{Passed to \code{\link[ashr]{ash}} as parameter \code{control}.}
 
 \item{...}{Additional parameters to be passed to \code{\link[ashr]{ash}}.}
 }

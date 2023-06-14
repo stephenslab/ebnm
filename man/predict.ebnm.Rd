@@ -5,22 +5,28 @@
 \title{Use the estimated prior from a fitted EBNM model to solve the EBNM problem for
   new data}
 \usage{
-\method{predict}{ebnm}(object, newdata, output = output_default(), ...)
+\method{predict}{ebnm}(object, newdata, s = 1, ...)
 }
 \arguments{
 \item{object}{The fitted \code{ebnm} object.}
 
-\item{newdata}{A list that includes fields \code{x} (the new observations)
-and \code{s} (corresponding standard errors). See \code{\link{ebnm}} for
-details about how to specify \code{x} and \code{s}.}
+\item{newdata}{A vector of new observations. Missing observations
+(\code{NA}s) are not allowed.}
 
-\item{output}{A character vector indicating which values are to be returned.
-See \code{\link{ebnm}} for details.}
+\item{s}{A vector of standard errors (or a scalar if all are equal).
+Standard errors may not be exactly zero, and
+missing standard errors are not allowed. Two prior families have
+additional restrictions: when horseshoe priors are used, errors
+must be homoskedastic; and since function
+\code{\link[deconvolveR]{deconv}} in package \code{deconvolveR} takes
+\eqn{z}-scores, the "deconvolver" family requires that all standard errors
+be equal to 1.}
 
 \item{...}{Not used. Included for consistency as an S3 method.}
 }
 \value{
-An \code{ebnm} object. See \code{\link{ebnm}} for details.
+A data frame that includes posterior means, posterior standard
+  deviations, and local false sign rates for the observations in \code{newdata}.
 }
 \description{
 The \code{\link[stats]{predict}} method for class \code{\link{ebnm}}.

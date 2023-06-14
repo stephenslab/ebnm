@@ -874,7 +874,7 @@ ebnm_point_mass <- function(x,
 #'
 #' @param fix_g Passed to \code{\link[ashr]{ash}} as parameter \code{fixg}.
 #'
-#' @param control Passed to \code{\link[ashr]{ash}}} as parameter \code{control}.
+#' @param control Passed to \code{\link[ashr]{ash}} as parameter \code{control}.
 #'
 #' @param ... Additional parameters to be passed to \code{\link[ashr]{ash}}.
 #'
