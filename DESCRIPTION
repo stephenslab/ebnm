@@ -31,8 +31,7 @@ Imports:
     magrittr,
     rlang,
     dplyr,
-    ggplot2,
-    labeling
+    ggplot2
 Suggests: 
     testthat, 
     numDeriv,
