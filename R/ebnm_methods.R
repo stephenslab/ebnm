@@ -484,15 +484,60 @@ simulate.ebnm <- function(object, nsim = 1, seed = NULL, ...) {
   object[[samp_ret_str()]](nsim, ...)
 }
 
+#' Obtain posterior quantiles using a fitted EBNM model
+#'
+#' The \code{\link[stats]{quantile}} method for class \code{\link{ebnm}}.
+#'   Quantiles for posterior distributions \eqn{\theta_i \mid x_i, s_i, g} are
+#'   estimated via sampling. By default, \code{\link{ebnm}} does not return a
+#'   posterior sampler; one can be obtained by setting
+#'   \code{output = output_all()} in the call to \code{ebnm}.
+#'
+#' @inheritParams stats::quantile
+#'
+#' @param x The fitted \code{ebnm} object.
+#'
+#' @param type An integer between 1 and 9 selecting one of the nine quantile
+#'   algorithms detailed in \code{\link[stats]{quantile}} to be used.
+#'
+#' @param nsim The number of samples to use to estimate quantiles.
+#'
+#' @param ... Additional arguments to be passed to the posterior sampler
+#'   function. Since \code{ebnm_horseshoe} returns an MCMC sampler, it takes
+#'   parameter \code{burn}, the number of burn-in samples to discard.  At
+#'   present, no other samplers take any additional parameters.
+#'
+#' @return A matrix with columns giving quantiles for each posterior
+#'   \eqn{\theta_i \mid x_i, s_i, g}.
+#'
+#' @method quantile ebnm
+#'
+#' @export
+#'
+quantile.ebnm <- function(x, probs = seq(0, 1, 0.25),
+                          names = TRUE, type = 7, digits = 7, nsim = 1000, ...) {
+  if (is.null(x[[samp_ret_str()]])) {
+    stop("Quantiles are estimated by sampling from the posterior. ",
+         "To obtain a posterior sampler, include argument 'output = output_all()' ",
+         "in the call to ebnm.")
+  }
+  samp <- simulate(x, nsim = nsim, ...)
+  return(t(apply(samp, 2, quantile, probs = probs,
+                 names = names, type = type, digits = digits)))
+}
+
 #' Obtain confidence intervals using a fitted EBNM model
 #'
 #' The \code{\link[stats]{confint}} method for class \code{\link{ebnm}}.
-#'   Confidence intervals for means \eqn{\theta_i} are obtained by sampling from
+#'   Estimates the highest posterior density (HPD) intervals by sampling from
 #'   the posterior. By default, \code{\link{ebnm}} does not return a posterior
 #'   sampler; one can be obtained by setting \code{output = output_all()} in the
 #'   call to \code{ebnm}.
 #'
 #' @param object The fitted \code{ebnm} object.
+#'
+#' @param parm A vector of numeric indices specifying which means \eqn{\theta_i}
+#'   are to be given confidence intervals. If missing, all observations are
+#'   considered.
 #'
 #' @param level The confidence level required.
 #'
@@ -504,18 +549,32 @@ simulate.ebnm <- function(object, nsim = 1, seed = NULL, ...) {
 #'   present, no other samplers take any additional parameters.
 #'
 #' @return A matrix with columns giving lower and upper confidence limits for
-#'   each mean \eqn{\theta_i}.
+#'   each mean \eqn{\theta_i}. These will be labelled as "CI.lower" and
+#'   "CI.upper".
 #'
 #' @method confint ebnm
 #'
 #' @export
 #'
-confint.ebnm <- function(object, level = 0.95, nsamp = 1000, ...) {
+confint.ebnm <- function(object, parm, level = 0.95, nsim = 1000, ...) {
   if (is.null(object[[samp_ret_str()]])) {
     stop("Confidence intervals are obtained by sampling from the posterior. ",
          "To obtain a posterior sampler, include argument 'output = output_all()' ",
          "in the call to ebnm.")
   }
-  samp <- samp(object, nsamp = nsamp, ...)
-  return(t(apply(samp, 2, quantile, probs = 0.5 + c(-1, 1) * level / 2)))
+
+  samp <- simulate(object, nsim = nsim, ...)
+  if (!missing(parm)) {
+
+    samp <- samp[, parm]
+  }
+  samp <- apply(samp, 2, sort)
+
+  m <- round(nsim * (1 - level))
+  y <- apply(samp, 2, function(x) x[seq(nsim - m + 1, nsim)] - x[seq(1, m)])
+  hpd <- t(sapply(1:ncol(samp),
+                  function(j) c(samp[i[j], j], samp[nsim - m + i[j], j])))
+  colnames(hpd) <- c("CI.lower", "CI.upper")
+
+  return(hpd)
 }

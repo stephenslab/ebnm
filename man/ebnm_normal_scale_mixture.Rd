@@ -87,7 +87,8 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
         observation.}
      }
    S3 methods \code{confint}, \code{fitted}, \code{logLik}, \code{nobs},
-   \code{plot}, \code{predict}, \code{print}, \code{samp}, and \code{summary}
+   \code{plot}, \code{predict}, \code{print}, \code{quantile},
+   \code{simulate}, and \code{summary}
    have been implemented for \code{ebnm} objects. For details, see the
    respective help pages, linked below under \strong{See Also}.
 }
@@ -101,7 +102,7 @@ Solves the empirical Bayes normal means (EBNM) problem using the family of
 Available S3 methods include \code{\link{confint.ebnm}},
    \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
    \code{\link{nobs.ebnm}}, \code{\link{plot.ebnm}},
-   \code{\link{predict.ebnm}},
-   \code{\link{print.ebnm}}, \code{\link{print.summary.ebnm}},
-   \code{\link{samp.ebnm}}, and \code{\link{summary.ebnm}}.
+   \code{\link{predict.ebnm}}, \code{\link{print.ebnm}},
+   \code{\link{print.summary.ebnm}}, \code{\link{quantile.ebnm}},
+   \code{\link{simulate.ebnm}}, and \code{\link{summary.ebnm}}.
 }

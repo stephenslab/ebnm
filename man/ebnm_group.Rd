@@ -109,7 +109,8 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
         samples to discard.}
      }
    S3 methods \code{confint}, \code{fitted}, \code{logLik}, \code{nobs},
-   \code{plot}, \code{predict}, \code{print}, \code{samp}, and \code{summary}
+   \code{plot}, \code{predict}, \code{print}, \code{quantile},
+   \code{simulate}, and \code{summary}
    have been implemented for \code{ebnm} objects. For details, see the
    respective help pages, linked below under \strong{See Also}.
 }

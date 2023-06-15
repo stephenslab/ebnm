@@ -160,7 +160,8 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
         samples to discard.}
      }
    S3 methods \code{confint}, \code{fitted}, \code{logLik}, \code{nobs},
-   \code{plot}, \code{predict}, \code{print}, \code{samp}, and \code{summary}
+   \code{plot}, \code{predict}, \code{print}, \code{quantile},
+   \code{simulate}, and \code{summary}
    have been implemented for \code{ebnm} objects. For details, see the
    respective help pages, linked below under \strong{See Also}.
 }
@@ -288,7 +289,8 @@ A plotting method is available for \code{ebnm} objects: see
    \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
    \code{\link{nobs.ebnm}}, \code{\link{predict.ebnm}},
    \code{\link{print.ebnm}}, \code{\link{print.summary.ebnm}},
-   \code{\link{samp.ebnm}}, and \code{\link{summary.ebnm}}.
+   \code{\link{quantile.ebnm}}, \code{\link{simulate.ebnm}},
+   and \code{\link{summary.ebnm}}.
 
   Calling into functions \code{\link{ebnm_point_normal}},
   \code{\link{ebnm_point_laplace}},
