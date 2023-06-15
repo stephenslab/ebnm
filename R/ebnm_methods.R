@@ -412,14 +412,10 @@ residuals.ebnm <- function(object, ...) {
 #' @export
 #'
 predict.ebnm <- function(object, newdata, s = 1, ...) {
-  if (!("x" %in% names(newdata) && "s" %in% names(newdata))) {
-    stop("Argument 'newdata' must be a list with fields 'x' (the new ",
-         "observations) and 's' (corresponding standard errors).")
-  }
   g_init <- object[[g_ret_str()]]
   ebnm_res <- ebnm(
-    newdata$x,
-    newdata$s,
+    newdata,
+    s,
     g_init = g_init,
     fix_g = TRUE,
     output = c(pm_arg_str(), psd_arg_str(), lfsr_arg_str())
