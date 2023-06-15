@@ -13,7 +13,7 @@ ebnm_group(
   scale = "estimate",
   g_init = NULL,
   fix_g = FALSE,
-  output = output_default(),
+  output = ebnm_output_default(),
   ...
 )
 }
@@ -69,8 +69,8 @@ families; class \code{\link{horseshoe}} for horseshoe families; and class
 of estimating it.}
 
 \item{output}{A character vector indicating which values are to be returned.
-Function \code{output_default()} provides the default return values, while
-\code{output_all()} lists all possible return values. See \strong{Value}
+Function \code{ebnm_output_default()} provides the default return values, while
+\code{ebnm_output_all()} lists all possible return values. See \strong{Value}
 below.}
 
 \item{...}{Additional parameters. When a \code{unimodal_} prior family is used,

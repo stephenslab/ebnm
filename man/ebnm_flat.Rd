@@ -4,7 +4,13 @@
 \alias{ebnm_flat}
 \title{Solve the EBNM problem using a flat prior}
 \usage{
-ebnm_flat(x, s = 1, g_init = NULL, fix_g = FALSE, output = output_default())
+ebnm_flat(
+  x,
+  s = 1,
+  g_init = NULL,
+  fix_g = FALSE,
+  output = ebnm_output_default()
+)
 }
 \arguments{
 \item{x}{A vector of observations. Missing observations (\code{NA}s) are
@@ -21,8 +27,8 @@ with other \code{ebnm} functions.}
 with other \code{ebnm} functions.}
 
 \item{output}{A character vector indicating which values are to be returned.
-Function \code{output_default()} provides the default return values, while
-\code{output_all()} lists all possible return values. See \strong{Value}
+Function \code{ebnm_output_default()} provides the default return values, while
+\code{ebnm_output_all()} lists all possible return values. See \strong{Value}
 below.}
 }
 \value{

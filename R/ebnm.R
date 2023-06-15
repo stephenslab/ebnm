@@ -131,8 +131,8 @@
 #'   of estimating it.
 #'
 #' @param output A character vector indicating which values are to be returned.
-#'   Function \code{output_default()} provides the default return values, while
-#'   \code{output_all()} lists all possible return values. See \strong{Value}
+#'   Function \code{ebnm_output_default()} provides the default return values, while
+#'   \code{ebnm_output_all()} lists all possible return values. See \strong{Value}
 #'   below.
 #'
 #' @param optmethod A string specifying which optimization function is to be
@@ -257,7 +257,7 @@
 #' pn.res <- ebnm_point_normal(x, s, g_init = g_init, fix_g = TRUE,
 #'                             output = "posterior_sampler")
 #' pn.res <- ebnm_point_normal(x, s, g_init = g_init, fix_g = TRUE,
-#'                             output = output_all())
+#'                             output = ebnm_output_all())
 #'
 #' # Sample from the posterior:
 #' pn.postsamp <- pn.res$posterior_sampler(nsamp = 100)
@@ -292,7 +292,7 @@ ebnm <- function(x,
                  scale = "estimate",
                  g_init = NULL,
                  fix_g = FALSE,
-                 output = output_default(),
+                 output = ebnm_output_default(),
                  optmethod = NULL,
                  control = NULL,
                  ...) {
@@ -677,8 +677,8 @@ check_args <- function(x, s, g_init, fix_g, output, mode) {
     stop("If g is fixed, then an initial g must be provided.")
   }
 
-  if (!all(output %in% output_all())) {
-    stop("Invalid argument to output. See function output_all() for a list ",
+  if (!all(output %in% ebnm_output_all())) {
+    stop("Invalid argument to output. See function ebnm_output_all() for a list ",
          "of valid outputs.")
   }
 }

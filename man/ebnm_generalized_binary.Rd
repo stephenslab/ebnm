@@ -11,7 +11,7 @@ ebnm_generalized_binary(
   scale = 0.1,
   g_init = NULL,
   fix_g = FALSE,
-  output = output_default(),
+  output = ebnm_output_default(),
   control = NULL,
   ...
 )
@@ -46,8 +46,8 @@ supplied, \code{g_init} should be an object of class
 of estimating it.}
 
 \item{output}{A character vector indicating which values are to be returned.
-Function \code{output_default()} provides the default return values, while
-\code{output_all()} lists all possible return values. See \strong{Value}
+Function \code{ebnm_output_default()} provides the default return values, while
+\code{ebnm_output_all()} lists all possible return values. See \strong{Value}
 below.}
 
 \item{control}{A list of control parameters to be passed to function

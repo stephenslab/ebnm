@@ -57,7 +57,7 @@ test_that("Output parameter works", {
 #   # s[6] <- 0
 #   s[10] <- Inf
 #
-#   pl.res <- ebnm_point_laplace(x, s, output = output_all())
+#   pl.res <- ebnm_point_laplace(x, s, output = ebnm_output_all())
 #
 #   # expect_equal(pl.res[[df_ret_str()]][[pm_ret_str()]][6], x[6])
 #   # expect_equal(pl.res[[df_ret_str()]][[pm_ret_str()]]2[6], x[6]^2)

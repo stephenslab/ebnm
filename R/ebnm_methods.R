@@ -294,7 +294,7 @@ print_it <- function(x, digits, summary) {
           "method samp().\n")
     } else {
       cat("A posterior sampler is _not_ available.\nOne can be obtained by",
-          "re-running ebnm() with argument 'output = output_all()'.\n")
+          "re-running ebnm() with argument 'output = ebnm_output_all()'.\n")
     }
     cat("\n")
   }
@@ -472,7 +472,7 @@ simulate.ebnm <- function(object, nsim = 1, seed = NULL, ...) {
   if (is.null(object[[samp_ret_str()]])) {
     stop("Object does not contain a posterior sampler. Note that samplers are ",
          "not returned by default. To obtain one, include argument ",
-         "'output = output_all()' in the call to ebnm.")
+         "'output = ebnm_output_all()' in the call to ebnm.")
   }
   if (!is.null(seed)) {
     set.seed(seed)
@@ -486,7 +486,7 @@ simulate.ebnm <- function(object, nsim = 1, seed = NULL, ...) {
 #'   Quantiles for posterior distributions \eqn{\theta_i \mid x_i, s_i, g} are
 #'   estimated via sampling. By default, \code{\link{ebnm}} does not return a
 #'   posterior sampler; one can be obtained by setting
-#'   \code{output = output_all()} in the call to \code{ebnm}.
+#'   \code{output = ebnm_output_all()} in the call to \code{ebnm}.
 #'
 #' @inheritParams stats::quantile
 #'
@@ -513,7 +513,7 @@ quantile.ebnm <- function(x, probs = seq(0, 1, 0.25),
                           names = TRUE, type = 7, digits = 7, nsim = 1000, ...) {
   if (is.null(x[[samp_ret_str()]])) {
     stop("Quantiles are estimated by sampling from the posterior. ",
-         "To obtain a posterior sampler, include argument 'output = output_all()' ",
+         "To obtain a posterior sampler, include argument 'output = ebnm_output_all()' ",
          "in the call to ebnm.")
   }
   samp <- simulate(x, nsim = nsim, ...)
@@ -526,7 +526,7 @@ quantile.ebnm <- function(x, probs = seq(0, 1, 0.25),
 #' The \code{\link[stats]{confint}} method for class \code{\link{ebnm}}.
 #'   Estimates the highest posterior density (HPD) intervals by sampling from
 #'   the posterior. By default, \code{\link{ebnm}} does not return a posterior
-#'   sampler; one can be obtained by setting \code{output = output_all()} in the
+#'   sampler; one can be obtained by setting \code{output = ebnm_output_all()} in the
 #'   call to \code{ebnm}.
 #'
 #' @param object The fitted \code{ebnm} object.
@@ -555,7 +555,7 @@ quantile.ebnm <- function(x, probs = seq(0, 1, 0.25),
 confint.ebnm <- function(object, parm, level = 0.95, nsim = 1000, ...) {
   if (is.null(object[[samp_ret_str()]])) {
     stop("Confidence intervals are obtained by sampling from the posterior. ",
-         "To obtain a posterior sampler, include argument 'output = output_all()' ",
+         "To obtain a posterior sampler, include argument 'output = ebnm_output_all()' ",
          "in the call to ebnm.")
   }
 

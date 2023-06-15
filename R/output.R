@@ -2,7 +2,7 @@
 #'
 #' @export
 #'
-output_default <- function() {
+ebnm_output_default <- function() {
   return(c(data_arg_str(), pm_arg_str(), psd_arg_str(),
            g_arg_str(), llik_arg_str()))
 }
@@ -11,7 +11,7 @@ output_default <- function() {
 #'
 #' @export
 #'
-output_all <- function() {
+ebnm_output_all <- function() {
   return(c(data_arg_str(), pm_arg_str(), psd_arg_str(), pm2_arg_str(),
            lfsr_arg_str(), g_arg_str(), llik_arg_str(), samp_arg_str()))
 }
@@ -50,7 +50,7 @@ as_ebnm <- function(retlist, call) {
 ash_output <- function(output) {
   ash_arg_str <- c("data", "PosteriorMean", "PosteriorSD", "PosteriorSD",
                    "lfsr", "fitted_g", "loglik", "post_sampler")
-  which_args  <- pmatch(output, output_all())
+  which_args  <- pmatch(output, ebnm_output_all())
   return(ash_arg_str[which_args])
 }
 

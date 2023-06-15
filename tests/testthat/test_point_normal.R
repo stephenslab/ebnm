@@ -44,9 +44,9 @@ test_that("Output parameter works", {
 })
 
 test_that("compute_summary_results gives same results as ashr", {
-  pn.res <- ebnm_point_normal(x, s, output = output_all())
+  pn.res <- ebnm_point_normal(x, s, output = ebnm_output_all())
   ash.res <- ebnm_ash(x, s, g_init = pn.res[[g_ret_str()]], fix_g = TRUE,
-                      output = output_all(), method = "shrink")
+                      output = ebnm_output_all(), method = "shrink")
 
   expect_equal(pn.res[[df_ret_str()]][[pm_ret_str()]],
                ash.res[[df_ret_str()]][[pm_ret_str()]], tol = 1e-6)
@@ -64,7 +64,7 @@ test_that("compute_summary_results gives same results as ashr", {
 #   # s[6] <- 0
 #   s[10] <- Inf
 #
-#   pn.res <- ebnm_point_normal(x, s, output = output_all())
+#   pn.res <- ebnm_point_normal(x, s, output = ebnm_output_all())
 #
 #   # expect_equal(pn.res[[df_ret_str()]][[pm_ret_str()]][6], x[6])
 #   # expect_equal(pn.res[[df_ret_str()]][[pm2_ret_str()]][6], x[6]^2)

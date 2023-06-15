@@ -2,8 +2,8 @@
 % Please edit documentation in R/ebnm.R, R/output.R
 \name{ebnm}
 \alias{ebnm}
-\alias{output_default}
-\alias{output_all}
+\alias{ebnm_output_default}
+\alias{ebnm_output_all}
 \title{Solve the EBNM problem}
 \usage{
 ebnm(
@@ -17,15 +17,15 @@ ebnm(
   scale = "estimate",
   g_init = NULL,
   fix_g = FALSE,
-  output = output_default(),
+  output = ebnm_output_default(),
   optmethod = NULL,
   control = NULL,
   ...
 )
 
-output_default()
+ebnm_output_default()
 
-output_all()
+ebnm_output_all()
 }
 \arguments{
 \item{x}{A vector of observations. Missing observations (\code{NA}s) are
@@ -99,8 +99,8 @@ families; class \code{\link{horseshoe}} for horseshoe families; class
 of estimating it.}
 
 \item{output}{A character vector indicating which values are to be returned.
-Function \code{output_default()} provides the default return values, while
-\code{output_all()} lists all possible return values. See \strong{Value}
+Function \code{ebnm_output_default()} provides the default return values, while
+\code{ebnm_output_all()} lists all possible return values. See \strong{Value}
 below.}
 
 \item{optmethod}{A string specifying which optimization function is to be
@@ -229,9 +229,9 @@ Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
 }
 \section{Functions}{
 \itemize{
-\item \code{output_default()}: Lists the default return values.
+\item \code{ebnm_output_default()}: Lists the default return values.
 
-\item \code{output_all()}: Lists all valid return values.
+\item \code{ebnm_output_all()}: Lists all valid return values.
 
 }}
 \examples{
@@ -263,7 +263,7 @@ g_init <- pn.res$fitted_g
 pn.res <- ebnm_point_normal(x, s, g_init = g_init, fix_g = TRUE,
                             output = "posterior_sampler")
 pn.res <- ebnm_point_normal(x, s, g_init = g_init, fix_g = TRUE,
-                            output = output_all())
+                            output = ebnm_output_all())
 
 # Sample from the posterior:
 pn.postsamp <- pn.res$posterior_sampler(nsamp = 100)

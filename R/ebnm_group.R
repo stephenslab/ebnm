@@ -83,7 +83,7 @@ ebnm_group <- function(x,
                        scale = "estimate",
                        g_init = NULL,
                        fix_g = FALSE,
-                       output = output_default(),
+                       output = ebnm_output_default(),
                        ...) {
   check_args_group(x, group, prior_family, mode, scale, g_init)
 
