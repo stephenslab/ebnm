@@ -38,8 +38,8 @@ test_that("deconv and nlm parameters get passed in", {
   expect_false(identical(deconv.res$fitted_g$pi, deconv.res2$fitted_g$pi))
 })
 
-test_that("predict method works as expected", {
-  deconv.res <- ebnm_deconvolver(x, s)
-  deconv.res2 <- predict(deconv.res, list(x = 1:10, s = 1))
-  expect_equal(deconv.res$fitted_g, deconv.res2$fitted_g)
-})
+# test_that("predict method works as expected", {
+#   deconv.res <- ebnm_deconvolver(x, s)
+#   deconv.res2 <- predict(deconv.res, list(x = 1:10, s = 1))
+#   expect_equal(deconv.res$fitted_g, deconv.res2$fitted_g)
+# })

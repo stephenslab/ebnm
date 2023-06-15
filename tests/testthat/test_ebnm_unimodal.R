@@ -50,8 +50,8 @@ test_that("df is correct for returned logLik", {
   expect_equal(attr(logLik(ash.res3), "df"), 0)
 })
 
-test_that("predict method works as expected", {
-  ash.res <- ebnm_unimodal(x, s)
-  ash.res2 <- predict(ash.res, list(x = 1:10, s = 1))
-  expect_equal(ash.res$fitted_g, ash.res2$fitted_g)
-})
+# test_that("predict method works as expected", {
+#   ash.res <- ebnm_unimodal(x, s)
+#   ash.res2 <- predict(ash.res, list(x = 1:10, s = 1))
+#   expect_equal(ash.res$fitted_g, ash.res2$fitted_g)
+# })

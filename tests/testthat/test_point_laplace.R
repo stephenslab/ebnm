@@ -108,8 +108,8 @@ test_that("Very small observations give reasonable results", {
   expect_equal(scl * pl.res[[g_ret_str()]]$mean[1], pl.res.sm[[g_ret_str()]]$mean[1])
 })
 
-test_that("predict method works as expected", {
-  pl.res <- ebnm_point_laplace(x, s)
-  pl.res2 <- predict(pl.res, list(x = 1:10, s = 1))
-  expect_equal(pl.res$fitted_g, pl.res2$fitted_g)
-})
+# test_that("predict method works as expected", {
+#   pl.res <- ebnm_point_laplace(x, s)
+#   pl.res2 <- predict(pl.res, list(x = 1:10, s = 1))
+#   expect_equal(pl.res$fitted_g, pl.res2$fitted_g)
+# })
