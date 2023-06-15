@@ -282,8 +282,7 @@ print_it <- function(x, digits, summary) {
       cat("Available posterior summaries:",
           paste0("_", paste(x$posterior_summaries, collapse = "_, _"), "_.\n"))
       if (pm_ret_str() %in% x$posterior_summaries) {
-        cat("Use method fitted() with 'only_means = FALSE' to access all",
-            "available summaries.\n")
+        cat("Use method fitted() to access available summaries.\n")
       }
     } else {
       cat("Posterior summaries are not available.\n")
