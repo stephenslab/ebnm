@@ -13,5 +13,5 @@
 }
 \description{
 The \code{\link[stats]{residuals}} method for class \code{\link{ebnm}}.
-  Calculates "residuals" \eqn{\hat{\theta_i} - x_i}.
+  Calculates "residuals" \eqn{x_i - \hat{\theta_i}}.
 }

@@ -375,7 +375,7 @@ vcov.ebnm <- function(object, ...) {
 #' Calculate residuals for a fitted EBNM model
 #'
 #' The \code{\link[stats]{residuals}} method for class \code{\link{ebnm}}.
-#'   Calculates "residuals" \eqn{\hat{\theta_i} - x_i}.
+#'   Calculates "residuals" \eqn{x_i - \hat{\theta_i}}.
 #'
 #' @param object The fitted \code{ebnm} object.
 #'
@@ -386,7 +386,8 @@ vcov.ebnm <- function(object, ...) {
 #' @export
 #'
 residuals.ebnm <- function(object, ...) {
-  return(object[[df_ret_str()]][[pm_ret_str()]] - object[[data_ret_str()]][[obs_ret_str()]])
+  return(object[[data_ret_str()]][[obs_ret_str()]] -
+           object[[df_ret_str()]][[pm_ret_str()]])
 }
 
 #' Use the estimated prior from a fitted EBNM model to solve the EBNM problem for
