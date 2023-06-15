@@ -565,13 +565,13 @@ confint.ebnm <- function(object, parm, level = 0.95, nsim = 1000, ...) {
 
   samp <- simulate(object, nsim = nsim, ...)
   if (!missing(parm)) {
-
     samp <- samp[, parm]
   }
   samp <- apply(samp, 2, sort)
 
   m <- round(nsim * (1 - level))
   y <- apply(samp, 2, function(x) x[seq(nsim - m + 1, nsim)] - x[seq(1, m)])
+  i <- apply(y, 2, which.min)
   hpd <- t(sapply(1:ncol(samp),
                   function(j) c(samp[i[j], j], samp[nsim - m + i[j], j])))
   colnames(hpd) <- c("CI.lower", "CI.upper")
