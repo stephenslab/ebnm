@@ -244,29 +244,32 @@ pn.res <- ebnm(x, s, prior_family = "point_normal")
 pn.res <- ebnm_point_normal(x, s)
 
 # Inspect results:
-pn.res$log_likelihood
+logLik(pn.res)
 plot(pn.res)
 
 # Fix the scale parameter:
 pl.res <- ebnm_point_laplace(x, s, scale = 1)
-pl.res$fitted_g$scale
 
 # Estimate the mode:
 normal.res <- ebnm_normal(x, s, mode = "estimate")
-normal.res$fitted_g$mean
+plot(normal.res) # posterior means shrink to a value different from zero
 
 # Use an initial g (this fixes mode and scale for ash priors):
 normalmix.res <- ebnm_normal_scale_mixture(x, s, g_init = pn.res$fitted_g)
 
-# Fix g and get different output:
+# Fix g and get different output (including a posterior sampler):
 g_init <- pn.res$fitted_g
-pn.res <- ebnm_point_normal(x, s, g_init = g_init, fix_g = TRUE,
-                            output = "posterior_sampler")
 pn.res <- ebnm_point_normal(x, s, g_init = g_init, fix_g = TRUE,
                             output = ebnm_output_all())
 
 # Sample from the posterior:
-pn.postsamp <- pn.res$posterior_sampler(nsamp = 100)
+pn.samp <- simulate(pn.res, nsim = 100)
+
+# Quantiles and HPD confidence intervals can be obtained via sampling:
+set.seed(1)
+pn.quantiles <- quantile(pn.res, probs = c(0.1, 0.9))
+pn.quantiles[1:5, ]
+confint(pn.res, level = 0.8, parm = 1:5)
 
 # Examples of usage of control parameter:
 #  point_normal uses nlm:

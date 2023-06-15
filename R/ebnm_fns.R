@@ -71,7 +71,9 @@
 #'    have been implemented for \code{ebnm} objects. For details, see the
 #'    respective help pages, linked below under \strong{See Also}.
 #'
-#' @seealso  Available S3 methods include \code{\link{coef.ebnm}},
+#' @seealso See \code{\link{ebnm}} for examples of usage and model details.
+#'
+#'   Available S3 methods include \code{\link{coef.ebnm}},
 #'   \code{\link{confint.ebnm}},
 #'   \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
 #'   \code{\link{nobs.ebnm}}, \code{\link{plot.ebnm}},

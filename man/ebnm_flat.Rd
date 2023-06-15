@@ -62,7 +62,9 @@ Solves the empirical Bayes normal means (EBNM) problem using a
   about the model, see \code{\link{ebnm}}.
 }
 \seealso{
-Available S3 methods include \code{\link{coef.ebnm}},
+See \code{\link{ebnm}} for examples of usage and model details.
+
+  Available S3 methods include \code{\link{coef.ebnm}},
   \code{\link{confint.ebnm}},
   \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
   \code{\link{nobs.ebnm}}, \code{\link{plot.ebnm}},
