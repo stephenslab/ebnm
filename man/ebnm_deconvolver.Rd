@@ -30,7 +30,7 @@ point masses can be specified by the user via parameter
 \code{scale}, in which case the argument should be a scalar specifying the
 distance \eqn{d = \mu_2 - \mu_1 = \cdots = \mu_K - \mu_{K - 1}};
 alternatively, if \code{scale = "estimate"}, then \code{ebnm} sets the grid
-via function \code{\link{init_g_for_npmle}}.}
+via function \code{\link{ebnm_scale_npmle}}.}
 
 \item{g_init}{The prior distribution \eqn{g}. Usually this is left
 unspecified (\code{NULL}) and estimated from the data. However, it can be

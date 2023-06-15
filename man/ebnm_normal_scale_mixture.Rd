@@ -37,7 +37,7 @@ approximation. The grid can be specified by the user via parameter
 \code{scale}, in which case the argument should be the vector of
 standard deviations \eqn{(\sigma_1, \ldots, \sigma_K)}; alternatively,
 if \code{scale = "estimate"}, then
-\code{ebnm} sets the grid via function \code{\link{default_smn_scale}}.
+\code{ebnm} sets the grid via function \code{\link{ebnm_scale_normalmix}}.
 Note that \code{ebnm} sets the grid differently from
 function \code{\link[ashr]{ash}}. To use the \code{ash} grid, set
 \code{scale = "estimate"} and pass in \code{gridmult} as an additional

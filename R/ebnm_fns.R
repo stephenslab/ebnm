@@ -329,7 +329,7 @@ ebnm_horseshoe <- function(x,
 #'   \code{scale}, in which case the argument should be the vector of
 #'   standard deviations \eqn{(\sigma_1, \ldots, \sigma_K)}; alternatively,
 #'   if \code{scale = "estimate"}, then
-#'   \code{ebnm} sets the grid via function \code{\link{default_smn_scale}}.
+#'   \code{ebnm} sets the grid via function \code{\link{ebnm_scale_normalmix}}.
 #'   Note that \code{ebnm} sets the grid differently from
 #'   function \code{\link[ashr]{ash}}. To use the \code{ash} grid, set
 #'   \code{scale = "estimate"} and pass in \code{gridmult} as an additional
@@ -398,7 +398,7 @@ ebnm_normal_scale_mixture <- function(x,
 #'   \code{scale}, in which case the argument should be the vector of
 #'   lengths \eqn{(a_1, \ldots, a_K)}; alternatively, if
 #'   \code{scale = "estimate"}, then \code{ebnm} sets the grid via function
-#'   \code{\link{default_symmuni_scale}}.
+#'   \code{\link{ebnm_scale_unimix}}.
 #'   Note that \code{ebnm} sets the grid differently from
 #'   function \code{\link[ashr]{ash}}. To use the \code{ash} grid, set
 #'   \code{scale = "estimate"} and pass in \code{gridmult} as an additional
@@ -462,7 +462,7 @@ ebnm_unimodal <- function(x,
 #'   \code{scale}, in which case the argument should be the vector
 #'   \eqn{(a_1, \ldots, a_K)}; alternatively, if
 #'   \code{scale = "estimate"}, then \code{ebnm} sets the grid via function
-#'   \code{\link{default_symmuni_scale}}.
+#'   \code{\link{ebnm_scale_unimix}}.
 #'   Note that \code{ebnm} sets the grid differently from
 #'   function \code{\link[ashr]{ash}}. To use the \code{ash} grid, set
 #'   \code{scale = "estimate"} and pass in \code{gridmult} as an additional
@@ -514,7 +514,7 @@ ebnm_unimodal_symmetric <- function(x,
 #'   \code{scale}, in which case the argument should be the vector of
 #'   lengths \eqn{(a_1, \ldots, a_K)}; alternatively, if
 #'   \code{scale = "estimate"}, then \code{ebnm} sets the grid via function
-#'   \code{\link{default_symmuni_scale}}.
+#'   \code{\link{ebnm_scale_unimix}}.
 #'   Note that \code{ebnm} sets the grid differently from
 #'   function \code{\link[ashr]{ash}}. To use the \code{ash} grid, set
 #'   \code{scale = "estimate"} and pass in \code{gridmult} as an additional
@@ -566,7 +566,7 @@ ebnm_unimodal_nonnegative <- function(x,
 #'   \code{scale}, in which case the argument should be the vector of
 #'   lengths \eqn{(a_1, \ldots, a_K)}; alternatively, if
 #'   \code{scale = "estimate"}, then \code{ebnm} sets the grid via function
-#'   \code{\link{default_symmuni_scale}}.
+#'   \code{\link{ebnm_scale_unimix}}.
 #'   Note that \code{ebnm} sets the grid differently from
 #'   function \code{\link[ashr]{ash}}. To use the \code{ash} grid, set
 #'   \code{scale = "estimate"} and pass in \code{gridmult} as an additional
@@ -695,7 +695,7 @@ ebnm_generalized_binary <- function(x,
 #'   \code{scale}, in which case the argument should be a scalar specifying the
 #'   distance \eqn{d = \mu_2 - \mu_1 = \cdots = \mu_K - \mu_{K - 1}};
 #'   alternatively, if \code{scale = "estimate"}, then \code{ebnm} sets the grid
-#'   via function \code{\link{init_g_for_npmle}}.
+#'   via function \code{\link{ebnm_scale_npmle}}.
 #'
 #' @param g_init The prior distribution \eqn{g}. Usually this is left
 #'   unspecified (\code{NULL}) and estimated from the data. However, it can be
@@ -753,7 +753,7 @@ ebnm_npmle <- function(x,
 #'   \code{scale}, in which case the argument should be a scalar specifying the
 #'   distance \eqn{d = \mu_2 - \mu_1 = \cdots = \mu_K - \mu_{K - 1}};
 #'   alternatively, if \code{scale = "estimate"}, then \code{ebnm} sets the grid
-#'   via function \code{\link{init_g_for_npmle}}.
+#'   via function \code{\link{ebnm_scale_npmle}}.
 #'
 #' @param control A list of control parameters to be passed to optimization
 #'   function \code{\link[stats]{nlm}}.

@@ -74,8 +74,8 @@ normal component (the location of the point mass is fixed at zero).}
   the parameter \code{mixsd} to be passed to \code{ash} or \code{"estimate"}
   if \code{mixsd} is to be chosen by \code{ebnm}. (Note that \code{ebnm} chooses
   \code{mixsd} differently from \code{ash}: see functions
-  \code{\link{default_smn_scale}}, \code{\link{default_symmuni_scale}}, and
-  \code{\link{init_g_for_npmle}} for details. To use the \code{ash} grid, set
+  \code{\link{ebnm_scale_normalmix}}, \code{\link{ebnm_scale_unimix}}, and
+  \code{\link{ebnm_scale_npmle}} for details. To use the \code{ash} grid, set
   \code{scale = "estimate"} and pass in \code{gridmult} as an additional
   parameter. See \code{\link[ashr]{ash}} for defaults and details.)}
 

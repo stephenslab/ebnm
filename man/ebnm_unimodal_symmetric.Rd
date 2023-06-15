@@ -38,7 +38,7 @@ approximation. The grid can be specified by the user via parameter
 \code{scale}, in which case the argument should be the vector
 \eqn{(a_1, \ldots, a_K)}; alternatively, if
 \code{scale = "estimate"}, then \code{ebnm} sets the grid via function
-\code{\link{default_symmuni_scale}}.
+\code{\link{ebnm_scale_unimix}}.
 Note that \code{ebnm} sets the grid differently from
 function \code{\link[ashr]{ash}}. To use the \code{ash} grid, set
 \code{scale = "estimate"} and pass in \code{gridmult} as an additional
