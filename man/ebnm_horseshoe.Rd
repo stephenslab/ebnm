@@ -63,9 +63,9 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
         observation, and \code{burn}, the number of burn-in samples to
         discard (an MCMC sampler is used).}
      }
-   S3 methods \code{confint}, \code{fitted}, \code{logLik}, \code{nobs},
-   \code{plot}, \code{predict}, \code{print}, \code{quantile},
-   \code{simulate}, and \code{summary}
+   S3 methods \code{coef}, \code{confint}, \code{fitted}, \code{logLik},
+   \code{nobs}, \code{plot}, \code{predict}, \code{print}, \code{quantile},
+   \code{residuals}, \code{simulate}, \code{summary}, and \code{vcov}
    have been implemented for \code{ebnm} objects. For details, see the
    respective help pages, linked below under \strong{See Also}.
 }
@@ -76,10 +76,12 @@ Solves the empirical Bayes normal means (EBNM) problem using the family of
   model, see \code{\link{ebnm}}.
 }
 \seealso{
-Available S3 methods include \code{\link{confint.ebnm}},
-   \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
-   \code{\link{nobs.ebnm}}, \code{\link{plot.ebnm}},
-   \code{\link{predict.ebnm}}, \code{\link{print.ebnm}},
-   \code{\link{print.summary.ebnm}}, \code{\link{quantile.ebnm}},
-   \code{\link{simulate.ebnm}}, and \code{\link{summary.ebnm}}.
+Available S3 methods include \code{\link{coef.ebnm}},
+  \code{\link{confint.ebnm}},
+  \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
+  \code{\link{nobs.ebnm}}, \code{\link{plot.ebnm}},
+  \code{\link{predict.ebnm}}, \code{\link{print.ebnm}},
+  \code{\link{print.summary.ebnm}}, \code{\link{quantile.ebnm}},
+  \code{\link{residuals.ebnm}}, \code{\link{simulate.ebnm}},
+  \code{\link{summary.ebnm}}, and \code{\link{vcov.ebnm}}.
 }

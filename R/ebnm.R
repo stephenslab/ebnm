@@ -191,9 +191,9 @@
 #'         it additionally takes parameter \code{burn}, the number of burn-in
 #'         samples to discard.}
 #'      }
-#'    S3 methods \code{confint}, \code{fitted}, \code{logLik}, \code{nobs},
-#'    \code{plot}, \code{predict}, \code{print}, \code{quantile},
-#'    \code{simulate}, and \code{summary}
+#'    S3 methods \code{coef}, \code{confint}, \code{fitted}, \code{logLik},
+#'    \code{nobs}, \code{plot}, \code{predict}, \code{print}, \code{quantile},
+#'    \code{residuals}, \code{simulate}, \code{summary}, and \code{vcov}
 #'    have been implemented for \code{ebnm} objects. For details, see the
 #'    respective help pages, linked below under \strong{See Also}.
 #'
@@ -206,12 +206,13 @@
 #' @seealso A plotting method is available for \code{ebnm} objects: see
 #'   \code{\link{plot.ebnm}}.
 #'
-#'   For other methods, see \code{\link{confint.ebnm}},
+#'   For other methods, see \code{\link{coef.ebnm}}, \code{\link{confint.ebnm}},
 #'    \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
 #'    \code{\link{nobs.ebnm}}, \code{\link{predict.ebnm}},
 #'    \code{\link{print.ebnm}}, \code{\link{print.summary.ebnm}},
-#'    \code{\link{quantile.ebnm}}, \code{\link{simulate.ebnm}},
-#'    and \code{\link{summary.ebnm}}.
+#'    \code{\link{quantile.ebnm}}, \code{\link{residuals.ebnm}},
+#'    \code{\link{simulate.ebnm}},
+#'    \code{\link{summary.ebnm}}, and \code{\link{vcov.ebnm}}.
 #'
 #'   Calling into functions \code{\link{ebnm_point_normal}},
 #'   \code{\link{ebnm_point_laplace}},
