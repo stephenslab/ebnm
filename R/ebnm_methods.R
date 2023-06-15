@@ -353,7 +353,10 @@ fitted.ebnm <- function(object, ...) {
 #' @export
 #'
 coef.ebnm <- function(object, ...) {
-  return(object[[df_ret_str()]][[pm_ret_str()]])
+  posterior <- fitted(object)
+  retval <- posterior[[pm_ret_str()]]
+  names(retval) <- rownames(posterior)
+  return(retval)
 }
 
 #' Extract posterior variances from a fitted EBNM model
@@ -369,7 +372,10 @@ coef.ebnm <- function(object, ...) {
 #' @export
 #'
 vcov.ebnm <- function(object, ...) {
-  return(object[[df_ret_str()]][[psd_ret_str()]]^2)
+  posterior <- fitted(object)
+  retval <- posterior[[psd_ret_str()]]^2
+  names(retval) <- rownames(posterior)
+  return(retval)
 }
 
 #' Calculate residuals for a fitted EBNM model
@@ -386,8 +392,10 @@ vcov.ebnm <- function(object, ...) {
 #' @export
 #'
 residuals.ebnm <- function(object, ...) {
-  return(object[[data_ret_str()]][[obs_ret_str()]] -
-           object[[df_ret_str()]][[pm_ret_str()]])
+  retval <- object[[data_ret_str()]][[obs_ret_str()]] -
+    object[[df_ret_str()]][[pm_ret_str()]]
+  names(retval) <- rownames(object[[data_ret_str()]])
+  return(retval)
 }
 
 #' Use the estimated prior from a fitted EBNM model to solve the EBNM problem for
@@ -570,6 +578,7 @@ confint.ebnm <- function(object, parm, level = 0.95, nsim = 1000, ...) {
   i <- apply(y, 2, which.min)
   hpd <- t(sapply(1:ncol(samp),
                   function(j) c(samp[i[j], j], samp[nsim - m + i[j], j])))
+  rownames(hpd) <- colnames(samp)
   colnames(hpd) <- c("CI.lower", "CI.upper")
 
   return(hpd)

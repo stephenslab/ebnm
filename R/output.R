@@ -82,7 +82,7 @@ add_data_to_retlist <- function(retlist, x, s) {
   return(retlist)
 }
 
-add_posterior_to_retlist <- function(retlist, posterior, output) {
+add_posterior_to_retlist <- function(retlist, posterior, output, x) {
   df <- list()
   if (pm_arg_str() %in% output) {
     df[[pm_ret_str()]] <- posterior$mean
@@ -96,7 +96,7 @@ add_posterior_to_retlist <- function(retlist, posterior, output) {
   if (lfsr_arg_str() %in% output) {
     df[[lfsr_ret_str()]] <- posterior$lfsr
   }
-  df <- data.frame(df)
+  df <- data.frame(df, row.names = names(x))
 
   retlist[[df_ret_str()]] <- df
   return(retlist)

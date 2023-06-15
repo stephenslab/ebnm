@@ -67,7 +67,7 @@ ebnm_ash_workhorse <- function(x,
       posterior$lfsr  <- ash_res$result$lfsr
     }
 
-    retlist <- add_posterior_to_retlist(retlist, posterior, output)
+    retlist <- add_posterior_to_retlist(retlist, posterior, output, x)
   }
 
   if (g_in_output(output)) {
@@ -80,7 +80,12 @@ ebnm_ash_workhorse <- function(x,
   }
 
   if (sampler_in_output(output)) {
-    retlist <- add_sampler_to_retlist(retlist, ash_res$post_sampler)
+    sampler <- function(nsamp) {
+      samp <- ash_res$post_sampler(nsamp)
+      colnames(samp) <- names(x)
+      return(samp)
+    }
+    retlist <- add_sampler_to_retlist(retlist, sampler)
   }
 
   return(retlist)

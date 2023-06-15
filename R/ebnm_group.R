@@ -165,6 +165,7 @@ ebnm_group <- function(x,
         idx <- which(group == grp)
         samp[, idx] <- samp_res[[grp]]
       }
+      colnames(samp) <- names(x)
       return(samp)
     }
     retlist <- add_sampler_to_retlist(retlist, post_sampler)

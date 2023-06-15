@@ -182,7 +182,7 @@ gb_workhorse <- function(x,
 
   if (posterior_in_output(output)) {
     posterior <- calc_gb_posterior(x, s, g, output = "posterior")
-    retlist <- add_posterior_to_retlist(retlist, posterior, output)
+    retlist <- add_posterior_to_retlist(retlist, posterior, output, x)
   }
 
   if (g_in_output(output)) {
@@ -260,7 +260,9 @@ calc_gb_posterior <- function(x, s, g, output){
                                       b = Inf,
                                       mean = rep(post_mean, each = nsamp),
                                       sd = rep(post_sd, each = nsamp))
-      return(matrix(samp, nrow = nsamp))
+      samp <- matrix(samp, nrow = nsamp)
+      colnames(samp) <- names(x)
+      return(samp)
     }
   }
 

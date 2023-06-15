@@ -174,7 +174,7 @@ ebnm_normal_mix_workhorse <- function(x,
       posterior$lfsr <- probzero + pmin(probneg, probpos)
     }
 
-    retlist <- add_posterior_to_retlist(retlist, posterior, output)
+    retlist <- add_posterior_to_retlist(retlist, posterior, output, x)
   }
 
   if (g_in_output(output)) {
@@ -196,9 +196,11 @@ ebnm_normal_mix_workhorse <- function(x,
       })
       idx <- rep(1:n_obs, each = nsamp) + (mixcomp - 1) * (n_obs)
       samp_means <- comp_postmean[idx]
-      samp_sds   <- sqrt(comp_postmean2[idx] - samp_means^2)
-      samp       <- rnorm(nsamp * n_obs, mean = samp_means, sd = samp_sds)
-      return(matrix(samp, nrow = nsamp, ncol = n_obs))
+      samp_sds <- sqrt(comp_postmean2[idx] - samp_means^2)
+      samp <- rnorm(nsamp * n_obs, mean = samp_means, sd = samp_sds)
+      samp <- matrix(samp, nrow = nsamp, ncol = n_obs)
+      colnames(samp) <- names(x)
+      return(samp)
     }
     retlist <- add_sampler_to_retlist(retlist, post_sampler)
   }
