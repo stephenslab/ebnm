@@ -97,7 +97,7 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
       \item{\code{fitted_g}}{The fitted prior \eqn{\hat{g}} (an object of
         class \code{\link[ashr]{normalmix}}, \code{\link{laplacemix}},
         \code{\link{gammamix}}, \code{\link[ashr]{unimix}},
-        \code{\link{truncnormmix}}, or \code{\link{horseshoe}}).}
+        \code{\link[ashr]{tnormalmix}}, or \code{\link{horseshoe}}).}
       \item{\code{log_likelihood}}{The optimal log likelihood attained,
         \eqn{L(\hat{g})}.}
       \item{\code{posterior_sampler}}{A function that can be used to

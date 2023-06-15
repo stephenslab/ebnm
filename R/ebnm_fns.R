@@ -625,7 +625,7 @@ ebnm_unimodal_nonpositive <- function(x,
 #'   \code{g_init} is specified but \code{fix_g = FALSE}, \code{g_init}
 #'   specifies the initial value of \eqn{g} used during optimization. When
 #'   supplied, \code{g_init} should be an object of class
-#'   \code{\link[ashr]{truncnormmix}}.
+#'   \code{\link[ashr]{tnormalmix}}.
 #'
 #' @param control A list of control parameters to be passed to function
 #'   \code{\link[stats]{optim}}, where \code{method} has been set to

@@ -1,26 +1,3 @@
-#' Constructor for truncnormmix class
-#'
-#' Creates a finite mixture of truncated normal distributions.
-#'
-#' @param pi A vector of mixture proportions.
-#'
-#' @param a A vector of lower bounds. These may be \code{-Inf}.
-#'
-#' @param b A vector of upper bounds. These may be \code{Inf}.
-#'
-#' @param mean A vector of (untruncated) means.
-#'
-#' @param sd A vector of (untruncated) standard deviations.
-#'
-#' @return An object of class \code{truncnormmix} (a list with elements
-#'   \code{pi}, \code{a}, \code{b}, \code{mean}, and \code{sd}, described above).
-#'
-#' @export
-#'
-truncnormmix <- function(pi, a, b, mean, sd) {
-  structure(data.frame(pi, a, b, mean, sd), class="truncnormmix")
-}
-
 ### Author: Yusha Liu (with edits by J. Willwerscheid).
 ###   mode corresponds to mode of truncated normal component.
 ###   scale corresponds to sigma / mu.
@@ -35,6 +12,7 @@ ebnm_generalized_binary_defaults <- function(x, s) {
   ))
 }
 
+#' @importFrom ashr tnormalmix
 #' @importFrom stats pnorm optim
 #'
 gb_workhorse <- function(x,
@@ -62,8 +40,8 @@ gb_workhorse <- function(x,
   mu_init <- args$mu_init
   mu_range <- args$mu_range
 
-  if (!is.null(g_init) && !inherits(g_init, "truncnormmix")) {
-    stop("g_init must be NULL or an object of class truncnormmix.")
+  if (!is.null(g_init) && !inherits(g_init, "tnormalmix")) {
+    stop("g_init must be NULL or an object of class tnormalmix")
   }
 
   if (!is.null(g_init)) {
@@ -72,7 +50,7 @@ gb_workhorse <- function(x,
           g_init$sd[1] == 0 &&
           g_init$a[2] == 0 &&
           g_init$b[2] == Inf)) {
-      stop("g_init is a truncnormmix object, but it is not a generalized ",
+      stop("g_init is a tnormalmix object, but it is not a generalized ",
            "binary prior (i.e., a mixture of a point mass at zero and a ",
            "truncated normal component with lower bound zero).")
     }
@@ -104,7 +82,7 @@ gb_workhorse <- function(x,
       iter <- 1
       continue_loop <- TRUE
       while (iter <= maxiter && continue_loop) {
-        g <- truncnormmix(
+        g <- tnormalmix(
           pi = c(1 - w, w),
           a = c(-Inf, 0),
           b = c(Inf, Inf),
@@ -157,7 +135,7 @@ gb_workhorse <- function(x,
       }
 
       ### return the estimated g and likelihood
-      g <- truncnormmix(
+      g <- tnormalmix(
         pi = c(1 - w, w),
         a = c(-Inf, 0),
         b = c(Inf, Inf),

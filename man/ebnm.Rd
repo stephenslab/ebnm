@@ -93,7 +93,7 @@ for the NPMLE; class \code{\link{laplacemix}} for
 point-Laplace families; class \code{\link{gammamix}} for point-exponential
 families; class \code{\link{horseshoe}} for horseshoe families; class
 \code{\link[ashr]{unimix}} for \code{unimodal_} families; and class
-\code{\link[ashr]{truncnormmix}} for generalized binary priors.}
+\code{\link[ashr]{tnormalmix}} for generalized binary priors.}
 
 \item{fix_g}{If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
 of estimating it.}
@@ -148,7 +148,7 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
       \item{\code{fitted_g}}{The fitted prior \eqn{\hat{g}} (an object of
         class \code{\link[ashr]{normalmix}}, \code{\link{laplacemix}},
         \code{\link{gammamix}}, \code{\link[ashr]{unimix}},
-        \code{\link{truncnormmix}}, or \code{\link{horseshoe}}).}
+        \code{\link[ashr]{tnormalmix}}, or \code{\link{horseshoe}}).}
       \item{\code{log_likelihood}}{The optimal log likelihood attained,
         \eqn{L(\hat{g})}.}
       \item{\code{posterior_sampler}}{A function that can be used to

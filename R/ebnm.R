@@ -125,7 +125,7 @@
 #'   point-Laplace families; class \code{\link{gammamix}} for point-exponential
 #'   families; class \code{\link{horseshoe}} for horseshoe families; class
 #'   \code{\link[ashr]{unimix}} for \code{unimodal_} families; and class
-#'   \code{\link[ashr]{truncnormmix}} for generalized binary priors.
+#'   \code{\link[ashr]{tnormalmix}} for generalized binary priors.
 #'
 #' @param fix_g If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
 #'   of estimating it.
@@ -180,7 +180,7 @@
 #'       \item{\code{fitted_g}}{The fitted prior \eqn{\hat{g}} (an object of
 #'         class \code{\link[ashr]{normalmix}}, \code{\link{laplacemix}},
 #'         \code{\link{gammamix}}, \code{\link[ashr]{unimix}},
-#'         \code{\link{truncnormmix}}, or \code{\link{horseshoe}}).}
+#'         \code{\link[ashr]{tnormalmix}}, or \code{\link{horseshoe}}).}
 #'       \item{\code{log_likelihood}}{The optimal log likelihood attained,
 #'         \eqn{L(\hat{g})}.}
 #'       \item{\code{posterior_sampler}}{A function that can be used to
@@ -327,7 +327,7 @@ ebnm <- function(x,
           && g_init$shape[2] == 1
           && g_init$shift[1] == g_init$shift[2])
       prior_family <- "point_exponential"
-    } else if (class(g_init) == "truncnormmix") {
+    } else if (class(g_init) == "tnormalmix") {
       if (length(g_init$mean) == 2
           && g_init$mean[1] == 0
           && g_init$sd[1] == 0
