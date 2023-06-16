@@ -11,6 +11,11 @@
 
 \item{nsim}{The number of posterior samples to return per observation.}
 
+\item{seed}{Either \code{NULL} or an integer that will be used in a call to
+\code{set.seed} before simulating. If set, the value is saved as the
+\code{"seed"} attribute of the returned value. The default, \code{NULL},
+will not change the random generator state.}
+
 \item{...}{Additional arguments to be passed to the posterior sampler
 function. Since \code{ebnm_horseshoe} returns an MCMC sampler, it takes
 parameter \code{burn}, the number of burn-in samples to discard.  At

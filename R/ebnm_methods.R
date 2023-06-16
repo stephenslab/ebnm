@@ -19,7 +19,7 @@
 #' @method plot ebnm
 #'
 #' @importFrom ggplot2 ggplot aes geom_point geom_abline labs
-#' @importFrom ggplot2 theme_minimal
+#' @importFrom ggplot2 theme_minimal scale_color_brewer
 #' @importFrom methods is
 #'
 #' @examples
@@ -163,21 +163,21 @@ summary.ebnm <- function(object, ...) {
     retlist$prior_class <- class(g)
 
     # Identify pointmass.
-    if (class(g) == "normalmix") {
+    if (inherits(g, "normalmix")) {
       pointmass_idx <- which(g$sd == 0)
-    } else if (class(g) %in% c("laplacemix", "gammamix")) {
+    } else if (inherits(g, c("laplacemix", "gammamix"))) {
       pointmass_idx <- which(g$scale == 0)
-    } else if (class(g) == "unimix") {
+    } else if (inherits(g, "unimix")) {
       pointmass_idx <- which(g$a == g$b)
     } else {
       pointmass_idx <- numeric(0)
     }
     if (length(pointmass_idx) == 1) {
-      if (class(g) %in% c("normalmix", "laplacemix")) {
+      if (inherits(g, c("normalmix", "laplacemix"))) {
         retlist$pointmass_location <- g$mean[pointmass_idx]
-      } else if (class(g) == "gammamix") {
+      } else if (inherits(g, "gammamix")) {
         retlist$pointmass_location <- g$shift[pointmass_idx]
-      } else if (class(g) == "unimix") {
+      } else if (inherits(g, "unimix")) {
         retlist$pointmass_location <- g$a[pointmass_idx]
       } else {
         retlist$pointmass_location <- NA
@@ -314,6 +314,7 @@ print_it <- function(x, digits, summary) {
 #'   the degrees of freedom --- i.e., number of parameters in the model ---, and
 #'   \code{nobs}, the number of observations in the data.
 #'
+#' @importFrom stats logLik
 #' @method logLik ebnm
 #'
 #' @export
@@ -332,6 +333,7 @@ logLik.ebnm <- function(object, ...) {
 #'
 #' @param ... Not used. Included for consistency as an S3 method.
 #'
+#' @importFrom stats fitted
 #' @method fitted ebnm
 #'
 #' @export
@@ -348,6 +350,7 @@ fitted.ebnm <- function(object, ...) {
 #'
 #' @param ... Not used. Included for consistency as an S3 method.
 #'
+#' @importFrom stats coef
 #' @method coef ebnm
 #'
 #' @export
@@ -367,6 +370,7 @@ coef.ebnm <- function(object, ...) {
 #'
 #' @param ... Not used. Included for consistency as an S3 method.
 #'
+#' @importFrom stats vcov
 #' @method vcov ebnm
 #'
 #' @export
@@ -387,6 +391,7 @@ vcov.ebnm <- function(object, ...) {
 #'
 #' @param ... Not used. Included for consistency as an S3 method.
 #'
+#' @importFrom stats residuals
 #' @method residuals ebnm
 #'
 #' @export
@@ -415,6 +420,7 @@ residuals.ebnm <- function(object, ...) {
 #' @return A data frame that includes posterior means, posterior standard
 #'   deviations, and local false sign rates for the observations in \code{newdata}.
 #'
+#' @importFrom stats predict
 #' @method predict ebnm
 #'
 #' @export
@@ -441,6 +447,7 @@ predict.ebnm <- function(object, newdata, s = 1, ...) {
 #'
 #' @return The number of observations used to fit the \code{ebnm} object.
 #'
+#' @importFrom stats nobs
 #' @method nobs ebnm
 #'
 #' @export
@@ -464,6 +471,11 @@ nobs.ebnm <- function(object, ...) {
 #'
 #' @param nsim The number of posterior samples to return per observation.
 #'
+#' @param seed Either \code{NULL} or an integer that will be used in a call to
+#'   \code{set.seed} before simulating. If set, the value is saved as the
+#'   \code{"seed"} attribute of the returned value. The default, \code{NULL},
+#'   will not change the random generator state.
+#'
 #' @param ... Additional arguments to be passed to the posterior sampler
 #'   function. Since \code{ebnm_horseshoe} returns an MCMC sampler, it takes
 #'   parameter \code{burn}, the number of burn-in samples to discard.  At
@@ -472,6 +484,7 @@ nobs.ebnm <- function(object, ...) {
 #' @return A matrix of posterior samples, with rows corresponding to
 #'   distinct samples and columns corresponding to observations.
 #'
+#' @importFrom stats simulate
 #' @method simulate ebnm
 #'
 #' @export
@@ -485,7 +498,11 @@ simulate.ebnm <- function(object, nsim = 1, seed = NULL, ...) {
   if (!is.null(seed)) {
     set.seed(seed)
   }
-  object[[samp_ret_str()]](nsim, ...)
+  retval <- object[[samp_ret_str()]](nsim, ...)
+  if (!is.null(seed)) {
+    attr(retval, "seed") <- seed
+  }
+  return(retval)
 }
 
 #' Obtain posterior quantiles using a fitted EBNM model
@@ -513,6 +530,7 @@ simulate.ebnm <- function(object, nsim = 1, seed = NULL, ...) {
 #' @return A matrix with columns giving quantiles for each posterior
 #'   \eqn{\theta_i \mid x_i, s_i, g}.
 #'
+#' @importFrom stats quantile
 #' @method quantile ebnm
 #'
 #' @export
@@ -545,7 +563,7 @@ quantile.ebnm <- function(x, probs = seq(0, 1, 0.25),
 #'
 #' @param level The confidence level required.
 #'
-#' @param nsamp The number of samples to use to estimate confidence intervals.
+#' @param nsim The number of samples to use to estimate confidence intervals.
 #'
 #' @param ... Additional arguments to be passed to the posterior sampler
 #'   function. Since \code{ebnm_horseshoe} returns an MCMC sampler, it takes
@@ -556,6 +574,7 @@ quantile.ebnm <- function(x, probs = seq(0, 1, 0.25),
 #'   each mean \eqn{\theta_i}. These will be labelled as "CI.lower" and
 #'   "CI.upper".
 #'
+#' @importFrom stats confint
 #' @method confint ebnm
 #'
 #' @export
