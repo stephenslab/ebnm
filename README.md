@@ -57,6 +57,9 @@ The family of unimodal distributions with support constrained to be greater than
 "unimodal_nonpositive":
 The family of unimodal distributions with support constrained to be less than the mode.
 
+"generalized_binary":
+The family of mixtures where one component is a point mass at zero and the other is a truncated normal distribution with lower bound zero and nonzero mode.
+
 "npmle":
 The family of all distributions.
 
@@ -101,7 +104,7 @@ set.seed(1)
 mu = c(rep(0,500),rnorm(500)) # true means
 x = mu + rnorm(1000) # observations with standard error 1
 x.ebnm = ebnm_point_normal(x, 1)
-plot(mu, x.ebnm$posterior$mean) # plot posterior mean against true values
+plot(x.ebnm)
 ```
 
 ## Credits 
