@@ -2,8 +2,8 @@
 % Please edit documentation in R/ebnm.R, R/output.R
 \name{ebnm}
 \alias{ebnm}
-\alias{output_default}
-\alias{output_all}
+\alias{ebnm_output_default}
+\alias{ebnm_output_all}
 \title{Solve the EBNM problem}
 \usage{
 ebnm(
@@ -11,21 +11,21 @@ ebnm(
   s = 1,
   prior_family = c("point_normal", "point_laplace", "point_exponential", "normal",
     "horseshoe", "normal_scale_mixture", "unimodal", "unimodal_symmetric",
-    "unimodal_nonnegative", "unimodal_nonpositive", "npmle", "deconvolver", "flat",
-    "point_mass", "ash"),
+    "unimodal_nonnegative", "unimodal_nonpositive", "generalized_binary", "npmle",
+    "deconvolver", "flat", "point_mass", "ash"),
   mode = 0,
   scale = "estimate",
   g_init = NULL,
   fix_g = FALSE,
-  output = output_default(),
+  output = ebnm_output_default(),
   optmethod = NULL,
   control = NULL,
   ...
 )
 
-output_default()
+ebnm_output_default()
 
-output_all()
+ebnm_output_all()
 }
 \arguments{
 \item{x}{A vector of observations. Missing observations (\code{NA}s) are
@@ -37,21 +37,23 @@ missing standard errors are not allowed. Two prior families have
 additional restrictions: when horseshoe priors are used, errors
 must be homoskedastic; and since function
 \code{\link[deconvolveR]{deconv}} in package \code{deconvolveR} takes
-\eqn{z}-scores, all standard errors must be equal to 1 when the
-"deconvolver" family is used.}
+\eqn{z}-scores, the "deconvolver" family requires that all standard errors
+be equal to 1.}
 
 \item{prior_family}{A character string that specifies the prior family
-\eqn{G}. See "Details" below.}
+\eqn{G}. See \strong{Details} below.}
 
 \item{mode}{A scalar specifying the mode of the prior \eqn{g} or
 \code{"estimate"} if the mode is to be estimated from the data. This
-parameter is ignored by the NPMLE, the \code{deconvolveR} prior family,
-and the improper uniform or "flat" prior.}
+parameter is ignored by the NPMLE, the \code{deconvolveR} family,
+and the improper uniform (or "flat") prior. For generalized binary priors,
+which are bimodal, the mode parameter specifies the mode of the truncated
+normal component (the location of the point mass is fixed at zero).}
 
 \item{scale}{A scalar or vector specifying the scale parameter(s) of the
   prior or \code{"estimate"} if the scale parameters are to be estimated
-  from the data. This parameter is ignored by the flat prior and the point
-  mass prior family.
+  from the data. This parameter is ignored by the flat prior and the family
+  of point mass priors.
 
   The interpretation of \code{scale} depends on the prior
   family. For normal and point-normal families, it is a scalar
@@ -59,13 +61,21 @@ and the improper uniform or "flat" prior.}
   point-Laplace and point-exponential families, it is a scalar specifying
   the scale parameter of the Laplace or exponential component. For the horseshoe
   family, it corresponds to \eqn{s\tau} in the usual parametrization of
-  the \code{\link{horseshoe}} distribution. For the NPMLE and \code{deconvolveR}
-  prior family, it is a scalar specifying the distance between support
-  points. For all other prior families, which are implemented using the function
+  the \code{\link{horseshoe}} distribution. For the family of generalized
+  binary priors, it specifies the ratio of the (untruncated) standard
+  deviation of the normal component to its mode.
+  This ratio must be fixed in advance (i.e., argument \code{"estimate"} is
+  unavailable for generalized binary priors). For the NPMLE and \code{deconvolveR}
+  prior family, \code{scale} is a scalar specifying the distance between
+  successive means in the grid of point masses or normal distributions
+  used to estimate \eqn{g}.
+  For all other prior families, which are implemented using the function
   \code{\link[ashr]{ash}} in package \code{ashr}, it is a vector specifying
   the parameter \code{mixsd} to be passed to \code{ash} or \code{"estimate"}
   if \code{mixsd} is to be chosen by \code{ebnm}. (Note that \code{ebnm} chooses
-  \code{mixsd} differently from \code{ashr}. To use the \code{ashr} grid, set
+  \code{mixsd} differently from \code{ash}: see functions
+  \code{\link{ebnm_scale_normalmix}}, \code{\link{ebnm_scale_unimix}}, and
+  \code{\link{ebnm_scale_npmle}} for details. To use the \code{ash} grid, set
   \code{scale = "estimate"} and pass in \code{gridmult} as an additional
   parameter. See \code{\link[ashr]{ash}} for defaults and details.)}
 
@@ -81,27 +91,31 @@ an object of class \code{\link[ashr]{normalmix}} for normal, point-normal,
 scale mixture of normals, and \code{deconvolveR} prior families, as well as
 for the NPMLE; class \code{\link{laplacemix}} for
 point-Laplace families; class \code{\link{gammamix}} for point-exponential
-families; class \code{\link{horseshoe}} for horseshoe families; and class
-\code{\link[ashr]{unimix}} for \code{unimodal_} families. This parameter is
-ignored by the flat prior and point mass prior family.}
+families; class \code{\link{horseshoe}} for horseshoe families; class
+\code{\link[ashr]{unimix}} for \code{unimodal_} families; or class
+\code{\link[ashr]{tnormalmix}} for generalized binary priors. An object of
+class \code{ebnm} can also be supplied as argument, provided that field
+\code{fitted_g} contains a prior of the correct class (see
+\strong{Examples} below).}
 
 \item{fix_g}{If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
 of estimating it.}
 
 \item{output}{A character vector indicating which values are to be returned.
-Function \code{output_default()} provides the default return values, while
-\code{output_all()} lists all possible return values. See "Value" below.}
+Function \code{ebnm_output_default()} provides the default return values, while
+\code{ebnm_output_all()} lists all possible return values. See \strong{Value}
+below.}
 
 \item{optmethod}{A string specifying which optimization function is to be
-used. Options include \code{"nlm"}, \code{"lbfgsb"} (which calls
+used. Since all non-parametric families rely upon external packages, this
+parameter is only available for parametric families (point-normal,
+point-Laplace, point-exponential, and normal). Options include \code{"nlm"},
+\code{"lbfgsb"} (which calls
 \code{optim} with \code{method = "L-BFGS-B"}), and \code{"trust"} (which
 calls into package \code{trust}). Other options are \code{"nohess_nlm"},
 \code{"nograd_nlm"}, and \code{"nograd_lbfgsb"}, which use numerical
 approximations rather than exact expressions for the Hessian and (for
-the latter two) the gradient. The default option is \code{"nohess_nlm"}.
-Since all non-parametric families rely upon external packages, this parameter
-is only available for parametric families (point-normal, point-Laplace,
-point-exponential, and normal).}
+the latter two) the gradient. The default option is \code{"nohess_nlm"}.}
 
 \item{control}{A list of control parameters to be passed to the optimization
 function. \code{\link[stats]{optimize}} is used for normal and horseshoe
@@ -110,17 +124,20 @@ families unless parameter \code{optmethod} specifies otherwise.
 \code{\link[stats]{nlm}} is also used for the \code{deconvolveR} prior family.
 For ash families (including scale mixtures of normals, the NPMLE, and
 all \code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
-package \code{mixsqp} is the default.}
+package \code{mixsqp} is the default. For generalized binary priors,
+function \code{\link[stats]{optim}} is used with \code{method = "L-BFGS-B"}.}
 
 \item{...}{Additional parameters. When a \code{unimodal_} prior family is used,
-these parameters are passed to
-function \code{\link[ashr]{ash}} in package \code{ashr}. When
-the "deconvolver" family is used, they are passed to function
-\code{\link[deconvolveR]{deconv}} in package \code{deconvolveR}. Although it
+these parameters are passed to function \code{\link[ashr]{ash}} in package
+\code{ashr}. Although it
 does not call into \code{ashr}, the scale mixture of normals family accepts
 parameter \code{gridmult} for purposes of comparison. When \code{gridmult}
 is set, an \code{ashr}-style grid will be used instead of the default
-\code{ebnm} grid. In all other cases, additional parameters are ignored.}
+\code{ebnm} grid. When the "deconvolver" family is used, additional
+parameters are passed to function \code{\link[deconvolveR]{deconv}} in
+package \code{deconvolveR}. Families of generalized binary priors take several
+additional parameters; see \code{\link{ebnm_generalized_binary}}. In all
+other cases, additional parameters are ignored.}
 }
 \value{
 An \code{ebnm} object. Depending on the argument to \code{output}, the
@@ -133,8 +150,8 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
         rates).}
       \item{\code{fitted_g}}{The fitted prior \eqn{\hat{g}} (an object of
         class \code{\link[ashr]{normalmix}}, \code{\link{laplacemix}},
-        \code{\link{gammamix}}, \code{\link[ashr]{unimix}}, or
-        \code{\link{horseshoe}}).}
+        \code{\link{gammamix}}, \code{\link[ashr]{unimix}},
+        \code{\link[ashr]{tnormalmix}}, or \code{\link{horseshoe}}).}
       \item{\code{log_likelihood}}{The optimal log likelihood attained,
         \eqn{L(\hat{g})}.}
       \item{\code{posterior_sampler}}{A function that can be used to
@@ -145,6 +162,11 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
         it additionally takes parameter \code{burn}, the number of burn-in
         samples to discard.}
      }
+   S3 methods \code{coef}, \code{confint}, \code{fitted}, \code{logLik},
+   \code{nobs}, \code{plot}, \code{predict}, \code{print}, \code{quantile},
+   \code{residuals}, \code{simulate}, \code{summary}, and \code{vcov}
+   have been implemented for \code{ebnm} objects. For details, see the
+   respective help pages, linked below under \strong{See Also}.
 }
 \description{
 Solves the empirical Bayes normal means (EBNM) problem using a specified
@@ -176,11 +198,11 @@ Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
         component is a point mass at \eqn{\mu} and the other is a normal
         distribution centered at \eqn{\mu}.}
       \item{\code{point_laplace}}{The family of mixtures where one
-        component is a point mass at zero and the other is a
-        double-exponential distribution.}
+        component is a point mass at \eqn{\mu} and the other is a
+        double-exponential distribution centered at \eqn{\mu}.}
       \item{\code{point_exponential}}{The family of mixtures where one
-        component is a point mass at zero and the other is a
-        (nonnegative) exponential distribution.}
+        component is a point mass at \eqn{\mu} and the other is a
+        (nonnegative) exponential distribution with mode \eqn{\mu}.}
       \item{\code{normal}}{The family of normal distributions.}
       \item{\code{horseshoe}}{The family of \link{horseshoe} distributions.}
       \item{\code{normal_scale_mixture}}{The family of scale mixtures of
@@ -192,6 +214,9 @@ Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
         distributions with support constrained to be greater than the mode.}
       \item{\code{unimodal_nonpositive}}{The family of unimodal
         distributions with support constrained to be less than the mode.}
+      \item{\code{generalized_binary}}{The family of mixtures where one
+        component is a point mass at zero and the other is a truncated
+        normal distribution with lower bound zero and nonzero mode.}
       \item{\code{npmle}}{The family of all distributions.}
       \item{\code{deconvolver}}{A non-parametric exponential family with
         a natural spline basis. Like \code{npmle}, there is no unimodal
@@ -207,9 +232,9 @@ Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
 }
 \section{Functions}{
 \itemize{
-\item \code{output_default()}: Lists the default return values.
+\item \code{ebnm_output_default()}: Lists the default return values.
 
-\item \code{output_all()}: Lists all valid return values.
+\item \code{ebnm_output_all()}: Lists all valid return values.
 
 }}
 \examples{
@@ -222,29 +247,31 @@ pn.res <- ebnm(x, s, prior_family = "point_normal")
 pn.res <- ebnm_point_normal(x, s)
 
 # Inspect results:
-pn.res$log_likelihood
+logLik(pn.res)
 plot(pn.res)
 
 # Fix the scale parameter:
 pl.res <- ebnm_point_laplace(x, s, scale = 1)
-pl.res$fitted_g$scale
 
 # Estimate the mode:
 normal.res <- ebnm_normal(x, s, mode = "estimate")
-normal.res$fitted_g$mean
+plot(normal.res) # posterior means shrink to a value different from zero
 
 # Use an initial g (this fixes mode and scale for ash priors):
-normalmix.res <- ebnm_normal_scale_mixture(x, s, g_init = pn.res$fitted_g)
+normalmix.res <- ebnm_normal_scale_mixture(x, s, g_init = pn.res)
 
-# Fix g and get different output:
-g_init <- pn.res$fitted_g
-pn.res <- ebnm_point_normal(x, s, g_init = g_init, fix_g = TRUE,
-                            output = "posterior_sampler")
-pn.res <- ebnm_point_normal(x, s, g_init = g_init, fix_g = TRUE,
-                            output = output_all())
+# Fix g and get different output (including a posterior sampler):
+pn.res <- ebnm_point_normal(x, s, g_init = pn.res, fix_g = TRUE,
+                            output = ebnm_output_all())
 
 # Sample from the posterior:
-pn.postsamp <- pn.res$posterior_sampler(nsamp = 100)
+pn.samp <- simulate(pn.res, nsim = 100)
+
+# Quantiles and HPD confidence intervals can be obtained via sampling:
+set.seed(1)
+pn.quantiles <- quantile(pn.res, probs = c(0.1, 0.9))
+pn.quantiles[1:5, ]
+confint(pn.res, level = 0.8, parm = 1:5)
 
 # Examples of usage of control parameter:
 #  point_normal uses nlm:
@@ -263,16 +290,25 @@ Jason Willwerscheid and Matthew Stephens (2021).
 A plotting method is available for \code{ebnm} objects: see
   \code{\link{plot.ebnm}}.
 
-  Calling functions \code{\link{ebnm_point_normal}},
+  For other methods, see \code{\link{coef.ebnm}}, \code{\link{confint.ebnm}},
+   \code{\link{fitted.ebnm}}, \code{\link{logLik.ebnm}},
+   \code{\link{nobs.ebnm}}, \code{\link{predict.ebnm}},
+   \code{\link{print.ebnm}}, \code{\link{print.summary.ebnm}},
+   \code{\link{quantile.ebnm}}, \code{\link{residuals.ebnm}},
+   \code{\link{simulate.ebnm}},
+   \code{\link{summary.ebnm}}, and \code{\link{vcov.ebnm}}.
+
+  Calling into functions \code{\link{ebnm_point_normal}},
   \code{\link{ebnm_point_laplace}},
   \code{\link{ebnm_point_exponential}}, \code{\link{ebnm_normal}},
   \code{\link{ebnm_horseshoe}},
   \code{\link{ebnm_normal_scale_mixture}}, \code{\link{ebnm_unimodal}},
   \code{\link{ebnm_unimodal_symmetric}},
   \code{\link{ebnm_unimodal_nonnegative}},
-  \code{\link{ebnm_unimodal_nonpositive}}, \code{\link{ebnm_npmle}},
+  \code{\link{ebnm_unimodal_nonpositive}},
+  \code{\link{ebnm_generalized_binary}}, \code{\link{ebnm_npmle}},
   \code{\link{ebnm_deconvolver}}, \code{\link{ebnm_flat}},
   \code{\link{ebnm_point_mass}}, and \code{\link{ebnm_ash}}
-  is equivalent to calling \code{ebnm} with \code{prior_family} set
+  is equivalent to calling into \code{ebnm} with \code{prior_family} set
   accordingly.
 }

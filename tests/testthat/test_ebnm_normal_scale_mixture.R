@@ -17,12 +17,12 @@ test_that("Basic ebnm_normal_scale_mixture functionality works", {
 })
 
 test_that("ebnm_normal_scale_mixture returns the same results as ashr", {
-  ebnm.res <- ebnm_normal_scale_mixture(x, s, output = output_all(),
-                                        scale = default_smn_scale(x, s, mode = 0),
+  ebnm.res <- ebnm_normal_scale_mixture(x, s, output = ebnm_output_all(),
+                                        scale = ebnm_scale_normalmix(x, s, mode = 0),
                                         control = control)
   ash.res  <- ebnm_ash(x, s, mixcompdist = "normal", prior = "uniform",
-                       scale = default_smn_scale(x, s, mode = 0)[-1],
-                       output = output_all(), control = control)
+                       scale = ebnm_scale_normalmix(x, s, mode = 0)[-1],
+                       output = ebnm_output_all(), control = control)
 
   # The ash grid is the same:
   expect_equal(ebnm.res[[g_ret_str()]]$sd, ash.res[[g_ret_str()]]$sd)
@@ -43,12 +43,12 @@ test_that("ebnm_normal_scale_mixture returns the same results as ashr", {
 
   # Now repeat with scalar s.
   s <- 1
-  ebnm.res <- ebnm_normal_scale_mixture(x, s, output = output_all(),
-                                        scale = default_smn_scale(x, s, mode = 0),
+  ebnm.res <- ebnm_normal_scale_mixture(x, s, output = ebnm_output_all(),
+                                        scale = ebnm_scale_normalmix(x, s, mode = 0),
                                         control = control)
   ash.res  <- ebnm_ash(x, s, mixcompdist = "normal", prior = "uniform",
-                       scale = default_smn_scale(x, s, mode = 0)[-1],
-                       output = output_all(), control = control)
+                       scale = ebnm_scale_normalmix(x, s, mode = 0)[-1],
+                       output = ebnm_output_all(), control = control)
   expect_equal(ebnm.res[[g_ret_str()]]$sd, ash.res[[g_ret_str()]]$sd)
   # expect_equal(ebnm.res[[g_ret_str()]]$pi, ash.res[[g_ret_str()]]$pi, tol = 1e-6)
   # expect_equal(ebnm.res[[df_ret_str()]], ash.res[[df_ret_str()]], tol = 1e-6)

@@ -37,7 +37,7 @@ test_that("Fixing the scale works", {
 test_that("Fixing g works", {
   pl.res2 <- ebnm_point_laplace(x, s, g_init = pl.res[[g_ret_str()]], fix_g = TRUE)
   expect_identical(pl.res[[g_ret_str()]], pl.res2[[g_ret_str()]])
-  expect_equal(pl.res[[llik_ret_str()]], pl.res2[[llik_ret_str()]])
+  expect_equal(as.numeric(pl.res[[llik_ret_str()]]), as.numeric(pl.res2[[llik_ret_str()]]))
 })
 
 test_that("Initializing g works", {
@@ -57,7 +57,7 @@ test_that("Output parameter works", {
 #   # s[6] <- 0
 #   s[10] <- Inf
 #
-#   pl.res <- ebnm_point_laplace(x, s, output = output_all())
+#   pl.res <- ebnm_point_laplace(x, s, output = ebnm_output_all())
 #
 #   # expect_equal(pl.res[[df_ret_str()]][[pm_ret_str()]][6], x[6])
 #   # expect_equal(pl.res[[df_ret_str()]][[pm_ret_str()]]2[6], x[6]^2)
@@ -107,3 +107,9 @@ test_that("Very small observations give reasonable results", {
   expect_equal(scl * pl.res[[g_ret_str()]]$scale[2], pl.res.sm[[g_ret_str()]]$scale[2])
   expect_equal(scl * pl.res[[g_ret_str()]]$mean[1], pl.res.sm[[g_ret_str()]]$mean[1])
 })
+
+# test_that("predict method works as expected", {
+#   pl.res <- ebnm_point_laplace(x, s)
+#   pl.res2 <- predict(pl.res, list(x = 1:10, s = 1))
+#   expect_equal(pl.res$fitted_g, pl.res2$fitted_g)
+# })

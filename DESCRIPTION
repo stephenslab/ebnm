@@ -1,14 +1,15 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 1.0-12
-Date: 2023-06-08
+Version: 1.0-34
+Date: 2023-06-16
 Title: Solve the Empirical Bayes Normal Means Problem
 Authors@R: c(person("Jason", "Willwerscheid", role = "aut"),
              person("Matthew", "Stephens", role = "aut"),
              person("Peter", "Carbonetto", role = c("aut", "cre"),
                     email = "peter.carbonetto@gmail.com"),
-             person("Andrew", "Goldstein", role = "ctb"))
+             person("Andrew", "Goldstein", role = "ctb"),
+             person("Yusha", "Liu", role = "ctb"))
 URL: https://github.com/stephenslab/ebnm
 BugReports: https://github.com/stephenslab/ebnm/issues
 Description: Provides simple, fast, and stable functions to fit the normal
@@ -30,8 +31,7 @@ Imports:
     magrittr,
     rlang,
     dplyr,
-    ggplot2,
-    labeling
+    ggplot2
 Suggests: 
     testthat, 
     numDeriv,

@@ -28,7 +28,7 @@ flat_workhorse <- function(x,
       posterior$lfsr  <- pnorm(-abs(x) / s)
     }
 
-    retlist <- add_posterior_to_retlist(retlist, posterior, output)
+    retlist <- add_posterior_to_retlist(retlist, posterior, output, x)
   }
 
   if (g_in_output(output)) {
@@ -38,16 +38,18 @@ flat_workhorse <- function(x,
 
   if (llik_in_output(output)) {
     # Log likelihood is not well defined so just return zero.
-    retlist <- add_llik_to_retlist(retlist, 0)
+    retlist <- add_llik_to_retlist(retlist, NA, x, df = 0)
   }
 
   if (sampler_in_output(output)) {
     post_sampler <- function(nsamp) {
-      matrix(
+      samp <- matrix(
         rnorm(nsamp * length(x), x, s),
         nrow = nsamp,
         byrow = TRUE
       )
+      colnames(samp) <- names(x)
+      return(samp)
     }
     retlist <- add_sampler_to_retlist(retlist, post_sampler)
   }

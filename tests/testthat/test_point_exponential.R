@@ -38,7 +38,7 @@ test_that("Fixing the scale works", {
 test_that("Fixing g works", {
   pe.res2 <- ebnm_point_exponential(x, s, g_init = pe.res[[g_ret_str()]], fix_g = TRUE)
   expect_identical(pe.res[[g_ret_str()]], pe.res2[[g_ret_str()]])
-  expect_equal(pe.res[[llik_ret_str()]], pe.res2[[llik_ret_str()]])
+  expect_equal(as.numeric(pe.res[[llik_ret_str()]]), as.numeric(pe.res2[[llik_ret_str()]]))
 })
 
 test_that("Initializing g works", {
@@ -73,3 +73,9 @@ test_that("Null case estimates pi0 = 1", {
   pe.res <- ebnm_point_exponential(x, s = 1, scale = 1)
   expect_equal(pe.res[[g_ret_str()]]$pi[1], 1)
 })
+
+# test_that("predict method works as expected", {
+#   pe.res <- ebnm_point_exponential(x, s)
+#   pe.res2 <- predict(pe.res, list(x = 1:10, s = 1))
+#   expect_equal(pe.res$fitted_g, pe.res2$fitted_g)
+# })

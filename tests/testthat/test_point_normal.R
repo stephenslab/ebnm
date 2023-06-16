@@ -44,9 +44,9 @@ test_that("Output parameter works", {
 })
 
 test_that("compute_summary_results gives same results as ashr", {
-  pn.res <- ebnm_point_normal(x, s, output = output_all())
+  pn.res <- ebnm_point_normal(x, s, output = ebnm_output_all())
   ash.res <- ebnm_ash(x, s, g_init = pn.res[[g_ret_str()]], fix_g = TRUE,
-                      output = output_all(), method = "shrink")
+                      output = ebnm_output_all(), method = "shrink")
 
   expect_equal(pn.res[[df_ret_str()]][[pm_ret_str()]],
                ash.res[[df_ret_str()]][[pm_ret_str()]], tol = 1e-6)
@@ -54,8 +54,8 @@ test_that("compute_summary_results gives same results as ashr", {
                ash.res[[df_ret_str()]][[psd_ret_str()]], tol = 1e-6)
   expect_equal(pn.res[[df_ret_str()]]$lfsr,
                ash.res[[df_ret_str()]]$lfsr, tol = 1e-6)
-  expect_equal(pn.res[[llik_ret_str()]],
-               ash.res[[llik_ret_str()]], tol = 1e-6)
+  expect_equal(as.numeric(pn.res[[llik_ret_str()]]),
+               as.numeric(ash.res[[llik_ret_str()]]), tol = 1e-6)
 })
 
 # test_that("Infinite and zero SEs give expected results", {
@@ -64,7 +64,7 @@ test_that("compute_summary_results gives same results as ashr", {
 #   # s[6] <- 0
 #   s[10] <- Inf
 #
-#   pn.res <- ebnm_point_normal(x, s, output = output_all())
+#   pn.res <- ebnm_point_normal(x, s, output = ebnm_output_all())
 #
 #   # expect_equal(pn.res[[df_ret_str()]][[pm_ret_str()]][6], x[6])
 #   # expect_equal(pn.res[[df_ret_str()]][[pm2_ret_str()]][6], x[6]^2)
@@ -114,3 +114,20 @@ test_that("g_init with pi0 = 0 or pi0 = 1 isn't a dealbreaker", {
   expect_equal(pn.res[[llik_ret_str()]], pn.res3[[llik_ret_str()]])
 
 })
+
+test_that("df is correct for returned logLik", {
+  pn.res <- ebnm_point_normal(x, s)
+  expect_equal(attr(logLik(pn.res), "df"), 2)
+  pn.res2 <- ebnm_point_normal(x, s, scale = 1)
+  expect_equal(attr(logLik(pn.res2), "df"), 1)
+  pn.res3 <- ebnm_point_normal(x, s, mode = "estimate")
+  expect_equal(attr(logLik(pn.res3), "df"), 3)
+  pn.res4 <- ebnm_point_normal(x, s, g_init = pn.res3$fitted_g, fix_g = TRUE)
+  expect_equal(attr(logLik(pn.res4), "df"), 0)
+})
+
+# test_that("predict method works as expected", {
+#   pn.res <- ebnm_point_normal(x, s)
+#   pn.res2 <- predict(pn.res, list(x = 1:10, s = 1))
+#   expect_equal(pn.res$fitted_g, pn.res2$fitted_g)
+# })

@@ -52,6 +52,10 @@ horseshoe_workhorse <- function(x = x,
                class_name = "horseshoe",
                scale_name = "scale")
 
+  if (fix_g) {
+    scale <- g_init$scale
+  }
+
   if (identical(scale, "estimate")) {
     optres <- myHS.MMLE(y = x, Sigma2 = s^2, control = control)
     tau <- optres$maximum
@@ -81,7 +85,7 @@ horseshoe_workhorse <- function(x = x,
               " family. Please use the posterior sampler instead.")
     }
 
-    retlist <- add_posterior_to_retlist(retlist, posterior, output)
+    retlist <- add_posterior_to_retlist(retlist, posterior, output, x)
   }
 
   if (g_in_output(output)) {
@@ -92,14 +96,22 @@ horseshoe_workhorse <- function(x = x,
   if (llik_in_output(output)) {
     n       <- length(x)
     loglik  <- obj - 1.5 * n * log(pi) - 0.5 * n * log(2) - n * sum(log(s))
-    retlist <- add_llik_to_retlist(retlist, loglik)
+    df      <- 1 * identical(scale, "estimate")
+    retlist <- add_llik_to_retlist(retlist, loglik, x, df = df)
   }
 
   if (sampler_in_output(output)) {
     post_sampler <- function(nsamp, burn = 1000) {
       cat("MCMC Sampling with", burn, "burn-in samples\n")
-      samp <- HS.normal.means(x, tau = tau, Sigma2 = s^2, nmc = nsamp, burn = burn)
-      return(samp$BetaSamples)
+      samp <- HS.normal.means(
+        x,
+        tau = tau,
+        Sigma2 = s^2,
+        nmc = nsamp,
+        burn = burn
+      )$BetaSamples
+      colnames(samp) <- names(x)
+      return(samp)
     }
     retlist <- add_sampler_to_retlist(retlist, post_sampler)
   }

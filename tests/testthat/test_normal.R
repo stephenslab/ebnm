@@ -41,9 +41,9 @@ test_that("Output parameter works", {
 })
 
 test_that("compute_summary_results gives same results as ashr", {
-  norm.res <- ebnm_normal(x, s, output = output_all())
+  norm.res <- ebnm_normal(x, s, output = ebnm_output_all())
   ash.res <- ebnm_ash(x, s, g_init = norm.res[[g_ret_str()]], fix_g = TRUE,
-                      output = output_all(), method = "shrink")
+                      output = ebnm_output_all(), method = "shrink")
 
   expect_equal(norm.res[[df_ret_str()]][[pm_ret_str()]],
                ash.res[[df_ret_str()]][[pm_ret_str()]], tol = 1e-6)
@@ -51,8 +51,8 @@ test_that("compute_summary_results gives same results as ashr", {
                ash.res[[df_ret_str()]][[psd_ret_str()]], tol = 1e-6)
   expect_equal(norm.res[[df_ret_str()]][[lfsr_ret_str()]],
                ash.res[[df_ret_str()]][[lfsr_ret_str()]], tol = 1e-6)
-  expect_equal(norm.res[[llik_ret_str()]],
-               ash.res[[llik_ret_str()]], tol = 1e-6)
+  expect_equal(as.numeric(norm.res[[llik_ret_str()]]),
+               as.numeric(ash.res[[llik_ret_str()]]), tol = 1e-6)
 })
 
 # test_that("Infinite and zero SEs give expected results", {

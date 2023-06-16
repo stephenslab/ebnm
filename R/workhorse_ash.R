@@ -20,7 +20,7 @@ ebnm_ash_workhorse <- function(x,
     # Some ashr settings have implications for the grid:
     use_ashr_grid <- any(c("gridmult", "pointmass", "method") %in% names(list(...)))
     if(!identical(mode, "estimate") && !use_ashr_grid) {
-      scale <- default_symmuni_scale(x, s, mode)[-1] # ashr adds a point mass
+      scale <- ebnm_scale_unimix(x, s, mode)[-1] # ashr adds a point mass
     } else {
       # Let ashr do the grid estimation.
       scale <- NULL
@@ -67,7 +67,7 @@ ebnm_ash_workhorse <- function(x,
       posterior$lfsr  <- ash_res$result$lfsr
     }
 
-    retlist <- add_posterior_to_retlist(retlist, posterior, output)
+    retlist <- add_posterior_to_retlist(retlist, posterior, output, x)
   }
 
   if (g_in_output(output)) {
@@ -75,11 +75,17 @@ ebnm_ash_workhorse <- function(x,
   }
 
   if (llik_in_output(output)) {
-    retlist <- add_llik_to_retlist(retlist, ash_res$loglik)
+    df <- (1 - fix_g) * (length(ash_res$fitted_g$pi) - 1)
+    retlist <- add_llik_to_retlist(retlist, ash_res$loglik, x, df = df)
   }
 
   if (sampler_in_output(output)) {
-    retlist <- add_sampler_to_retlist(retlist, ash_res$post_sampler)
+    sampler <- function(nsamp) {
+      samp <- ash_res$post_sampler(nsamp)
+      colnames(samp) <- names(x)
+      return(samp)
+    }
+    retlist <- add_sampler_to_retlist(retlist, sampler)
   }
 
   return(retlist)

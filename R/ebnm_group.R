@@ -83,7 +83,7 @@ ebnm_group <- function(x,
                        scale = "estimate",
                        g_init = NULL,
                        fix_g = FALSE,
-                       output = output_default(),
+                       output = ebnm_output_default(),
                        ...) {
   check_args_group(x, group, prior_family, mode, scale, g_init)
 
@@ -146,8 +146,10 @@ ebnm_group <- function(x,
   }
 
   if (llik_in_output(output)) {
-    loglik  <- sum(sapply(ebnm_res, `[[`, llik_ret_str()))
-    retlist <- add_llik_to_retlist(retlist, loglik)
+    lliks   <- lapply(ebnm_res, `[[`, llik_ret_str())
+    loglik  <- as.numeric(Reduce(`+`, lliks))
+    df      <- sum(sapply(lliks, attr, "df"))
+    retlist <- add_llik_to_retlist(retlist, loglik, x, df)
   }
 
   # TODO: There is as yet no way to set parameter burn for ebnm_horseshoe.
@@ -163,6 +165,7 @@ ebnm_group <- function(x,
         idx <- which(group == grp)
         samp[, idx] <- samp_res[[grp]]
       }
+      colnames(samp) <- names(x)
       return(samp)
     }
     retlist <- add_sampler_to_retlist(retlist, post_sampler)

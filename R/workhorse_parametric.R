@@ -104,7 +104,7 @@ parametric_workhorse <- function(x,
                                           s = s,
                                           optpar = optres$par,
                                           output = output))
-    retlist <- add_posterior_to_retlist(retlist, posterior, output)
+    retlist <- add_posterior_to_retlist(retlist, posterior, output, x)
   }
 
   if (g_in_output(output)) {
@@ -114,14 +114,16 @@ parametric_workhorse <- function(x,
 
   if (llik_in_output(output)) {
     loglik  <- optres$val
-    retlist <- add_llik_to_retlist(retlist, loglik)
+    retlist <- add_llik_to_retlist(retlist, loglik, x, df = sum(!fix_par))
   }
 
   if (sampler_in_output(output)) {
-    post_sampler <- function(nsamp) {
-      postsamp_fn(x, s, optres$par, nsamp)
+    sampler <- function(nsamp) {
+      samp <- postsamp_fn(x, s, optres$par, nsamp)
+      colnames(samp) <- names(x)
+      return(samp)
     }
-    retlist <- add_sampler_to_retlist(retlist, post_sampler)
+    retlist <- add_sampler_to_retlist(retlist, sampler)
   }
 
   return(retlist)

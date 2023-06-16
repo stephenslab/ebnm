@@ -2,7 +2,7 @@
 #'
 #' @export
 #'
-output_default <- function() {
+ebnm_output_default <- function() {
   return(c(data_arg_str(), pm_arg_str(), psd_arg_str(),
            g_arg_str(), llik_arg_str()))
 }
@@ -11,7 +11,7 @@ output_default <- function() {
 #'
 #' @export
 #'
-output_all <- function() {
+ebnm_output_all <- function() {
   return(c(data_arg_str(), pm_arg_str(), psd_arg_str(), pm2_arg_str(),
            lfsr_arg_str(), g_arg_str(), llik_arg_str(), samp_arg_str()))
 }
@@ -50,7 +50,7 @@ as_ebnm <- function(retlist, call) {
 ash_output <- function(output) {
   ash_arg_str <- c("data", "PosteriorMean", "PosteriorSD", "PosteriorSD",
                    "lfsr", "fitted_g", "loglik", "post_sampler")
-  which_args  <- pmatch(output, output_all())
+  which_args  <- pmatch(output, ebnm_output_all())
   return(ash_arg_str[which_args])
 }
 
@@ -82,7 +82,7 @@ add_data_to_retlist <- function(retlist, x, s) {
   return(retlist)
 }
 
-add_posterior_to_retlist <- function(retlist, posterior, output) {
+add_posterior_to_retlist <- function(retlist, posterior, output, x) {
   df <- list()
   if (pm_arg_str() %in% output) {
     df[[pm_ret_str()]] <- posterior$mean
@@ -96,7 +96,7 @@ add_posterior_to_retlist <- function(retlist, posterior, output) {
   if (lfsr_arg_str() %in% output) {
     df[[lfsr_ret_str()]] <- posterior$lfsr
   }
-  df <- data.frame(df)
+  df <- data.frame(df, row.names = names(x))
 
   retlist[[df_ret_str()]] <- df
   return(retlist)
@@ -115,7 +115,10 @@ llik_in_output <- function(output) {
   return(llik_arg_str() %in% output)
 }
 
-add_llik_to_retlist <- function(retlist, llik) {
+add_llik_to_retlist <- function(retlist, llik, x, df) {
+  attr(llik, "nobs") <- length(x)
+  attr(llik, "df") <- df
+  class(llik) <- "logLik"
   retlist[[llik_ret_str()]] <- llik
   return(retlist)
 }

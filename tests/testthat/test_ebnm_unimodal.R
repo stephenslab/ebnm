@@ -40,3 +40,18 @@ test_that("Basic ebnm_unimodal_nonpositive functionality works", {
   expect_true(inherits(ash.res2[[g_ret_str()]], "unimix"))
   expect_identical(ash.res2[[g_ret_str()]]$b, rep(0, length(ash.res2[[g_ret_str()]]$b)))
 })
+
+test_that("df is correct for returned logLik", {
+  ash.res <- ebnm_unimodal_symmetric(x, s, scale = 0:3)
+  expect_equal(attr(logLik(ash.res), "df"), 3)
+  ash.res2 <- ebnm_unimodal(x, s, scale = 0:3)
+  expect_equal(attr(logLik(ash.res2), "df"), 6)
+  ash.res3 <- ebnm_unimodal(x, s, g_init = ash.res2$fitted_g, fix_g = TRUE)
+  expect_equal(attr(logLik(ash.res3), "df"), 0)
+})
+
+# test_that("predict method works as expected", {
+#   ash.res <- ebnm_unimodal(x, s)
+#   ash.res2 <- predict(ash.res, list(x = 1:10, s = 1))
+#   expect_equal(ash.res$fitted_g, ash.res2$fitted_g)
+# })
