@@ -602,9 +602,14 @@ ebnm_unimodal_nonpositive <- function(x,
 #' Solve the EBNM problem using generalized binary priors
 #'
 #' Solves the empirical Bayes normal means (EBNM) problem using the family of
-#'   mixtures where one component is a point mass at zero and the other is a
-#'   truncated normal distribution with lower bound zero. Identical to function
-#'   \code{\link{ebnm}} with argument \code{prior_family = "generalized_binary"}.
+#'   nonnegative distributions consisting of mixtures where one component is a
+#'   point mass at zero and the other is a truncated normal distribution with
+#'   lower bound zero and nonzero mode. Typically, the mode is positive, with
+#'   the ratio of the mode to the standard deviation taken to be large, so that
+#'   posterior estimates are strongly shrunk towards one of two values (zero or
+#'   the mode of the normal component).
+#'   Identical to function \code{\link{ebnm}} with argument
+#'   \code{prior_family = "generalized_binary"}.
 #'   For details about the model, see \code{\link{ebnm}}.
 #'
 #' @inherit ebnm_point_normal

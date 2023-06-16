@@ -213,7 +213,7 @@ Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
         distributions with support constrained to be less than the mode.}
       \item{\code{generalized_binary}}{The family of mixtures where one
         component is a point mass at zero and the other is a truncated
-        normal distribution with lower bound zero.}
+        normal distribution with lower bound zero and nonzero mode.}
       \item{\code{npmle}}{The family of all distributions.}
       \item{\code{deconvolver}}{A non-parametric exponential family with
         a natural spline basis. Like \code{npmle}, there is no unimodal
