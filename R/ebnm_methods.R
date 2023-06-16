@@ -314,6 +314,7 @@ print_it <- function(x, digits, summary) {
 #'   the degrees of freedom --- i.e., number of parameters in the model ---, and
 #'   \code{nobs}, the number of observations in the data.
 #'
+#' @importFrom stats logLik
 #' @method logLik ebnm
 #'
 #' @export
@@ -332,6 +333,7 @@ logLik.ebnm <- function(object, ...) {
 #'
 #' @param ... Not used. Included for consistency as an S3 method.
 #'
+#' @importFrom stats fitted
 #' @method fitted ebnm
 #'
 #' @export
@@ -348,6 +350,7 @@ fitted.ebnm <- function(object, ...) {
 #'
 #' @param ... Not used. Included for consistency as an S3 method.
 #'
+#' @importFrom stats coef
 #' @method coef ebnm
 #'
 #' @export
@@ -367,6 +370,7 @@ coef.ebnm <- function(object, ...) {
 #'
 #' @param ... Not used. Included for consistency as an S3 method.
 #'
+#' @importFrom stats vcov
 #' @method vcov ebnm
 #'
 #' @export
@@ -387,6 +391,7 @@ vcov.ebnm <- function(object, ...) {
 #'
 #' @param ... Not used. Included for consistency as an S3 method.
 #'
+#' @importFrom stats residuals
 #' @method residuals ebnm
 #'
 #' @export
@@ -415,6 +420,7 @@ residuals.ebnm <- function(object, ...) {
 #' @return A data frame that includes posterior means, posterior standard
 #'   deviations, and local false sign rates for the observations in \code{newdata}.
 #'
+#' @importFrom stats predict
 #' @method predict ebnm
 #'
 #' @export
@@ -441,6 +447,7 @@ predict.ebnm <- function(object, newdata, s = 1, ...) {
 #'
 #' @return The number of observations used to fit the \code{ebnm} object.
 #'
+#' @importFrom stats nobs
 #' @method nobs ebnm
 #'
 #' @export
@@ -477,6 +484,7 @@ nobs.ebnm <- function(object, ...) {
 #' @return A matrix of posterior samples, with rows corresponding to
 #'   distinct samples and columns corresponding to observations.
 #'
+#' @importFrom stats simulate
 #' @method simulate ebnm
 #'
 #' @export
@@ -522,6 +530,7 @@ simulate.ebnm <- function(object, nsim = 1, seed = NULL, ...) {
 #' @return A matrix with columns giving quantiles for each posterior
 #'   \eqn{\theta_i \mid x_i, s_i, g}.
 #'
+#' @importFrom stats quantile
 #' @method quantile ebnm
 #'
 #' @export
@@ -565,6 +574,7 @@ quantile.ebnm <- function(x, probs = seq(0, 1, 0.25),
 #'   each mean \eqn{\theta_i}. These will be labelled as "CI.lower" and
 #'   "CI.upper".
 #'
+#' @importFrom stats confint
 #' @method confint ebnm
 #'
 #' @export
