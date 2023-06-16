@@ -33,7 +33,7 @@ jobs:
           name: Check package
           command: R CMD check --as-cran --no-manual --ignore-vignettes *tar.gz
       - store_artifacts:
-          path: fastTopics.Rcheck/
+          path: ebnm.Rcheck/
       - save_cache:
           key: r-pkg-cache-{{ arch }}-{{ .Branch }}
           paths:
