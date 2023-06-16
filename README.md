@@ -5,16 +5,21 @@
 [![CircleCI build status](https://circleci.com/gh/stephenslab/ebnm.svg?style=svg)](https://app.circleci.com/pipelines/github/stephenslab/ebnm)
 [![codecov](https://codecov.io/gh/stephenslab/ebnm/branch/master/graph/badge.svg)](https://app.codecov.io/gh/stephenslab/ebnm)
 
-The `ebnm` package provides functions to solve the (heteroskedastic) "empirical Bayes normal means" (EBNM) problem for various choices of prior family. The model is
+The `ebnm` package provides functions to solve the (heteroskedastic)
+"empirical Bayes normal means" (EBNM) problem for various choices of
+prior family. The model is
 
 x_j | θ_j, s_j \sim N(θ_j, s_j^2)
 
-θ_j | s_j \sim g \in G
+θ_j | s_j \sim g \in G 
 
-where the distribution g is to be estimated. The distribution g is referred to as the "prior distribution" for θ and G is a specified family of prior distributions. Several options for G are implemented, some parametric and others non-parametric; see below for examples.
+where the distribution g is to be estimated. The distribution g is
+referred to as the "prior distribution" for θ and G is a specified
+family of prior distributions. Several options for G are implemented,
+some parametric and others non-parametric; see below for examples.
 
-
-Solving the EBNM problem involves two steps. First, estimate g \in G via maximum marginal likelihood, yielding an estimate
+Solving the EBNM problem involves two steps. First, estimate g \in G
+via maximum marginal likelihood, yielding an estimate
 
 \hat{g}:= \arg\max_{g \in G} L(g)
 
@@ -22,8 +27,8 @@ where
 
 L(g):= ∏_j \int p(x_j | θ_j, s_j) g(dθ_j)
 
-Second, compute the posterior distributions p(θ_j | x_j, s_j, \hat{g}) and/or summaries such as posterior means and posterior second moments.
-
+Second, compute the posterior distributions p(θ_j | x_j, s_j, \hat{g})
+and/or summaries such as posterior means and posterior second moments.
 
 The prior families that have been implemented include:
 
