@@ -722,6 +722,8 @@ ebnm_generalized_binary <- function(x,
 #'   or an \code{ebnm} object in which the fitted
 #'   prior is an object of class \code{normalmix}.
 #'
+#' @param optmethod Not used by \code{ebnm_npmle}.
+#'
 #' @export
 #'
 ebnm_npmle <- function(x,

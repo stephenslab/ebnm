@@ -55,6 +55,8 @@ Function \code{ebnm_output_default()} provides the default return values, while
 \code{ebnm_output_all()} lists all possible return values. See \strong{Value}
 below.}
 
+\item{optmethod}{Not used by \code{ebnm_npmle}.}
+
 \item{control}{A list of control parameters to be passed to optimization
 function \code{\link[mixsqp]{mixsqp}}.}
 }

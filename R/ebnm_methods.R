@@ -19,7 +19,7 @@
 #' @method plot ebnm
 #'
 #' @importFrom ggplot2 ggplot aes geom_point geom_abline labs
-#' @importFrom ggplot2 theme_minimal
+#' @importFrom ggplot2 theme_minimal scale_color_brewer
 #' @importFrom methods is
 #'
 #' @examples
@@ -464,6 +464,11 @@ nobs.ebnm <- function(object, ...) {
 #'
 #' @param nsim The number of posterior samples to return per observation.
 #'
+#' @param seed Either \code{NULL} or an integer that will be used in a call to
+#'   \code{set.seed} before simulating. If set, the value is saved as the
+#'   \code{"seed"} attribute of the returned value. The default, \code{NULL},
+#'   will not change the random generator state.
+#'
 #' @param ... Additional arguments to be passed to the posterior sampler
 #'   function. Since \code{ebnm_horseshoe} returns an MCMC sampler, it takes
 #'   parameter \code{burn}, the number of burn-in samples to discard.  At
@@ -485,7 +490,11 @@ simulate.ebnm <- function(object, nsim = 1, seed = NULL, ...) {
   if (!is.null(seed)) {
     set.seed(seed)
   }
-  object[[samp_ret_str()]](nsim, ...)
+  retval <- object[[samp_ret_str()]](nsim, ...)
+  if (!is.null(seed)) {
+    attr(retval, "seed") <- seed
+  }
+  return(retval)
 }
 
 #' Obtain posterior quantiles using a fitted EBNM model
@@ -545,7 +554,7 @@ quantile.ebnm <- function(x, probs = seq(0, 1, 0.25),
 #'
 #' @param level The confidence level required.
 #'
-#' @param nsamp The number of samples to use to estimate confidence intervals.
+#' @param nsim The number of samples to use to estimate confidence intervals.
 #'
 #' @param ... Additional arguments to be passed to the posterior sampler
 #'   function. Since \code{ebnm_horseshoe} returns an MCMC sampler, it takes

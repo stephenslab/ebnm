@@ -15,12 +15,12 @@ considered.}
 
 \item{level}{The confidence level required.}
 
+\item{nsim}{The number of samples to use to estimate confidence intervals.}
+
 \item{...}{Additional arguments to be passed to the posterior sampler
 function. Since \code{ebnm_horseshoe} returns an MCMC sampler, it takes
 parameter \code{burn}, the number of burn-in samples to discard.  At
 present, no other samplers take any additional parameters.}
-
-\item{nsamp}{The number of samples to use to estimate confidence intervals.}
 }
 \value{
 A matrix with columns giving lower and upper confidence limits for
