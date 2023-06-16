@@ -28,7 +28,8 @@
 #'   \code{g_init} is specified but \code{fix_g = FALSE}, \code{g_init}
 #'   specifies the initial value of \eqn{g} used during optimization. When
 #'   supplied, \code{g_init} should be an object of class
-#'   \code{\link[ashr]{normalmix}}.
+#'   \code{\link[ashr]{normalmix}} or an \code{ebnm} object in which the fitted
+#'   prior is an object of class \code{normalmix}.
 #'
 #' @param fix_g If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
 #'   of estimating it.
@@ -128,7 +129,8 @@ ebnm_point_normal <- function(x,
 #'   \code{g_init} is specified but \code{fix_g = FALSE}, \code{g_init}
 #'   specifies the initial value of \eqn{g} used during optimization. When
 #'   supplied, \code{g_init} should be an object of class
-#'   \code{\link{laplacemix}}.
+#'   \code{\link{laplacemix}} or an \code{ebnm} object in which the fitted
+#'   prior is an object of class \code{laplacemix}.
 #'
 #' @export
 #'
@@ -176,7 +178,8 @@ ebnm_point_laplace <- function(x,
 #'   \code{g_init} is specified but \code{fix_g = FALSE}, \code{g_init}
 #'   specifies the initial value of \eqn{g} used during optimization. When
 #'   supplied, \code{g_init} should be an object of class
-#'   \code{\link{gammamix}}.
+#'   \code{\link{gammamix}} or an \code{ebnm} object in which the fitted
+#'   prior is an object of class \code{gammamix}.
 #'
 #' @export
 #'
@@ -262,7 +265,8 @@ ebnm_normal <- function(x,
 #'   \code{g_init} is specified but \code{fix_g = FALSE}, \code{g_init}
 #'   specifies the initial value of \eqn{g} used during optimization. When
 #'   supplied, \code{g_init} should be an object of class
-#'   \code{\link{horseshoe}}.
+#'   \code{\link{horseshoe}} or an \code{ebnm} object in which the fitted
+#'   prior is an object of class \code{horseshoe}.
 #'
 #' @param control A list of control parameters to be passed to function
 #'   \code{\link[stats]{optimize}}.
@@ -345,7 +349,8 @@ ebnm_horseshoe <- function(x,
 #'   specifies the initial value of \eqn{g} used during optimization. This has
 #'   the side effect of fixing the \code{mode} and \code{scale} parameters. When
 #'   supplied, \code{g_init} should be an object of class
-#'   \code{\link[ashr]{normalmix}}.
+#'   \code{\link[ashr]{normalmix}} or an \code{ebnm} object in which the fitted
+#'   prior is an object of class \code{normalmix}.
 #'
 #' @param control A list of control parameters to be passed to optimization
 #'   function \code{\link[mixsqp]{mixsqp}}.
@@ -414,7 +419,8 @@ ebnm_normal_scale_mixture <- function(x,
 #'   specifies the initial value of \eqn{g} used during optimization. This has
 #'   the side effect of fixing the \code{mode} and \code{scale} parameters. When
 #'   supplied, \code{g_init} should be an object of class
-#'   \code{\link[ashr]{unimix}}.
+#'   \code{\link[ashr]{unimix}} or an \code{ebnm} object in which the fitted
+#'   prior is an object of class \code{unimix}.
 #'
 #' @param ... Additional parameters to be passed to function
 #'   \code{\link[ashr]{ash}} in package \code{ashr}.
@@ -630,7 +636,8 @@ ebnm_unimodal_nonpositive <- function(x,
 #'   \code{g_init} is specified but \code{fix_g = FALSE}, \code{g_init}
 #'   specifies the initial value of \eqn{g} used during optimization. When
 #'   supplied, \code{g_init} should be an object of class
-#'   \code{\link[ashr]{tnormalmix}}.
+#'   \code{\link[ashr]{tnormalmix}} or an \code{ebnm} object in which the fitted
+#'   prior is an object of class \code{tnormalmix}.
 #'
 #' @param control A list of control parameters to be passed to function
 #'   \code{\link[stats]{optim}}, where \code{method} has been set to
@@ -711,7 +718,9 @@ ebnm_generalized_binary <- function(x,
 #'   \code{g_init} is specified but \code{fix_g = FALSE}, \code{g_init}
 #'   specifies the initial value of \eqn{g} used during optimization. This has
 #'   the side effect of fixing the \code{scale} parameter. When supplied,
-#'   \code{g_init} should be an object of class \code{\link[ashr]{normalmix}}.
+#'   \code{g_init} should be an object of class \code{\link[ashr]{normalmix}}
+#'   or an \code{ebnm} object in which the fitted
+#'   prior is an object of class \code{normalmix}.
 #'
 #' @export
 #'
@@ -846,7 +855,8 @@ ebnm_flat <- function(x,
 #'   \code{g_init} is specified but \code{fix_g = FALSE}, \code{g_init}
 #'   specifies the initial value of \eqn{g} used during optimization. When
 #'   supplied, \code{g_init} should be an object of class
-#'   \code{\link[ashr]{normalmix}}.
+#'   \code{\link[ashr]{normalmix}} or an \code{ebnm} object in which the fitted
+#'   prior is an object of class \code{normalmix}.
 #'
 #' @export
 #'

@@ -38,7 +38,8 @@ example, to do computations with the "true" \eqn{g} in simulations). If
 \code{g_init} is specified but \code{fix_g = FALSE}, \code{g_init}
 specifies the initial value of \eqn{g} used during optimization. When
 supplied, \code{g_init} should be an object of class
-\code{\link[ashr]{normalmix}}.}
+\code{\link[ashr]{normalmix}} or an \code{ebnm} object in which the fitted
+prior is an object of class \code{normalmix}.}
 
 \item{fix_g}{If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
 of estimating it.}

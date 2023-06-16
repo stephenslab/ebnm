@@ -124,8 +124,11 @@
 #'   for the NPMLE; class \code{\link{laplacemix}} for
 #'   point-Laplace families; class \code{\link{gammamix}} for point-exponential
 #'   families; class \code{\link{horseshoe}} for horseshoe families; class
-#'   \code{\link[ashr]{unimix}} for \code{unimodal_} families; and class
-#'   \code{\link[ashr]{tnormalmix}} for generalized binary priors.
+#'   \code{\link[ashr]{unimix}} for \code{unimodal_} families; or class
+#'   \code{\link[ashr]{tnormalmix}} for generalized binary priors. An object of
+#'   class \code{ebnm} can also be supplied as argument, provided that field
+#'   \code{fitted_g} contains a prior of the correct class (see
+#'   \strong{Examples} below).
 #'
 #' @param fix_g If \code{TRUE}, fix the prior \eqn{g} at \code{g_init} instead
 #'   of estimating it.
@@ -249,11 +252,10 @@
 #' plot(normal.res) # posterior means shrink to a value different from zero
 #'
 #' # Use an initial g (this fixes mode and scale for ash priors):
-#' normalmix.res <- ebnm_normal_scale_mixture(x, s, g_init = pn.res$fitted_g)
+#' normalmix.res <- ebnm_normal_scale_mixture(x, s, g_init = pn.res)
 #'
 #' # Fix g and get different output (including a posterior sampler):
-#' g_init <- pn.res$fitted_g
-#' pn.res <- ebnm_point_normal(x, s, g_init = g_init, fix_g = TRUE,
+#' pn.res <- ebnm_point_normal(x, s, g_init = pn.res, fix_g = TRUE,
 #'                             output = ebnm_output_all())
 #'
 #' # Sample from the posterior:
@@ -368,6 +370,10 @@ ebnm_workhorse <- function(x,
                            prior_family,
                            call,
                            ...) {
+  if (inherits(g_init, "ebnm")) {
+    g_init <- g_init[[g_ret_str()]]
+  }
+
   check_args(x, s, g_init, fix_g, output, mode)
   s <- handle_standard_errors(x, s)
 
