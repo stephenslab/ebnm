@@ -17,6 +17,26 @@ laplacemix <- function(pi, mean, scale) {
   structure(data.frame(pi, mean, scale), class="laplacemix")
 }
 
+#' @importFrom stats pexp
+#' @importFrom ashr comp_cdf
+#'
+#' @method comp_cdf laplacemix
+#'
+#' @export
+#'
+comp_cdf.laplacemix = function (m, y, lower.tail = TRUE) {
+  plaplace <- function(q, location = 0, rate = 1, lower.tail = TRUE) {
+    q <- q - location
+    if (!lower.tail) {
+      q <- -q
+    }
+    return(ifelse(q < 0,
+                  pexp(abs(q), rate, lower.tail = FALSE) / 2,
+                  0.5 + pexp(abs(q), rate) / 2
+    ))
+  }
+  return(vapply(y, plaplace, m$mean, m$mean, 1 / m$scale, lower.tail))
+}
 
 # The point-Laplace family uses the above ebnm class laplacemix.
 #
