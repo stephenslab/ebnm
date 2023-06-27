@@ -47,5 +47,5 @@ The \code{\link[stats]{quantile}} method for class \code{\link{ebnm}}.
   Quantiles for posterior distributions \eqn{\theta_i \mid x_i, s_i, g} are
   estimated via sampling. By default, \code{\link{ebnm}} does not return a
   posterior sampler; one can be added to the \code{ebnm} object using
-  function \code{\link{ebnm_add_sampler()}}.
+  function \code{\link{ebnm_add_sampler}}.
 }

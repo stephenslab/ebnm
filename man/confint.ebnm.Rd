@@ -32,5 +32,5 @@ The \code{\link[stats]{confint}} method for class \code{\link{ebnm}}.
   Estimates the highest posterior density (HPD) intervals by sampling from
   the posterior. By default, \code{\link{ebnm}} does not return a posterior
   sampler; one can be added to the \code{ebnm} object using function
-  \code{\link{ebnm_add_sampler()}}.
+  \code{\link{ebnm_add_sampler}}.
 }

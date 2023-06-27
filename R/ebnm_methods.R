@@ -54,6 +54,9 @@ plot.ebnm <- function(x,
                       incl_cdf = FALSE,
                       subset = NULL,
                       remove_abline = FALSE) {
+  # Hack to appease R CMD check ("no visible binding for global variable" note):
+  obs <- pm <- label <- y <- NULL
+
   if (!inherits(x, "ebnm")) {
     stop("Input argument x must be an instance of class \"ebnm\".")
   }
@@ -604,7 +607,7 @@ simulate.ebnm <- function(object, nsim = 1, seed = NULL, ...) {
 #'   Quantiles for posterior distributions \eqn{\theta_i \mid x_i, s_i, g} are
 #'   estimated via sampling. By default, \code{\link{ebnm}} does not return a
 #'   posterior sampler; one can be added to the \code{ebnm} object using
-#'   function \code{\link{ebnm_add_sampler()}}.
+#'   function \code{\link{ebnm_add_sampler}}.
 #'
 #' @inheritParams stats::quantile
 #'
@@ -646,7 +649,7 @@ quantile.ebnm <- function(x, probs = seq(0, 1, 0.25),
 #'   Estimates the highest posterior density (HPD) intervals by sampling from
 #'   the posterior. By default, \code{\link{ebnm}} does not return a posterior
 #'   sampler; one can be added to the \code{ebnm} object using function
-#'   \code{\link{ebnm_add_sampler()}}.
+#'   \code{\link{ebnm_add_sampler}}.
 #'
 #' @param object The fitted \code{ebnm} object.
 #'
