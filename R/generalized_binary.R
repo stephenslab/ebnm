@@ -3,12 +3,21 @@
 ###   scale corresponds to sigma / mu.
 
 ebnm_generalized_binary_defaults <- function(x, s) {
+  min_mu <- min(s) / 10
+  if (all(x <= 0)) {
+    mu_init <- min_mu
+    max_mu <- max(s)
+  } else {
+    mu_init <- mean(x[x > 0])
+    max_mu <- max(x - s)
+  }
+
   return(list(
     maxiter = 50,
     tol = 1e-3,
     wlist = c(1e-5, 1e-2, 1e-1, 2.5e-1, 9e-1, 1),
-    mu_init = mean(x),
-    mu_range = c(min(s) / 10, max(x - s))
+    mu_init = mu_init,
+    mu_range = c(min_mu, max_mu)
   ))
 }
 
