@@ -106,8 +106,8 @@ library(ebnm)
 Try an example
 ```R
 set.seed(1)
-mu = c(rep(0,500),rnorm(500)) # true means
-x = mu + rnorm(1000) # observations with standard error 1
+theta = c(rep(0,500),rnorm(500)) # true means
+x = theta + rnorm(1000) # observations with standard error 1
 x.ebnm = ebnm_point_normal(x, 1)
 plot(x.ebnm)
 ```
