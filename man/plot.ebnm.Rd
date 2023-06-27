@@ -4,27 +4,37 @@
 \alias{plot.ebnm}
 \title{Plot an ebnm object}
 \usage{
-\method{plot}{ebnm}(x, ..., remove_abline = FALSE)
+\method{plot}{ebnm}(
+  x,
+  ...,
+  incl_pm = TRUE,
+  incl_cdf = FALSE,
+  subset = NULL,
+  remove_abline = FALSE
+)
 }
 \arguments{
 \item{x}{The fitted \code{ebnm} object.}
 
-\item{...}{Additional \code{ebnm} objects to be included on the same plot.}
+\item{...}{Additional \code{ebnm} objects to be included on the same plots.}
 
-\item{remove_abline}{To better illustrate shrinkage effects, the plot
-includes the line \eqn{y = x} by default. If
-\code{remove_abline = TRUE}, then this line will not be drawn.}
-}
-\value{
-A \code{ggplot} object.
+\item{incl_pm}{Plot posterior means vs. observations?}
+
+\item{incl_cdf}{Plot the cumulative distribution functions?}
+
+\item{subset}{The subset of observations to include on the plot of posterior
+means vs. observations. Can be a numeric vector corresponding to indices
+of observations to plot, or a character vector if observations are named.
+If \code{subset = NULL} then all observations will be plotted.}
+
+\item{remove_abline}{To better illustrate shrinkage effects, the plot of
+posterior means vs. observations includes the line \eqn{y = x} by default.
+If \code{remove_abline = TRUE}, then this line will not be drawn.}
 }
 \description{
 Given one or more fitted \code{\link{ebnm}} object(s), produces a plot of
-  posterior means vs. observations.
-}
-\details{
-An object of class \code{ggplot} is returned, so that the plot can be
-  customized in the usual \code{\link[ggplot2]{ggplot2}} fashion.
+  posterior means vs. observations. If desired, a plot of cumulative
+  distribution functions of fitted prior(s) can also be produced.
 }
 \examples{
 theta <- c(rep(0, 100), rexp(100))

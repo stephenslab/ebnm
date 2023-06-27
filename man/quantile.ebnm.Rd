@@ -46,6 +46,6 @@ A matrix with columns giving quantiles for each posterior
 The \code{\link[stats]{quantile}} method for class \code{\link{ebnm}}.
   Quantiles for posterior distributions \eqn{\theta_i \mid x_i, s_i, g} are
   estimated via sampling. By default, \code{\link{ebnm}} does not return a
-  posterior sampler; one can be obtained by setting
-  \code{output = ebnm_output_all()} in the call to \code{ebnm}.
+  posterior sampler; one can be added to the \code{ebnm} object using
+  function \code{\link{ebnm_add_sampler}}.
 }

@@ -1,26 +1,33 @@
 #' Plot an ebnm object
 #'
 #' Given one or more fitted \code{\link{ebnm}} object(s), produces a plot of
-#'   posterior means vs. observations.
-#'
-#' An object of class \code{ggplot} is returned, so that the plot can be
-#'   customized in the usual \code{\link[ggplot2]{ggplot2}} fashion.
+#'   posterior means vs. observations. If desired, a plot of cumulative
+#'   distribution functions of fitted prior(s) can also be produced.
 #'
 #' @param x The fitted \code{ebnm} object.
 #'
-#' @param remove_abline To better illustrate shrinkage effects, the plot
-#'   includes the line \eqn{y = x} by default. If
-#'   \code{remove_abline = TRUE}, then this line will not be drawn.
+#' @param incl_pm Plot posterior means vs. observations?
 #'
-#' @param ... Additional \code{ebnm} objects to be included on the same plot.
+#' @param incl_cdf Plot the cumulative distribution functions?
 #'
-#' @return A \code{ggplot} object.
+#' @param subset The subset of observations to include on the plot of posterior
+#'   means vs. observations. Can be a numeric vector corresponding to indices
+#'   of observations to plot, or a character vector if observations are named.
+#'   If \code{subset = NULL} then all observations will be plotted.
+#'
+#' @param remove_abline To better illustrate shrinkage effects, the plot of
+#'   posterior means vs. observations includes the line \eqn{y = x} by default.
+#'   If \code{remove_abline = TRUE}, then this line will not be drawn.
+#'
+#' @param ... Additional \code{ebnm} objects to be included on the same plots.
 #'
 #' @method plot ebnm
 #'
 #' @importFrom ggplot2 ggplot aes geom_point geom_abline labs
 #' @importFrom ggplot2 theme_minimal scale_color_brewer
-#' @importFrom methods is
+#' @importFrom ggplot2 geom_line
+#' @importFrom ashr mixcdf
+#' @importFrom grDevices devAskNewPage
 #'
 #' @examples
 #' theta <- c(rep(0, 100), rexp(100))
@@ -41,7 +48,15 @@
 #'
 #' @export
 #'
-plot.ebnm <- function(x, ..., remove_abline = FALSE) {
+plot.ebnm <- function(x,
+                      ...,
+                      incl_pm = TRUE,
+                      incl_cdf = FALSE,
+                      subset = NULL,
+                      remove_abline = FALSE) {
+  # Hack to appease R CMD check ("no visible binding for global variable" note):
+  obs <- pm <- label <- y <- NULL
+
   if (!inherits(x, "ebnm")) {
     stop("Input argument x must be an instance of class \"ebnm\".")
   }
@@ -49,9 +64,13 @@ plot.ebnm <- function(x, ..., remove_abline = FALSE) {
   if (is.null(x[[data_ret_str()]])) {
     stop("Data not found in ebnm object. Results cannot be plotted.")
   }
-
-  if (is.null(x[[df_ret_str()]][[pm_ret_str()]])) {
-    stop("Posterior means not found in ebnm object. Results cannot be plotted.")
+  if (incl_pm && is.null(x[[df_ret_str()]][[pm_ret_str()]])) {
+    warning("Posterior means not found in ebnm object and will not be plotted.")
+    incl_pm <- FALSE
+  }
+  if (incl_cdf && is.null(x[[g_ret_str()]])) {
+    warning("Fitted prior not found in ebnm object. CDF will not be plotted.")
+    incl_cdf <- FALSE
   }
 
   ebnm_label <- deparse(substitute(x))
@@ -62,11 +81,19 @@ plot.ebnm <- function(x, ..., remove_abline = FALSE) {
     )
   }
 
-  df <- data.frame(
-    obs = x[[data_ret_str()]][[obs_ret_str()]],
-    pm = x[[df_ret_str()]][[pm_ret_str()]],
-    label = factor(ebnm_label)
-  )
+  if (incl_pm) {
+    df1 <- data.frame(
+      idx = 1:nrow(x[[data_ret_str()]]),
+      name = rownames(x[[data_ret_str()]]),
+      obs = x[[data_ret_str()]][[obs_ret_str()]],
+      pm = x[[df_ret_str()]][[pm_ret_str()]],
+      label = factor(ebnm_label)
+    )
+  }
+  if (incl_cdf) {
+    g_list <- list()
+    g_list[[ebnm_label]] <- x[[g_ret_str()]]
+  }
 
   args <- list(...)
   varnames <- sapply(substitute(list(...))[-1], deparse)
@@ -77,18 +104,16 @@ plot.ebnm <- function(x, ..., remove_abline = FALSE) {
       if (is.null(next_ebnm[[data_ret_str()]])) {
         warning("An additional ebnm object was included as argument, but it does ",
                 "not include a data field. Object will be ignored.")
-      } else if (is.null(next_ebnm[[df_ret_str()]][[pm_ret_str()]])) {
+      } else if (incl_pm && is.null(next_ebnm[[df_ret_str()]][[pm_ret_str()]])) {
         warning("An additional ebnm object was included as argument, but it does ",
                 "not include posterior means. Object will be ignored.")
+      } else if (incl_cdf && is.null(next_ebnm[[g_ret_str()]])) {
+        warning("An additional ebnm object was included as argument, but it does ",
+                "not include fitted prior. Object will be ignored.")
       } else if (!identical(x[[data_ret_str()]], next_ebnm[[data_ret_str()]])) {
         warning("An additional ebnm object was included as argument, but a different ",
                 "dataset was used to fit the model. Object will be ignored.")
       } else {
-        next_df <- data.frame(
-          obs = next_ebnm[[data_ret_str()]][[obs_ret_str()]],
-          pm = next_ebnm[[df_ret_str()]][[pm_ret_str()]]
-        )
-
         ebnm_label <- varnames[idx]
         llik <- as.numeric(next_ebnm[[llik_ret_str()]])
         if (!is.null(llik)) {
@@ -96,10 +121,23 @@ plot.ebnm <- function(x, ..., remove_abline = FALSE) {
             ebnm_label, " (llik: ", format(round(llik, 2), nsmall = 2), ")"
           )
         }
-        next_df$label <- ebnm_label
 
-        levels(df$label) <- c(levels(df$label), ebnm_label)
-        df <- rbind(df, next_df)
+        if (incl_pm) {
+          next_df <- data.frame(
+            idx = 1:nrow(next_ebnm[[data_ret_str()]]),
+            name = rownames(next_ebnm[[data_ret_str()]]),
+            obs = next_ebnm[[data_ret_str()]][[obs_ret_str()]],
+            pm = next_ebnm[[df_ret_str()]][[pm_ret_str()]]
+          )
+
+          next_df$label <- ebnm_label
+
+          levels(df1$label) <- c(levels(df1$label), ebnm_label)
+          df1 <- rbind(df1, next_df)
+        }
+        if (incl_cdf) {
+          g_list[[ebnm_label]] <- next_ebnm[[g_ret_str()]]
+        }
       }
     }
     args <- args[-ebnm_idx]
@@ -109,26 +147,84 @@ plot.ebnm <- function(x, ..., remove_abline = FALSE) {
     }
   }
 
-  if (length(unique(df$label)) > 1) {
-    plt <- ggplot(df, aes(x = obs, y = pm, color = label)) +
-      geom_point() +
-      scale_color_brewer(type = "qual") +
-      labs(x = "Observations", y = "Posterior means",
-           color = "Fitted EBNM models")
+  if (incl_pm && is.numeric(subset)) {
+    df1 <- df1[df1$idx %in% subset, ]
+  } else if (incl_pm && is.character(subset)) {
+    df1 <- df1[df1$name %in% subset, ]
+  } else if (incl_pm && !is.null(subset)) {
+    warning("Argument to subset must be NULL or a numeric or character vector. ",
+            "It will be ignored.")
+  }
+
+  all_plots <- list()
+
+  if (incl_pm) {
+    if (length(unique(df1$label)) > 1) {
+      p1 <- ggplot(df1, aes(x = obs, y = pm, color = label)) +
+        geom_point() +
+        scale_color_brewer(type = "qual") +
+        labs(x = "Observations", y = "Posterior means",
+             color = "Fitted EBNM models")
+    } else {
+      p1 <- ggplot(df1, aes(x = obs, y = pm)) +
+        geom_point() +
+        labs(x = "Observations", y = "Posterior means",
+             title = paste("Log likelihood for model:", round(llik, 2)))
+    }
+
+    p1 <- p1 + theme_minimal()
+
+    if (!remove_abline) {
+      p1 <- p1 + geom_abline(slope = 1, linetype = "dashed")
+    }
+
+    all_plots[["pm"]] <- p1
+  }
+
+  if (incl_cdf) {
+    if (incl_pm) {
+      xgrid <- seq(min(df1$obs), max(df1$obs), length.out = 300)
+    } else {
+      xrange <- range(x[[data_ret_str()]][[obs_ret_str()]])
+      xgrid <- seq(min(xrange), max(xrange), length.out = 300)
+    }
+
+    df2 <- data.frame(
+      x = rep(xgrid, times = length(g_list)),
+      y = as.vector(sapply(1:length(g_list), function(i) mixcdf(g_list[[i]], xgrid))),
+      label = rep(factor(names(g_list), levels = names(g_list)), each = length(xgrid))
+    )
+
+    if (length(unique(df2$label)) > 1) {
+      p2 <- ggplot(df2, aes(x = x, y = y, color = label)) +
+        geom_line() +
+        scale_color_brewer(type = "qual") +
+        labs(x = expression(theta), y = "Cumulative prior probability",
+             color = "Fitted EBNM models", title = "CDFs of fitted priors")
+    } else {
+      p2 <- ggplot(df2, aes(x = x, y = y)) +
+        geom_line() +
+        labs(x = expression(theta), y = "Cumulative prior probability",
+             title = "CDF of fitted prior")
+    }
+
+    p2 <- p2 + theme_minimal()
+
+    all_plots[["cdf"]] <- p2
+  }
+
+  if (length(all_plots) == 0) {
+    cat("Nothing to plot.\n")
+    return(NULL)
+  } else if (length(all_plots) == 1) {
+    return(all_plots[[1]])
   } else {
-    plt <- ggplot(df, aes(x = obs, y = pm)) +
-      geom_point() +
-      labs(x = "Observations", y = "Posterior means",
-           title = paste("Log likelihood for model:", round(llik, 2)))
+    oask <- devAskNewPage(TRUE)
+    print(all_plots[["cdf"]])
+    print(all_plots[["pm"]])
+    devAskNewPage(oask)
+    return(invisible())
   }
-
-  plt <- plt + theme_minimal()
-
-  if (!remove_abline) {
-    plt <- plt + geom_abline(slope = 1, linetype = "dashed")
-  }
-
-  return(plt)
 }
 
 #' Summarize an ebnm object
@@ -291,10 +387,10 @@ print_it <- function(x, digits, summary) {
 
     if (x$sampler_included) {
       cat("A posterior sampler _is_ available and can be accessed using",
-          "method samp().\n")
+          "method simulate().\n")
     } else {
-      cat("A posterior sampler is _not_ available.\nOne can be obtained by",
-          "re-running ebnm() with argument 'output = ebnm_output_all()'.\n")
+      cat("A posterior sampler is _not_ available.\nOne can be obtained using",
+          "function ebnm_add_sampler().\n")
     }
     cat("\n")
   }
@@ -492,8 +588,8 @@ nobs.ebnm <- function(object, ...) {
 simulate.ebnm <- function(object, nsim = 1, seed = NULL, ...) {
   if (is.null(object[[samp_ret_str()]])) {
     stop("Object does not contain a posterior sampler. Note that samplers are ",
-         "not returned by default. To obtain one, include argument ",
-         "'output = ebnm_output_all()' in the call to ebnm.")
+         "not returned by default. One can be added via function ",
+         "ebnm_add_sampler().")
   }
   if (!is.null(seed)) {
     set.seed(seed)
@@ -510,8 +606,8 @@ simulate.ebnm <- function(object, nsim = 1, seed = NULL, ...) {
 #' The \code{\link[stats]{quantile}} method for class \code{\link{ebnm}}.
 #'   Quantiles for posterior distributions \eqn{\theta_i \mid x_i, s_i, g} are
 #'   estimated via sampling. By default, \code{\link{ebnm}} does not return a
-#'   posterior sampler; one can be obtained by setting
-#'   \code{output = ebnm_output_all()} in the call to \code{ebnm}.
+#'   posterior sampler; one can be added to the \code{ebnm} object using
+#'   function \code{\link{ebnm_add_sampler}}.
 #'
 #' @inheritParams stats::quantile
 #'
@@ -538,9 +634,9 @@ simulate.ebnm <- function(object, nsim = 1, seed = NULL, ...) {
 quantile.ebnm <- function(x, probs = seq(0, 1, 0.25),
                           names = TRUE, type = 7, digits = 7, nsim = 1000, ...) {
   if (is.null(x[[samp_ret_str()]])) {
-    stop("Quantiles are estimated by sampling from the posterior. ",
-         "To obtain a posterior sampler, include argument 'output = ebnm_output_all()' ",
-         "in the call to ebnm.")
+    stop("Quantiles are estimated by sampling from the posterior. Note that ",
+         "samplers are not returned by default. One can be added via ",
+         "function ebnm_add_sampler().")
   }
   samp <- simulate(x, nsim = nsim, ...)
   return(t(apply(samp, 2, quantile, probs = probs,
@@ -552,8 +648,8 @@ quantile.ebnm <- function(x, probs = seq(0, 1, 0.25),
 #' The \code{\link[stats]{confint}} method for class \code{\link{ebnm}}.
 #'   Estimates the highest posterior density (HPD) intervals by sampling from
 #'   the posterior. By default, \code{\link{ebnm}} does not return a posterior
-#'   sampler; one can be obtained by setting \code{output = ebnm_output_all()} in the
-#'   call to \code{ebnm}.
+#'   sampler; one can be added to the \code{ebnm} object using function
+#'   \code{\link{ebnm_add_sampler}}.
 #'
 #' @param object The fitted \code{ebnm} object.
 #'
@@ -582,8 +678,8 @@ quantile.ebnm <- function(x, probs = seq(0, 1, 0.25),
 confint.ebnm <- function(object, parm, level = 0.95, nsim = 1000, ...) {
   if (is.null(object[[samp_ret_str()]])) {
     stop("Confidence intervals are obtained by sampling from the posterior. ",
-         "To obtain a posterior sampler, include argument 'output = ebnm_output_all()' ",
-         "in the call to ebnm.")
+         "Note that samplers are not returned by default. One can be added ",
+         "via function ebnm_add_sampler().")
   }
 
   samp <- simulate(object, nsim = nsim, ...)
