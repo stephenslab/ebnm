@@ -18,8 +18,7 @@ jobs:
           name: Install package dependencies
           command: |
             mkdir -p ~/R/Library
-            Rscript -e 'install.packages(c("devtools","testthat","ggplot2","numDeriv","mixsqp","truncnorm","trust","horseshoe","deconvolveR","magrittr","dplyr"))'
-            Rscript -e 'devtools::install_github("stephens999/ashr",upgrade="never",force=TRUE)'
+            Rscript -e 'install.packages(c("devtools","testthat","ggplot2","numDeriv","mixsqp","truncnorm","trust","horseshoe","deconvolveR","magrittr","dplyr","ashr"))'
       - run:
           name: Session information and installed package versions
           command: |
