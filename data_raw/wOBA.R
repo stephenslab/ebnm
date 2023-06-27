@@ -28,12 +28,12 @@ diag(lg_covmat) <- lg_props * (1 - lg_props)
 lg_wOBA_var <- w %*% lg_covmat %*% t(w)
 
 # Calculate wOBA variance for 1 PA using empirical outcome proportions:
-estmat <- fg_data %>%
+propmat <- fg_data %>%
   mutate(across(BB:HR, ~ . / PA)) %>%
   select(BB:HR) %>%
   as.matrix()
 plugin_wOBA_var <- sapply(1:nrow(fg_data), function(i) {
-  pihat <- estmat[i, , drop = FALSE]
+  pihat <- propmat[i, , drop = FALSE]
   covmat <- -t(pihat) %*% pihat
   diag(covmat) <- pihat * (1 - pihat)
   return(w %*% covmat %*% t(w))
