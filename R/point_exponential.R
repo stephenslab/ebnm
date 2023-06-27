@@ -19,6 +19,21 @@ gammamix <- function(pi, shape, scale, shift = rep(0, length(pi))) {
   structure(data.frame(pi, shape, scale, shift), class = "gammamix")
 }
 
+#' @importFrom stats pgamma
+#' @importFrom ashr comp_cdf
+#'
+#' @method comp_cdf gammamix
+#'
+#' @export
+#'
+comp_cdf.gammamix = function (m, y, lower.tail = TRUE) {
+  pshiftgamma <- function(q, shape, scale = 1, shift = 0, lower.tail = TRUE) {
+    q <- q - shift
+    scale <- ifelse(scale == 0, 1e-16, scale)
+    return(pgamma(q, shape, scale = scale, lower.tail = lower.tail))
+  }
+  return(vapply(y, pshiftgamma, m$shift, m$shape, m$scale, m$shift, lower.tail))
+}
 
 # The point-exponential family uses the above ebnm class gammamix.
 #
