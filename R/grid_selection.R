@@ -52,12 +52,12 @@ init_g_for_npmle <- function(x,
 #'   the solution obtained using the approximating mixture to the exact
 #'   solution. More precisely, the scale parameter is set such that given
 #'   the exact MLE
-#'   \deqn{\hat{g} := \argmax_{g \in G} L(g),}
+#'   \deqn{\hat{g} := \mathrm{argmax}_{g \in G} L(g),}
 #'   where \eqn{G} is the full nonparametric family, and given the MLE for the
 #'   approximating family \eqn{\tilde{G}}
-#'   \deqn{\tilde{g} := \argmax_{g \in \tilde{G}} L(g),}
+#'   \deqn{\tilde{g} := \mathrm{argmax}_{g \in \tilde{G}} L(g),}
 #'   we have that
-#'   \deqn{\text{KL} (\hat{g} \ast N(0, s^2) \mid \tilde{g} \ast N(0, s^2)) \le \kappa,}
+#'   \deqn{\mathrm{KL}(\hat{g} \ast N(0, s^2) \mid \tilde{g} \ast N(0, s^2)) \le \kappa,}
 #'   where \eqn{\ast \ N(0, s^2)} denotes convolution with the normal error
 #'   distribution (the derivation of the bound assumes homoskedastic
 #'   observations). For details, see \strong{References} below.
@@ -71,7 +71,7 @@ init_g_for_npmle <- function(x,
 #'
 #'   To be exact, \code{ebnm} uses a mixture of normal distributions rather than
 #'   a mixture of point masses when
-#'   \deqn{\frac{\max(x) - \min(x)}{\min(s)} > 3 \ \texttt{max\_K};} for a
+#'   \deqn{\frac{\max(x) - \min(x)}{\min(s)} > 3 \ \mathrm{max}_K;} for a
 #'   rationale, see \strong{References} below. Note however that \code{ebnm}
 #'   only uses a mixture of normal distributions when \code{scale = "estimate"};
 #'   if parameter \code{scale} is set manually, then a mixture of point masses
