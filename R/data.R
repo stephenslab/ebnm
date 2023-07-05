@@ -1,4 +1,4 @@
-#' Eight schools data
+#' Eight Schools Data
 #'
 #' The eight schools dataset analyzed by Rubin (1981) and Gelman et al. (2014).
 #' In each of eight US high schools, different randomized experiments were
@@ -24,7 +24,7 @@
 
 #' @name wOBA
 #' 
-#' @title 2022 MLB wOBA data
+#' @title 2022 MLB wOBA Data
 #'
 #' @docType data
 #' 

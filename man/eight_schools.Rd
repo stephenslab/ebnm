@@ -3,7 +3,7 @@
 \docType{data}
 \name{eight_schools}
 \alias{eight_schools}
-\title{Eight schools data}
+\title{Eight Schools Data}
 \format{
 A data frame with 8 rows and 2 columns:
 \describe{

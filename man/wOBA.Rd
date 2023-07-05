@@ -3,7 +3,7 @@
 \docType{data}
 \name{wOBA}
 \alias{wOBA}
-\title{2022 MLB wOBA data}
+\title{2022 MLB wOBA Data}
 \format{
 \code{wOBA} is a data frame with 688 rows and 6 columns:
 \describe{
