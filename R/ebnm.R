@@ -427,7 +427,8 @@ ebnm_workhorse <- function(x,
                                     summres_fn = pn_summres,
                                     partog_fn = pn_partog,
                                     postsamp_fn = pn_postsamp,
-                                    call = call)
+                                    call = call,
+                                    ...)
   } else if (prior_family == "point_laplace") {
     retlist <- parametric_workhorse(x = x,
                                     s = s,
@@ -448,7 +449,8 @@ ebnm_workhorse <- function(x,
                                     summres_fn = pl_summres,
                                     partog_fn = pl_partog,
                                     postsamp_fn = pl_postsamp,
-                                    call = call)
+                                    call = call,
+                                    ...)
   } else if (prior_family == "point_exponential") {
     retlist <- parametric_workhorse(x = x,
                                     s = s,
@@ -469,7 +471,8 @@ ebnm_workhorse <- function(x,
                                     summres_fn = pe_summres,
                                     partog_fn = pe_partog,
                                     postsamp_fn = pe_postsamp,
-                                    call = call)
+                                    call = call,
+                                    ...)
   } else if (prior_family == "normal") {
     retlist <- parametric_workhorse(x = x,
                                     s = s,
@@ -490,7 +493,8 @@ ebnm_workhorse <- function(x,
                                     summres_fn = pn_summres,
                                     partog_fn = pn_partog,
                                     postsamp_fn = pn_postsamp,
-                                    call = call)
+                                    call = call,
+                                    ...)
   } else if (prior_family == "horseshoe") {
     retlist <- horseshoe_workhorse(x = x,
                                    s = s,
@@ -500,7 +504,8 @@ ebnm_workhorse <- function(x,
                                    fix_g = fix_g,
                                    output = output,
                                    control = control,
-                                   call = call)
+                                   call = call,
+                                   ...)
   } else if (prior_family == "normal_scale_mixture") {
     retlist <- ebnm_normal_mix_workhorse(x = x,
                                          s = s,
