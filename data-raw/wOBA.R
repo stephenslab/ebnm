@@ -50,6 +50,9 @@ wOBA <- fg_data %>%
     PA = PA,
     x = wOBA,
     s = sqrt(wOBA_var / PA)
-  )
+  ) %>%
+  mutate(Team = as.factor(ifelse(Team == "- - -", NA, Team)))
+
+wOBA <- as.data.frame(wOBA)
 
 usethis::use_data(wOBA, overwrite = TRUE)
