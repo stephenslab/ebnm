@@ -29,8 +29,8 @@ not allowed.}
 
 \item{scale}{The nonparametric family of nonnpositive unimodal distributions is
 approximated via a finite mixture of uniform distributions
-\deqn{\pi_1 \text{Unif}(\mu - a_1, \mu)
-+ \ldots + \pi_K \text{Unif}(\mu - a_K, \mu),}
+\deqn{\pi_1 \mathrm{Unif}(\mu - a_1, \mu)
++ \ldots + \pi_K \mathrm{Unif}(\mu - a_K, \mu),}
 where parameters \eqn{\pi_k} are estimated and the grid
 of lengths \eqn{(a_1, \ldots, a_K)} is fixed in advance. By
 making the grid sufficiently dense, one can obtain an arbitrarily good

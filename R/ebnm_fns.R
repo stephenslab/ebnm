@@ -396,8 +396,8 @@ ebnm_normal_scale_mixture <- function(x,
 #'
 #' @param scale The nonparametric family of unimodal distributions is
 #'   approximated via a finite mixture of uniform distributions
-#'   \deqn{\pi_1^l \text{Unif}(\mu - a_1, \mu) + \pi_1^u \text{Unif}(\mu, \mu + a_1)
-#'   + \ldots + \pi_K^l \text{Unif}(\mu - a_K, \mu) + \pi_K^u \text{Unif}(\mu, \mu + a_K),}
+#'   \deqn{\pi_1^l \mathrm{Unif}(\mu - a_1, \mu) + \pi_1^u \mathrm{Unif}(\mu, \mu + a_1)
+#'   + \ldots + \pi_K^l \mathrm{Unif}(\mu - a_K, \mu) + \pi_K^u \mathrm{Unif}(\mu, \mu + a_K),}
 #'   where parameters \eqn{\pi_k^l} and \eqn{\pi_k^u} are estimated and the grid
 #'   of lengths \eqn{(a_1, \ldots, a_K)} is fixed in advance. By
 #'   making the grid sufficiently dense, one can obtain an arbitrarily good
@@ -461,8 +461,8 @@ ebnm_unimodal <- function(x,
 #'
 #' @param scale The nonparametric family of symmetric unimodal distributions is
 #'   approximated via a finite mixture of uniform distributions
-#'   \deqn{\pi_1 \text{Unif}(\mu - a_1, \mu + a_1)
-#'   + \ldots + \pi_K \text{Unif}(\mu - a_K, \mu + a_K),}
+#'   \deqn{\pi_1 \mathrm{Unif}(\mu - a_1, \mu + a_1)
+#'   + \ldots + \pi_K \mathrm{Unif}(\mu - a_K, \mu + a_K),}
 #'   where parameters \eqn{\pi_k} are estimated and the grid
 #'   of (half-)lengths \eqn{(a_1, \ldots, a_K)} is fixed in advance. By
 #'   making the grid sufficiently dense, one can obtain an arbitrarily good
@@ -513,8 +513,8 @@ ebnm_unimodal_symmetric <- function(x,
 #'
 #' @param scale The nonparametric family of nonnegative unimodal distributions is
 #'   approximated via a finite mixture of uniform distributions
-#'   \deqn{\pi_1 \text{Unif}(\mu, \mu + a_1)
-#'   + \ldots + \pi_K \text{Unif}(\mu, \mu + a_K),}
+#'   \deqn{\pi_1 \mathrm{Unif}(\mu, \mu + a_1)
+#'   + \ldots + \pi_K \mathrm{Unif}(\mu, \mu + a_K),}
 #'   where parameters \eqn{\pi_k} are estimated and the grid
 #'   of lengths \eqn{(a_1, \ldots, a_K)} is fixed in advance. By
 #'   making the grid sufficiently dense, one can obtain an arbitrarily good
@@ -565,8 +565,8 @@ ebnm_unimodal_nonnegative <- function(x,
 #'
 #' @param scale The nonparametric family of nonnpositive unimodal distributions is
 #'   approximated via a finite mixture of uniform distributions
-#'   \deqn{\pi_1 \text{Unif}(\mu - a_1, \mu)
-#'   + \ldots + \pi_K \text{Unif}(\mu - a_K, \mu),}
+#'   \deqn{\pi_1 \mathrm{Unif}(\mu - a_1, \mu)
+#'   + \ldots + \pi_K \mathrm{Unif}(\mu - a_K, \mu),}
 #'   where parameters \eqn{\pi_k} are estimated and the grid
 #'   of lengths \eqn{(a_1, \ldots, a_K)} is fixed in advance. By
 #'   making the grid sufficiently dense, one can obtain an arbitrarily good

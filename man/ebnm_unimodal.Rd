@@ -29,8 +29,8 @@ not allowed.}
 
 \item{scale}{The nonparametric family of unimodal distributions is
 approximated via a finite mixture of uniform distributions
-\deqn{\pi_1^l \text{Unif}(\mu - a_1, \mu) + \pi_1^u \text{Unif}(\mu, \mu + a_1)
-+ \ldots + \pi_K^l \text{Unif}(\mu - a_K, \mu) + \pi_K^u \text{Unif}(\mu, \mu + a_K),}
+\deqn{\pi_1^l \mathrm{Unif}(\mu - a_1, \mu) + \pi_1^u \mathrm{Unif}(\mu, \mu + a_1)
++ \ldots + \pi_K^l \mathrm{Unif}(\mu - a_K, \mu) + \pi_K^u \mathrm{Unif}(\mu, \mu + a_K),}
 where parameters \eqn{\pi_k^l} and \eqn{\pi_k^u} are estimated and the grid
 of lengths \eqn{(a_1, \ldots, a_K)} is fixed in advance. By
 making the grid sufficiently dense, one can obtain an arbitrarily good

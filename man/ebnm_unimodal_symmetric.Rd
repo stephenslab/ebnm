@@ -29,8 +29,8 @@ not allowed.}
 
 \item{scale}{The nonparametric family of symmetric unimodal distributions is
 approximated via a finite mixture of uniform distributions
-\deqn{\pi_1 \text{Unif}(\mu - a_1, \mu + a_1)
-+ \ldots + \pi_K \text{Unif}(\mu - a_K, \mu + a_K),}
+\deqn{\pi_1 \mathrm{Unif}(\mu - a_1, \mu + a_1)
++ \ldots + \pi_K \mathrm{Unif}(\mu - a_K, \mu + a_K),}
 where parameters \eqn{\pi_k} are estimated and the grid
 of (half-)lengths \eqn{(a_1, \ldots, a_K)} is fixed in advance. By
 making the grid sufficiently dense, one can obtain an arbitrarily good

@@ -34,12 +34,12 @@ approximating mixture of normal distributions.}
 the solution obtained using the approximating mixture to the exact
 solution. More precisely, the scale parameter is set such that given
 the exact MLE
-\deqn{\hat{g} := \argmax_{g \in G} L(g),}
+\deqn{\hat{g} := \mathrm{argmax}_{g \in G} L(g),}
 where \eqn{G} is the full nonparametric family, and given the MLE for the
 approximating family \eqn{\tilde{G}}
-\deqn{\tilde{g} := \argmax_{g \in \tilde{G}} L(g),}
+\deqn{\tilde{g} := \mathrm{argmax}_{g \in \tilde{G}} L(g),}
 we have that
-\deqn{\text{KL} (\hat{g} \ast N(0, s^2) \mid \tilde{g} \ast N(0, s^2)) \le \kappa,}
+\deqn{\mathrm{KL}(\hat{g} \ast N(0, s^2) \mid \tilde{g} \ast N(0, s^2)) \le \kappa,}
 where \eqn{\ast \ N(0, s^2)} denotes convolution with the normal error
 distribution (the derivation of the bound assumes homoskedastic
 observations). For details, see \strong{References} below.}
