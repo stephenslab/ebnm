@@ -162,7 +162,7 @@ plot.ebnm <- function(x,
     if (length(unique(df1$label)) > 1) {
       p1 <- ggplot(df1, aes(x = obs, y = pm, color = label)) +
         geom_point() +
-        scale_color_brewer(type = "qual") +
+        scale_color_brewer(palette = "Set1") +
         labs(x = "Observations", y = "Posterior means",
              color = "Fitted EBNM models")
     } else {
@@ -198,7 +198,7 @@ plot.ebnm <- function(x,
     if (length(unique(df2$label)) > 1) {
       p2 <- ggplot(df2, aes(x = x, y = y, color = label)) +
         geom_line() +
-        scale_color_brewer(type = "qual") +
+        scale_color_brewer(palette = "Set1") +
         labs(x = expression(theta), y = "Cumulative prior probability",
              color = "Fitted EBNM models", title = "CDFs of fitted priors")
     } else {
