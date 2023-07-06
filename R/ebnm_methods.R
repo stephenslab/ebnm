@@ -167,7 +167,7 @@ plot.ebnm <- function(x,
              color = "Fitted EBNM models")
     } else {
       p1 <- ggplot(df1, aes(x = obs, y = pm)) +
-        geom_point() +
+        geom_point(color = "dodgerblue") +
         labs(x = "Observations", y = "Posterior means",
              title = paste("Log likelihood for model:", round(llik, 2)))
     }
@@ -203,7 +203,7 @@ plot.ebnm <- function(x,
              color = "Fitted EBNM models", title = "CDFs of fitted priors")
     } else {
       p2 <- ggplot(df2, aes(x = x, y = y)) +
-        geom_line() +
+        geom_line(color = "dodgerblue") +
         labs(x = expression(theta), y = "Cumulative prior probability",
              title = "CDF of fitted prior")
     }
