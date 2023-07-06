@@ -36,8 +36,8 @@
 #' \describe{
 #'   \item{FanGraphsID}{The hitter's FanGraphs identifier.}
 #'   \item{Name}{The hitter's name.}
-#'   \item{Team}{The hitter's MLB team, given as a three-letter code, or three
-#'   dashes (\code{---}) if the hitter played for multiple teams.}
+#'   \item{Team}{The hitter's MLB team (given as a three-letter code) or
+#'   \code{NA} if the hitter played for multiple teams.}
 #'   \item{PA}{The hitter's number of plate appearances over the 2022 season.}
 #'   \item{x}{The hitter's wOBA over the 2022 season.}
 #'   \item{s}{The standard error for the hitter's wOBA (see above).}
