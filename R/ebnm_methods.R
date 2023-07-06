@@ -369,7 +369,7 @@ print_it <- function(x, digits, summary) {
   if (!is.null(x$log_likelihood)) {
     cat(attr(x$log_likelihood, "df"),
         "degrees of freedom were used to estimate the model.\n")
-    cat("The likelihood is",
+    cat("The log likelihood is",
         paste0(round(as.numeric(x$log_likelihood), digits = digits), ".\n\n"))
   }
 
