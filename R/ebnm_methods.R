@@ -684,7 +684,7 @@ confint.ebnm <- function(object, parm, level = 0.95, nsim = 1000, ...) {
 
   samp <- simulate(object, nsim = nsim, ...)
   if (!missing(parm)) {
-    samp <- samp[, parm]
+    samp <- samp[, parm, drop = FALSE]
   }
   samp <- apply(samp, 2, sort)
 
