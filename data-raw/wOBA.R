@@ -49,7 +49,7 @@ wOBA <- fg_data %>%
     Team,
     PA = PA,
     x = wOBA,
-    s = sqrt(wOBA_var / PA)
+    s = round(sqrt(wOBA_var / PA), 3)
   ) %>%
   mutate(Team = as.factor(ifelse(Team == "- - -", NA, Team)))
 

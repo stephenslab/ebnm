@@ -162,7 +162,7 @@ plot.ebnm <- function(x,
     if (length(unique(df1$label)) > 1) {
       p1 <- ggplot(df1, aes(x = obs, y = pm, color = label)) +
         geom_point() +
-        scale_color_brewer(type = "qual") +
+        scale_color_brewer(palette = "Set1") +
         labs(x = "Observations", y = "Posterior means",
              color = "Fitted EBNM models")
     } else {
@@ -198,7 +198,7 @@ plot.ebnm <- function(x,
     if (length(unique(df2$label)) > 1) {
       p2 <- ggplot(df2, aes(x = x, y = y, color = label)) +
         geom_line() +
-        scale_color_brewer(type = "qual") +
+        scale_color_brewer(palette = "Set1") +
         labs(x = expression(theta), y = "Cumulative prior probability",
              color = "Fitted EBNM models", title = "CDFs of fitted priors")
     } else {
@@ -256,7 +256,7 @@ summary.ebnm <- function(object, ...) {
   g <- object[[g_ret_str()]]
 
   if (!is.null(g)) {
-    retlist$prior_class <- class(g)
+    retlist$prior_family <- infer_prior_family(g)
 
     # Identify pointmass.
     if (inherits(g, "normalmix")) {
@@ -283,7 +283,7 @@ summary.ebnm <- function(object, ...) {
       retlist$pointmass_weight <- NA
     }
   } else {
-    retlist$prior_class <- NA
+    retlist$prior_family <- NA
     retlist$pointmass_location <- NA
     retlist$pointmass_weight <- NA
   }
@@ -355,8 +355,9 @@ print_it <- function(x, digits, summary) {
     cat("\n")
   }
 
-  if (!is.null(x$prior_class)) {
-    cat("The fitted prior is of class", paste0("_", x$prior_class, "_.\n"))
+  if (!is.null(x$prior_family) && x$prior_family != "npmle") {
+    cat("The fitted prior belongs to prior family",
+        paste0("_", x$prior_family, "_.\n"))
     if (!is.null(x$pointmass_location)) {
       cat("It includes a point mass at",
           signif(x$pointmass_location, digits = digits),
@@ -389,7 +390,7 @@ print_it <- function(x, digits, summary) {
       cat("A posterior sampler _is_ available and can be accessed using",
           "method simulate().\n")
     } else {
-      cat("A posterior sampler is _not_ available.\nOne can be obtained using",
+      cat("A posterior sampler is _not_ available.\nOne can be added via",
           "function ebnm_add_sampler().\n")
     }
     cat("\n")
@@ -684,7 +685,7 @@ confint.ebnm <- function(object, parm, level = 0.95, nsim = 1000, ...) {
 
   samp <- simulate(object, nsim = nsim, ...)
   if (!missing(parm)) {
-    samp <- samp[, parm]
+    samp <- samp[, parm, drop = FALSE]
   }
   samp <- apply(samp, 2, sort)
 
