@@ -306,37 +306,7 @@ ebnm <- function(x,
   #   g_init. This functionality is not currently documented, and has thus not
   #   been tested exhaustively, but it is needed by method predict.
   if (missing(prior_family) && !is.null(g_init)) {
-    if (inherits(g_init, c("unimix", "normalmix"))) {
-      if (inherits(g_init, "normalmix")
-          && length(g_init$sd) == 1
-          && g_init$sd == Inf) {
-        prior_family <- "flat"
-      } else {
-        prior_family <- "ash"
-      }
-    } else if (inherits(g_init, "horseshoe")) {
-      prior_family <- "horseshoe"
-    } else if (inherits(g_init, "laplacemix")) {
-      if (length(g_init$scale) == 2
-          && g_init$scale[1] == 0
-          && g_init$mean[1] == g_init$mean[2]) {
-        prior_family <- "point_laplace"
-      }
-    } else if (inherits(g_init, "gammamix")) {
-      if (length(g_init$scale) == 2
-          && g_init$scale[1] == 0
-          && g_init$shape[1] == 1
-          && g_init$shape[2] == 1
-          && g_init$shift[1] == g_init$shift[2])
-      prior_family <- "point_exponential"
-    } else if (inherits(g_init, "tnormalmix")) {
-      if (length(g_init$mean) == 2
-          && g_init$mean[1] == 0
-          && g_init$sd[1] == 0
-          && g_init$a[2] == 0
-          && g_init$b[2] == Inf)
-      prior_family <- "generalized_binary"
-    }
+    prior_family <- infer_prior_family(g_init)
   }
 
   prior_family <- match.arg(prior_family)
