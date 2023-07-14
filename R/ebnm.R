@@ -371,7 +371,9 @@ ebnm_workhorse <- function(x,
   if (is.null(control)) {
     control <- list()
   }
-  if (lfsr_arg_str() %in% output && mode != 0) {
+  if (lfsr_arg_str() %in% output
+      && prior_family != "generalized_binary" # gb mode is always zero
+      && mode != 0) {
     warning("Since they're not well defined for nonzero modes, local false ",
             "sign rates won't be returned.")
     output <- setdiff(output, lfsr_arg_str())
