@@ -7,3 +7,4 @@
 ^Meta$
 ^appveyor\.yml$
 ^data-raw$
+^_pkgdown\.yml$
