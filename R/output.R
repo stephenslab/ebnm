@@ -83,6 +83,10 @@ add_data_to_retlist <- function(retlist, x, s) {
 }
 
 add_posterior_to_retlist <- function(retlist, posterior, output, x) {
+  if (!posterior_in_output(output)) {
+    return(retlist)
+  }
+
   df <- list()
   if (pm_arg_str() %in% output) {
     df[[pm_ret_str()]] <- posterior$mean
