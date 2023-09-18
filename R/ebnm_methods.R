@@ -356,8 +356,9 @@ print_it <- function(x, digits, summary) {
   }
 
   if (!is.null(x$prior_family) && x$prior_family != "npmle") {
-    cat("The fitted prior belongs to prior family",
-        paste0("_", x$prior_family, "_.\n"))
+    cat("The fitted prior belongs to the",
+        paste0("_", x$prior_family, "_"),
+        "prior family.\n")
     if (!is.null(x$pointmass_location)) {
       cat("It includes a point mass at",
           signif(x$pointmass_location, digits = digits),
