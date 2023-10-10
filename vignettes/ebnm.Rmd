@@ -1,7 +1,5 @@
 ---
 title: "ebnm"
-author: "Jason Willwerscheid, Peter Carbonetto, and Matthew Stephens"
-date: "10/10/2023"
 output: 
   bookdown::html_document2:
     toc: true
