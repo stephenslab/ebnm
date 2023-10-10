@@ -13,7 +13,8 @@
 #'   log likelihood equal to the sum of the optimal log likelihoods for each
 #'   separate problem.
 #'
-#' @inherit ebnm
+#' @inheritParams ebnm
+#' @inherit ebnm return
 #'
 #' @param group A vector of character strings that gives the group to which each
 #'   observation belongs. It must have the same length as argument \code{x}. For

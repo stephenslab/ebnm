@@ -151,12 +151,6 @@ ebnm.group.res <- ebnm_group(
 )
 
 }
-\references{
-Jason Willwerscheid and Matthew Stephens (2021).
-  \code{ebnm}: an \code{R} Package for solving the empirical Bayes
-  normal means problem using a variety of prior families. arXiv,
-  2110.00152, 2021.
-}
 \seealso{
 \code{\link{ebnm}}
 }

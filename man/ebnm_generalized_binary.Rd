@@ -109,7 +109,13 @@ Solves the empirical Bayes normal means (EBNM) problem using the family of
   the mode of the normal component).
   Identical to function \code{\link{ebnm}} with argument
   \code{prior_family = "generalized_binary"}.
-  For details about the model, see \code{\link{ebnm}}.
+  For details, see Liu et al. (2023), cited in \strong{References} below.
+}
+\references{
+Yusha Liu, Peter Carbonetto, Jason Willwerscheid, Scott A Oakes, Kay F Macleod,
+  and Matthew Stephens (2023). Dissecting tumor transcriptional heterogeneity
+  from single-cell RNA-seq data by generalized binary covariance decomposition.
+  bioRxiv 2023.08.15.553436.
 }
 \seealso{
 See \code{\link{ebnm}} for examples of usage and model details.
