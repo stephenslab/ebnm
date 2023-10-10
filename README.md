@@ -89,11 +89,10 @@ fitness for a particular purpose**.
 
 ## Quick Start
 
-Install the ebnm package using `devtools`:
+Install the ebnm package:
 
 ```R
-library(devtools)
-install_github("stephenslab/ebnm")
+install.packages("ebnm")
 ```
 
 Load `ebnm` into your R environment, and get help:
@@ -103,17 +102,12 @@ library(ebnm)
 ?ebnm
 ```
 
-Try an example
+Try an example:
+
 ```R
 set.seed(1)
-theta = c(rep(0,500),rnorm(500)) # true means
+theta = c(rep(0, 500), rnorm(500)) # true means
 x = theta + rnorm(1000) # observations with standard error 1
-x.ebnm = ebnm_point_normal(x, 1)
-plot(x.ebnm)
+ebnm_res = ebnm_point_normal(x, 1)
+plot(ebnm_res)
 ```
-
-## Credits 
-
-The `ebnm_point_laplace` function is derived from ideas and code in the *EbayesThresh* package
-by I Johnstone and B Silverman.
-
