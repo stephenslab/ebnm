@@ -4,6 +4,14 @@ navbar:
       href: index.html
     - text: "Functions"
       href: reference/index.html
+    - text: "Getting Started"
+      href: articles/ebnm.html
   right:
     - text: "Source"
       href: https://github.com/stephenslab/ebnm
+
+articles:
+- title: Getting Started
+  navbar: ~
+  contents:
+  - ebnm
