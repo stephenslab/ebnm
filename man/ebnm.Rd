@@ -227,7 +227,11 @@ Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
       \item{\code{flat}}{The "non-informative" improper uniform prior, which
         yields posteriors \deqn{\theta_j | x_j, s_j \sim N(x_j, s_j^2).}}
       \item{\code{point_mass}}{The family of point masses \eqn{\delta_\mu}.
-        Posteriors are likewise point masses at \eqn{\mu}.}
+        Posteriors are point masses at \eqn{\mu}.}
+      \item{\code{ash}}{Calls into function \code{\link[ashr]{ash}} in
+        package \code{ashr}. Can be used to make direct comparisons of
+        \code{ebnm} and \code{ashr} implementations of prior families such as
+        scale mixtures of normals and the NPMLE.}
     }
 }
 \section{Functions}{
