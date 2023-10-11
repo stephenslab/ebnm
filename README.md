@@ -9,9 +9,9 @@ The `ebnm` package provides functions to solve the (heteroskedastic)
 "empirical Bayes normal means" (EBNM) problem for various choices of
 prior family. The model is
 
-$$ x_j \, | \, θ_j,\, s_j \sim N(θ_j,\, s_j^2) $$
+$$ x_j \ | \ θ_j,\ s_j \sim N(θ_j,\ s_j^2) $$
 
-$$ θ_j \, | \, s_j \sim g \in \mathcal{G} $$
+$$ θ_j \ | \ s_j \sim g \in \mathcal{G} $$
 
 where the distribution $g$ is to be estimated. The distribution $g$ is
 referred to as the "prior distribution" for $θ$ and $\mathcal{G}$ is a specified
@@ -25,9 +25,9 @@ $$ \hat{g} := \arg\max_{g \in \mathcal{G}}\ L(g) $$
 
 where
 
-$$ L(g):= \Pi_j\ \int\, p(x_j \, | \, θ_j,\, s_j)\, g(dθ_j) $$
+$$ L(g):= \Pi_j\ \int\ p(x_j \ | \ θ_j,\ s_j)\ g(dθ_j) $$
 
-Second, compute the posterior distributions $p(θ_j \, | \, x_j,\, s_j,\, \hat{g})$
+Second, compute the posterior distributions $p(θ_j \ | \ x_j,\ s_j,\ \hat{g})$
 and/or summaries such as posterior means and posterior second moments.
 
 The prior families that have been implemented include:
