@@ -1,6 +1,6 @@
 ## Scale mixture of normal grids ----------------------------------------------
 
-log.add <- function(log.x, log.y) {
+log_add <- function(log.x, log.y) {
   c <- pmax(log.x, log.y)
   return(log(exp(log.x - c) + exp(log.y - c)) + c)
 }
@@ -15,7 +15,7 @@ smnKLdiv <- function(s2, omega, m) {
     logf.dens <- dnorm(x, mean = 0, sd = sqrt(s2), log = TRUE)
     logg1.dens <- log(omega) + dnorm(x, mean = 0, sd = 1, log = TRUE)
     logg2.dens <- log(1 - omega) + dnorm(x, mean = 0, sd = sqrt(m), log = TRUE)
-    logg.dens <- log.add(logg1.dens, logg2.dens)
+    logg.dens <- log_add(logg1.dens, logg2.dens)
     return(f.dens * (logf.dens - logg.dens))
   }
   int.res <- integrate(
@@ -31,7 +31,7 @@ smnKLdiv <- function(s2, omega, m) {
 #
 #' @importFrom stats optimize
 #'
-min.smnKLdiv <- function(s2, m) {
+min_smnKLdiv <- function(s2, m) {
   optres <- optimize(
     function(omega) smnKLdiv(s2, omega, m),
     interval = c(0, 1),
@@ -46,14 +46,14 @@ min.smnKLdiv <- function(s2, m) {
 #'
 ub.smnKLdiv <- function(m) {
   optres <- optimize(
-    function(s2) min.smnKLdiv(s2, m)$objective,
+    function(s2) min_smnKLdiv(s2, m)$objective,
     interval = c(1, m),
     maximum = TRUE
   )
   retlist <- list(
     KL.div = optres$objective,
     opt.s2 = optres$maximum,
-    opt.omega = min.smnKLdiv(optres$maximum, m)$minimum
+    opt.omega = min_smnKLdiv(optres$maximum, m)$minimum
   )
   return(retlist)
 }
@@ -62,7 +62,7 @@ ub.smnKLdiv <- function(m) {
 ## Symmetric unimodal grids ---------------------------------------------------
 
 # Returns log(x - y), so assumes x > y.
-log.minus <- function(log.x, log.y) {
+log_minus <- function(log.x, log.y) {
   return(log(1 - exp(log.y - log.x)) + log.x)
 }
 
@@ -75,7 +75,7 @@ UN.logdens <- function(x, a) {
   if (a == 0) {
     retval <- dnorm(x, log = TRUE)
   } else {
-    retval <- log.minus(
+    retval <- log_minus(
       pnorm(a - x, log.p = TRUE),
       pnorm(-a - x, log.p = TRUE)
     ) - log(2 * a)
@@ -94,7 +94,7 @@ symmKLdiv <- function(a, omega, a.left, a.right) {
     logf.dens <- UN.logdens(x, a = a)
     logg1.dens <- log(omega) + UN.logdens(x, a = a.left)
     logg2.dens <- log(1 - omega) + UN.logdens(x, a = a.right)
-    logg.dens <- log.add(logg1.dens, logg2.dens)
+    logg.dens <- log_add(logg1.dens, logg2.dens)
     return(f.dens * (logf.dens - logg.dens))
   }
   int.res <- integrate(
@@ -110,7 +110,7 @@ symmKLdiv <- function(a, omega, a.left, a.right) {
 #
 #' @importFrom stats optimize
 #'
-min.symmKLdiv <- function(a, a.left, a.right) {
+min_symmKLdiv <- function(a, a.left, a.right) {
   optres <- optimize(
     function(omega) symmKLdiv(a, omega, a.left, a.right),
     interval = c(0, 1),
@@ -125,14 +125,14 @@ min.symmKLdiv <- function(a, a.left, a.right) {
 #'
 ub.symmKLdiv <- function(a.left, a.right) {
   optres <- optimize(
-    function(a) min.symmKLdiv(a, a.left, a.right)$objective,
+    function(a) min_symmKLdiv(a, a.left, a.right)$objective,
     interval = c(a.left, a.right),
     maximum = TRUE
   )
   retlist <- list(
     KL.div = optres$objective,
     opt.a = optres$maximum,
-    opt.omega = min.symmKLdiv(optres$maximum, a.left, a.right)$minimum
+    opt.omega = min_symmKLdiv(optres$maximum, a.left, a.right)$minimum
   )
   return(retlist)
 }
@@ -217,7 +217,7 @@ npmleKLdiv <- function(d, s2) {
     logf.dens <- dnorm(x, mean = 0, sd = 1, log = TRUE)
     logg1.dens <- log(0.5) + dnorm(x, mean = -d / 2, sd = sqrt(s2 + 1), log = TRUE)
     logg2.dens <- log(0.5) + dnorm(x, mean = d / 2, sd = sqrt(s2 + 1), log = TRUE)
-    logg.dens <- log.add(logg1.dens, logg2.dens)
+    logg.dens <- log_add(logg1.dens, logg2.dens)
     return(f.dens * (logf.dens - logg.dens))
   }
   int.res <- integrate(
@@ -233,7 +233,7 @@ npmleKLdiv <- function(d, s2) {
 #
 #' @importFrom stats optimize
 #'
-min.npmleKLdiv <- function(d) {
+min_npmleKLdiv <- function(d) {
   optres <- optimize(
     function(s2) npmleKLdiv(d, s2),
     interval = c(0, d^2),
