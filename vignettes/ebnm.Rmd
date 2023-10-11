@@ -1,11 +1,11 @@
 ---
-title: "Getting Started"
+title: Getting started with the ebnm package
 output: 
   bookdown::html_document2:
     toc: true
 bibliography: ebnm.bib
 vignette: >
-  %\VignetteIndexEntry{Getting Started}
+  %\VignetteIndexEntry{Getting started with the ebnm package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
