@@ -616,7 +616,7 @@ ebnm_unimodal_nonpositive <- function(x,
 #'   the mode of the normal component).
 #'   Identical to function \code{\link{ebnm}} with argument
 #'   \code{prior_family = "generalized_binary"}.
-#'   For details about the model, see \code{\link{ebnm}}.
+#'   For details, see Liu et al. (2023), cited in \strong{References} below.
 #'
 #' @inherit ebnm_point_normal
 #'
@@ -663,6 +663,12 @@ ebnm_unimodal_nonpositive <- function(x,
 #'        \item{\code{mu_range}}{A vector of length two specifying lower and
 #'          upper bounds for possible values of \eqn{\mu}.}
 #'      }
+#'
+#' @references
+#' Yusha Liu, Peter Carbonetto, Jason Willwerscheid, Scott A Oakes, Kay F Macleod,
+#'   and Matthew Stephens (2023). Dissecting tumor transcriptional heterogeneity
+#'   from single-cell RNA-seq data by generalized binary covariance decomposition.
+#'   bioRxiv 2023.08.15.553436.
 #'
 #' @export
 #'

@@ -170,8 +170,8 @@ An \code{ebnm} object. Depending on the argument to \code{output}, the
 }
 \description{
 Solves the empirical Bayes normal means (EBNM) problem using a specified
-  family of priors. For a comprehensive introduction to the package, see
-  the paper cited in \strong{References} below.
+  family of priors. For an article-length introduction to the package, see
+  Willwerscheid and Stephens (2021), cited in \strong{References} below.
 }
 \details{
 Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
@@ -216,7 +216,8 @@ Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
         distributions with support constrained to be less than the mode.}
       \item{\code{generalized_binary}}{The family of mixtures where one
         component is a point mass at zero and the other is a truncated
-        normal distribution with lower bound zero and nonzero mode.}
+        normal distribution with lower bound zero and nonzero mode. See
+        Liu et al. (2023), cited in \strong{References} below.}
       \item{\code{npmle}}{The family of all distributions.}
       \item{\code{deconvolver}}{A non-parametric exponential family with
         a natural spline basis. Like \code{npmle}, there is no unimodal
@@ -227,7 +228,11 @@ Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
       \item{\code{flat}}{The "non-informative" improper uniform prior, which
         yields posteriors \deqn{\theta_j | x_j, s_j \sim N(x_j, s_j^2).}}
       \item{\code{point_mass}}{The family of point masses \eqn{\delta_\mu}.
-        Posteriors are likewise point masses at \eqn{\mu}.}
+        Posteriors are point masses at \eqn{\mu}.}
+      \item{\code{ash}}{Calls into function \code{\link[ashr]{ash}} in
+        package \code{ashr}. Can be used to make direct comparisons of
+        \code{ebnm} and \code{ashr} implementations of prior families such as
+        scale mixtures of normals and the NPMLE.}
     }
 }
 \section{Functions}{
@@ -283,8 +288,12 @@ unimodal.res <- ebnm_unimodal(x, s, control = list(verbose = TRUE))
 \references{
 Jason Willwerscheid and Matthew Stephens (2021).
   \code{ebnm}: an \code{R} Package for solving the empirical Bayes
-  normal means problem using a variety of prior families. arXiv,
-  2110.00152, 2021.
+  normal means problem using a variety of prior families. arXiv:2110.00152.
+
+Yusha Liu, Peter Carbonetto, Jason Willwerscheid, Scott A Oakes, Kay F Macleod,
+  and Matthew Stephens (2023). Dissecting tumor transcriptional heterogeneity
+  from single-cell RNA-seq data by generalized binary covariance decomposition.
+  bioRxiv 2023.08.15.553436.
 }
 \seealso{
 A plotting method is available for \code{ebnm} objects: see
