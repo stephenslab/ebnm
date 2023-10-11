@@ -2,7 +2,7 @@
 title: Getting started with the ebnm package
 output: 
   bookdown::html_document2:
-    toc: true
+    toc: yes
 bibliography: ebnm.bib
 vignette: >
   %\VignetteIndexEntry{Getting started with the ebnm package}
@@ -161,10 +161,10 @@ skill. Column "s"  provides standard errors.
 
 Next, we visualize the overall distribution of wOBAs:
 
-```{r}
+```{r, fig.height=3, fig.width=4}
 library(ggplot2)
 ggplot(wOBA, aes(x = x)) +
-  geom_histogram(bins = 64, color = "black") +
+  geom_histogram(bins = 64, color = "white",fill = "black") +
   theme_classic()
 ```
 
@@ -224,7 +224,7 @@ The `plot()` method visualizes results, comparing
 the "observed" values $x_i$ (the initial wOBA estimates) against the
 empirical Bayes posterior mean estimates $\hat{\theta}_i$:
 
-```{r}
+```{r, fig.height=3, fig.width=3.5}
 plot(fit_normal)
 ```
 
@@ -237,7 +237,7 @@ plot can conveniently be customized using `ggplot2` syntax. For example,
 one can vary the color of the points by the number of plate
 appearances:
 
-```{r}
+```{r, fig.height=3, fig.width=4}
 plot(fit_normal) +
   geom_point(aes(color = sqrt(wOBA$PA))) +
   labs(x = "wOBA", y = "EB estimate of true wOBA skill", 
@@ -294,7 +294,7 @@ the fitted models simply by including both models as arguments to the
 `plot()` method (we also use the `subset` argument to focus on the results for
 Judge and other players with the most plate appearances):
 
-```{r}
+```{r, fig.width=5.25, fig.height=3}
 top50 <- order(wOBA$PA, decreasing = TRUE)
 top50 <- top50[1:50]
 plot(fit_normal, fit_unimodal, subset = top50)
@@ -331,14 +331,14 @@ interested in understanding the differences in shrinkage behaviour for
 the largest wOBAs such as Judge's, we create a second plot that zooms
 in on wOBAs over .350:
 
-```{r, fig.width=10}
+```{r, fig.height=3, fig.width=8}
 library(cowplot)
 p1 <- plot(fit_normal, fit_unimodal, incl_cdf = TRUE, incl_pm = FALSE) +
   xlim(c(.250, .350)) +
   guides(color = "none")
 p2 <- plot(fit_normal, fit_unimodal, incl_cdf = TRUE, incl_pm = FALSE) +
   lims(x = c(.350, .450), y = c(0.95, 1))
-plot_grid(p1, p2, nrow = 1, ncol = 2)
+plot_grid(p1, p2, nrow = 1, ncol = 2, rel_widths = c(3,5))
 ```
 
 The plot on
@@ -413,7 +413,7 @@ optimization can help to pinpoint these issues.
 
 Next, we visually compare the three fits obtained so far:
 
-```{r}
+```{r, fig.height=3, fig.width=5}
 plot(fit_normal, fit_unimodal, fit_npmle, incl_cdf = TRUE, subset = top50)
 ```
 
@@ -481,7 +481,7 @@ To address this issue, `deconvolveR` package [@NarasimhanEfron]
 uses a penalized likelihood that encourages "smooth" priors $\hat{g}$; that is, priors $\hat{g}$ for
 which few of the mixture proportions are zero:
 
-```{r}
+```{r, fig.height=3, fig.width=3}
 fit_deconv <- ebnm_deconvolver(x / s, output = ebnm_output_all()) 
 plot(fit_deconv, incl_cdf = TRUE, incl_pm = FALSE)
 ```
