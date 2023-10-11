@@ -1,7 +1,7 @@
 ---
 title: Getting started with the ebnm package
 output: 
-  bookdown::html_document2:
+  rmarkdown::html_vignette:
     toc: yes
 bibliography: ebnm.bib
 vignette: >
@@ -21,7 +21,7 @@ Given $n$ observations $x_i$ with known standard deviations $s_i$,
 $i = 1, \dots, n$, the normal means model [@Robbins51; @efron1972limiting; @Stephens_NewDeal; 
   @bhadra2019lasso; @Johnstone; @lei-thesis] is
 \begin{equation}
-x_i \overset{\text{ind.}}{\sim} \mathcal{N}(\theta_i, s_i^2), (\#eq:nmmodel)
+x_i \overset{\text{ind.}}{\sim} \mathcal{N}(\theta_i, s_i^2),
 \end{equation}
 with the unknown (true) means $\theta_i$ to be estimated. Here and
 throughout, we use $\mathcal{N}(\mu, \sigma^2)$ to denote the normal
@@ -35,16 +35,15 @@ but also about how the means are collectively distributed
 [@Robbins56; @Morris; @Efron_Book; @Stephens_NewDeal].
 Specifically, the EB approach assumes that
 \begin{equation}
-\theta_i \overset{\text{ind.}}{\sim} g \in \mathcal{G}, (\#eq:nmprior)
+\theta_i \overset{\text{ind.}}{\sim} g \in \mathcal{G},
 \end{equation}
 where $g$ is a distribution to be estimated from the data, typically
 chosen from among some family of distributions $\mathcal{G}$ that is
 specified in advance. (Note that although $\mathcal{G}$ must be
 specified in advance, it can be arbitrarily flexible.) 
 
-The EB approach
-therefore involves fitting the model
-\@ref(eq:nmmodel)--\@ref(eq:nmprior) by first using all of the
+The empirical Bayes normal means model is
+therefore fit by first using all of the
 observations to estimate $g \in \mathcal{G}$, then using the
 estimated distribution $\hat{g}$ to compute posteriors for each mean
 $\theta_i$. Commonly, $g$ is estimated via maximum-likelihood, in
@@ -62,7 +61,6 @@ and we define ${\mathbf x} := (x_1, \ldots, x_n)$, ${\mathbf s}
 
 1. Compute posterior distributions 
 \begin{equation} 
-\label{eqn:post}
 p(\theta_i \mid x_i, s_i, \hat{g}) \propto 
 \hat{g}(\theta_i) \, p(x_i \mid \theta_i, s_i),
 \end{equation}
@@ -70,13 +68,11 @@ and/or summaries (posterior means, variances, etc.).
 
 We refer to this two-step process as "solving the EBNM problem." 
 The `ebnm` package provides a unified interface for efficiently solving
-the EBNM problem using a wide variety of prior families. For some prior
+the EBNM problem using a wide variety of prior families $\mathcal{G}$. For some prior
 families, it leverages code from existing packages; for others, it
 implements new model fitting algorithms with a mind toward speed and
-robustness. The end result is a comprehensive and user-friendly
-package for solving the EBNM problem. In this vignette, we demonstrate usage of
-the `ebnm` package in a real application where normal means models have been used:
-an analysis of weighted on-base averages for Major League Baseball players.
+robustness. In this vignette, we demonstrate usage of
+the `ebnm` package in an analysis of weighted on-base averages for Major League Baseball players.
 
 # Application: Weighted on-base averages
 
@@ -94,7 +90,7 @@ unlike competing metrics such as MLB's xwOBA [@xwoba] or Baseball
 Prospectus's DRC+ [@drcplus], can be calculated using publicly
 available data and methods.
 
-Initially proposed by [@Tango], wOBA assigns values 
+Initially proposed by @Tango, wOBA assigns values 
 ("weights") to hitting outcomes according to how much the outcome
 contributes on average to run production. For example, while
 batting average treats singles identically to home runs, wOBA
@@ -111,9 +107,9 @@ where $\mathbf{z}^{(i)} = (z_1^{(i)}, \ldots, z_7^{(i)})$ tallies
   hit-by-pitches, and outs) over the hitter's $n_i$ plate appearances
   (PAs). Modeling hitting outcomes as i.i.d.
 \begin{equation} 
-\mathbf{z}^{(i)} \sim \text{Multinomial}(n_i, {\boldsymbol\pi}^{(i)}), (\#eq:wobamultinom)
+\mathbf{z}^{(i)} \sim \text{Multinomial}(n_i, {\boldsymbol\pi}^{(i)}),
 \end{equation}
-where ${\boldsymbol\pi}^{(i)} = (\pi_1, \ldots, \pi_7^{(i)})$ is the vector of
+where ${\boldsymbol\pi}^{(i)} = (\pi_1^{(i)}, \ldots, \pi_7^{(i)})$ is the vector of
 "true" outcome probabilities for hitter $i$, we can regard $x_i$ as
 a point estimate for the hitter's "true wOBA skill"
 \begin{equation} 
@@ -123,8 +119,8 @@ Standard errors for the $x_i$'s can be estimated as
 \begin{equation}
 s_i^2 = \mathbf{w}^T \hat{\mathbf\Sigma}^{(i)} \mathbf{w}/n_i,
 \end{equation}
-where $\hat{\mathbf\Sigma}^{(i)}$ is the estimate of the covariance matrix
-for the multinomial model \@ref(eq:wobamultinom) obtained by
+where $\hat{\mathbf\Sigma}^{(i)}$ is the estimate of the multinomial covariance matrix
+obtained by
 setting ${\boldsymbol\pi} = \hat{\boldsymbol\pi}$, where
 \begin{equation} 
 \hat{\boldsymbol\pi}^{(i)} = \mathbf{z}^{(i)}/n_i.
@@ -133,7 +129,7 @@ setting ${\boldsymbol\pi} = \hat{\boldsymbol\pi}$, where
 sample sizes, we conservatively lower bound each standard error by
 the standard error that would be obtained by plugging in
 league-average event probabilities $\hat{\boldsymbol\pi}_{\mathrm{lg}} =
-\sum_{j=1}^N \mathbf{z}^{(i)}/ \sum_{j=1}^N n_i$, where $N$ is the
+\sum_{i=1}^N \mathbf{z}^{(i)}/ \sum_{i=1}^N n_i$, where $N$ is the
 number of hitters in the dataset.)
 
 The relative complexity of wOBA makes it well suited for analysis via
@@ -173,7 +169,7 @@ between .200 and .400. A few had very high
 wOBAs ($>$.500), while others had wOBAs at or near zero. A casual
 inspection of the data suggests that players with these very high (or
 very low) wOBAs were simply lucky (or unlucky). For example, the
-4 players with the highest wOBAs each had fewer than 16 PAs. It is very
+4 players with the highest wOBAs each had 16 PAs or fewer. It is very
 unlikely that they would have sustained this high level of production
 over a full season's worth of PAs.
 
@@ -300,7 +296,7 @@ top50 <- top50[1:50]
 plot(fit_normal, fit_unimodal, subset = top50)
 ```
 
-Indeed, this plot illustrates the ability of the
+This plot illustrates the ability of the
 unimodal prior to better adapt to the data: wOBA estimates for players
 with a lot of plate appearances are not adjusted quite so strongly
 toward the league average. To compare in more detail, we see for
@@ -375,8 +371,8 @@ with very few plate appearances.
 # Nonparametric prior families and advanced usage
 
 Above, we demonstrated how the `ebnm` package makes it is easy to
-perform EBNM analyses with different types of priors, then compare
-results across these different prior choices. Each prior family makes
+perform EBNM analyses with different types of priors, then compared
+results across two different choices of prior family. Each of these families makes
 different assumptions about the data which, *a priori*, may be
 more or less plausible. An alternative to prior families that make specific
 assumptions about the data is to use the prior family that contains *all* distributions $\mathcal{G}_{\mathrm{npmle}}$, which is in a sense "assumption free." Here we re-analyze the wOBA data set to illustrate the use of this prior family. Note that although nonparametric priors require specialized
@@ -406,7 +402,7 @@ fit_npmle <- ebnm(x, s, prior_family = "npmle",
 
 This output shows no issues with convergence of the optimization
 algorithm; the mix-SQP algorithm converged to the solution (up to
-numerical rounding error) in only 5 iterations. In some cases,
+numerical rounding error) in only six iterations. In some cases,
 convergence issues can arise when fitting nonparametric models to
 large or complex data sets, and revealing the details of the
 optimization can help to pinpoint these issues.
@@ -440,9 +436,8 @@ estimation of ${\boldsymbol\pi}$.)
 The default behaviour for nonparametric prior families is to choose $K$ such
 that the likelihood obtained using estimate $\hat{g}$ should be (on
 average) within one log-likelihood unit of the optimal estimate from
-among the entire nonparametric family $\mathcal{G}$ (that is, provided
-that the "true" prior is $g \in \mathcal{G}$; see
-@WillwerscheidDiss). Thus, a finer approximating grid should
+among the entire nonparametric family $\mathcal{G}$ [see
+@WillwerscheidDiss]. Thus, a finer approximating grid should
 not yield a large improvement in the log-likelihood.  We can check
 this by using `ebnm_scale_npmle()` to create a finer grid:
 
@@ -477,7 +472,7 @@ the NPMLE can sometimes yield degenerate interval estimates:
 confint(fit_npmle, level = 0.8, parm = "Aaron Judge")
 ```
 
-To address this issue, `deconvolveR` package [@NarasimhanEfron]
+To address this issue, the `deconvolveR` package [@NarasimhanEfron]
 uses a penalized likelihood that encourages "smooth" priors $\hat{g}$; that is, priors $\hat{g}$ for
 which few of the mixture proportions are zero:
 
@@ -486,9 +481,7 @@ fit_deconv <- ebnm_deconvolver(x / s, output = ebnm_output_all())
 plot(fit_deconv, incl_cdf = TRUE, incl_pm = FALSE)
 ```
 
-Indeed, the estimated prior $\hat{g}$ is much "smoother" than the NPMLE prior. 
-
-Note also that the
+Note, however, that the
 "true" means $\theta$ being estimated are $z$-scores rather
 than raw wOBA skill, as package `deconvolveR` fits a model to $z$-scores rather
 than observations and associated standard errors. While this is reasonable
@@ -502,4 +495,14 @@ These interval estimates do not match our basic intuitions;
 for example, a wOBA over .600 has never been sustained over a
 full season.
 
-# Bibliography
+# References
+
+<div id="refs"></div>
+
+# Session information
+
+The following R version and packages were used to generate this vignette:
+
+```{r}
+sessionInfo()
+```

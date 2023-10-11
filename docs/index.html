@@ -36,7 +36,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">ebnm</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0-63</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-0</span>
       </span>
     </div>
 
@@ -73,16 +73,16 @@
 </h1></div>
 <p><a href="https://app.travis-ci.com/github/stephenslab/ebnm" class="external-link"><img src="https://travis-ci.com/stephenslab/ebnm.svg?branch=master" alt="Travis Build Status"></a> <a href="https://ci.appveyor.com/project/pcarbo/ebnm" class="external-link"><img src="https://ci.appveyor.com/api/projects/status/l4u64gdn4noqlb1i?svg=true" alt="Appveyor Build status"></a> <a href="https://app.circleci.com/pipelines/github/stephenslab/ebnm" class="external-link"><img src="https://circleci.com/gh/stephenslab/ebnm.svg?style=svg" alt="CircleCI build status"></a> <a href="https://app.codecov.io/gh/stephenslab/ebnm" class="external-link"><img src="https://codecov.io/gh/stephenslab/ebnm/branch/master/graph/badge.svg" alt="codecov"></a></p>
 <p>The <code>ebnm</code> package provides functions to solve the (heteroskedastic) “empirical Bayes normal means” (EBNM) problem for various choices of prior family. The model is</p>
-<p>x_j | θ_j, s_j N(θ_j, s_j^2)</p>
-<p>θ_j | s_j g G</p>
-<p>where the distribution g is to be estimated. The distribution g is referred to as the “prior distribution” for θ and G is a specified family of prior distributions. Several options for G are implemented, some parametric and others non-parametric; see below for examples.</p>
-<p>Solving the EBNM problem involves two steps. First, estimate g G via maximum marginal likelihood, yielding an estimate</p>
-<p>:= _{g G} L(g)</p>
+<p><span class="math display"><em>x</em><sub><em>j</em></sub> | <em>θ</em><sub><em>j</em></sub>, <em>s</em><sub><em>j</em></sub> ∼ <em>N</em>(<em>θ</em><sub><em>j</em></sub>, <em>s</em><sub><em>j</em></sub><sup>2</sup>)</span></p>
+<p><span class="math display"><em>θ</em><sub><em>j</em></sub> | <em>s</em><sub><em>j</em></sub> ∼ <em>g</em> ∈ 𝒢</span></p>
+<p>where the distribution <span class="math inline"><em>g</em></span> is to be estimated. The distribution <span class="math inline"><em>g</em></span> is referred to as the “prior distribution” for <span class="math inline"><em>θ</em></span> and <span class="math inline">𝒢</span> is a specified family of prior distributions. Several options for <span class="math inline">𝒢</span> are implemented, some parametric and others non-parametric; see below for examples.</p>
+<p>Solving the EBNM problem involves two steps. First, estimate <span class="math inline"><em>g</em> ∈ 𝒢</span> via maximum marginal likelihood, yielding an estimate</p>
+<p><span class="math display"><em>ĝ</em> := arg max<sub><em>g</em> ∈ 𝒢</sub> <em>L</em>(<em>g</em>)</span></p>
 <p>where</p>
-<p>L(g):= ∏_j p(x_j | θ_j, s_j) g(dθ_j)</p>
-<p>Second, compute the posterior distributions p(θ_j | x_j, s_j, ) and/or summaries such as posterior means and posterior second moments.</p>
+<p><span class="math display"><em>L</em>(<em>g</em>) := <em>Π</em><sub><em>j</em></sub> ∫ <em>p</em>(<em>x</em><sub><em>j</em></sub> | <em>θ</em><sub><em>j</em></sub>, <em>s</em><sub><em>j</em></sub>) <em>g</em>(<em>d</em><em>θ</em><sub><em>j</em></sub>)</span></p>
+<p>Second, compute the posterior distributions <span class="math inline"><em>p</em>(<em>θ</em><sub><em>j</em></sub> | <em>x</em><sub><em>j</em></sub>, <em>s</em><sub><em>j</em></sub>, <em>ĝ</em>)</span> and/or summaries such as posterior means and posterior second moments.</p>
 <p>The prior families that have been implemented include:</p>
-<p>“point_normal”: The family of mixtures where one component is a point mass at μ and the other is a normal distribution centered at μ.</p>
+<p>“point_normal”: The family of mixtures where one component is a point mass at <span class="math inline"><em>μ</em></span> and the other is a normal distribution centered at <span class="math inline"><em>μ</em></span>.</p>
 <p>“point_laplace”: The family of mixtures where one component is a point mass at zero and the other is a double-exponential distribution.</p>
 <p>“point_exponential”: The family of mixtures where one component is a point mass at zero and the other is a (nonnegative) exponential distribution.</p>
 <p>“normal”: The family of normal distributions.</p>
@@ -94,7 +94,7 @@
 <p>“unimodal_nonpositive”: The family of unimodal distributions with support constrained to be less than the mode.</p>
 <p>“generalized_binary”: The family of mixtures where one component is a point mass at zero and the other is a truncated normal distribution with lower bound zero and nonzero mode.</p>
 <p>“npmle”: The family of all distributions.</p>
-<p>“deconvolver”: A non-parametric exponential family with a natural spline basis. Like npmle, there is no unimodal assumption, but whereas npmle produces spiky estimates for g, deconvolver estimates are much more regular. See Narasimhan and Efron (2020) for details.</p>
+<p>“deconvolver”: A non-parametric exponential family with a natural spline basis. Like npmle, there is no unimodal assumption, but whereas npmle produces spiky estimates for <span class="math inline"><em>g</em></span>, deconvolver estimates are much more regular. See Narasimhan and Efron (2020) for details.</p>
 <p>“flat”: A “non-informative” improper uniform prior.</p>
 <p>“point_mass”: The family of all point masses.</p>
 <div class="section level2">
@@ -107,18 +107,18 @@
 </h2>
 <p>Install the ebnm package:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ebnm"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ebnm"</span><span class="op">)</span></span></code></pre></div>
 <p>Load <code>ebnm</code> into your R environment, and get help:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stephenslab/ebnm" class="external-link">ebnm</a></span><span class="op">)</span>
-<span class="op">?</span><span class="va">ebnm</span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://stephenslab.github.io/ebnm/" class="external-link">ebnm</a></span><span class="op">)</span></span>
+<span><span class="op">?</span><span class="va">ebnm</span></span></code></pre></div>
 <p>Try an example:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-<span class="va">theta</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">500</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">500</span><span class="op">)</span><span class="op">)</span> <span class="co"># true means</span>
-<span class="va">x</span> <span class="op">=</span> <span class="va">theta</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">)</span> <span class="co"># observations with standard error 1</span>
-<span class="va">ebnm_res</span> <span class="op">=</span> <span class="fu"><a href="reference/ebnm_point_normal.html">ebnm_point_normal</a></span><span class="op">(</span><span class="va">x</span>, <span class="fl">1</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ebnm_res</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">theta</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">500</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">500</span><span class="op">)</span><span class="op">)</span> <span class="co"># true means</span></span>
+<span><span class="va">x</span> <span class="op">=</span> <span class="va">theta</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">1000</span><span class="op">)</span> <span class="co"># observations with standard error 1</span></span>
+<span><span class="va">ebnm_res</span> <span class="op">=</span> <span class="fu"><a href="reference/ebnm_point_normal.html">ebnm_point_normal</a></span><span class="op">(</span><span class="va">x</span>, <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ebnm_res</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
   </div>
