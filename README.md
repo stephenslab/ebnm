@@ -9,31 +9,31 @@ The `ebnm` package provides functions to solve the (heteroskedastic)
 "empirical Bayes normal means" (EBNM) problem for various choices of
 prior family. The model is
 
-x_j | θ_j, s_j \sim N(θ_j, s_j^2)
+$$ x_j | θ_j, s_j \sim N(θ_j, s_j^2) $$
 
-θ_j | s_j \sim g \in G 
+$$ θ_j | s_j \sim g \in \mathcal{G} $$
 
-where the distribution g is to be estimated. The distribution g is
-referred to as the "prior distribution" for θ and G is a specified
-family of prior distributions. Several options for G are implemented,
+where the distribution $g$ is to be estimated. The distribution $g$ is
+referred to as the "prior distribution" for $θ$ and $\mathcal{G}$ is a specified
+family of prior distributions. Several options for $\mathcal{G}$ are implemented,
 some parametric and others non-parametric; see below for examples.
 
-Solving the EBNM problem involves two steps. First, estimate g \in G
+Solving the EBNM problem involves two steps. First, estimate $g \in \mathcal{G}$
 via maximum marginal likelihood, yielding an estimate
 
-\hat{g}:= \arg\max_{g \in G} L(g)
+$$ \hat{g}:= \arg\max_{g \in \mathcal{G}} L(g) $$
 
 where
 
-L(g):= ∏_j \int p(x_j | θ_j, s_j) g(dθ_j)
+$$ L(g):= ∏_j \int p(x_j | θ_j, s_j) g(dθ_j) $$
 
-Second, compute the posterior distributions p(θ_j | x_j, s_j, \hat{g})
+Second, compute the posterior distributions $p(θ_j | x_j, s_j, \hat{g})$
 and/or summaries such as posterior means and posterior second moments.
 
 The prior families that have been implemented include:
 
 "point_normal":
-The family of mixtures where one component is a point mass at μ and the other is a normal distribution centered at μ.
+The family of mixtures where one component is a point mass at $μ$ and the other is a normal distribution centered at $μ$.
 
 "point_laplace":
 The family of mixtures where one component is a point mass at zero and the other is a double-exponential distribution.
@@ -69,7 +69,7 @@ The family of mixtures where one component is a point mass at zero and the other
 The family of all distributions.
 
 "deconvolver":
-A non-parametric exponential family with a natural spline basis. Like npmle, there is no unimodal assumption, but whereas npmle produces spiky estimates for g, deconvolver estimates are much more regular. See Narasimhan and Efron (2020) for details.
+A non-parametric exponential family with a natural spline basis. Like npmle, there is no unimodal assumption, but whereas npmle produces spiky estimates for $g$, deconvolver estimates are much more regular. See Narasimhan and Efron (2020) for details.
 
 "flat":
 A "non-informative" improper uniform prior.
