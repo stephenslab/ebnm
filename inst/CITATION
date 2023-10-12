@@ -1,6 +1,6 @@
 citHeader("To cite the ebnm package, please use:")
 
-citEntry(entry = "Article",
+bibentry(bibtype = "Article",
   title = paste("ebnm: an R Package for solving the empirical Bayes",
                 "normal means problem using a variety of prior families"),
   author = c(person("Jason Willwerscheid"),
