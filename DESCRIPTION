@@ -10,7 +10,7 @@ Authors@R: c(person("Jason", "Willwerscheid", role = "aut"),
                     email = "peter.carbonetto@gmail.com"),
              person("Andrew", "Goldstein", role = "ctb"),
              person("Yusha", "Liu", role = "ctb"))
-URL: https://stephenslab.github.io/ebnm/
+URL: https://github.com/stephenslab/ebnm
 BugReports: https://github.com/stephenslab/ebnm/issues
 Description: Provides simple, fast, and stable functions to fit the normal
     means model using empirical Bayes. For available models and details, see 
