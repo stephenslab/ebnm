@@ -307,6 +307,7 @@ pe_summres_untransformed <- function(x, s, w, a, mu, output) {
   if (result_in_output(output)) {
     post$mean  <- wpost * my_etruncnorm(0, Inf, x - s^2 * a, s)
     post$mean2 <- wpost * my_e2truncnorm(0, Inf, x - s^2 * a, s)
+    post$mean2 <- pmax(post$mean2, post$mean^2)
 
     if (any(is.infinite(s))) {
       post$mean[is.infinite(s)]  <- w / a
