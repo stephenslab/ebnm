@@ -129,7 +129,7 @@ gb_workhorse <- function(x,
 
           # update mu
           mu_new <- optim(
-            par = mu_init,
+            par = mu,
             fn = opt_fn,
             lower = mu_range[1],
             upper = mu_range[2],
