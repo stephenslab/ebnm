@@ -15,7 +15,7 @@ ebnm_generalized_binary_defaults <- function(x, s) {
   return(list(
     maxiter = 50,
     tol = 1e-3,
-    wlist = c(1e-5, 1e-2, 1e-1, 2.5e-1, 9e-1, 1),
+    wlist = c(1e-5, 1),
     mu_init = mu_init,
     mu_range = c(min_mu, max_mu)
   ))
@@ -82,10 +82,15 @@ gb_workhorse <- function(x,
     opt_list <- list(NULL)
     val_list <- rep(NA, length(wlist) - 1)
     for (k in 1:(length(wlist) - 1)) {
-      ### initialize g; due to the piecewise approach to optimization, g_init
-      ###   is ignored.
-      w <- (wlist[k] + wlist[k + 1]) / 2
-      mu <- mu_init
+      if (!is.null(g_init) &&
+          g_init$pi[2] >= wlist[k] &&
+          g_init$pi[2] <= wlist[k + 1]) {
+        w <- g_init$pi[2]
+        mu <- g_init$mean[2]
+      } else {
+        w <- (wlist[k] + wlist[k + 1]) / 2
+        mu <- mu_init
+      }
 
       ### update g
       iter <- 1
