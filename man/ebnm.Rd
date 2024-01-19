@@ -118,9 +118,9 @@ approximations rather than exact expressions for the Hessian and (for
 the latter two) the gradient. The default option is \code{"nohess_nlm"}.}
 
 \item{control}{A list of control parameters to be passed to the optimization
-function. \code{\link[stats]{optimize}} is used for normal and horseshoe
-prior families, while \code{\link[stats]{nlm}} is used for parametric
-families unless parameter \code{optmethod} specifies otherwise.
+function. \code{\link[stats]{optimize}} is used for normal, horseshoe, and
+generalized binary prior families. Other parametric families use
+\code{\link[stats]{nlm}} unless parameter \code{optmethod} specifies otherwise.
 \code{\link[stats]{nlm}} is also used for the \code{deconvolveR} prior family.
 For ash families (including scale mixtures of normals, the NPMLE, and
 all \code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in

@@ -170,7 +170,7 @@ ebnm_scale_normalmix <- function(x,
 #'   approximating mixture of uniform distributions.
 #'
 #' @importFrom stats approx
-#' @importFrom magrittr `%>%`
+#' @importFrom magrittr %>%
 #' @importFrom rlang .data
 #' @importFrom dplyr filter arrange pull
 #'
