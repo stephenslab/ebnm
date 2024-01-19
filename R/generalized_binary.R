@@ -128,14 +128,12 @@ gb_workhorse <- function(x,
           }
 
           # update mu
-          mu_new <- optim(
-            par = mu,
-            fn = opt_fn,
-            lower = mu_range[1],
-            upper = mu_range[2],
-            method = "L-BFGS-B",
-            control = control
-          )$par
+          mu_new <- do.call(
+            optimize,
+            c(list(f = opt_fn,
+                   interval = mu_range),
+              control)
+          )$minimum
         }
 
         # check for stopping criterion
