@@ -158,18 +158,20 @@ ebnm_point_laplace <- function(x,
 
 #' Solve the EBNM problem using point-exponential priors
 #'
-#' Solves the empirical Bayes normal means (EBNM) problem using the family of
-#'   point-exponential priors (the family of mixtures where one component is a
-#'   point mass at \eqn{\mu} and the other is a (nonnegative) exponential
-#'   distribution with mode \eqn{\mu}). Identical to function \code{\link{ebnm}}
-#'   with argument \code{prior_family = "point_exponential"}. For details about
-#'   the model, see \code{\link{ebnm}}.
+#' Solves the empirical Bayes normal means (EBNM) problem using the
+#' family of point-exponential priors (the family of mixtures where
+#' one component is a point mass at \eqn{\mu} and the other is a
+#' (nonnegative) exponential distribution with mode
+#' \eqn{\mu}). Identical to function \code{\link{ebnm}} with argument
+#' \code{prior_family = "point_exponential"}. For details about the
+#' model, see \code{\link{ebnm}}.
 #'
 #' @inherit ebnm_point_normal
 #'
-#' @param scale A scalar specifying the scale parameter of the exponential
-#'   component or \code{"estimate"} if the scale is to be estimated
-#'   from the data.
+#' @param scale A scalar specifying the scale parameter of the
+#'   exponential component or \code{"estimate"} if the scale is to be
+#'   estimated from the data. The mean of the exponential component is
+#'   the same as the value of \code{scale}.
 #'
 #' @param g_init The prior distribution \eqn{g}. Usually this is left
 #'   unspecified (\code{NULL}) and estimated from the data. However, it can be

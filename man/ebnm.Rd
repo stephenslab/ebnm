@@ -237,11 +237,11 @@ Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
 }
 \section{Functions}{
 \itemize{
-\item \code{ebnm_output_default()}: Lists the default return values.
+\item \code{ebnm_output_default}: Lists the default return values.
 
-\item \code{ebnm_output_all()}: Lists all valid return values.
-
+\item \code{ebnm_output_all}: Lists all valid return values.
 }}
+
 \examples{
 theta <- c(rep(0, 100), rexp(100))
 s <- 1
