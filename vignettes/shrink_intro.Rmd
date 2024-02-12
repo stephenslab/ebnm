@@ -1,0 +1,93 @@
+---
+title: Brief introduction to shrinkage and empirical Bayes 
+author: Jason Willwerscheid and Peter Carbonetto
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: no
+    highlight: textmate
+    theme: readable
+vignette: >
+  %\VignetteIndexEntry{Brief introduction to shrinkage and empirical Bayes }
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r knitr-opts, include=FALSE}
+knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
+                      fig.align = "center",dpi = 120)
+```
+
+ADD TEXT HERE.
+
+```{r load-ebnm}
+library(ebnm)
+```
+
+Simulate a data set (assume standard errors are all 1):
+
+```{r sim-data}
+set.seed(1)
+n <- 400
+u <- 2 + (runif(n) < 0.2) * rnorm(n)
+u <- sort(u)
+x <- u + rnorm(n)/3
+s <- rep(1,n)/3
+```
+
+ADD TEXT HERE.
+
+```{r plot-mle, fig.height=3, fig.width=3}
+plot(u,x,pch = 20,xlim = range(c(u,x)),ylim = range(c(u,x)))
+abline(a = 0,b = 1,col = "magenta",lty = "dotted")
+```
+
+ADD TEXT HERE.
+
+```{r ebnm-normal}
+fit_normal <- ebnm(x,s,prior_family = "normal",mode = "estimate")
+```
+
+ADD TEXT HERE.
+
+```{r plot-ebnm-normal, fig.height=3, fig.width=3}
+y <- coef(fit_normal)
+plot(u,y,pch = 20,xlim = range(c(u,y)),ylim = range(c(u,y)))
+abline(a = 0,b = 1,col = "magenta",lty = "dotted")
+```
+
+ADD TEXT HERE.
+
+```{r plot-mse-1, fig.height=3, fig.width=3}
+mse1 <- (x - u)^2
+mse2 <- (y - u)^2
+print(mean(mse1))
+print(mean(mse2))
+plot(mse1,mse2,pch = 4,cex = 0.5,
+     xlim = range(c(mse1,mse2)),ylim = range(c(mse1,mse2)))
+abline(a = 0,b = 1,col = "magenta",lty = "dotted")
+```
+
+ADD TEXT HERE.
+
+```{r ebnm-pn}
+fit_pn <- ebnm(x,s,prior_family = "point_normal",mode = "estimate")
+```
+
+ADD TEXT HERE.
+
+```{r plot-ebnm-pn, fig.height=3, fig.width=3}
+y <- coef(fit_pn)
+plot(u,y,pch = 20,xlim = range(c(u,y)),ylim = range(c(u,y)))
+abline(a = 0,b = 1,col = "magenta",lty = "dotted")
+```
+
+```{r plot-mse-2, fig.height=3, fig.width=3}
+mse3 <- (y - u)^2
+print(mean(mse1))
+print(mean(mse2))
+print(mean(mse3))
+plot(mse2,mse3,pch = 4,cex = 0.5,
+     xlim = range(c(mse1,mse2)),ylim = range(c(mse1,mse2)))
+abline(a = 0,b = 1,col = "magenta",lty = "dotted")
+```

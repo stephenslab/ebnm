@@ -1,5 +1,7 @@
 ---
 title: Getting started with the ebnm package
+author: Jason Willwerscheid
+date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
     toc: yes
