@@ -1,0 +1,38 @@
+---
+title: Analyzing weighted on-base averages of MLB players with ebnm
+author: Jason Willwersheid, Peter Carbonetto and Matthew Stephens
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: ebnm.bib
+vignette: >
+  %\VignetteIndexEntry{Analyzing weighted on-base averages of MLB players with ebnm}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Background on the "weighted on-base average"
+
+A longstanding tradition in empirical Bayes research is to include an
+analysis of batting averages using data from Major League Baseball
+(see, for example, [@BrownBaseball; @JiangZhangBaseball;
+@GuKoenkerBaseball]). Until recently, batting averages were the most
+important measurement of a hitter's performance, with the prestigious
+yearly "batting title" going to the hitter with the highest
+average. However, with the rise of baseball analytics, metrics that
+better correlate to teams' overall run production have become
+increasingly preferred.  One such metric is wOBA ("weighted on-base
+average"), which is both an excellent measure of a hitter's offensive
+production and, unlike competing metrics such as MLB's xwOBA
+[@xwoba] or Baseball Prospectus's DRC+ [@drcplus], can be
+calculated using publicly available data and methods.
+
+Initially proposed by [@Tango], wOBA assigns values ("weights") to
+hitting outcomes according to how much the outcome contributes on
+average to run production. For example, while batting average treats
+singles identically to home runs, wOBA gives a hitter more than twice
+as much credit for a home run. (*Note:* Weights are updated from year
+to year, but wOBA weights for singles have remained near 0.9 for the
+last several decades, while weights for home runs have hovered
+around 2.0 [@fgguts].)
+
+
