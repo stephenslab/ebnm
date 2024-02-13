@@ -1,11 +1,13 @@
 ---
-title: Analyzing weighted on-base averages of MLB players with ebnm
+title: Analyzing weighted on-base averages with ebnm
 author: Jason Willwersheid, Peter Carbonetto and Matthew Stephens
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    toc: yes
 bibliography: ebnm.bib
 vignette: >
-  %\VignetteIndexEntry{Analyzing weighted on-base averages of MLB players with ebnm}
+  %\VignetteIndexEntry{Analyzing weighted on-base averages with ebnm}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,26 +15,64 @@ vignette: >
 ## Background on the "weighted on-base average"
 
 A longstanding tradition in empirical Bayes research is to include an
-analysis of batting averages using data from Major League Baseball
-(see, for example, [@BrownBaseball; @JiangZhangBaseball;
-@GuKoenkerBaseball]). Until recently, batting averages were the most
+analysis of batting averages using data from Major League Baseball;
+see, for example, @BrownBaseball; @JiangZhangBaseball;
+@GuKoenkerBaseball. Until recently, batting averages were the most
 important measurement of a hitter's performance, with the prestigious
 yearly "batting title" going to the hitter with the highest
 average. However, with the rise of baseball analytics, metrics that
 better correlate to teams' overall run production have become
-increasingly preferred.  One such metric is wOBA ("weighted on-base
+increasingly preferred. One such metric is wOBA ("weighted on-base
 average"), which is both an excellent measure of a hitter's offensive
-production and, unlike competing metrics such as MLB's xwOBA
-[@xwoba] or Baseball Prospectus's DRC+ [@drcplus], can be
-calculated using publicly available data and methods.
+production and, unlike competing metrics such as MLB's xwOBA [@xwoba]
+or Baseball Prospectus's DRC+ [@drcplus], can be calculated using
+publicly available data and methods.
 
-Initially proposed by [@Tango], wOBA assigns values ("weights") to
+Initially proposed by @Tango, wOBA assigns values ("weights") to
 hitting outcomes according to how much the outcome contributes on
 average to run production. For example, while batting average treats
 singles identically to home runs, wOBA gives a hitter more than twice
-as much credit for a home run. (*Note:* Weights are updated from year
+as much credit for a home run. [Note: Weights are updated from year
 to year, but wOBA weights for singles have remained near 0.9 for the
 last several decades, while weights for home runs have hovered
-around 2.0 [@fgguts].)
+around 2.0 [@fgguts].]
 
+Given a vector of wOBA weights $\mathbf{w}$, hitter $i$'s wOBA is the
+weighted average
+$$
+x_i = \mathbf{w}^\top \mathbf{z}^{(i)} / n_i,
+$$
+where $\mathbf{z}^{(i)} = (z_1^{(i)}, \ldots, z_7^{(i)})$ tallies
+  outcomes (singles, doubles, triples, home runs, walks,
+  hit-by-pitches, and outs) over the hitter's $n_i$ plate appearances
+  (PAs). Modeling hitting outcomes as i.i.d.
+$$
+\mathbf{z}^{(i)} \sim \text{Multinomial}(n_i, \mathbf{\pi}^{(i)}),
+$$
+where $\mathbf{\pi}^{(i)} = (\pi_1, \ldots, \pi_7^{(i)})$ is the vector of
+"true" outcome probabilities for hitter $i$, we can regard $x_i$ as
+a point estimate for the hitter's ``true wOBA skill''
+$$
+\theta_i = \mathbf{w}^\top \mathbf{\pi}^{(i)}.
+$$$
+Standard errors for the $x_i$'s can be estimated as
+$$
+s_i^2 = \mathbf{w}^\top \hat{\mathbf{\Sigma}}^{(i)} \mathbf{w}/n_i,
+$$
+where $\hat{\mathbf{\Sigma}}^{(i)}$ is the estimate of the covariance
+matrix for the multinomial model obtained by setting $\mathbf{\pi} =
+\hat{\mathbf{\pi}}$, where
+$$
+\hat{\mathbf{\pi}}^{(i)} = \mathbf{z}^{(i)}/n_i.
+$$
+(To deal with small sample sizes, we conservatively lower bound each
+standard error by the standard error that would be obtained by
+plugging in league-average event probabilities
+$\hat{\mathbf{\pi}}_{\mathrm{lg}} = \sum_{i=1}^N \mathbf{z}^{(i)}/
+\sum_{i=1}^N n_i$, where $N$ is the number of hitters in the data set.)
 
+## A brief look at the wOBA data
+
+TO DO
+
+## Bibliography
