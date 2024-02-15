@@ -83,4 +83,12 @@ plugging in league-average event probabilities
 $\hat{\mathbf{\pi}}_{\mathrm{lg}} = \sum_{i=1}^N \mathbf{z}^{(i)}/
 \sum_{i=1}^N n_i$, where $N$ is the number of hitters in the data set.)
 
+The relative complexity of wOBA makes it well suited for analysis via
+ebnm. With batting average, a common approach is to obtain empirical
+Bayes estimates using a beta-binomial model (see, for example,
+@robinson). With wOBA, one can estimate hitting outcome probabilities
+by way of a Dirichlet-multinomial model; alternatively, one can
+approximate the likelihood as normal and fit an EBNM model directly to
+the observed wOBAs. We take the latter approach.
+
 ## Bibliography

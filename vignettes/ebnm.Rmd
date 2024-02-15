@@ -75,68 +75,13 @@ the `ebnm` package in an analysis of weighted on-base averages for Major League 
 
 ## Application: Weighted on-base averages
 
-A longstanding tradition in empirical Bayes research is to include an
-analysis of batting averages using data from Major League Baseball 
-[see, for example, @BrownBaseball; @JiangZhangBaseball; and
-@GuKoenkerBaseball]. Until recently, batting averages were the most
-important measurement of a hitter's performance, with the prestigious
-yearly "batting title" going to the hitter with the highest
-average. However, with the rise of baseball analytics, metrics that
-better correlate to teams' overall run production have become increasingly preferred.
-One such metric is wOBA ("weighted on-base average"), which is
-both an excellent measure of a hitter's offensive production and,
-unlike competing metrics such as MLB's xwOBA [@xwoba] or Baseball
-Prospectus's DRC+ [@drcplus], can be calculated using publicly
-available data and methods.
-
-Initially proposed by @Tango, wOBA assigns values 
-("weights") to hitting outcomes according to how much the outcome
-contributes on average to run production. For example, while
-batting average treats singles identically to home runs, wOBA
-gives a hitter more than twice as much credit for a home
-run.
-
-Given a vector of wOBA weights $\mathbf{w}$, hitter $i$'s wOBA is the
-weighted average
-\begin{equation}
-x_i := \mathbf{w}^T \mathbf{z}^{(i)} / n_i,
-\end{equation}
-where $\mathbf{z}^{(i)} = (z_1^{(i)}, \ldots, z_7^{(i)})$ tallies
-  outcomes (singles, doubles, triples, home runs, walks,
-  hit-by-pitches, and outs) over the hitter's $n_i$ plate appearances
-  (PAs). Modeling hitting outcomes as i.i.d.
-\begin{equation} 
-\mathbf{z}^{(i)} \sim \text{Multinomial}(n_i, {\boldsymbol\pi}^{(i)}),
-\end{equation}
-where ${\boldsymbol\pi}^{(i)} = (\pi_1^{(i)}, \ldots, \pi_7^{(i)})$ is the vector of
-"true" outcome probabilities for hitter $i$, we can regard $x_i$ as
-a point estimate for the hitter's "true wOBA skill"
-\begin{equation} 
-\theta_i := \mathbf{w}^T {\boldsymbol\pi}^{(i)}.
-\end{equation}
-Standard errors for the $x_i$'s can be estimated as
-\begin{equation}
-s_i^2 = \mathbf{w}^T \hat{\mathbf\Sigma}^{(i)} \mathbf{w}/n_i,
-\end{equation}
-where $\hat{\mathbf\Sigma}^{(i)}$ is the estimate of the multinomial covariance matrix
-obtained by
-setting ${\boldsymbol\pi} = \hat{\boldsymbol\pi}$, where
-\begin{equation} 
-\hat{\boldsymbol\pi}^{(i)} = \mathbf{z}^{(i)}/n_i.
-\end{equation}
-(To deal with small
-sample sizes, we conservatively lower bound each standard error by
-the standard error that would be obtained by plugging in
-league-average event probabilities $\hat{\boldsymbol\pi}_{\mathrm{lg}} =
-\sum_{i=1}^N \mathbf{z}^{(i)}/ \sum_{i=1}^N n_i$, where $N$ is the
-number of hitters in the dataset.)
-
 The relative complexity of wOBA makes it well suited for analysis via
-`ebnm`. With batting average, a common approach is to obtain
-empirical Bayes estimates using a beta-binomial model (see, for example, @robinson). With wOBA,
-one can estimate hitting outcome probabilities by way of a
-Dirichlet-multinomial model; alternatively, one can approximate the likelihood as normal and
-fit an EBNM model directly to the observed wOBAs. In the following, we take the latter approach.
+`ebnm`. With batting average, a common approach is to obtain empirical
+Bayes estimates using a beta-binomial model (see, for example,
+@robinson). With wOBA, one can estimate hitting outcome probabilities
+by way of a Dirichlet-multinomial model; alternatively, one can
+approximate the likelihood as normal and fit an EBNM model directly to
+the observed wOBAs. In the following, we take the latter approach.
 
 ## The "wOBA" data set
 
