@@ -73,7 +73,7 @@ multiple options for fitting and tuning models. For example, we can
 fit a normal means model with the prior family $\mathcal{G}$ taken to
 be the family of normal distributions:
 
-```{r}
+```{r ebnm-normal}
 x <- wOBA$x
 s <- wOBA$s
 names(x) <- wOBA$Name
@@ -81,20 +81,22 @@ names(s) <- wOBA$Name
 fit_normal <- ebnm(x, s, prior_family = "normal", mode = "estimate")
 ```
 
-(The default behavior is to fix the prior mode at zero.
-Since we certainly do not expect the distribution of true wOBA
-skill to have a mode at zero, we set `mode = "estimate"`.)
+(The default behavior is to fix the prior mode at zero.  Since we
+certainly do not expect the distribution of true wOBA skill to have a
+mode at zero, we set `mode = "estimate"`.)
 
 We note in passing that the `ebnm` package has a second model-fitting interface, in which
 each prior family gets its own function:
 
-```{r}
+```{r ebnm-normal-2}
 fit_normal <- ebnm_normal(x, s, mode = "estimate")
 ```
 
-Textual and graphical overviews of results can be obtained using, respectively, methods `summary()` and `plot()`. The summary method appears as follows:
+Textual and graphical overviews of results can be obtained using,
+respectively, methods `summary()` and `plot()`. The summary method
+appears as follows:
 
-```{r}
+```{r summary-ebnm-normal}
 summary(fit_normal)
 ```
 
@@ -102,20 +104,20 @@ The `plot()` method visualizes results, comparing
 the "observed" values $x_i$ (the initial wOBA estimates) against the
 empirical Bayes posterior mean estimates $\hat{\theta}_i$:
 
-```{r, fig.height=3, fig.width=3.5}
+```{r plot-ebnm-normal, fig.height=3, fig.width=3.1}
 plot(fit_normal)
 ```
 
-The dashed line shows the diagonal $x = y$, which makes shrinkage effects clearly visible.  In particular, the most extreme
-wOBAs on either end of the spectrum are strongly shrunk towards the league
+The dashed line shows the diagonal $x = y$, which makes shrinkage
+effects clearly visible. In particular, the most extreme wOBAs on
+either end of the spectrum are strongly shrunk towards the league
 average (around .300).
 
-Since `plot()` returns a "ggplot" object [@ggplot2], the
-plot can conveniently be customized using `ggplot2` syntax. For example,
-one can vary the color of the points by the number of plate
-appearances:
+Since `plot()` returns a "ggplot" object [@ggplot2], the plot can
+conveniently be customized using `ggplot2` syntax. For example, one
+can vary the color of the points by the number of plate appearances:
 
-```{r, fig.height=3, fig.width=4}
+```{r plot-ebnm-normal-better, fig.height=3, fig.width=3.7}
 plot(fit_normal) +
   geom_point(aes(color = sqrt(wOBA$PA))) +
   labs(x = "wOBA", y = "EB estimate of true wOBA skill", 
@@ -134,7 +136,7 @@ dataset. Let's now see what the EBNM analysis suggests might be their
 `fitted()` method, which returns a posterior summary for each
 hitter:
 
-```{r}
+```{r fitted-ebnm-normal}
 print(head(fitted(fit_normal)), digits = 3)
 ```
 
@@ -143,8 +145,8 @@ toward the league average, reflecting the fact that these players had
 very few plate appearances (and indeed, we were not swayed by their
 very high initial wOBA estimates).
 
-Carpenter had many more plate appearances (154) than these other
-four players, but according to this model we should remain skeptical about
+Carpenter had many more plate appearances (154) than these other four
+players, but according to this model we should remain skeptical about
 his strong performance; after factoring in the prior, we judge his
 "true" performance to be much closer to the league average,
 downgrading an initial estimate of .472 to the final posterior mean
