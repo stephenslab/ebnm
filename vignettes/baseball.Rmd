@@ -56,8 +56,8 @@ wOBAs each had 16 PAs or fewer. It is unlikely that they would have
 sustained this high level of production over a full season's worth of
 PAs!
 
-In contrast, Aaron Judge's production --- which included a
-record-breaking number of home runs --- appears to be "real," since it
+In contrast, Aaron Judge's production — which included a
+record-breaking number of home runs — appears to be "real," since it
 was sustained over nearly 700 PAs.  Other cases are more ambiguous:
 how, for example, are we to assess Matt Carpenter, who had several
 exceptional seasons between 2013 and 2018 but whose output steeply
@@ -154,41 +154,39 @@ estimate of .339.
 
 ## Comparing different priors
 
-Judge's "true" wOBA is also estimated to be much lower
-(.394) than the initial estimate (.458) despite sustaining a high
-level of production over a full season (696 PAs). For this reason, one
-might ask whether a prior that is more flexible than the normal
-prior---that is, a prior that can better adapt to "outliers" like
-Judge---might produce a different result. The `ebnm` package
-is very well suited to answering this question. For example, to
-obtain results using the family of all unimodal distributions rather than the family of 
-normal distributions, we only need to change `prior_family` from
-`"normal"` to `"unimodal"`:
+Judge's "true" wOBA is also estimated to be much lower (.394) than the
+initial estimate (.458) despite sustaining a high level of production
+over a full season (696 PAs). For this reason, one might ask whether a
+prior that is more flexible than the normal prior — that is, a prior
+that can better adapt to "outliers" like Judge — might produce a
+different result. The ebnm package is very well suited to answering
+this question. For example, to obtain results using the family of all
+unimodal distributions rather than the family of normal distributions,
+we only need to change "prior_family" from "normal" to "unimodal":
 
-```{r}
+```{r ebnm-unimodal}
 fit_unimodal <- ebnm(x, s, prior_family = "unimodal", mode = "estimate")
 ```
 
-It is straightforward to produce a side-by-side visualization of
-the fitted models simply by including both models as arguments to the
-`plot()` method (we also use the `subset` argument to focus on the results for
-Judge and other players with the most plate appearances):
+It is straightforward to produce a side-by-side visualization of the
+fitted models simply by including both models as arguments to the
+`plot()` method (we also use the "subset" argument to focus on the
+results for Judge and other players with the most plate appearances):
 
-```{r, fig.width=5.25, fig.height=3}
+```{r ebnm-normal-vs-unimodal, fig.width=4.5, fig.height=2.25}
 top50 <- order(wOBA$PA, decreasing = TRUE)
 top50 <- top50[1:50]
 plot(fit_normal, fit_unimodal, subset = top50)
 ```
 
-This plot illustrates the ability of the
-unimodal prior to better adapt to the data: wOBA estimates for players
-with a lot of plate appearances are not adjusted quite so strongly
-toward the league average. To compare in more detail, we see for
-example that Judge's wOBA estimate from the model with the unimodal
-prior (the `"mean2"` column) remains much closer to the original
-wOBA estimate:
+This plot illustrates the ability of the unimodal prior to better
+adapt to the data: wOBA estimates for players with a lot of plate
+appearances are not adjusted quite so strongly toward the league
+average. To compare in more detail, we see for example that Judge's
+wOBA estimate from the model with the unimodal prior (the "mean2"
+column) remains much closer to the original wOBA estimate:
 
-```{r}
+```{r ebnm-normal-vs-unimodal-2}
 dat <- cbind(wOBA[, c("PA","x")],
              fitted(fit_normal),
              fitted(fit_unimodal))
@@ -198,9 +196,9 @@ print(head(dat), digits = 3)
 
 Carpenter's wOBA estimate is also higher under the more flexible
 unimodal prior, but is still adjusted much more than Judge's in light
-of Carpenter's smaller sample size. It is also interesting that
-the unimodal prior assigns greater uncertainty (the `"sd2"`
-column) to this estimate compared to the normal prior.
+of Carpenter's smaller sample size. It is also interesting that the
+unimodal prior assigns greater uncertainty (the "sd2" column) to
+this estimate compared to the normal prior.
 
 Recall that the two normal means models differ only in the priors used, so
 we can understand the differences in the shrinkage behavior of these
@@ -211,38 +209,38 @@ interested in understanding the differences in shrinkage behaviour for
 the largest wOBAs such as Judge's, we create a second plot that zooms
 in on wOBAs over .350:
 
-```{r, fig.height=3, fig.width=8}
+```{r ebnm-normal-vs-unimodal-3, fig.height=2.25, fig.width=6.5, warning=FALSE}
 library(cowplot)
 p1 <- plot(fit_normal, fit_unimodal, incl_cdf = TRUE, incl_pm = FALSE) +
   xlim(c(.250, .350)) +
   guides(color = "none")
 p2 <- plot(fit_normal, fit_unimodal, incl_cdf = TRUE, incl_pm = FALSE) +
   lims(x = c(.350, .450), y = c(0.95, 1))
-plot_grid(p1, p2, nrow = 1, ncol = 2, rel_widths = c(3,5))
+plot_grid(p1, p2, nrow = 1, ncol = 2, rel_widths = c(1,2))
 ```
 
-The plot on
-the right shows that the fitted normal prior has almost no mass on
-wOBAs above .400, explaining why Judge's wOBA estimate is shrunk
-so strongly toward the league average, whereas the unimodal prior is
-flexible enough to permit larger posterior estimates above .400.
+The plot on the right shows that the fitted normal prior has almost no
+mass on wOBAs above .400, explaining why Judge's wOBA estimate is
+shrunk so strongly toward the league average, whereas the unimodal
+prior is flexible enough to permit larger posterior estimates above
+.400.
 
-The posterior means and standard errors returned from the
-`ebnm()` call cannot be used to obtain credible intervals
-(except for the special case of the normal prior). Therefore, we
-provide additional methods `confint()` and `quantile()`
-which return, respectively, credible intervals (or more precisely,
-*highest posterior density* intervals: @hpd, @chen-1999)
-and posterior quantiles for each observation. These are implemented
-using Monte Carlo techniques, which can be slow for large data sets,
-so credible intervals are not computed by default.  The
-following code computes 80% highest posterior density (HPD) intervals
-for the EBNM model with unimodal prior. (We add a Monte Carlo sampler using function `ebnm_add_sampler()`; alternatively, we could have
-added a sampler in our initial calls to `ebnm()` by
-specifying `output = output_all()`.) We set a seed for
-reproducibility:
+The posterior means and standard errors returned from the `ebnm()`
+call cannot be used to obtain credible intervals (except for the
+special case of the normal prior). Therefore, we provide additional
+methods `confint()` and `quantile()` which return, respectively,
+credible intervals — or, more precisely, *highest posterior density*
+intervals [@chen-1999] — and posterior quantiles for each
+observation. These are implemented using Monte Carlo techniques, which
+can be slow for large data sets, so credible intervals are not
+computed by default.  The following code computes 80% highest
+posterior density (HPD) intervals for the EBNM model with unimodal
+prior. [We add a Monte Carlo sampler using function
+`ebnm_add_sampler()`; alternatively, we could have added a sampler in
+our initial calls to `ebnm()` by specifying `output = output_all()`.]
+We set a seed for reproducibility:
 
-```{r}
+```{r ebnm-unimodal-confint}
 fit_unimodal <- ebnm_add_sampler(fit_unimodal)
 set.seed(1)
 print(head(confint(fit_unimodal, level = 0.8)), digits = 3)
