@@ -13,7 +13,7 @@ vignette: >
 ---
 
 In this vignette, we illustrate the key features of ebnm in an
-analysis of baseball statistics.
+analysis of some baseball statistics.
 
 ```{r knitr-opts, include=FALSE}
 knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
