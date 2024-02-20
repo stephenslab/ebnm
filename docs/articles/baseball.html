@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ebnm</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-6</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-8</span>
       </span>
     </div>
 
@@ -71,7 +71,7 @@ ebnm</h1>
                         <h4 data-toc-skip class="author">Jason
 Willwersheid, Peter Carbonetto and Matthew Stephens</h4>
             
-            <h4 data-toc-skip class="date">2024-02-19</h4>
+            <h4 data-toc-skip class="date">2024-02-20</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/stephenslab/ebnm/blob/HEAD/vignettes/baseball.Rmd" class="external-link"><code>vignettes/baseball.Rmd</code></a></small>
       <div class="hidden name"><code>baseball.Rmd</code></div>
@@ -322,6 +322,164 @@ and shares the same lower bound as the first four ballplayers with very
 few plate appearances.</p>
 </div>
 <div class="section level2">
+<h2 id="reanalyzing-the-data-using-a-nonparametric-prior">Reanalyzing the data using a nonparametric prior<a class="anchor" aria-label="anchor" href="#reanalyzing-the-data-using-a-nonparametric-prior"></a>
+</h2>
+<p>Above, we demonstrated how the <code>ebnm</code> package makes it is
+easy to perform EBNM analyses with different types of priors, then
+compared results across two different choices of prior family. Each of
+these families makes different assumptions about the data which, <em>a
+priori</em>, may be more or less plausible. An alternative to prior
+families that make specific assumptions about the data is to use the
+prior family that contains <em>all</em> distributions <span class="math inline">\(\mathcal{G}_{\mathrm{npmle}}\)</span>, which is in
+a sense “assumption free.” Here we re-analyze the wOBA data set to
+illustrate the use of this prior family. Note that although
+nonparametric priors require specialized computational techniques,
+switching to a nonparametric prior is seamless in ebnm, as these
+implementation details are hidden. Similar to above, we need only make a
+single change to the <code>prior_family</code> argument:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fit_npmle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm.html">ebnm</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, prior_family <span class="op">=</span> <span class="st">"npmle"</span><span class="op">)</span></code></pre></div>
+<p>(Note that because the family <span class="math inline">\(\mathcal{G}_{\mathrm{npmle}}\)</span> is not
+unimodal, the <code>mode = "estimate"</code> option is not relevant
+here.)</p>
+<p>Although the implementation details are hidden by default, it can
+sometimes be helpful to see what is going on “behind the scenes,”
+particularly for flagging or diagnosing issues. By default, ebnm uses
+the mixsqp package <span class="citation">(Kim et al. 2020)</span> to
+fit the NPMLE <span class="math inline">\(\hat{g} \in
+\mathcal{G}_{\mathrm{npmle}}\)</span>. We can monitor convergence of the
+mix-SQP optimization algorithm by setting the “verbose” control argument
+to “TRUE”:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fit_npmle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm.html">ebnm</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, prior_family <span class="op">=</span> <span class="st">"npmle"</span>, 
+                  control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span>
+<span class="co"># Running mix-SQP algorithm 0.3-48 on 688 x 95 matrix</span>
+<span class="co"># convergence tol. (SQP):     1.0e-08</span>
+<span class="co"># conv. tol. (active-set):    1.0e-10</span>
+<span class="co"># zero threshold (solution):  1.0e-08</span>
+<span class="co"># zero thresh. (search dir.): 1.0e-14</span>
+<span class="co"># l.s. sufficient decrease:   1.0e-02</span>
+<span class="co"># step size reduction factor: 7.5e-01</span>
+<span class="co"># minimum step size:          1.0e-08</span>
+<span class="co"># max. iter (SQP):            1000</span>
+<span class="co"># max. iter (active-set):     20</span>
+<span class="co"># number of EM iterations:    10</span>
+<span class="co"># Computing SVD of 688 x 95 matrix.</span>
+<span class="co"># Matrix is not low-rank; falling back to full matrix.</span>
+<span class="co"># iter        objective max(rdual) nnz stepsize max.diff nqp nls</span>
+<span class="co">#    1 +9.583407733e-01  -- EM --   95 1.00e+00 6.08e-02  --  --</span>
+<span class="co">#    2 +8.298700300e-01  -- EM --   95 1.00e+00 2.87e-02  --  --</span>
+<span class="co">#    3 +7.955308369e-01  -- EM --   95 1.00e+00 1.60e-02  --  --</span>
+<span class="co">#    4 +7.819858634e-01  -- EM --   68 1.00e+00 1.05e-02  --  --</span>
+<span class="co">#    5 +7.753787534e-01  -- EM --   53 1.00e+00 7.57e-03  --  --</span>
+<span class="co">#    6 +7.717040208e-01  -- EM --   49 1.00e+00 5.73e-03  --  --</span>
+<span class="co">#    7 +7.694760705e-01  -- EM --   47 1.00e+00 4.48e-03  --  --</span>
+<span class="co">#    8 +7.680398878e-01  -- EM --   47 1.00e+00 3.58e-03  --  --</span>
+<span class="co">#    9 +7.670690681e-01  -- EM --   44 1.00e+00 2.91e-03  --  --</span>
+<span class="co">#   10 +7.663865515e-01  -- EM --   42 1.00e+00 2.40e-03  --  --</span>
+<span class="co">#    1 +7.658902386e-01 +6.493e-02  39  ------   ------   --  --</span>
+<span class="co">#    2 +7.655151741e-01 +5.328e-02  19 1.00e+00 1.29e-01  20   1</span>
+<span class="co">#    3 +7.627792563e-01 +6.432e-03   7 1.00e+00 1.74e-01  20   1</span>
+<span class="co">#    4 +7.626270812e-01 +5.897e-05   7 1.00e+00 3.23e-01   7   1</span>
+<span class="co">#    5 +7.626270755e-01 -1.335e-08   7 1.00e+00 4.67e-04   2   1</span>
+<span class="co"># Optimization took 0.05 seconds.</span>
+<span class="co"># Convergence criteria met---optimal solution found.</span></code></pre></div>
+<p>This output shows no issues with convergence of the optimization
+algorithm; the mix-SQP algorithm converged to the solution (up to
+numerical rounding error) in only 6 iterations. In some cases,
+convergence issues can arise when fitting nonparametric models to large
+or complex data sets, and revealing the details of the optimization can
+help to pinpoint these issues.</p>
+<p>Next, we visually compare the three fits obtained so far:</p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_normal</span>, <span class="va">fit_unimodal</span>, <span class="va">fit_npmle</span>, incl_cdf <span class="op">=</span> <span class="cn">TRUE</span>, subset <span class="op">=</span> <span class="va">top50</span><span class="op">)</span></code></pre></div>
+<p><img src="baseball_files/figure-html/plot-npmle-1.png" width="510" style="display: block; margin: auto;"><img src="baseball_files/figure-html/plot-npmle-2.png" width="510" style="display: block; margin: auto;"></p>
+<p>As before, estimates largely agree, differing primarily at the tails.
+Both the unimodal prior family and the NPMLE are sufficiently flexible
+to avoid the strong shrinkage behavior of the normal prior family.</p>
+<p>Fits can be compared quantitatively using the <code><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik()</a></code>
+method, which, in addition to the log likelihood for each model,
+usefully reports the number of free parameters (i.e., degrees of
+freedom):</p>
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik</a></span><span class="op">(</span><span class="va">fit_unimodal</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik</a></span><span class="op">(</span><span class="va">fit_npmle</span><span class="op">)</span>
+<span class="co"># 'log Lik.' 992.6578 (df=40)</span>
+<span class="co"># 'log Lik.' 994.193 (df=94)</span></code></pre></div>
+<p>A nonparametric prior <span class="math inline">\(\mathcal{G}\)</span> is approximated by <span class="math inline">\(K\)</span> mixture components on a fixed grid,
+with the mixture proportions to be estimated. We can infer from the
+above output that <span class="math inline">\(\mathcal{G}_\text{npmle}\)</span> has been
+approximated as a family of mixtures over a grid of <span class="math inline">\(K = 95\)</span> point masses spanning the range of
+the data. (The number of degrees of freedom is one fewer than <span class="math inline">\(K\)</span> because the mixture proportions must
+always sum to 1, which removes one degree of freedom from the estimation
+of <span class="math inline">\({\boldsymbol\pi}\)</span>.)</p>
+<p>The default behaviour for nonparametric prior families is to choose
+<span class="math inline">\(K\)</span> such that the likelihood obtained
+using estimate <span class="math inline">\(\hat{g}\)</span> should be
+(on average) within one log-likelihood unit of the optimal estimate from
+among the entire nonparametric family <span class="math inline">\(\mathcal{G}\)</span> <span class="citation">(see
+Willwerscheid 2021)</span>. Thus, a finer approximating grid should not
+yield a large improvement in the log-likelihood. We can check this by
+using <code><a href="../reference/ebnm_scale_npmle.html">ebnm_scale_npmle()</a></code> to create a finer grid:</p>
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">scale_npmle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm_scale_npmle.html">ebnm_scale_npmle</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, KLdiv_target <span class="op">=</span> <span class="fl">0.001</span><span class="op">/</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, 
+                                max_K <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span>
+<span class="va">fit_npmle_finer</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm_npmle.html">ebnm_npmle</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, scale <span class="op">=</span> <span class="va">scale_npmle</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik</a></span><span class="op">(</span><span class="va">fit_npmle</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik</a></span><span class="op">(</span><span class="va">fit_npmle_finer</span><span class="op">)</span>
+<span class="co"># 'log Lik.' 994.193 (df=94)</span>
+<span class="co"># 'log Lik.' 994.2703 (df=528)</span></code></pre></div>
+<p>As the theory predicts, a much finer grid, with <span class="math inline">\(K = 529\)</span>, results in only a modest
+improvement in the log-likelihood. ebnm provides similar functions to
+customize grids for unimodal and normal scale mixture prior
+families.</p>
+<p>One potential issue with the NPMLE is that, since it is discrete (as
+the above CDF plot makes apparent), observations are variously shrunk
+towards one of the support points, which can result in poor interval
+estimates. For illustration, we calculate 10% and 90% quantiles:</p>
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fit_npmle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm_add_sampler.html">ebnm_add_sampler</a></span><span class="op">(</span><span class="va">fit_npmle</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">fit_npmle</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>
+<span class="co">#                  10%   90%</span>
+<span class="co"># Khalil Lee     0.276 0.342</span>
+<span class="co"># Chadwick Tromp 0.276 0.342</span>
+<span class="co"># Otto Lopez     0.276 0.342</span>
+<span class="co"># James Outman   0.276 0.342</span>
+<span class="co"># Matt Carpenter 0.309 0.430</span>
+<span class="co"># Aaron Judge    0.419 0.430</span></code></pre></div>
+<p>Each credible interval bound is constrained to lie at one of the
+support points of the NPMLE <span class="math inline">\(\hat{g}\)</span>. The interval estimate for Judge
+strikes us as far too narrow. Indeed, the NPMLE can sometimes yield
+degenerate interval estimates:</p>
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_npmle</span>, level <span class="op">=</span> <span class="fl">0.8</span>, parm <span class="op">=</span> <span class="st">"Aaron Judge"</span><span class="op">)</span>
+<span class="co">#              CI.lower  CI.upper</span>
+<span class="co"># Aaron Judge 0.4298298 0.4298298</span></code></pre></div>
+<p>To address this issue, the deconvolveR package <span class="citation">(Narasimhan and Efron 2020)</span> uses a penalized
+likelihood that encourages “smooth” priors <span class="math inline">\(\hat{g}\)</span>; that is, priors <span class="math inline">\(\hat{g}\)</span> for which few of the mixture
+proportions are zero:</p>
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">fit_deconv</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm_deconvolver.html">ebnm_deconvolver</a></span><span class="op">(</span><span class="va">x</span> <span class="op">/</span> <span class="va">s</span>, output <span class="op">=</span> <span class="fu"><a href="../reference/ebnm.html">ebnm_output_all</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> 
+<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_deconv</span>, incl_cdf <span class="op">=</span> <span class="cn">TRUE</span>, incl_pm <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></code></pre></div>
+<p><img src="baseball_files/figure-html/ebnm-deconvolver-1.png" width="300" style="display: block; margin: auto;"></p>
+<p>Note, however, that the “true” means being estimated are <span class="math inline">\(z\)</span>-scores rather than raw wOBA skill, as
+package deconvolveR fits a model to z-scores rather than observations
+and associated standard errors. While this is reasonable in many
+settings, it does not seem appropriate for the present analysis:</p>
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">fit_deconv</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span> <span class="op">*</span> <span class="va">s</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>
+<span class="co">#                  10%   90%</span>
+<span class="co"># Khalil Lee     0.400 2.000</span>
+<span class="co"># Chadwick Tromp 0.563 1.127</span>
+<span class="co"># Otto Lopez     0.354 0.796</span>
+<span class="co"># James Outman   0.412 0.742</span>
+<span class="co"># Matt Carpenter 0.413 0.531</span>
+<span class="co"># Aaron Judge    0.406 0.459</span></code></pre></div>
+<p>These interval estimates do not match our basic intuitions; for
+example, a wOBA over .600 has never been sustained over a full
+season.</p>
+</div>
+<div class="section level2">
 <h2 id="background-on-the-weighted-on-base-average">Background on the “weighted on-base average”<a class="anchor" aria-label="anchor" href="#background-on-the-weighted-on-base-average"></a>
 </h2>
 <p>A longstanding tradition in empirical Bayes research is to include an
@@ -416,6 +574,19 @@ Mathematical Statistics.
 Judge, Jonathan. 2019. <span>“Entirely Beyond WOWY: A Breakdown of
 DRC+.”</span> <em>Baseball Prospectus</em>. <a href="https://www.baseballprospectus.com/news/article/48293/entirely-beyond-wowy-a-breakdown-of-drc/" class="external-link">https://www.baseballprospectus.com/news/article/48293/entirely-beyond-wowy-a-breakdown-of-drc/</a>.
 </div>
+<div id="ref-MixSQP" class="csl-entry">
+Kim, Youngseok, Peter Carbonetto, Matthew Stephens, and Mihai Anitescu.
+2020. <span>“A Fast Algorithm for Maximum Likelihood Estimation of
+Mixture Proportions Using Sequential Quadratic Programming.”</span>
+<em>Journal of Computational and Graphical Statistics</em> 29 (2):
+261–73.
+</div>
+<div id="ref-NarasimhanEfron" class="csl-entry">
+Narasimhan, Balasubramanian, and Bradley Efron. 2020.
+<span>“deconvolveR: A g-Modeling Program for Deconvolution and Empirical
+<span>Bayes</span> Estimation.”</span> <em>Journal of Statistical
+Software</em> 94 (11): 1–20.
+</div>
 <div id="ref-robinson" class="csl-entry">
 Robinson, David. 2017. <span>“Introduction to Empirical
 <span>Bayes</span>: Examples from Baseball Statistics.”</span> <a href="https://github.com/dgrtwo/empirical-bayes-book" class="external-link">https://github.com/dgrtwo/empirical-bayes-book</a>.
@@ -432,6 +603,11 @@ Playing the Percentages in Baseball</em>. TMA Press.
 <div id="ref-ggplot2" class="csl-entry">
 Wickham, Hadley. 2016. <em><span class="nocase">ggplot2</span>: Elegant
 Graphics for Data Analysis</em>. New York, NY: Springer-Verlag.
+</div>
+<div id="ref-WillwerscheidDiss" class="csl-entry">
+Willwerscheid, Jason. 2021. <span>“Empirical <span>Bayes</span> Matrix
+Factorization: Methods and Applications.”</span> PhD thesis, Chicago,
+IL: University of Chicago.
 </div>
 </div>
 </div>
