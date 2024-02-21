@@ -453,4 +453,13 @@ by way of a Dirichlet-multinomial model; alternatively, one can
 approximate the likelihood as normal and fit an EBNM model directly to
 the observed wOBAs. We take the latter approach.
 
+## Session information
+
+The following R version and packages were used to generate this
+vignette:
+
+```{r session-info}
+sessionInfo()
+```
+
 ## Bibliography
