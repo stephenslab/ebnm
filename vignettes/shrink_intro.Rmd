@@ -1,14 +1,13 @@
 ---
-title: Brief introduction to shrinkage and empirical Bayes 
+title: Brief introduction to shrinkage and empirical Bayes normal means
 author: Jason Willwerscheid and Peter Carbonetto
 date: "`r Sys.Date()`"
 output: 
-  html_document:
-    toc: no
-    highlight: textmate
-    theme: readable
+  rmarkdown::html_vignette:
+    toc: yes
+bibliography: ebnm.bib
 vignette: >
-  %\VignetteIndexEntry{Brief introduction to shrinkage and empirical Bayes }
+  %\VignetteIndexEntry{Brief introduction to shrinkage and empirical Bayes}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,9 +17,51 @@ knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
                       fig.align = "center",dpi = 90)
 ```
 
-This is a very brief illustration of the basic ideas behind the
-empirical Bayes methods. See for example [John Storey's
-text][storey-book] to learn more.
+## The normal means model and empirical Bayes
+
+Given $n$ observations $x_i$ with known standard deviations $s_i$, $i
+= 1, \dots, n$, the normal means model
+[@Robbins51; @efron1972limiting; @Stephens_NewDeal; @bhadra2019lasso;
+@Johnstone; @lei-thesis] is
+\begin{equation}
+x_i \overset{\text{ind.}}{\sim} \mathcal{N}(\theta_i, s_i^2),
+\end{equation}
+with the unknown (true) means $\theta_i$ to be estimated. We use
+$\mathcal{N}(\mu, \sigma^2)$ to denote the normal distribution with
+mean $\mu$ and variance $\sigma^2$. The maximum-likelihood estimate of
+$\theta_i$ is, of course, $x_i$.
+
+The empirical Bayes (EB) approach to inferring $\theta_i$ attempts to
+improve upon the maximum-likelihood estimate by "borrowing
+information" across observations, exploiting the fact that each
+observation contains information not only about its respective mean,
+but also about how the means are collectively distributed
+[@Robbins56; @Morris; @Efron_Book; @Stephens_NewDeal].  Specifically,
+the EB approach assumes that
+\begin{equation}
+\theta_i \overset{\text{ind.}}{\sim} g \in \mathcal{G},
+\end{equation}
+where $g$ is a distribution to be estimated from the data, typically
+chosen from among some family of distributions $\mathcal{G}$ that is
+specified in advance. (Note that although $\mathcal{G}$ must be
+specified in advance, it can be arbitrarily flexible.)
+
+The empirical Bayes normal means model is therefore fit by first using
+all of the observations to estimate $g \in \mathcal{G}$, then using
+the estimated distribution $\hat{g}$ to compute posteriors for each
+mean $\theta_i$. Commonly, $g$ is estimated via maximum-likelihood.
+
+The ebnm package provides a unified interface for efficiently
+estimating priors $g \in \mathcal{G}$ and computing posterior
+estimates of the unknown means $\theta_i$, with different choices for
+prior families $\mathcal{G}$.
+
+Next we give a brief illustration of these ideas. See for example
+[John Storey's book][storey-book] for background on these ideas.  See
+also the [ebnm paper][ebnm-paper] for a more detailed introduction to
+empirical Bayes normal means and the ebnm package.
+
+## A toy example
 
 First, to generate a toy data set, we simulate a bunch of "true"
 (unknown) means $u_i$ from a mixture of a normal distribution centered
@@ -141,4 +182,15 @@ print(round(digits = 4,
 				  point_normal = mean(mse_shrink_pn))))
 ```
 
+## Session information
+
+The following R version and packages were used to generate this vignette:
+
+```{r}
+sessionInfo()
+```
+
+## References
+
+[ebnm-paper]: https://arxiv.org/abs/2110.00152
 [storey-book]: https://jdstorey.org/fas
