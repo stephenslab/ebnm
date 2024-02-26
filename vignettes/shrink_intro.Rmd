@@ -104,7 +104,8 @@ $\hat{u}_i = x_i$:
 par(mar = c(4,4,2,2))
 lims <- c(-0.55,5.05)
 plot(u,x,pch = 4,cex = 0.75,xlim = lims,ylim = lims,
-     xlab = "true value (u)",ylab = "estimate (x)")
+     xlab = "true value (u)",ylab = "estimate (x)",
+     main = "MLE")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 ```
 
@@ -134,7 +135,8 @@ $\hat{u}_i = E[u_i \,|\, x_i]$, which can be extracted with
 y <- coef(fit_normal)
 par(mar = c(4,4,2,2))
 plot(u,y,pch = 4,cex = 0.75,xlim = lims,ylim = lims,
-     xlab = "true value (u)",ylab = "estimate (x)")
+     xlab = "true value (u)",ylab = "estimate (x)",
+     main = "normal prior")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 ```
 
@@ -163,37 +165,38 @@ Indeed, the error increased in a few of the estimates and decreased in
 many of the other estimates, resulting in a lower mean-squared
 error (MSE) over the 400 data points.
 
-Let's now see what happens when we use a prior that is better suited
-to this data set—specifically, the "point-normal" prior.
+Let's now see what happens when we use a family of priors that is
+better suited to this data set—specifically, the "point-normal"
+family. Notice that the only change we have made in our call to
+`ebnm()` is in the "prior_family" argument:
 
-As before, we first fit the prior to the data (the only difference
-here is in the "prior_family" argument):
-
-```{r ebnm-pn, eval=FALSE}
+```{r ebnm-pn}
 fit_pn <- ebnm(x,s,prior_family = "point_normal",mode = "estimate")
 ```
 
-Then we extract the posterior mean estimates:
+Now we extract the posterior mean estimates and compare to the true
+values:
 
-```{r plot-ebnm-pn, fig.height=3.5, fig.width=3.5, eval=FALSE}
+```{r plot-ebnm-pn, fig.height=3.5, fig.width=3.5}
 par(mar = c(4,4,2,2))
 y <- coef(fit_pn)
-lim <- range(c(u,y))
-plot(u,y,pch = 4,cex = 0.75,xlim = lim,ylim = lim)
+plot(u,y,pch = 4,cex = 0.75,xlim = lims,ylim = lims,
+     xlab = "true value (u)",ylab = "estimate (x)",
+     main = "point-normal prior")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 ```
 
 The added flexibility of the point-normal allowed the accuracy of the
-small values to be improved without increasing the error in the large
-values, and so the latest shrunk estimates improved the overall error
-even more:
+smaller means to be improved, while the estimates of the larger means
+the did not get worse. The result is that the overall error improved
+over both the MLE and the posterior estimates with a normal prior:
 
-```{r plot-mse-2, fig.height=3.5, fig.width=3.5, eval=FALSE}
-mse_shrink_pn <- (y - u)^2
+```{r mse-2}
+err_shrink_pn <- (y - u)^2
 print(round(digits = 4,
-            x = c(mle = mean(mse_mle),
-                  normal = mean(mse_shrink),
-				  point_normal = mean(mse_shrink_pn))))
+            x = c(mle = mean(err_mle),
+                  normal = mean(err_shrink_normal),
+				  point_normal = mean(err_shrink_pn))))
 ```
 
 ## Session information

@@ -1,8 +1,8 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 1.1-10
-Date: 2024-02-23
+Version: 1.1-11
+Date: 2024-02-26
 Title: Solve the Empirical Bayes Normal Means Problem
 Authors@R: c(person("Jason", "Willwerscheid", role = "aut"),
              person("Matthew", "Stephens", role = "aut"),
