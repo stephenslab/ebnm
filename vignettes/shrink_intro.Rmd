@@ -104,7 +104,7 @@ $\hat{u}_i = x_i$:
 par(mar = c(4,4,2,2))
 lims <- c(-0.55,5.05)
 plot(u,x,pch = 4,cex = 0.75,xlim = lims,ylim = lims,
-     xlab = "true value (u)",ylab = "estimate (x)",
+     xlab = "true value",ylab = "estimate",
      main = "MLE")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 ```
@@ -135,7 +135,7 @@ $\hat{u}_i = E[u_i \,|\, x_i]$, which can be extracted with
 y <- coef(fit_normal)
 par(mar = c(4,4,2,2))
 plot(u,y,pch = 4,cex = 0.75,xlim = lims,ylim = lims,
-     xlab = "true value (u)",ylab = "estimate (x)",
+     xlab = "true value",ylab = "estimate",
      main = "normal prior")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 ```
@@ -181,7 +181,7 @@ values:
 par(mar = c(4,4,2,2))
 y <- coef(fit_pn)
 plot(u,y,pch = 4,cex = 0.75,xlim = lims,ylim = lims,
-     xlab = "true value (u)",ylab = "estimate (x)",
+     xlab = "true value",ylab = "estimate",
      main = "point-normal prior")
 abline(a = 0,b = 1,col = "magenta",lty = "dotted")
 ```
