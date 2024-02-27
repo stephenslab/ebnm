@@ -1,4 +1,8 @@
-# TO DO: Explain what this script is for, and how to use it.
+# This script generates the plots for Fig. 1 of the paper. This should
+# be run in the vignettes directory of the ebnm package source, e.g.,
+#
+#   source("../inst/code/shrink_intro_plots.R")
+#
 library(rmarkdown)
 library(ggplot2)
 library(cowplot)
@@ -56,6 +60,6 @@ p3 <- ggplot(pdat,aes(x = u,y = est.pn)) +
         plot.subtitle = element_text(face = "plain",size = 12))
 
 print(plot_grid(p1,p2,p3,nrow = 1,ncol = 3))
-ggsave("shrink_intro.pdf",
+ggsave("shrink_intro.eps",
        plot_grid(p1,p2,p3,nrow = 1,ncol = 3),
        height = 2.75,width = 7)
