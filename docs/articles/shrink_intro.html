@@ -71,7 +71,7 @@ Bayes normal means</h1>
                         <h4 data-toc-skip class="author">Jason
 Willwerscheid and Peter Carbonetto</h4>
             
-            <h4 data-toc-skip class="date">2024-02-26</h4>
+            <h4 data-toc-skip class="date">2024-02-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/stephenslab/ebnm/blob/HEAD/vignettes/shrink_intro.Rmd" class="external-link"><code>vignettes/shrink_intro.Rmd</code></a></small>
       <div class="hidden name"><code>shrink_intro.Rmd</code></div>
@@ -150,7 +150,7 @@ we’ll treat them as quantities we cannot observe.</p>
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">4</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="va">lims</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.55</span>,<span class="fl">5.05</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">u</span>,<span class="va">x</span>,pch <span class="op">=</span> <span class="fl">4</span>,cex <span class="op">=</span> <span class="fl">0.75</span>,xlim <span class="op">=</span> <span class="va">lims</span>,ylim <span class="op">=</span> <span class="va">lims</span>,
-     xlab <span class="op">=</span> <span class="st">"true value (u)"</span>,ylab <span class="op">=</span> <span class="st">"estimate (x)"</span>,
+     xlab <span class="op">=</span> <span class="st">"true value"</span>,ylab <span class="op">=</span> <span class="st">"estimate"</span>,
      main <span class="op">=</span> <span class="st">"MLE"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>,b <span class="op">=</span> <span class="fl">1</span>,col <span class="op">=</span> <span class="st">"magenta"</span>,lty <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span></code></pre></div>
 <p><img src="shrink_intro_files/figure-html/plot-mle-1.png" width="315" style="display: block; margin: auto;"></p>
@@ -172,7 +172,7 @@ be extracted with <code><a href="https://rdrr.io/r/stats/coef.html" class="exter
 <code class="sourceCode R"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_normal</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">4</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">u</span>,<span class="va">y</span>,pch <span class="op">=</span> <span class="fl">4</span>,cex <span class="op">=</span> <span class="fl">0.75</span>,xlim <span class="op">=</span> <span class="va">lims</span>,ylim <span class="op">=</span> <span class="va">lims</span>,
-     xlab <span class="op">=</span> <span class="st">"true value (u)"</span>,ylab <span class="op">=</span> <span class="st">"estimate (x)"</span>,
+     xlab <span class="op">=</span> <span class="st">"true value"</span>,ylab <span class="op">=</span> <span class="st">"estimate"</span>,
      main <span class="op">=</span> <span class="st">"normal prior"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>,b <span class="op">=</span> <span class="fl">1</span>,col <span class="op">=</span> <span class="st">"magenta"</span>,lty <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span></code></pre></div>
 <p><img src="shrink_intro_files/figure-html/plot-ebnm-normal-1.png" width="315" style="display: block; margin: auto;"></p>
@@ -209,7 +209,7 @@ values:</p>
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">4</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_pn</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">u</span>,<span class="va">y</span>,pch <span class="op">=</span> <span class="fl">4</span>,cex <span class="op">=</span> <span class="fl">0.75</span>,xlim <span class="op">=</span> <span class="va">lims</span>,ylim <span class="op">=</span> <span class="va">lims</span>,
-     xlab <span class="op">=</span> <span class="st">"true value (u)"</span>,ylab <span class="op">=</span> <span class="st">"estimate (x)"</span>,
+     xlab <span class="op">=</span> <span class="st">"true value"</span>,ylab <span class="op">=</span> <span class="st">"estimate"</span>,
      main <span class="op">=</span> <span class="st">"point-normal prior"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>,b <span class="op">=</span> <span class="fl">1</span>,col <span class="op">=</span> <span class="st">"magenta"</span>,lty <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span></code></pre></div>
 <p><img src="shrink_intro_files/figure-html/plot-ebnm-pn-1.png" width="315" style="display: block; margin: auto;"></p>
@@ -248,7 +248,7 @@ vignette:</p>
 <span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
 <span class="co"># </span>
 <span class="co"># other attached packages:</span>
-<span class="co"># [1] ebnm_1.1-12</span>
+<span class="co"># [1] ebnm_1.1-3</span>
 <span class="co"># </span>
 <span class="co"># loaded via a namespace (and not attached):</span>
 <span class="co">#  [1] tidyselect_1.1.1  xfun_0.36         bslib_0.3.1       ashr_2.2-57      </span>
