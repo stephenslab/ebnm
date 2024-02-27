@@ -127,9 +127,9 @@ model in which the true prior <span class="math inline">\(g\)</span> is
 a mixture of (a) a normal distribution centered at 2 and (b) a
 point-mass also centered at 2:</p>
 <p><span class="math display">\[
-u_i \sim 0.8\delta_2 + 0.2 N(2,1)
+\thetas_i \sim 0.8\delta_2 + 0.2 N(2,1)
 \]</span></p>
-<p>First, we simulate the “true” means, <span class="math inline">\(u_i\)</span>, from this prior,</p>
+<p>First, we simulate the “true” means, <span class="math inline">\(\theta_i\)</span>, from this prior,</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
 <span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">400</span>
@@ -137,7 +137,7 @@ u_i \sim 0.8\delta_2 + 0.2 N(2,1)
 <p>then we simulate the observed means, <span class="math inline">\(x_i\)</span>, as “noisy” estimates of the true
 means (in this example, the noise is the same for all data points):</p>
 <p><span class="math display">\[
-x_i \sim N(u_i,s_i), \quad s_i = 1/3,
+x_i \sim N(\theta_i,s_i), \quad s_i = 1/3,
 \]</span></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">3</span>,<span class="va">n</span><span class="op">)</span>
@@ -166,8 +166,8 @@ we simulated with a mixture of a normal and a point-mass.)</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stephenslab/ebnm" class="external-link">ebnm</a></span><span class="op">)</span>
 <span class="va">fit_normal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm.html">ebnm</a></span><span class="op">(</span><span class="va">x</span>,<span class="va">s</span>,prior_family <span class="op">=</span> <span class="st">"normal"</span>,mode <span class="op">=</span> <span class="st">"estimate"</span><span class="op">)</span></code></pre></div>
-<p>then we estimate the true means by the posterior mean values, <span class="math inline">\(\hat{u}_i = E[u_i \,|\, x_i]\)</span>, which can
-be extracted with <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>:</p>
+<p>then we estimate the true means by the posterior mean values, <span class="math inline">\(\hat{u}_i = E[\theta_i \,|\, x_i]\)</span>, which
+can be extracted with <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_normal</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">4</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
@@ -176,9 +176,9 @@ be extracted with <code><a href="https://rdrr.io/r/stats/coef.html" class="exter
      main <span class="op">=</span> <span class="st">"normal prior"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>,b <span class="op">=</span> <span class="fl">1</span>,col <span class="op">=</span> <span class="st">"magenta"</span>,lty <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span></code></pre></div>
 <p><img src="shrink_intro_files/figure-html/plot-ebnm-normal-1.png" width="315" style="display: block; margin: auto;"></p>
-<p>These “shrunken” estimates are better for smaller <span class="math inline">\(u_i\)</span> values but worse for the larger
-values. Still, the shrunken estimates improve the <em>overall estimation
-error</em> (the “mean-squared error”):</p>
+<p>These “shrunken” estimates are better for <span class="math inline">\(\theta_i\)</span> values near 2, but worse for
+ones far away from 2. Still, the shrunken estimates improve the
+<em>overall estimation error</em> (the “mean-squared error”):</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">err_mle</span>           <span class="op">&lt;-</span> <span class="op">(</span><span class="va">x</span> <span class="op">-</span> <span class="va">u</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span>
 <span class="va">err_shrink_normal</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">y</span> <span class="op">-</span> <span class="va">u</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span>
@@ -214,7 +214,7 @@ values:</p>
 <span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>,b <span class="op">=</span> <span class="fl">1</span>,col <span class="op">=</span> <span class="st">"magenta"</span>,lty <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span></code></pre></div>
 <p><img src="shrink_intro_files/figure-html/plot-ebnm-pn-1.png" width="315" style="display: block; margin: auto;"></p>
 <p>The added flexibility of the point-normal allowed the accuracy of the
-smaller means to be improved, while the estimates of the larger means
+means near 2 to be improved, while the estimates of the means far from 2
 the did not get worse. The result is that the overall error improved
 over both the MLE and the posterior estimates with a normal prior:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
