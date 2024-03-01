@@ -1,5 +1,7 @@
 ---
 title: Getting started with the ebnm package
+author: Jason Willwerscheid
+date: "`r Sys.Date()`"
 output: 
   rmarkdown::html_vignette:
     toc: yes
@@ -15,32 +17,29 @@ knitr::opts_chunk$set(echo = TRUE, collapse = TRUE, comment = "#>",
                       fig.width = 6, fig.height = 4, warning = FALSE)
 ```
 
-# The empirical Bayes normal means problem
+## The empirical Bayes normal means problem
 
-Given $n$ observations $x_i$ with known standard deviations $s_i$,
-$i = 1, \dots, n$, the normal means model [@Robbins51; @efron1972limiting; @Stephens_NewDeal; 
-  @bhadra2019lasso; @Johnstone; @lei-thesis] is
-\begin{equation}
-x_i \overset{\text{ind.}}{\sim} \mathcal{N}(\theta_i, s_i^2),
-\end{equation}
-with the unknown (true) means $\theta_i$ to be estimated. Here and
-throughout, we use $\mathcal{N}(\mu, \sigma^2)$ to denote the normal
-distribution with mean $\mu$ and variance $\sigma^2$. The
-maximum-likelihood estimate of $\theta_i$ is, of course, $x_i$. The
-empirical Bayes (EB) approach to inferring $\theta_i$ attempts to
-improve upon the maximum-likelihood estimate by "borrowing
-information" across observations, exploiting the fact that each
-observation contains information not only about its respective mean,
-but also about how the means are collectively distributed
-[@Robbins56; @Morris; @Efron_Book; @Stephens_NewDeal].
-Specifically, the EB approach assumes that
-\begin{equation}
-\theta_i \overset{\text{ind.}}{\sim} g \in \mathcal{G},
-\end{equation}
-where $g$ is a distribution to be estimated from the data, typically
-chosen from among some family of distributions $\mathcal{G}$ that is
+Given $n$ observations $x_i$ with known standard deviations $s_i$, $i
+= 1, \dots, n$, the normal means model
+[@Robbins51; @efron1972limiting; @Stephens_NewDeal; @bhadra2019lasso;
+@Johnstone; @lei-thesis] is \begin{equation} x_i
+\overset{\text{ind.}}{\sim} \mathcal{N}(\theta_i, s_i^2),
+\end{equation} with the unknown (true) means $\theta_i$ to be
+estimated. Here and throughout, we use $\mathcal{N}(\mu, \sigma^2)$ to
+denote the normal distribution with mean $\mu$ and variance
+$\sigma^2$. The maximum-likelihood estimate of $\theta_i$ is, of
+course, $x_i$. The empirical Bayes (EB) approach to inferring
+$\theta_i$ attempts to improve upon the maximum-likelihood estimate by
+"borrowing information" across observations, exploiting the fact that
+each observation contains information not only about its respective
+mean, but also about how the means are collectively distributed
+[@Robbins56; @Morris; @Efron_Book; @Stephens_NewDeal].  Specifically,
+the EB approach assumes that \begin{equation} \theta_i
+\overset{\text{ind.}}{\sim} g \in \mathcal{G}, \end{equation} where
+$g$ is a distribution to be estimated from the data, typically chosen
+from among some family of distributions $\mathcal{G}$ that is
 specified in advance. (Note that although $\mathcal{G}$ must be
-specified in advance, it can be arbitrarily flexible.) 
+specified in advance, it can be arbitrarily flexible.)
 
 The empirical Bayes normal means model is
 therefore fit by first using all of the
@@ -74,7 +73,7 @@ implements new model fitting algorithms with a mind toward speed and
 robustness. In this vignette, we demonstrate usage of
 the `ebnm` package in an analysis of weighted on-base averages for Major League Baseball players.
 
-# Application: Weighted on-base averages
+## Application: Weighted on-base averages
 
 A longstanding tradition in empirical Bayes research is to include an
 analysis of batting averages using data from Major League Baseball 
@@ -139,7 +138,7 @@ one can estimate hitting outcome probabilities by way of a
 Dirichlet-multinomial model; alternatively, one can approximate the likelihood as normal and
 fit an EBNM model directly to the observed wOBAs. In the following, we take the latter approach.
 
-# The `wOBA` data set
+## The "wOBA" data set
 
 We begin by loading and inspecting the `wOBA` data set, which consists of wOBAs and
 standard errors for the 2022 MLB regular season:
@@ -182,7 +181,7 @@ Matt Carpenter, who had several exceptional seasons between 2013 and
 surprising "comeback" in 2022? An empirical Bayes analysis can help
 to answer this and other questions.
 
-# Main `ebnm` methods and the normal prior family 
+## Main ebnm methods and the normal prior family 
 
 Function `ebnm()` is the main interface for fitting the empirical
 Bayes normal means model; it is a
@@ -268,7 +267,7 @@ his strong performance; after factoring in the prior, we judge his
 downgrading an initial estimate of .472 to the final posterior mean
 estimate of .339.
 
-# Comparing normal and unimodal prior families
+## Comparing normal and unimodal prior families
 
 Judge's "true" wOBA is also estimated to be much lower
 (.394) than the initial estimate (.458) despite sustaining a high
@@ -368,7 +367,7 @@ Interestingly, the 80% credible interval for Carpenter is very
 wide, and shares the same lower bound as the first four ballplayers
 with very few plate appearances.
 
-# Nonparametric prior families and advanced usage
+## Nonparametric prior families and advanced usage
 
 Above, we demonstrated how the `ebnm` package makes it is easy to
 perform EBNM analyses with different types of priors, then compared
@@ -495,11 +494,11 @@ These interval estimates do not match our basic intuitions;
 for example, a wOBA over .600 has never been sustained over a
 full season.
 
-# References
+## References
 
 <div id="refs"></div>
 
-# Session information
+## Session information
 
 The following R version and packages were used to generate this vignette:
 

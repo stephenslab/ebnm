@@ -206,15 +206,16 @@
 #'    respective help pages, linked below under \strong{See Also}.
 #'
 #' @references
-#' Jason Willwerscheid and Matthew Stephens (2021).
+#' Jason Willwerscheid, Peter Carbonetto and Matthew Stephens (2023).
 #'   \code{ebnm}: an \code{R} Package for solving the empirical Bayes
-#'   normal means problem using a variety of prior families. arXiv:2110.00152.
+#'   normal means problem using a variety of prior families.
+#'   arXiv:2110.00152.
 #'
-#' Yusha Liu, Peter Carbonetto, Jason Willwerscheid, Scott A Oakes, Kay F Macleod,
-#'   and Matthew Stephens (2023). Dissecting tumor transcriptional heterogeneity
-#'   from single-cell RNA-seq data by generalized binary covariance decomposition.
-#'   bioRxiv 2023.08.15.553436.
-
+#' Yusha Liu, Peter Carbonetto, Jason Willwerscheid, Scott A Oakes,
+#'   Kay F Macleod, and Matthew Stephens (2023). Dissecting tumor
+#'   transcriptional heterogeneity from single-cell RNA-seq data by
+#'   generalized binary covariance decomposition.  bioRxiv
+#'    2023.08.15.553436.
 #'
 #' @seealso A plotting method is available for \code{ebnm} objects: see
 #'   \code{\link{plot.ebnm}}.
