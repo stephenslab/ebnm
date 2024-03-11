@@ -1,7 +1,8 @@
-pandoc: 3.1.1
+pandoc: 2.17.1.1
 pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
-  ebnm: ebnm.html
-last_built: 2023-10-11T22:36Z
+  baseball: baseball.html
+  shrink_intro: shrink_intro.html
+last_built: 2024-02-26T23:15Z
 

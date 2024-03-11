@@ -1,34 +1,72 @@
 ---
-title: Brief introduction to shrinkage and empirical Bayes 
-author: Jason Willwerscheid and Peter Carbonetto
-date: "`r Sys.Date()`"
+title: Introduction to the empirical Bayes normal means model via shrinkage estimation
 output: 
-  html_document:
-    toc: no
-    highlight: textmate
-    theme: readable
+  rmarkdown::html_vignette:
+    toc: yes
+bibliography: ebnm.bib
 vignette: >
-  %\VignetteIndexEntry{Brief introduction to shrinkage and empirical Bayes }
+  %\VignetteIndexEntry{Introduction to the empirical Bayes normal means model via shrinkage estimation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
 ```{r knitr-opts, include=FALSE}
-knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
-                      fig.align = "center",dpi = 90)
+knitr::opts_chunk$set(comment = "#", collapse = TRUE, results = "hold",
+                      fig.align = "center", dpi = 90)
 ```
 
-This is a very brief illustration of the basic ideas behind the
-empirical Bayes methods. See for example [John Storey's
-text][storey-book] to learn more.
+## The normal means model and empirical Bayes
 
-First, to generate a toy data set, we simulate a bunch of "true"
-(unknown) means $u_i$ from a mixture of a normal distribution centered
-at 2 and a point-mass also at 2:
+Given $n$ observations $x_i$ with known standard deviations $s_i > 0$, $i
+= 1, \dots, n$, the normal means model
+[@Robbins51; @efron1972limiting; @Stephens_NewDeal; @bhadra2019lasso;
+@Johnstone; @lei-thesis] has
+\begin{equation}
+x_i \overset{\text{ind.}}{\sim} \mathcal{N}(\theta_i, s_i^2),
+\end{equation}
+where the unknown ("true") means $\theta_i$ are the quantities
+to be estimated. Here and throughout, we use
+$\mathcal{N}(\mu, \sigma^2)$ to denote the normal distribution with
+mean $\mu$ and variance $\sigma^2$.
+
+The empirical Bayes (EB) approach to inferring $\theta_i$ attempts to
+improve upon the maximum-likelihood estimate $\hat{\theta}_i = x_i$ by "borrowing
+information" across observations, exploiting the fact that each
+observation contains information not only about its respective mean,
+but also about how the means are collectively distributed
+[@Robbins56; @Morris; @Efron_Book; @Stephens_NewDeal].  Specifically,
+the empirical Bayes normal means (EBNM) approach assumes that
+\begin{equation}
+\theta_i \overset{\text{ind.}}{\sim} g \in \mathcal{G},
+\end{equation}
+where $\mathcal{G}$ is some family of distributions that is
+specified in advance and $g \in \mathcal{G}$ is estimated using the data. 
+
+The EBNM model is fit by first using
+all of the observations to estimate the prior $g \in \mathcal{G}$, and then using
+the estimated distribution $\hat{g}$ to compute posteriors and/or posterior summaries 
+for the "true" means 
+$\theta_i$. Commonly, $g$ is estimated via maximum-likelihood and posterior means
+are used as point estimates for the unknown means. The **ebnm** 
+package provides a unified interface for efficiently carrying out both steps,
+with a wide range of available 
+options for the prior family $\mathcal{G}$.
+
+For a detailed introduction, see our [ebnm paper][ebnm-paper]. For further
+background, see for example [John Storey's book][storey-book]. 
+
+## An illustration: shrinkage estimation
+
+Our example data set consists of 400 data points simulated from a normal means
+model in which the true prior $g$ is a mixture of (a) a normal
+distribution centered at 2 and (b) a point-mass also centered
+at 2:
 
 $$
-u_i \sim 0.8\delta_2 + 0.2 N(2,1)
+\theta_i \sim 0.8\delta_2 + 0.2 N(2,1)
 $$
+
+First, we simulate the "true" means $\theta_i$ from this prior:
 
 ```{r sim-data}
 set.seed(1)
@@ -36,109 +74,127 @@ n <- 400
 u <- 2 + (runif(n) < 0.2) * rnorm(n)
 ```
 
-Then we simulate the observations $x_i$ as "noisy" estimates of the
-true means:
+Next, we simulate the observed means $x_i$ as "noisy" estimates of the
+true means (in this example, the noise is homoskedastic):
 
 $$
-x_i \sim u_i + N(0,1/3)
+x_i \sim N(\theta_i,s_i), \quad s_i = 1/3,
 $$
 
 ```{r sim-data-2}
-s <- rep(1/3,n)
-x <- u + s*rnorm(n)
+s <- rep(1/3, n)
+x <- u + s * rnorm(n)
 ```
+
+Although we know what the true means are in this example, 
+we'll treat them as quantities we cannot observe.
 
 The maximum-likelihood estimates (MLEs) of the true means are simply
 $\hat{u}_i = x_i$:
 
 ```{r plot-mle, fig.height=3.5, fig.width=3.5}
-par(mar = c(4,4,2,2))
-lims <- range(c(u,x))
-plot(u,x,pch = 4,cex = 0.75,xlim = lims,ylim = lims)
-abline(a = 0,b = 1,col = "magenta",lty = "dotted")
+par(mar = c(4, 4, 2, 2))
+lims <- c(-0.55, 5.05)
+plot(u, x, pch = 4, cex = 0.75, xlim = lims, ylim = lims,
+     xlab = "true value", ylab = "estimate", main = "MLE")
+abline(a = 0, b = 1, col = "magenta", lty = "dotted")
 ```
 
-We can do much better than the maximum-likelihood estimator—and in
-fact the theory tells us we are guaranteed to do better—by learning a
-prior from all the observations, and then this prior can be used to
-"shrink" the estimates toward the shared prior. This is the essential
-idea behind empirical Bayes.
+We can do better than the MLE --- and in
+fact some theory tells us we are guaranteed to do better --- by learning a
+prior using all the observations, then "shrinking" the estimates toward
+this prior.
 
-Let's illustrate this idea with a simple normal prior with unknown
-mean and unknown variance. (Noting that the normal prior is the "wrong"
-prior for this data set.) First, we fit the prior,
+Let's illustrate this idea with a simple normal prior in which the
+mean and variance of the normal prior are learned from the
+data. (Note that the normal prior is the wrong prior for this
+data set! Recall we that simulated data using a mixture of a normal and a
+point-mass.)
+
+First, we fit the prior:
 
 ```{r ebnm-normal}
-library(ebnm)
-fit_normal <- ebnm(x,s,prior_family = "normal",mode = "estimate")
+library("ebnm")
+fit_normal <- ebnm(x, s, prior_family = "normal", mode = "estimate")
 ```
 
-then we estimate the true means by the posterior mean values,
-$\hat{u}_i = E[u_i \,|\, x_i]$, which can be extracted with
-`coef()`:
+Next we estimate the true means using posterior means
+$\hat{u}_i = E[\theta_i \,|\, x_i, \hat{g}]$. We extract these posterior means 
+using the `coef()` method:
 
 ```{r plot-ebnm-normal, fig.height=3.5, fig.width=3.5}
 y <- coef(fit_normal)
-lims <- range(c(u,y))
-par(mar = c(4,4,2,2))
-plot(u,y,pch = 4,cex = 0.75,xlim = lims,ylim = lims)
-abline(a = 0,b = 1,col = "magenta",lty = "dotted")
+par(mar = c(4, 4, 2, 2))
+plot(u, y, pch = 4, cex = 0.75, xlim = lims, ylim = lims,
+     xlab = "true value", ylab = "estimate", main = "normal prior")
+abline(a = 0, b = 1, col = "magenta", lty = "dotted")
 ```
 
-It turns out the shrinked estimates are worse for the larger $u_i$
-values because they are shrunk toward the common mean near 2. Still, the
-*overall* estimation error—the "mean-squared error" (MSE)—went down:
+These "shrunken" estimates are better when true means $\theta_i$ are near 2, but
+worse when they are far from 2. Still, they substantially improve
+the *overall estimation error* (the "root mean-squared error" or RMSE):
 
 ```{r mse-1}
-mse_mle    <- (x - u)^2
-mse_shrink <- (y - u)^2
+err_mle           <- (x - u)^2
+err_shrink_normal <- (y - u)^2
 print(round(digits = 4,
-            x = c(mle = mean(mse_mle),
-                  normal = mean(mse_shrink))))
+            x = c(mle           = sqrt(mean(err_mle)),
+                  shrink_normal = sqrt(mean(err_shrink_normal)))))
 ```
 
 Here's a more detailed comparison of the estimation error:
 
 ```{r plot-mse-1, fig.height=3.5, fig.width=3.5}
-par(mar = c(4,4,2,2))
-plot(mse_mle,mse_shrink,pch = 4,cex = 0.75,xlim = c(0,1.2),ylim = c(0,1.2))
-abline(a = 0,b = 1,col = "magenta",lty = "dotted")
+par(mar = c(4, 4, 2, 2))
+plot(err_mle, err_shrink_normal, pch = 4, cex = 0.75,
+     xlim = c(0, 1.2), ylim = c(0, 1.2))
+abline(a = 0, b = 1, col = "magenta", lty = "dotted")
 ```
 
-Indeed, a few of the large estimates got much worse while many other
-estimates got a little bit better.
+Indeed, the error increases in a few of the estimates and decreases in
+many of the other estimates, resulting in a lower RMSE over the 400 data points.
 
-Now, with the right prior—specifically, the "point-normal" prior in
-ebnm—the shrinked estimates get even better.
-
-As before, we first fit the prior to the data (the only difference
-here is in the "prior_family" argument):
+Let's now see what happens when we use a family of priors that is
+better suited to this data set --- specifically, the "point-normal"
+family. Notice that the only change we make in our call to
+`ebnm()` is in the `prior_family` argument:
 
 ```{r ebnm-pn}
-fit_pn <- ebnm(x,s,prior_family = "point_normal",mode = "estimate")
+fit_pn <- ebnm(x, s, prior_family = "point_normal", mode = "estimate")
 ```
 
-Then we extract the posterior mean estimates:
+Now we extract the posterior mean estimates and compare to the true
+values:
 
 ```{r plot-ebnm-pn, fig.height=3.5, fig.width=3.5}
-par(mar = c(4,4,2,2))
+par(mar = c(4, 4, 2, 2))
 y <- coef(fit_pn)
-lim <- range(c(u,y))
-plot(u,y,pch = 4,cex = 0.75,xlim = lim,ylim = lim)
-abline(a = 0,b = 1,col = "magenta",lty = "dotted")
+plot(u, y, pch = 4, cex = 0.75, xlim = lims, ylim = lims,
+     xlab = "true value", ylab = "estimate", main = "point-normal prior")
+abline(a = 0, b = 1, col = "magenta", lty = "dotted")
 ```
 
-The added flexibility of the point-normal allowed the accuracy of the
-small values to be improved without increasing the error in the large
-values, and so the latest shrunk estimates improved the overall error
-even more:
+The added flexibility of the point-normal prior improves the accuracy of estimates for
+means near 2, while estimates for means far from 2 are no worse than the 
+MLEs. The result is that the overall RMSE again sees a substantial improvement:
 
-```{r plot-mse-2, fig.height=3.5, fig.width=3.5}
-mse_shrink_pn <- (y - u)^2
+```{r mse-2}
+err_shrink_pn <- (y - u)^2
 print(round(digits = 4,
-            x = c(mle = mean(mse_mle),
-                  normal = mean(mse_shrink),
-				  point_normal = mean(mse_shrink_pn))))
+            x = c(mle = sqrt(mean(err_mle)),
+                  normal = sqrt(mean(err_shrink_normal)),
+                  point_normal = sqrt(mean(err_shrink_pn)))))
 ```
 
+## Session information
+
+The following R version and packages were used to generate this vignette:
+
+```{r}
+sessionInfo()
+```
+
+## References
+
+[ebnm-paper]: https://arxiv.org/abs/2110.00152
 [storey-book]: https://jdstorey.org/fas
