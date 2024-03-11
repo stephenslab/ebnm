@@ -1,47 +1,45 @@
 ---
-title: An analysis of weighted on-base averages with ebnm
-author: Jason Willwersheid, Peter Carbonetto and Matthew Stephens
-date: "`r Sys.Date()`"
+title: An analysis of weighted on-base averages using the ebnm package
 output: 
   rmarkdown::html_vignette:
     toc: yes
 bibliography: ebnm.bib
 vignette: >
-  %\VignetteIndexEntry{An analysis of weighted on-base averages with ebnm}
+  %\VignetteIndexEntry{An analysis of weighted on-base averages using the ebnm package}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-In this vignette, we illustrate the key features of ebnm in an
-analysis of some baseball statistics.
+In this vignette, we illustrate the key features of **ebnm** in an
+analysis of baseball statistics.
 
 ```{r knitr-opts, include=FALSE}
-knitr::opts_chunk$set(comment = "#",collapse = TRUE,results = "hold",
-                      fig.align = "center",dpi = 120)
+knitr::opts_chunk$set(comment = "#", collapse = TRUE, results = "hold",
+                      fig.align = "center", dpi = 120)
 ```
 
 ## The "wOBA" data set
 
-We begin by loading and inspecting the wOBA data set, which
+We begin by loading and inspecting the `wOBA` data set, which
 consists of wOBAs ("weighted on-base averages") and standard errors
 for the 2022 MLB regular season:
 
 ```{r load-data}
-library(ebnm)
-data(wOBA)
+library("ebnm")
+data("wOBA")
 nrow(wOBA)
 head(wOBA)
 ```
 
 Column "x" contains the observed wOBAs, which we interpret as
-estimates of the players' "true" wOBA skill. Column "s" gives the
+estimates of a player's *hitting ability*. Column "s" gives
 standard errors. (See below for background on the wOBA statistic and
-details on how the standard errors were calculated.)
+details on how standard errors were calculated.)
 
-Next, we visualize the overall distribution of wOBAs:
+The overall distribution of wOBAs appears as follows:
 
 ```{r woba-histogram, fig.height=2, fig.width=4}
-library(ggplot2)
+library("ggplot2")
 ggplot(wOBA, aes(x = x)) +
   geom_histogram(bins = 64, color = "white",fill = "black") +
   theme_classic()
@@ -50,14 +48,17 @@ ggplot(wOBA, aes(x = x)) +
 As the histogram shows, most players finished the season with a wOBA
 between .200 and .400. A few had very high wOBAs (>.500), while others
 had wOBAs at or near zero. A casual inspection of the data suggests
-that players with these very high (or very low) wOBAs were simply
-lucky (or unlucky). For example, the four players with the highest
-wOBAs each had 16 PAs or fewer. It is unlikely that they would have
-sustained this high level of production over a full season's worth of
-PAs!
+that players with these extreme wOBAs were simply
+lucky (or unlucky). For example, the 4 players with the highest
+wOBAs each had fewer than 20 plate appearances. 
+(The number of plate appearances, or PAs, is the sample size 
+over which wOBA is measured for each hitter, so smaller numbers of PAs are 
+generally associated with larger standard errors.) It is unlikely that 
+these players would have sustained their high level of production over 
+a full season's worth of PAs!
 
-In contrast, Aaron Judge's production — which included a
-record-breaking number of home runs — appears to be "real," since it
+In contrast, Aaron Judge's production --- which included a
+record-breaking number of home runs --- appears to be "real," since it
 was sustained over nearly 700 PAs.  Other cases are more ambiguous:
 how, for example, are we to assess Matt Carpenter, who had several
 exceptional seasons between 2013 and 2018 but whose output steeply
@@ -70,8 +71,8 @@ Function `ebnm()` is the main interface for fitting the empirical
 Bayes normal means model; it is a "Swiss army knife" that allows for
 various choices of prior family $\mathcal{G}$ as well as providing
 multiple options for fitting and tuning models. For example, we can
-fit a normal means model with the prior family $\mathcal{G}$ taken to
-be the family of normal distributions:
+fit a normal means model with $\mathcal{G}$ taken to
+be the family of normal distributions as follows:
 
 ```{r ebnm-normal}
 x <- wOBA$x
@@ -82,18 +83,18 @@ fit_normal <- ebnm(x, s, prior_family = "normal", mode = "estimate")
 ```
 
 (The default behavior is to fix the prior mode at zero.  Since we
-certainly do not expect the distribution of true wOBA skill to have a
+certainly do not expect the distribution of true hitting ability to have a
 mode at zero, we set `mode = "estimate"`.)
 
-We note in passing that the `ebnm` package has a second model-fitting interface, in which
+The `ebnm` package has a second model-fitting interface in which
 each prior family gets its own function:
 
 ```{r ebnm-normal-2}
 fit_normal <- ebnm_normal(x, s, mode = "estimate")
 ```
 
-Textual and graphical overviews of results can be obtained using,
-respectively, methods `summary()` and `plot()`. The summary method
+Textual and graphical overviews of results can be obtained using the `summary()` 
+and `plot()` methods. The `summary()` method
 appears as follows:
 
 ```{r summary-ebnm-normal}
@@ -113,9 +114,9 @@ effects clearly visible. In particular, the most extreme wOBAs on
 either end of the spectrum are strongly shrunk towards the league
 average (around .300).
 
-Since `plot()` returns a "ggplot" object [@ggplot2], the plot can
-conveniently be customized using `ggplot2` syntax. For example, one
-can vary the color of the points by the number of plate appearances:
+Since the `plot()` method returns a "ggplot" object [@ggplot2], the plot can
+be conveniently customized using `ggplot2`. For example, we
+can vary the color of points by the number of plate appearances:
 
 ```{r plot-ebnm-normal-better, fig.height=3, fig.width=3.7}
 plot(fit_normal) +
@@ -125,44 +126,41 @@ plot(fit_normal) +
   scale_color_gradient(low = "blue", high = "red")
 ```
 
-By varying the color of points, we see that the wOBA estimates with
-higher standard errors or fewer plate appearances (blue points) tend
-to be shrunk toward the league average much more strongly than wOBAs
-from hitters with many plate appearances (red points).
+The plot tells us that wOBAs associated with
+fewer plate appearances (blue points) were
+shrunk toward the league average much more strongly than wOBAs
+for hitters with many plate appearances (red points).
 
-Above, we used `head()` to view data for the first 6 hitters in the
-dataset. Let's now see what the EBNM analysis suggests might be their
-"true" wOBA skill. To examine the results more closely, we use the
-`fitted()` method, which returns a posterior summary for each
-hitter:
+Let us revisit the first 6 hitters in the data set to see
+what the EBNM model suggests about their true hitting ability. The
+\code{fitted()} method returns a posterior summary for each hitter
+(by default, the posterior mean and standard deviation):
 
 ```{r fitted-ebnm-normal}
 print(head(fitted(fit_normal)), digits = 3)
 ```
 
-The wOBA estimates of the first four ballplayers are shrunk strongly
+Estimates for the first four ballplayers are shrunk strongly
 toward the league average, reflecting the fact that these players had
-very few plate appearances (and indeed, we were not swayed by their
-very high initial wOBA estimates).
-
-Carpenter had many more plate appearances (154) than these other four
-players, but according to this model we should remain skeptical about
+very few plate appearances. 
+Carpenter had many more plate appearances (154) than these other
+four players, but according to this model we should remain skeptical about
 his strong performance; after factoring in the prior, we judge his
-"true" performance to be much closer to the league average,
-downgrading an initial estimate of .472 to the final posterior mean
+"true"''" talent to be much closer to the league average,
+downgrading an observed wOBA of .472 to the posterior mean
 estimate of .339.
 
 ## Comparing different priors
 
-Judge's "true" wOBA is also estimated to be much lower (.394) than the
-initial estimate (.458) despite sustaining a high level of production
+Judge's "true" talent is also estimated to be much lower (.394) than his
+observed wOBA (.458) despite sustaining this high level of production
 over a full season (696 PAs). For this reason, one might ask whether a
 prior that is more flexible than the normal prior — that is, a prior
 that can better adapt to "outliers" like Judge — might produce a
-different result. The ebnm package is very well suited to answering
+different result. The **ebnm** package is very well suited to answering
 this question. For example, to obtain results using the family of all
-unimodal distributions rather than the family of normal distributions,
-we only need to change "prior_family" from "normal" to "unimodal":
+unimodal priors rather than a normal prior,
+we need only update the argument to `prior_family`:
 
 ```{r ebnm-unimodal}
 fit_unimodal <- ebnm(x, s, prior_family = "unimodal", mode = "estimate")
@@ -170,8 +168,8 @@ fit_unimodal <- ebnm(x, s, prior_family = "unimodal", mode = "estimate")
 
 It is straightforward to produce a side-by-side visualization of the
 fitted models simply by including both models as arguments to the
-`plot()` method (we also use the "subset" argument to focus on the
-results for Judge and other players with the most plate appearances):
+`plot()` method. We also use the `subset` argument to focus on the
+results for Judge and other players with the most plate appearances:
 
 ```{r ebnm-normal-vs-unimodal, fig.width=4.5, fig.height=2.25}
 top50 <- order(wOBA$PA, decreasing = TRUE)
@@ -180,37 +178,38 @@ plot(fit_normal, fit_unimodal, subset = top50)
 ```
 
 This plot illustrates the ability of the unimodal prior to better
-adapt to the data: wOBA estimates for players with a lot of plate
-appearances are not adjusted quite so strongly toward the league
-average. To compare in more detail, we see for example that Judge's
-wOBA estimate from the model with the unimodal prior (the "mean2"
-column) remains much closer to the original wOBA estimate:
+adapt to the data: estimates for players with many plate
+appearances and outlying performances (very high or very low wOBAs) 
+are not adjusted quite so strongly toward the league
+average. Judge's estimated "true" talent, for example, remains much closer to 
+his observed wOBA:
 
 ```{r ebnm-normal-vs-unimodal-2}
 dat <- cbind(wOBA[, c("PA","x")],
              fitted(fit_normal),
              fitted(fit_unimodal))
-names(dat) <- c("PA", "x", "mean1", "sd1", "mean2", "sd2")
+names(dat) <- c("PA", "x", "mean_n", "sd_n", "mean_u", "sd_u")
 print(head(dat), digits = 3)
 ```
 
-Carpenter's wOBA estimate is also higher under the more flexible
-unimodal prior, but is still adjusted much more than Judge's in light
-of Carpenter's smaller sample size. It is also interesting that the
-unimodal prior assigns greater uncertainty (the "sd2" column) to
-this estimate compared to the normal prior.
+Carpenter's estimated "true" talent is also higher, but is still adjusted much 
+more than Judge's in light
+of Carpenter's smaller sample size. Interestingly,
+the
+unimodal prior also assigns greater uncertainty (the ``sd\_u'' column)
+to Carpenter's estimate than does the normal prior.
 
 Recall that the two normal means models differ only in the priors used, so
 we can understand the differences in the shrinkage behavior of these
 models by inspecting the priors. Calling `plot()` with
 `incl_cdf = TRUE` shows the cumulative distribution functions
 (CDFs) of the fitted priors $\hat{g}$. Since we are particularly
-interested in understanding the differences in shrinkage behaviour for
-the largest wOBAs such as Judge's, we create a second plot that zooms
-in on wOBAs over .350:
+interested in understanding the differences in shrinkage behavior for
+large wOBAs such as Judge's, we create a second plot that zooms
+in on the interval between .350 and .450:
 
 ```{r ebnm-normal-vs-unimodal-3, fig.height=2.25, fig.width=6.5, warning=FALSE}
-library(cowplot)
+library("cowplot")
 p1 <- plot(fit_normal, fit_unimodal, incl_cdf = TRUE, incl_pm = FALSE) +
   xlim(c(.250, .350)) +
   guides(color = "none")
@@ -220,25 +219,28 @@ plot_grid(p1, p2, nrow = 1, ncol = 2, rel_widths = c(1,2))
 ```
 
 The plot on the right shows that the fitted normal prior has almost no
-mass on wOBAs above .400, explaining why Judge's wOBA estimate is
+mass above .400, explaining why Judge's estimate is
 shrunk so strongly toward the league average, whereas the unimodal
-prior is flexible enough to permit larger posterior estimates above
+prior is flexible enough to permit posterior estimates above
 .400.
 
 The posterior means and standard errors returned from the `ebnm()`
 call cannot be used to obtain credible intervals (except for the
 special case of the normal prior). Therefore, we provide additional
-methods `confint()` and `quantile()` which return, respectively,
-credible intervals — or, more precisely, *highest posterior density*
-intervals [@chen-1999] — and posterior quantiles for each
-observation. These are implemented using Monte Carlo techniques, which
+methods `quantile()` and `confint()`, which return, respectively,
+posterior quantiles and credible intervals, defined as the narrowest 
+*continuous* intervals 
+covering $(1 - \alpha)\%$ of the posterior, where $1 - \alpha$ is the 
+desired confidence level.
+Both methods are implemented using Monte Carlo techniques, which
 can be slow for large data sets, so credible intervals are not
-computed by default.  The following code computes 80% highest
-posterior density (HPD) intervals for the EBNM model with unimodal
-prior. [We add a Monte Carlo sampler using function
+computed by default.  
+We add a Monte Carlo sampler using function
 `ebnm_add_sampler()`; alternatively, we could have added a sampler in
-our initial calls to `ebnm()` by specifying `output = output_all()`.]
-We set a seed for reproducibility:
+our initial calls to `ebnm()` by specifying `output = output_all()`.
+We then compute, 80%
+credible intervals for the EBNM model with unimodal
+prior, setting a seed for reproducibility:
 
 ```{r ebnm-unimodal-confint}
 fit_unimodal <- ebnm_add_sampler(fit_unimodal)
@@ -248,7 +250,7 @@ print(head(confint(fit_unimodal, level = 0.8)), digits = 3)
 
 Interestingly, the 80% credible interval for Carpenter is very
 wide, and shares the same lower bound as the first four ballplayers
-with very few plate appearances.
+(who, recall, have very few plate appearances).
 
 ## Reanalyzing the data using a nonparametric prior
 
@@ -259,10 +261,9 @@ families makes different assumptions about the data which, *a priori*,
 may be more or less plausible. An alternative to prior families that
 make specific assumptions about the data is to use the prior family
 that contains *all* distributions $\mathcal{G}_{\mathrm{npmle}}$,
-which is in a sense "assumption free." Here we re-analyze the wOBA
-data set to illustrate the use of this prior family. Note that
+which is in a sense "assumption free." Note that
 although nonparametric priors require specialized computational
-techniques, switching to a nonparametric prior is seamless in ebnm,
+techniques, switching to a nonparametric prior is seamless in **ebnm**,
 as these implementation details are hidden. Similar to above, we need
 only make a single change to the `prior_family` argument:
 
@@ -278,8 +279,8 @@ sometimes be helpful to see what is going on "behind the scenes,"
 particularly for flagging or diagnosing issues. By default, ebnm uses
 the mixsqp package [@MixSQP] to fit the NPMLE $\hat{g} \in
 \mathcal{G}_{\mathrm{npmle}}$. We can monitor convergence of the
-mix-SQP optimization algorithm by setting the "verbose" control
-argument to "TRUE":
+mix-SQP optimization algorithm by setting the `verbose` control
+argument to `TRUE`:
 
 ```{r ebnm-npmle-verbose}
 fit_npmle <- ebnm(x, s, prior_family = "npmle", 
@@ -288,12 +289,13 @@ fit_npmle <- ebnm(x, s, prior_family = "npmle",
 
 This output shows no issues with convergence of the optimization
 algorithm; the mix-SQP algorithm converged to the solution (up to
-numerical rounding error) in only 6 iterations. In some cases,
+numerical rounding error) in only 6 iterations (not counting
+the 10 initial EM iterations). In some cases,
 convergence issues can arise when fitting nonparametric models to
 large or complex data sets, and revealing the details of the
 optimization can help to pinpoint these issues.
 
-Next, we visually compare the three fits obtained so far:
+Let us visually compare the three fits obtained so far:
 
 ```{r plot-npmle, fig.height=2.25, fig.width=4.25}
 plot(fit_normal, fit_unimodal, fit_npmle, incl_cdf = TRUE, subset = top50)
@@ -314,13 +316,15 @@ logLik(fit_npmle)
 ```
 
 A nonparametric prior $\mathcal{G}$ is approximated by $K$ mixture
-components on a fixed grid, with the mixture proportions to be
+components on a fixed grid, with mixture proportions to be
 estimated. We can infer from the above output that
-$\mathcal{G}_\text{npmle}$ has been approximated as a family of
-mixtures over a grid of $K = 95$ point masses spanning the range of
-the data. (The number of degrees of freedom is one fewer than $K$
-because the mixture proportions must always sum to 1, which removes
-one degree of freedom from the estimation of ${\boldsymbol\pi}$.)
+the family of unimodal priors has been approximated by a family
+of mixtures over $K = 41$ fixed components, while $\mathcal{G}_\text{npmle}$ has been
+approximated as a family of mixtures over a grid of $K = 95$ point
+masses spanning the range of the data. (The number of degrees of
+freedom is one fewer than $K$ because the mixture proportions must
+always sum to 1, which removes one degree of freedom from the
+estimation of ${\boldsymbol{\pi}}$.)
 
 The default behaviour for nonparametric prior families is to choose
 $K$ such that the likelihood obtained using estimate $\hat{g}$ should
@@ -339,14 +343,18 @@ logLik(fit_npmle_finer)
 ```
 
 As the theory predicts, a much finer grid, with $K = 529$, results
-in only a modest improvement in the log-likelihood. ebnm
-provides similar functions to customize grids for unimodal and
+in only a modest improvement in the log-likelihood. **ebnm**
+provides similar functions `ebnm_scale_unimix()` and `ebnm_scale_normalmix()`
+to customize grids for, respectively, unimodal and
 normal scale mixture prior families.
 
 One potential issue with the NPMLE is that, since it is discrete (as
 the above CDF plot makes apparent), observations are variously shrunk
-towards one of the support points, which can result in poor interval
-estimates. For illustration, we calculate 10% and 90% quantiles:
+toward one of the support points, which can result in poor interval
+estimates. For illustration, we calculate 80% credible intervals using 
+10% and 90% quantiles (note that this is not the same as using the
+`confint()` method with `level = 0.8`, since `confint()` returns the
+*narrowest* continuous intervals covering 80% of the posterior):
 
 ```{r ebnm-npmle-sampler}
 fit_npmle <- ebnm_add_sampler(fit_npmle)
@@ -362,7 +370,7 @@ yield degenerate interval estimates:
 confint(fit_npmle, level = 0.8, parm = "Aaron Judge")
 ```
 
-To address this issue, the deconvolveR package [@NarasimhanEfron]
+To address this and other issues, the **deconvolveR** package [@NarasimhanEfron]
 uses a penalized likelihood that encourages "smooth" priors $\hat{g}$;
 that is, priors $\hat{g}$ for which few of the mixture proportions are
 zero:
@@ -372,14 +380,15 @@ fit_deconv <- ebnm_deconvolver(x / s, output = ebnm_output_all())
 plot(fit_deconv, incl_cdf = TRUE, incl_pm = FALSE)
 ```
 
-Note, however, that the "true" means being estimated are $z$-scores
-rather than raw wOBA skill, as package deconvolveR fits a model to
-z-scores rather than observations and associated standard
-errors. While this is reasonable in many settings, it does not seem
-appropriate for the present analysis:
+Note however that since package **deconvolveR**
+fits a model to $z$-scores rather than observations and associated
+standard errors, the "true" means $\theta$ being estimated are
+$z$-scores rather than raw wOBA skill. While this may be  
+reasonable in many settings, it does
+not seem appropriate for the present analysis:
 
 ```{r ebnm-deconvolver-head}
-print(head(quantile(fit_deconv, probs = c(0.1, 0.9)) * s), digits = 3)
+print(head(confint(fit_deconv, level = 0.8) * s), digits = 3)
 ```
 
 These interval estimates do not match our basic intuitions;
@@ -446,7 +455,7 @@ $\hat{\mathbf{\pi}}_{\mathrm{lg}} = \sum_{i=1}^N \mathbf{z}^{(i)}/
 \sum_{i=1}^N n_i$, where $N$ is the number of hitters in the data set.)
 
 The relative complexity of wOBA makes it well suited for analysis via
-ebnm. With batting average, a common approach is to obtain empirical
+**ebnm**. With batting average, a common approach is to obtain empirical
 Bayes estimates using a beta-binomial model (see, for example,
 @robinson). With wOBA, one can estimate hitting outcome probabilities
 by way of a Dirichlet-multinomial model; alternatively, one can
@@ -462,4 +471,4 @@ vignette:
 sessionInfo()
 ```
 
-## Bibliography
+## References
