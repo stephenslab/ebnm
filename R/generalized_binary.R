@@ -15,7 +15,7 @@ ebnm_generalized_binary_defaults <- function(x, s) {
   return(list(
     maxiter = 50,
     tol = 1e-3,
-    wlist = c(1e-5, 1e-2, 1e-1, 2.5e-1, 9e-1, 1),
+    wlist = c(1e-5, 1),
     mu_init = mu_init,
     mu_range = c(min_mu, max_mu)
   ))
@@ -82,10 +82,15 @@ gb_workhorse <- function(x,
     opt_list <- list(NULL)
     val_list <- rep(NA, length(wlist) - 1)
     for (k in 1:(length(wlist) - 1)) {
-      ### initialize g; due to the piecewise approach to optimization, g_init
-      ###   is ignored.
-      w <- (wlist[k] + wlist[k + 1]) / 2
-      mu <- mu_init
+      if (!is.null(g_init) &&
+          g_init$pi[2] >= wlist[k] &&
+          g_init$pi[2] <= wlist[k + 1]) {
+        w <- g_init$pi[2]
+        mu <- g_init$mean[2]
+      } else {
+        w <- (wlist[k] + wlist[k + 1]) / 2
+        mu <- mu_init
+      }
 
       ### update g
       iter <- 1
@@ -123,14 +128,12 @@ gb_workhorse <- function(x,
           }
 
           # update mu
-          mu_new <- optim(
-            par = mu_init,
-            fn = opt_fn,
-            lower = mu_range[1],
-            upper = mu_range[2],
-            method = "L-BFGS-B",
-            control = control
-          )$par
+          mu_new <- do.call(
+            optimize,
+            c(list(f = opt_fn,
+                   interval = mu_range),
+              control)
+          )$minimum
         }
 
         # check for stopping criterion
@@ -234,6 +237,7 @@ calc_gb_posterior <- function(x, s, g, output){
 
     pm <- zeta * tmp1
     pm2 <- zeta * (tmp1^2 + tmp2)
+    pm2 <- pmax(pm, pm^2)
     psd <- sqrt(pmax(0, pm2 - pm^2))
     lfsr <- 1 - zeta
 

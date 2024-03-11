@@ -184,9 +184,10 @@ mle_parametric <- function(x,
 
   p <- unlist(par_init)[!fix_par]
 
-  # Fix issue #46 (don't initialize using pi0 = 0 or pi0 = 1):
-  if (!(fix_par[1]) && is.infinite(p[1])) {
-    p[1] <- sign(p[1]) * log(length(x))
+  # Don't initialize using infinite values.
+  which.inf <- is.infinite(p)
+  if (any(which.inf)) {
+    p[which.inf] <- 0
   }
 
   if (all(fix_par)) {
