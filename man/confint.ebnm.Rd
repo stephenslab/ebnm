@@ -29,8 +29,13 @@ A matrix with columns giving lower and upper confidence limits for
 }
 \description{
 The \code{\link[stats]{confint}} method for class \code{\link{ebnm}}.
-  Estimates the highest posterior density (HPD) intervals by sampling from
-  the posterior. By default, \code{\link{ebnm}} does not return a posterior
+  Estimates credible intervals by sampling from
+  the posterior. Specifically, for each set of samples
+  \eqn{y_{1i}, \ldots, y_{mi} \sim p(\theta_i \mid x_i, \hat{g})},
+  returns the narrowest interval \eqn{[a_i, b_i]} such that the proportion
+  of points \eqn{y_{1i}, \ldots, y_{mi}} contained in \eqn{[a_i, b_i]} is at
+  least equal to the proportion specified by argument \code{level}. Note
+  that by default, \code{\link{ebnm}} does not return a posterior
   sampler; one can be added to the \code{ebnm} object using function
   \code{\link{ebnm_add_sampler}}.
 }

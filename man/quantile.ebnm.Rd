@@ -27,6 +27,10 @@
 \item{type}{An integer between 1 and 9 selecting one of the nine quantile
 algorithms detailed in \code{\link[stats]{quantile}} to be used.}
 
+\item{digits}{used only when \code{names} is true: the precision to use
+    when formatting the percentages.  In \R versions up to 4.0.x, this had
+    been set to \code{max(2, getOption("digits"))}, internally.}
+
 \item{nsim}{The number of samples to use to estimate quantiles.}
 
 \item{...}{Additional arguments to be passed to the posterior sampler
