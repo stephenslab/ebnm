@@ -19,7 +19,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ebnm</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-15</span>
       </span>
     </div>
 
@@ -57,26 +57,26 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="fu">ebnm</span><span class="op">(</span>
-  <span class="va">x</span>,
-  s <span class="op">=</span> <span class="fl">1</span>,
-  prior_family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"point_normal"</span>, <span class="st">"point_laplace"</span>, <span class="st">"point_exponential"</span>, <span class="st">"normal"</span>,
-    <span class="st">"horseshoe"</span>, <span class="st">"normal_scale_mixture"</span>, <span class="st">"unimodal"</span>, <span class="st">"unimodal_symmetric"</span>,
-    <span class="st">"unimodal_nonnegative"</span>, <span class="st">"unimodal_nonpositive"</span>, <span class="st">"generalized_binary"</span>, <span class="st">"npmle"</span>,
-    <span class="st">"deconvolver"</span>, <span class="st">"flat"</span>, <span class="st">"point_mass"</span>, <span class="st">"ash"</span><span class="op">)</span>,
-  mode <span class="op">=</span> <span class="fl">0</span>,
-  scale <span class="op">=</span> <span class="st">"estimate"</span>,
-  g_init <span class="op">=</span> <span class="cn">NULL</span>,
-  fix_g <span class="op">=</span> <span class="cn">FALSE</span>,
-  output <span class="op">=</span> <span class="fu">ebnm_output_default</span><span class="op">(</span><span class="op">)</span>,
-  optmethod <span class="op">=</span> <span class="cn">NULL</span>,
-  control <span class="op">=</span> <span class="cn">NULL</span>,
-  <span class="va">...</span>
-<span class="op">)</span>
-
-<span class="fu">ebnm_output_default</span><span class="op">(</span><span class="op">)</span>
-
-<span class="fu">ebnm_output_all</span><span class="op">(</span><span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">ebnm</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  s <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  prior_family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"point_normal"</span>, <span class="st">"point_laplace"</span>, <span class="st">"point_exponential"</span>, <span class="st">"normal"</span>,</span>
+<span>    <span class="st">"horseshoe"</span>, <span class="st">"normal_scale_mixture"</span>, <span class="st">"unimodal"</span>, <span class="st">"unimodal_symmetric"</span>,</span>
+<span>    <span class="st">"unimodal_nonnegative"</span>, <span class="st">"unimodal_nonpositive"</span>, <span class="st">"generalized_binary"</span>, <span class="st">"npmle"</span>,</span>
+<span>    <span class="st">"deconvolver"</span>, <span class="st">"flat"</span>, <span class="st">"point_mass"</span>, <span class="st">"ash"</span><span class="op">)</span>,</span>
+<span>  mode <span class="op">=</span> <span class="fl">0</span>,</span>
+<span>  scale <span class="op">=</span> <span class="st">"estimate"</span>,</span>
+<span>  g_init <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  fix_g <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  output <span class="op">=</span> <span class="fu">ebnm_output_default</span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  optmethod <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  control <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">ebnm_output_default</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">ebnm_output_all</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -189,9 +189,9 @@ the latter two) the gradient. The default option is <code>"nohess_nlm"</code>.</
 
 <dt>control</dt>
 <dd><p>A list of control parameters to be passed to the optimization
-function. <code><a href="https://rdrr.io/r/stats/optimize.html" class="external-link">optimize</a></code> is used for normal and horseshoe
-prior families, while <code><a href="https://rdrr.io/r/stats/nlm.html" class="external-link">nlm</a></code> is used for parametric
-families unless parameter <code>optmethod</code> specifies otherwise.
+function. <code><a href="https://rdrr.io/r/stats/optimize.html" class="external-link">optimize</a></code> is used for normal, horseshoe, and
+generalized binary prior families. Other parametric families use
+<code><a href="https://rdrr.io/r/stats/nlm.html" class="external-link">nlm</a></code> unless parameter <code>optmethod</code> specifies otherwise.
 <code><a href="https://rdrr.io/r/stats/nlm.html" class="external-link">nlm</a></code> is also used for the <code>deconvolveR</code> prior family.
 For ash families (including scale mixtures of normals, the NPMLE, and
 all <code>unimodal_</code> families), function <code><a href="https://rdrr.io/pkg/mixsqp/man/mixsqp.html" class="external-link">mixsqp</a></code> in
@@ -353,8 +353,8 @@ other cases, additional parameters are ignored.</p></dd>
     <div id="functions">
     <h2>Functions</h2>
     
-<ul><li><p><code>ebnm_output_default</code>: Lists the default return values.</p></li>
-<li><p><code>ebnm_output_all</code>: Lists all valid return values.</p></li>
+<ul><li><p><code>ebnm_output_default()</code>: Lists the default return values.</p></li>
+<li><p><code>ebnm_output_all()</code>: Lists all valid return values.</p></li>
 </ul></div>
     <div id="references">
     <h2>References</h2>
@@ -396,83 +396,83 @@ other cases, additional parameters are ignored.</p></dd>
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span class="va">theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">rexp</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">s</span> <span class="op">&lt;-</span> <span class="fl">1</span></span>
-<span class="r-in"><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">theta</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span>, <span class="fl">0</span>, <span class="va">s</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># The following are equivalent:</span></span>
-<span class="r-in"><span class="va">pn.res</span> <span class="op">&lt;-</span> <span class="fu">ebnm</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, prior_family <span class="op">=</span> <span class="st">"point_normal"</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">pn.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="ebnm_point_normal.html">ebnm_point_normal</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Inspect results:</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik</a></span><span class="op">(</span><span class="va">pn.res</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 'log Lik.' -320.5272 (df=2)</span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pn.res</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">theta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">100</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/stats/Exponential.html" class="external-link">rexp</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fl">1</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">theta</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span>, <span class="fl">0</span>, <span class="va">s</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># The following are equivalent:</span></span></span>
+<span class="r-in"><span><span class="va">pn.res</span> <span class="op">&lt;-</span> <span class="fu">ebnm</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, prior_family <span class="op">=</span> <span class="st">"point_normal"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pn.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="ebnm_point_normal.html">ebnm_point_normal</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Inspect results:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik</a></span><span class="op">(</span><span class="va">pn.res</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 'log Lik.' -376.5826 (df=2)</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pn.res</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ebnm-1.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Fix the scale parameter:</span></span>
-<span class="r-in"><span class="va">pl.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="ebnm_point_laplace.html">ebnm_point_laplace</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Estimate the mode:</span></span>
-<span class="r-in"><span class="va">normal.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="ebnm_normal.html">ebnm_normal</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, mode <span class="op">=</span> <span class="st">"estimate"</span><span class="op">)</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">normal.res</span><span class="op">)</span> <span class="co"># posterior means shrink to a value different from zero</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Fix the scale parameter:</span></span></span>
+<span class="r-in"><span><span class="va">pl.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="ebnm_point_laplace.html">ebnm_point_laplace</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Estimate the mode:</span></span></span>
+<span class="r-in"><span><span class="va">normal.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="ebnm_normal.html">ebnm_normal</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, mode <span class="op">=</span> <span class="st">"estimate"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">normal.res</span><span class="op">)</span> <span class="co"># posterior means shrink to a value different from zero</span></span></span>
 <span class="r-plt img"><img src="ebnm-2.png" alt="" width="700" height="433"></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Use an initial g (this fixes mode and scale for ash priors):</span></span>
-<span class="r-in"><span class="va">normalmix.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="ebnm_normal_scale_mixture.html">ebnm_normal_scale_mixture</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, g_init <span class="op">=</span> <span class="va">pn.res</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Fix g and get different output (including a posterior sampler):</span></span>
-<span class="r-in"><span class="va">pn.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="ebnm_point_normal.html">ebnm_point_normal</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, g_init <span class="op">=</span> <span class="va">pn.res</span>, fix_g <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span class="r-in">                            output <span class="op">=</span> <span class="fu">ebnm_output_all</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Sample from the posterior:</span></span>
-<span class="r-in"><span class="va">pn.samp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/simulate.html" class="external-link">simulate</a></span><span class="op">(</span><span class="va">pn.res</span>, nsim <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Quantiles and HPD confidence intervals can be obtained via sampling:</span></span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">pn.quantiles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">pn.res</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-in"><span class="va">pn.quantiles</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             10% 90%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.0000000   0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.0000000   0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.0000000   0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] -0.1116730   0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] -0.2797421   0</span>
-<span class="r-in"><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">pn.res</span>, level <span class="op">=</span> <span class="fl">0.8</span>, parm <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      CI.lower CI.upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]        0        0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]        0        0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]        0        0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]        0        0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]        0        0</span>
-<span class="r-in"></span>
-<span class="r-in"><span class="co"># Examples of usage of control parameter:</span></span>
-<span class="r-in"><span class="co">#  point_normal uses nlm:</span></span>
-<span class="r-in"><span class="va">pn.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="ebnm_point_normal.html">ebnm_point_normal</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>print.level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Use an initial g (this fixes mode and scale for ash priors):</span></span></span>
+<span class="r-in"><span><span class="va">normalmix.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="ebnm_normal_scale_mixture.html">ebnm_normal_scale_mixture</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, g_init <span class="op">=</span> <span class="va">pn.res</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Fix g and get different output (including a posterior sampler):</span></span></span>
+<span class="r-in"><span><span class="va">pn.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="ebnm_point_normal.html">ebnm_point_normal</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, g_init <span class="op">=</span> <span class="va">pn.res</span>, fix_g <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>                            output <span class="op">=</span> <span class="fu">ebnm_output_all</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Sample from the posterior:</span></span></span>
+<span class="r-in"><span><span class="va">pn.samp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/simulate.html" class="external-link">simulate</a></span><span class="op">(</span><span class="va">pn.res</span>, nsim <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Quantiles and HPD confidence intervals can be obtained via sampling:</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pn.quantiles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">pn.res</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pn.quantiles</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             10%       90%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.0000000 0.1853406</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.1752801 0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] -2.7369753 0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]  0.0000000 0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] -2.0484225 0.0000000</span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">pn.res</span>, level <span class="op">=</span> <span class="fl">0.8</span>, parm <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       CI.lower CI.upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.000000        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.000000        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] -2.303749        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]  0.000000        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] -1.516374        0</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># Examples of usage of control parameter:</span></span></span>
+<span class="r-in"><span><span class="co">#  point_normal uses nlm:</span></span></span>
+<span class="r-in"><span><span class="va">pn.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="ebnm_point_normal.html">ebnm_point_normal</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>print.level <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> iteration = 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Step:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.000000 0.406739</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.000000 1.088903</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Function Value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 138.6191</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 197.2857</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Gradient:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -3.431053  3.404440</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  -1.088142 -10.217930</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> iteration = 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.3715144 0.9423893</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.8706717 1.8924864</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Function Value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 136.7395</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 192.7949</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Gradient:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -2.575665e-06  3.701709e-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.904698e-05 8.743146e-06</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Relative gradient close to zero.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Current iterate is probably solution.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-in"><span class="co">#  unimodal uses mixsqp:</span></span>
-<span class="r-in"><span class="va">unimodal.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="ebnm_unimodal.html">ebnm_unimodal</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Running mix-SQP algorithm 0.3-48 on 201 x 7 matrix</span>
+<span class="r-in"><span><span class="co">#  unimodal uses mixsqp:</span></span></span>
+<span class="r-in"><span><span class="va">unimodal.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="ebnm_unimodal.html">ebnm_unimodal</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running mix-SQP algorithm 0.3-54 on 201 x 9 matrix</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> convergence tol. (SQP):     1.0e-08</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> conv. tol. (active-set):    1.0e-10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> zero threshold (solution):  1.0e-08</span>
@@ -481,37 +481,37 @@ other cases, additional parameters are ignored.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> step size reduction factor: 7.5e-01</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> minimum step size:          1.0e-08</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> max. iter (SQP):            1000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max. iter (active-set):     8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max. iter (active-set):     10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> number of EM iterations:    20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Computing SVD of 201 x 7 matrix.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Computing SVD of 201 x 9 matrix.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Matrix is not low-rank; falling back to full matrix.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> iter        objective max(rdual) nnz stepsize max.diff nqp nls</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1 +6.742020520e-01  -- EM --    7 1.00e+00 1.18e-01  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    2 +5.754810856e-01  -- EM --    7 1.00e+00 1.19e-01  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    3 +5.176048191e-01  -- EM --    7 1.00e+00 1.01e-01  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    4 +4.848244796e-01  -- EM --    7 1.00e+00 7.83e-02  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    5 +4.662948498e-01  -- EM --    7 1.00e+00 5.79e-02  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    6 +4.556119600e-01  -- EM --    7 1.00e+00 4.22e-02  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    7 +4.492576316e-01  -- EM --    7 1.00e+00 3.08e-02  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    8 +4.453389346e-01  -- EM --    7 1.00e+00 2.26e-02  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    9 +4.428306156e-01  -- EM --    7 1.00e+00 1.68e-02  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   10 +4.411660462e-01  -- EM --    7 1.00e+00 1.26e-02  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   11 +4.400236610e-01  -- EM --    7 1.00e+00 9.55e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   12 +4.392155525e-01  -- EM --    7 1.00e+00 7.31e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   13 +4.386285295e-01  -- EM --    7 1.00e+00 5.65e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   14 +4.381922829e-01  -- EM --    7 1.00e+00 4.41e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   15 +4.378617884e-01  -- EM --    7 1.00e+00 3.48e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   16 +4.376073434e-01  -- EM --    7 1.00e+00 2.76e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   17 +4.374087887e-01  -- EM --    7 1.00e+00 2.22e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   18 +4.372520745e-01  -- EM --    7 1.00e+00 1.80e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   19 +4.371271701e-01  -- EM --    7 1.00e+00 1.47e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   20 +4.370267590e-01  -- EM --    7 1.00e+00 1.22e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1 +4.369454072e-01 +8.131e-03   6  ------   ------   --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    2 +4.363231999e-01 +7.346e-04   3 1.00e+00 2.76e-02   5   1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    3 +4.363230747e-01 -1.171e-06   3 1.00e+00 4.42e-04   2   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    1 +8.234605969e-01  -- EM --    9 1.00e+00 1.05e-01  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    2 +7.275106073e-01  -- EM --    9 1.00e+00 1.10e-01  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    3 +6.751671414e-01  -- EM --    9 1.00e+00 9.40e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    4 +6.473671992e-01  -- EM --    9 1.00e+00 7.27e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    5 +6.321107665e-01  -- EM --    9 1.00e+00 5.39e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    6 +6.231450929e-01  -- EM --    9 1.00e+00 3.99e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    7 +6.174545824e-01  -- EM --    9 1.00e+00 2.99e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    8 +6.135875551e-01  -- EM --    9 1.00e+00 2.29e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    9 +6.108139881e-01  -- EM --    9 1.00e+00 1.80e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   10 +6.087416551e-01  -- EM --    9 1.00e+00 1.44e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   11 +6.071443437e-01  -- EM --    9 1.00e+00 1.17e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   12 +6.058828970e-01  -- EM --    9 1.00e+00 9.73e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   13 +6.048669805e-01  -- EM --    9 1.00e+00 8.15e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   14 +6.040353611e-01  -- EM --    9 1.00e+00 6.90e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   15 +6.033450696e-01  -- EM --    8 1.00e+00 5.89e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   16 +6.027650943e-01  -- EM --    8 1.00e+00 5.07e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   17 +6.022725271e-01  -- EM --    8 1.00e+00 4.38e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   18 +6.018501123e-01  -- EM --    8 1.00e+00 3.81e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   19 +6.014846326e-01  -- EM --    8 1.00e+00 3.33e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   20 +6.011658169e-01  -- EM --    7 1.00e+00 3.06e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    1 +6.008855838e-01 +1.407e-02   7  ------   ------   --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    2 +5.964040646e-01 +1.510e-03   3 1.00e+00 8.44e-02   6   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    3 +5.964037600e-01 -2.151e-06   3 1.00e+00 7.48e-04   2   1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Optimization took 0.00 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Convergence criteria met---optimal solution found.</span>
-<span class="r-in"></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </div>

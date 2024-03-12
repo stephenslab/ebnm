@@ -21,7 +21,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ebnm</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-15</span>
       </span>
     </div>
 
@@ -61,16 +61,16 @@
     </div>
 
     <div id="ref-usage">
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="co"># S3 method for ebnm</span>
-<span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span>
-  <span class="va">x</span>,
-  probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0.25</span><span class="op">)</span>,
-  names <span class="op">=</span> <span class="cn">TRUE</span>,
-  type <span class="op">=</span> <span class="fl">7</span>,
-  digits <span class="op">=</span> <span class="fl">7</span>,
-  nsim <span class="op">=</span> <span class="fl">1000</span>,
-  <span class="va">...</span>
-<span class="op">)</span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for ebnm</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">0.25</span><span class="op">)</span>,</span>
+<span>  names <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  type <span class="op">=</span> <span class="fl">7</span>,</span>
+<span>  digits <span class="op">=</span> <span class="fl">7</span>,</span>
+<span>  nsim <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div id="arguments">
@@ -93,6 +93,12 @@
 <dt>type</dt>
 <dd><p>An integer between 1 and 9 selecting one of the nine quantile
 algorithms detailed in <code><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></code> to be used.</p></dd>
+
+
+<dt>digits</dt>
+<dd><p>used only when <code>names</code> is true: the precision to use
+    when formatting the percentages.  In <span style="R">R</span> versions up to 4.0.x, this had
+    been set to <code>max(2, getOption("digits"))</code>, internally.</p></dd>
 
 
 <dt>nsim</dt>

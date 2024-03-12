@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Brief introduction to shrinkage and empirical Bayes normal means • ebnm</title>
+<title>Introduction to the empirical Bayes normal means model via shrinkage estimation • ebnm</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Brief introduction to shrinkage and empirical Bayes normal means">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to the empirical Bayes normal means model via shrinkage estimation">
 <meta property="og:description" content="ebnm">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ebnm</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-15</span>
       </span>
     </div>
 
@@ -66,12 +66,9 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Brief introduction to shrinkage and empirical
-Bayes normal means</h1>
-                        <h4 data-toc-skip class="author">Jason
-Willwerscheid and Peter Carbonetto</h4>
+      <h1 data-toc-skip>Introduction to the empirical Bayes normal means
+model via shrinkage estimation</h1>
             
-            <h4 data-toc-skip class="date">2024-02-27</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/stephenslab/ebnm/blob/HEAD/vignettes/shrink_intro.Rmd" class="external-link"><code>vignettes/shrink_intro.Rmd</code></a></small>
       <div class="hidden name"><code>shrink_intro.Rmd</code></div>
@@ -83,148 +80,140 @@ Willwerscheid and Peter Carbonetto</h4>
 <div class="section level2">
 <h2 id="the-normal-means-model-and-empirical-bayes">The normal means model and empirical Bayes<a class="anchor" aria-label="anchor" href="#the-normal-means-model-and-empirical-bayes"></a>
 </h2>
-<p>Given <span class="math inline">\(n\)</span> observations <span class="math inline">\(x_i\)</span> with known standard deviations <span class="math inline">\(s_i\)</span>, <span class="math inline">\(i = 1,
-\dots, n\)</span>, the normal means model <span class="citation">(Robbins 1951; Efron and Morris 1972; Stephens 2017;
-Bhadra et al. 2019; Johnstone 2019; Sun 2020)</span> is <span class="math display">\[\begin{equation}
+<p>Given <span class="math inline">\(n\)</span> observations <span class="math inline">\(x_i\)</span> with known standard deviations <span class="math inline">\(s_i &gt; 0\)</span>, <span class="math inline">\(i
+= 1, \dots, n\)</span>, the normal means model <span class="citation">(Robbins 1951; Efron and Morris 1972; Stephens 2017;
+Bhadra et al. 2019; Johnstone 2019; Sun 2020)</span> has <span class="math display">\[\begin{equation}
 x_i \overset{\text{ind.}}{\sim} \mathcal{N}(\theta_i, s_i^2),
-\end{equation}\]</span> in which the unknown (true) means <span class="math inline">\(\theta_i\)</span> are the quantities to be
-estimated. We use <span class="math inline">\(\mathcal{N}(\mu,
-\sigma^2)\)</span> to denote the normal distribution with mean <span class="math inline">\(\mu\)</span> and variance <span class="math inline">\(\sigma^2\)</span>.</p>
-<p>The maximum-likelihood estimate of <span class="math inline">\(\theta_i\)</span> is, of course, <span class="math inline">\(x_i\)</span>.</p>
+\end{equation}\]</span> where the unknown (“true”) means <span class="math inline">\(\theta_i\)</span> are the quantities to be
+estimated. Here and throughout, we use <span class="math inline">\(\mathcal{N}(\mu, \sigma^2)\)</span> to denote the
+normal distribution with mean <span class="math inline">\(\mu\)</span>
+and variance <span class="math inline">\(\sigma^2\)</span>.</p>
 <p>The empirical Bayes (EB) approach to inferring <span class="math inline">\(\theta_i\)</span> attempts to improve upon the
-maximum-likelihood estimate by “borrowing information” across
-observations, exploiting the fact that each observation contains
-information not only about its respective mean, but also about how the
-means are collectively distributed <span class="citation">(Robbins 1956;
-Morris 1983; Efron 2010; Stephens 2017)</span>. Specifically, the EB
-approach assumes that <span class="math display">\[\begin{equation}
+maximum-likelihood estimate <span class="math inline">\(\hat{\theta}_i =
+x_i\)</span> by “borrowing information” across observations, exploiting
+the fact that each observation contains information not only about its
+respective mean, but also about how the means are collectively
+distributed <span class="citation">(Robbins 1956; Morris 1983; Efron
+2010; Stephens 2017)</span>. Specifically, the empirical Bayes normal
+means (EBNM) approach assumes that <span class="math display">\[\begin{equation}
 \theta_i \overset{\text{ind.}}{\sim} g \in \mathcal{G},
-\end{equation}\]</span> where <span class="math inline">\(g\)</span> is
-a distribution to be estimated from the data, typically chosen from
-among some family of distributions <span class="math inline">\(\mathcal{G}\)</span> that is specified in advance.
-(Note that although <span class="math inline">\(\mathcal{G}\)</span>
-must be specified in advance, it can be arbitrarily flexible.)</p>
-<p>The empirical Bayes normal means model is fit by first using all of
-the observations to estimate <span class="math inline">\(g \in
-\mathcal{G}\)</span>, then using the estimated distribution <span class="math inline">\(\hat{g}\)</span> to compute posteriors for each
-mean <span class="math inline">\(\theta_i\)</span>. Commonly, <span class="math inline">\(g\)</span> is estimated via
-maximum-likelihood.</p>
-<p>The ebnm package provides a unified interface for efficiently
-estimating priors <span class="math inline">\(g \in \mathcal{G}\)</span>
-and computing posterior estimates of the unknown means <span class="math inline">\(\theta_i\)</span>, with a wide range of options
-for prior families <span class="math inline">\(\mathcal{G}\)</span>.</p>
-<p>Next we give a brief illustration of these ideas. For background, see
-for example <a href="https://jdstorey.org/fas" class="external-link">John Storey’s book</a>.
-The <a href="https://arxiv.org/abs/2110.00152" class="external-link">ebnm paper</a> also has a
-detailed introduction to the normal means model and empirical Bayes
-ideas.</p>
+\end{equation}\]</span> where <span class="math inline">\(\mathcal{G}\)</span> is some family of
+distributions that is specified in advance and <span class="math inline">\(g \in \mathcal{G}\)</span> is estimated using the
+data.</p>
+<p>The EBNM model is fit by first using all of the observations to
+estimate the prior <span class="math inline">\(g \in
+\mathcal{G}\)</span>, and then using the estimated distribution <span class="math inline">\(\hat{g}\)</span> to compute posteriors and/or
+posterior summaries for the “true” means <span class="math inline">\(\theta_i\)</span>. Commonly, <span class="math inline">\(g\)</span> is estimated via maximum-likelihood and
+posterior means are used as point estimates for the unknown means. The
+<strong>ebnm</strong> package provides a unified interface for
+efficiently carrying out both steps, with a wide range of available
+options for the prior family <span class="math inline">\(\mathcal{G}\)</span>.</p>
+<p>For a detailed introduction, see our <a href="https://arxiv.org/abs/2110.00152" class="external-link">ebnm paper</a>. For further
+background, see for example <a href="https://jdstorey.org/fas" class="external-link">John
+Storey’s book</a>.</p>
 </div>
 <div class="section level2">
-<h2 id="an-illustration">An illustration<a class="anchor" aria-label="anchor" href="#an-illustration"></a>
+<h2 id="an-illustration-shrinkage-estimation">An illustration: shrinkage estimation<a class="anchor" aria-label="anchor" href="#an-illustration-shrinkage-estimation"></a>
 </h2>
-<p>Our example data set is 400 data points simulated from a normal means
-model in which the true prior <span class="math inline">\(g\)</span> is
-a mixture of (a) a normal distribution centered at 2 and (b) a
-point-mass also centered at 2:</p>
+<p>Our example data set consists of 400 data points simulated from a
+normal means model in which the true prior <span class="math inline">\(g\)</span> is a mixture of (a) a normal
+distribution centered at 2 and (b) a point-mass also centered at 2:</p>
 <p><span class="math display">\[
-\thetas_i \sim 0.8\delta_2 + 0.2 N(2,1)
+\theta_i \sim 0.8\delta_2 + 0.2 N(2,1)
 \]</span></p>
-<p>First, we simulate the “true” means, <span class="math inline">\(\theta_i\)</span>, from this prior,</p>
+<p>First, we simulate the “true” means <span class="math inline">\(\theta_i\)</span> from this prior:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
-<span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">400</span>
-<span class="va">u</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">+</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></code></pre></div>
-<p>then we simulate the observed means, <span class="math inline">\(x_i\)</span>, as “noisy” estimates of the true
-means (in this example, the noise is the same for all data points):</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">400</span></span>
+<span><span class="va">u</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">+</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></code></pre></div>
+<p>Next, we simulate the observed means <span class="math inline">\(x_i\)</span> as “noisy” estimates of the true
+means (in this example, the noise is homoskedastic):</p>
 <p><span class="math display">\[
 x_i \sim N(\theta_i,s_i), \quad s_i = 1/3,
 \]</span></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">3</span>,<span class="va">n</span><span class="op">)</span>
-<span class="va">x</span> <span class="op">&lt;-</span> <span class="va">u</span> <span class="op">+</span> <span class="va">s</span><span class="op">*</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></code></pre></div>
-<p>Obviously, we know what the true means are in this example, but here
-we’ll treat them as quantities we cannot observe.</p>
+<code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">3</span>, <span class="va">n</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">u</span> <span class="op">+</span> <span class="va">s</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></code></pre></div>
+<p>Although we know what the true means are in this example, we’ll treat
+them as quantities we cannot observe.</p>
 <p>The maximum-likelihood estimates (MLEs) of the true means are simply
 <span class="math inline">\(\hat{u}_i = x_i\)</span>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">4</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-<span class="va">lims</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.55</span>,<span class="fl">5.05</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">u</span>,<span class="va">x</span>,pch <span class="op">=</span> <span class="fl">4</span>,cex <span class="op">=</span> <span class="fl">0.75</span>,xlim <span class="op">=</span> <span class="va">lims</span>,ylim <span class="op">=</span> <span class="va">lims</span>,
-     xlab <span class="op">=</span> <span class="st">"true value"</span>,ylab <span class="op">=</span> <span class="st">"estimate"</span>,
-     main <span class="op">=</span> <span class="st">"MLE"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>,b <span class="op">=</span> <span class="fl">1</span>,col <span class="op">=</span> <span class="st">"magenta"</span>,lty <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">lims</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.55</span>, <span class="fl">5.05</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">u</span>, <span class="va">x</span>, pch <span class="op">=</span> <span class="fl">4</span>, cex <span class="op">=</span> <span class="fl">0.75</span>, xlim <span class="op">=</span> <span class="va">lims</span>, ylim <span class="op">=</span> <span class="va">lims</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"true value"</span>, ylab <span class="op">=</span> <span class="st">"estimate"</span>, main <span class="op">=</span> <span class="st">"MLE"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>, b <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"magenta"</span>, lty <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="shrink_intro_files/figure-html/plot-mle-1.png" width="315" style="display: block; margin: auto;"></p>
-<p>We can do much better than the maximum-likelihood estimator—and in
-fact some theory tells us we are guaranteed to do better—by learning a
-prior from all the observations, then “shrinking” the estimates toward
-this prior.</p>
-<p>Let’s illustrate this idea with a simple *ormal prior in which the
-mean and variance of the normal prior are learned from the data. (Let’s
-note that the normal prior is the wrong prior for this data set! Recall
-we simulated with a mixture of a normal and a point-mass.)</p>
-<p>First, we fit the prior,</p>
+<p>We can do better than the MLE — and in fact some theory tells us we
+are guaranteed to do better — by learning a prior using all the
+observations, then “shrinking” the estimates toward this prior.</p>
+<p>Let’s illustrate this idea with a simple normal prior in which the
+mean and variance of the normal prior are learned from the data. (Note
+that the normal prior is the wrong prior for this data set! Recall we
+that simulated data using a mixture of a normal and a point-mass.)</p>
+<p>First, we fit the prior:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stephenslab/ebnm" class="external-link">ebnm</a></span><span class="op">)</span>
-<span class="va">fit_normal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm.html">ebnm</a></span><span class="op">(</span><span class="va">x</span>,<span class="va">s</span>,prior_family <span class="op">=</span> <span class="st">"normal"</span>,mode <span class="op">=</span> <span class="st">"estimate"</span><span class="op">)</span></code></pre></div>
-<p>then we estimate the true means by the posterior mean values, <span class="math inline">\(\hat{u}_i = E[\theta_i \,|\, x_i]\)</span>, which
-can be extracted with <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>:</p>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/stephenslab/ebnm" class="external-link">"ebnm"</a></span><span class="op">)</span></span>
+<span><span class="va">fit_normal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm.html">ebnm</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, prior_family <span class="op">=</span> <span class="st">"normal"</span>, mode <span class="op">=</span> <span class="st">"estimate"</span><span class="op">)</span></span></code></pre></div>
+<p>Next we estimate the true means using posterior means <span class="math inline">\(\hat{u}_i = E[\theta_i \,|\, x_i,
+\hat{g}]\)</span>. We extract these posterior means using the
+<code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> method:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_normal</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">4</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">u</span>,<span class="va">y</span>,pch <span class="op">=</span> <span class="fl">4</span>,cex <span class="op">=</span> <span class="fl">0.75</span>,xlim <span class="op">=</span> <span class="va">lims</span>,ylim <span class="op">=</span> <span class="va">lims</span>,
-     xlab <span class="op">=</span> <span class="st">"true value"</span>,ylab <span class="op">=</span> <span class="st">"estimate"</span>,
-     main <span class="op">=</span> <span class="st">"normal prior"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>,b <span class="op">=</span> <span class="fl">1</span>,col <span class="op">=</span> <span class="st">"magenta"</span>,lty <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_normal</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">u</span>, <span class="va">y</span>, pch <span class="op">=</span> <span class="fl">4</span>, cex <span class="op">=</span> <span class="fl">0.75</span>, xlim <span class="op">=</span> <span class="va">lims</span>, ylim <span class="op">=</span> <span class="va">lims</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"true value"</span>, ylab <span class="op">=</span> <span class="st">"estimate"</span>, main <span class="op">=</span> <span class="st">"normal prior"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>, b <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"magenta"</span>, lty <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="shrink_intro_files/figure-html/plot-ebnm-normal-1.png" width="315" style="display: block; margin: auto;"></p>
-<p>These “shrunken” estimates are better for <span class="math inline">\(\theta_i\)</span> values near 2, but worse for
-ones far away from 2. Still, the shrunken estimates improve the
-<em>overall estimation error</em> (the “mean-squared error”):</p>
+<p>These “shrunken” estimates are better when true means <span class="math inline">\(\theta_i\)</span> are near 2, but worse when they
+are far from 2. Still, they substantially improve the <em>overall
+estimation error</em> (the “root mean-squared error” or RMSE):</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">err_mle</span>           <span class="op">&lt;-</span> <span class="op">(</span><span class="va">x</span> <span class="op">-</span> <span class="va">u</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span>
-<span class="va">err_shrink_normal</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">y</span> <span class="op">-</span> <span class="va">u</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span>
-<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">4</span>,
-            x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>mle           <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">err_mle</span><span class="op">)</span>,
-                  shrink_normal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">err_shrink_normal</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#           mle shrink_normal </span>
-<span class="co">#        0.1295        0.0822</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">err_mle</span>           <span class="op">&lt;-</span> <span class="op">(</span><span class="va">x</span> <span class="op">-</span> <span class="va">u</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span></span>
+<span><span class="va">err_shrink_normal</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">y</span> <span class="op">-</span> <span class="va">u</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>            x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>mle           <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">err_mle</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                  shrink_normal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">err_shrink_normal</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#           mle shrink_normal </span></span>
+<span><span class="co">#        0.3599        0.2868</span></span></code></pre></div>
 <p>Here’s a more detailed comparison of the estimation error:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">4</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">err_mle</span>,<span class="va">err_shrink_normal</span>,pch <span class="op">=</span> <span class="fl">4</span>,cex <span class="op">=</span> <span class="fl">0.75</span>,
-     xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1.2</span><span class="op">)</span>,ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">1.2</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>,b <span class="op">=</span> <span class="fl">1</span>,col <span class="op">=</span> <span class="st">"magenta"</span>,lty <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">err_mle</span>, <span class="va">err_shrink_normal</span>, pch <span class="op">=</span> <span class="fl">4</span>, cex <span class="op">=</span> <span class="fl">0.75</span>,</span>
+<span>     xlim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1.2</span><span class="op">)</span>, ylim <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1.2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>, b <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"magenta"</span>, lty <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="shrink_intro_files/figure-html/plot-mse-1-1.png" width="315" style="display: block; margin: auto;"></p>
-<p>Indeed, the error increased in a few of the estimates and decreased
-in many of the other estimates, resulting in a lower mean-squared error
-(MSE) over the 400 data points.</p>
+<p>Indeed, the error increases in a few of the estimates and decreases
+in many of the other estimates, resulting in a lower RMSE over the 400
+data points.</p>
 <p>Let’s now see what happens when we use a family of priors that is
-better suited to this data set—specifically, the “point-normal” family.
-Notice that the only change we have made in our call to
-<code><a href="../reference/ebnm.html">ebnm()</a></code> is in the “prior_family” argument:</p>
+better suited to this data set — specifically, the “point-normal”
+family. Notice that the only change we make in our call to
+<code><a href="../reference/ebnm.html">ebnm()</a></code> is in the <code>prior_family</code> argument:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">fit_pn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm.html">ebnm</a></span><span class="op">(</span><span class="va">x</span>,<span class="va">s</span>,prior_family <span class="op">=</span> <span class="st">"point_normal"</span>,mode <span class="op">=</span> <span class="st">"estimate"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">fit_pn</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm.html">ebnm</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, prior_family <span class="op">=</span> <span class="st">"point_normal"</span>, mode <span class="op">=</span> <span class="st">"estimate"</span><span class="op">)</span></span></code></pre></div>
 <p>Now we extract the posterior mean estimates and compare to the true
 values:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>,<span class="fl">4</span>,<span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-<span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_pn</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/plot.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">u</span>,<span class="va">y</span>,pch <span class="op">=</span> <span class="fl">4</span>,cex <span class="op">=</span> <span class="fl">0.75</span>,xlim <span class="op">=</span> <span class="va">lims</span>,ylim <span class="op">=</span> <span class="va">lims</span>,
-     xlab <span class="op">=</span> <span class="st">"true value"</span>,ylab <span class="op">=</span> <span class="st">"estimate"</span>,
-     main <span class="op">=</span> <span class="st">"point-normal prior"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>,b <span class="op">=</span> <span class="fl">1</span>,col <span class="op">=</span> <span class="st">"magenta"</span>,lty <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_pn</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">u</span>, <span class="va">y</span>, pch <span class="op">=</span> <span class="fl">4</span>, cex <span class="op">=</span> <span class="fl">0.75</span>, xlim <span class="op">=</span> <span class="va">lims</span>, ylim <span class="op">=</span> <span class="va">lims</span>,</span>
+<span>     xlab <span class="op">=</span> <span class="st">"true value"</span>, ylab <span class="op">=</span> <span class="st">"estimate"</span>, main <span class="op">=</span> <span class="st">"point-normal prior"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>, b <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"magenta"</span>, lty <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="shrink_intro_files/figure-html/plot-ebnm-pn-1.png" width="315" style="display: block; margin: auto;"></p>
-<p>The added flexibility of the point-normal allowed the accuracy of the
-means near 2 to be improved, while the estimates of the means far from 2
-the did not get worse. The result is that the overall error improved
-over both the MLE and the posterior estimates with a normal prior:</p>
+<p>The added flexibility of the point-normal prior improves the accuracy
+of estimates for means near 2, while estimates for means far from 2 are
+no worse than the MLEs. The result is that the overall RMSE again sees a
+substantial improvement:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">err_shrink_pn</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">y</span> <span class="op">-</span> <span class="va">u</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span>
-<span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">4</span>,
-            x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>mle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">err_mle</span><span class="op">)</span>,
-                  normal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">err_shrink_normal</span><span class="op">)</span>,
-                  point_normal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">err_shrink_pn</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="co">#          mle       normal point_normal </span>
-<span class="co">#       0.1295       0.0822       0.0441</span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">err_shrink_pn</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">y</span> <span class="op">-</span> <span class="va">u</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span>digits <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>            x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>mle <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">err_mle</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                  normal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">err_shrink_normal</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>                  point_normal <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">err_shrink_pn</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#          mle       normal point_normal </span></span>
+<span><span class="co">#       0.3599       0.2868       0.2100</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
@@ -232,41 +221,44 @@ over both the MLE and the posterior estimates with a normal prior:</p>
 <p>The following R version and packages were used to generate this
 vignette:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span>
-<span class="co"># R version 3.6.2 (2019-12-12)</span>
-<span class="co"># Platform: x86_64-apple-darwin15.6.0 (64-bit)</span>
-<span class="co"># Running under: macOS Catalina 10.15.7</span>
-<span class="co"># </span>
-<span class="co"># Matrix products: default</span>
-<span class="co"># BLAS:   /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRblas.0.dylib</span>
-<span class="co"># LAPACK: /Library/Frameworks/R.framework/Versions/3.6/Resources/lib/libRlapack.dylib</span>
-<span class="co"># </span>
-<span class="co"># locale:</span>
-<span class="co"># [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span>
-<span class="co"># </span>
-<span class="co"># attached base packages:</span>
-<span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span>
-<span class="co"># </span>
-<span class="co"># other attached packages:</span>
-<span class="co"># [1] ebnm_1.1-3</span>
-<span class="co"># </span>
-<span class="co"># loaded via a namespace (and not attached):</span>
-<span class="co">#  [1] tidyselect_1.1.1  xfun_0.36         bslib_0.3.1       ashr_2.2-57      </span>
-<span class="co">#  [5] purrr_0.3.4       splines_3.6.2     lattice_0.20-38   colorspace_1.4-1 </span>
-<span class="co">#  [9] vctrs_0.3.8       generics_0.0.2    htmltools_0.5.4   yaml_2.2.0       </span>
-<span class="co"># [13] utf8_1.1.4        rlang_1.0.6       mixsqp_0.3-48     pkgdown_2.0.7    </span>
-<span class="co"># [17] jquerylib_0.1.4   pillar_1.6.2      DBI_1.1.0         glue_1.4.2       </span>
-<span class="co"># [21] trust_0.1-8       lifecycle_1.0.3   stringr_1.4.0     munsell_0.5.0    </span>
-<span class="co"># [25] gtable_0.3.0      ragg_0.3.1        memoise_1.1.0     evaluate_0.14    </span>
-<span class="co"># [29] knitr_1.37        fastmap_1.1.0     invgamma_1.1      irlba_2.3.3      </span>
-<span class="co"># [33] fansi_0.4.0       highr_0.8         Rcpp_1.0.8        scales_1.1.0     </span>
-<span class="co"># [37] horseshoe_0.2.0   desc_1.2.0        jsonlite_1.7.2    truncnorm_1.0-8  </span>
-<span class="co"># [41] systemfonts_1.0.2 fs_1.5.2          deconvolveR_1.2-1 ggplot2_3.3.6    </span>
-<span class="co"># [45] digest_0.6.23     stringi_1.4.3     dplyr_1.0.7       grid_3.6.2       </span>
-<span class="co"># [49] rprojroot_2.0.3   cli_3.5.0         tools_3.6.2       magrittr_2.0.1   </span>
-<span class="co"># [53] sass_0.4.0        tibble_3.1.3      crayon_1.4.1      pkgconfig_2.0.3  </span>
-<span class="co"># [57] ellipsis_0.3.2    Matrix_1.3-4      SQUAREM_2017.10-1 assertthat_0.2.1 </span>
-<span class="co"># [61] rmarkdown_2.21    R6_2.4.1          compiler_3.6.2</span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co"># R version 4.3.2 (2023-10-31)</span></span>
+<span><span class="co"># Platform: aarch64-apple-darwin20 (64-bit)</span></span>
+<span><span class="co"># Running under: macOS Monterey 12.3</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># Matrix products: default</span></span>
+<span><span class="co"># BLAS:   /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRblas.0.dylib </span></span>
+<span><span class="co"># LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># locale:</span></span>
+<span><span class="co"># [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># time zone: America/New_York</span></span>
+<span><span class="co"># tzcode source: internal</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># attached base packages:</span></span>
+<span><span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># other attached packages:</span></span>
+<span><span class="co"># [1] ebnm_1.1-15</span></span>
+<span><span class="co"># </span></span>
+<span><span class="co"># loaded via a namespace (and not attached):</span></span>
+<span><span class="co">#  [1] sass_0.4.8        utf8_1.2.4        generics_0.1.3    ashr_2.2-63      </span></span>
+<span><span class="co">#  [5] stringi_1.8.3     lattice_0.21-9    digest_0.6.34     magrittr_2.0.3   </span></span>
+<span><span class="co">#  [9] evaluate_0.23     grid_4.3.2        fastmap_1.1.1     jsonlite_1.8.8   </span></span>
+<span><span class="co"># [13] Matrix_1.6-1.1    mixsqp_0.3-54     purrr_1.0.2       fansi_1.0.6      </span></span>
+<span><span class="co"># [17] scales_1.3.0      truncnorm_1.0-9   invgamma_1.1      textshaping_0.3.7</span></span>
+<span><span class="co"># [21] jquerylib_0.1.4   cli_3.6.2         rlang_1.1.3       deconvolveR_1.2-1</span></span>
+<span><span class="co"># [25] munsell_0.5.0     splines_4.3.2     cachem_1.0.8      yaml_2.3.8       </span></span>
+<span><span class="co"># [29] tools_4.3.2       SQUAREM_2021.1    memoise_2.0.1     dplyr_1.1.4      </span></span>
+<span><span class="co"># [33] colorspace_2.1-0  ggplot2_3.4.4     vctrs_0.6.5       R6_2.5.1         </span></span>
+<span><span class="co"># [37] lifecycle_1.0.4   stringr_1.5.1     fs_1.6.3          trust_0.1-8      </span></span>
+<span><span class="co"># [41] ragg_1.2.7        irlba_2.3.5.1     pkgconfig_2.0.3   desc_1.4.3       </span></span>
+<span><span class="co"># [45] pkgdown_2.0.7     bslib_0.6.1       pillar_1.9.0      gtable_0.3.4     </span></span>
+<span><span class="co"># [49] glue_1.7.0        Rcpp_1.0.12       systemfonts_1.0.5 xfun_0.41        </span></span>
+<span><span class="co"># [53] tibble_3.2.1      tidyselect_1.2.0  highr_0.10        rstudioapi_0.15.0</span></span>
+<span><span class="co"># [57] knitr_1.45        htmltools_0.5.7   rmarkdown_2.25    compiler_4.3.2   </span></span>
+<span><span class="co"># [61] horseshoe_0.2.0</span></span></code></pre></div>
 </div>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>

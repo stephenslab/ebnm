@@ -361,6 +361,14 @@ ebnm_workhorse <- function(x,
   # Convenience function:
   if (prior_family == "point_mass") {
     prior_family <- "normal"
+
+    if (is.null(g_init) && is.null(call$mode)) {
+      warning("For consistency with other prior families, the location of the ",
+              "prior point mass is fixed at zero. If this behavior is desired, ",
+              "set argument mode = 0 to bypass this warning. Set mode = ",
+              "'estimate' to instead estimate the point mass.")
+    }
+
     if (is.null(g_init) && !is.null(call$scale)) {
       warning("scale parameter is ignored by ebnm_point_mass.")
       call$scale <- NULL
