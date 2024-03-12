@@ -1,0 +1,229 @@
+---
+title: Creating a custom ebnm-style function 
+output: 
+  rmarkdown::html_vignette:
+    toc: yes
+bibliography: ebnm.bib
+vignette: >
+  %\VignetteIndexEntry{Creating a custom ebnm-style function}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r knitr-opts, include=FALSE}
+knitr::opts_chunk$set(comment = "#", collapse = TRUE, results = "hold",
+                      fig.align = "center", dpi = 90)
+```
+
+In this vignette we will create a custom EBNM solver in the style of other **ebnm** functions (`ebnm_normal()`, `ebnm_point_laplace()`, etc.). For more background on the empirical Bayes normal means (EBNM) problem, please see the introductory vignette (`shrink_intro`).
+
+Specifically, we will create the `ebnm_t()` function, which will fit a (non-standardized) Student's $t$ prior with mode fixed at zero but with scale and degrees of freedom to be estimated. That is, we will fit the model:
+
+\begin{aligned}
+x_i &\sim \mathcal{N}(\theta_i, s_i^2), \\
+\theta_i &\sim g \in \mathcal{G},
+\end{aligned}   
+
+where the "true means" $\theta_i$ are unknown and $\mathcal{G}$ is the prior family:
+
+\begin{equation}
+\mathcal{G} = \{g: g \sim \tau T; T \sim t_\nu; \tau \ge 0, \nu > 0\}.
+\end{equation}
+
+Given observations $x_i$ and standard errors $s_i$, $g$ can be estimated by optimizing over two parameters: the scale $\tau$ and the degrees of freedom $\nu$.
+
+
+## The prior family class
+
+First we will need a class that specifies the structure of the priors $g$ in our prior family $\mathcal{G}$. In some cases, an existing class can be used. For example, `ebnm_normal()`, `ebnm_point_normal()`, `ebnm_normal_scale_mixture()`, and `ebnm_point_mass()` all use the class `"normalmix"`, which is borrowed from the **ashr** package. In other cases, a new class must be created. 
+
+**ebnm** uses these classes in two ways: first, to give information about the fitted prior $\hat{g}$ via the `fitted_g` field in the returned `"ebnm"` object; and second, to initialize solutions using the `g_init` argument. If one would like to be able to arbitrarily initialize the solver, then the prior family class should include all information required to do so. Note, however, that `ebnm` places no restrictions whatsoever on the structure of the class, since any initialization using `g_init` must be implemented within the custom function itself. In particular, we could choose to simply ignore `g_init` and return `fitted_g = NULL` (this is not recommended, of course, since it gives no information about the fitted prior $\hat{g} \in \mathcal{G}$).
+
+For our custom solver, we will create a `"tdist"` class that includes the scale and degrees of freedom. We create a constructor function for the class as follows:
+
+```{r}
+tdist <- function(scale, df) {
+  structure(data.frame(scale, df), class = "tdist")
+}
+```
+
+
+## The optimization function
+
+The optimization function comprises the "guts" of the solver; it (optionally) takes initialization parameters as input and (non-optionally) returns optimal values for the parameters of interest. Details will be specific to the prior family, but in general a maximum-likelihood approach can be implemented as follows:
+
+1. Create a function that calculates the log likelihood:
+
+\begin{equation}
+L(g) :=  p(\mathbf{x} \mid g, \, \mathbf{s}) = 
+\prod_{i=1}^n \textstyle 
+\int p(x_i \mid \theta_i, s_i) \, g(\theta_i) \, d\theta_i
+\end{equation}
+
+2. Use an off-the-shelf method such as `nlm()` or `optim()` to maximize $L(g)$:
+
+\begin{equation}
+\hat{g} := 
+\text{argmax}_{g \,\in\, \mathcal{G}} L(g)
+\end{equation}
+
+To implement the first step, we use numerical methods (namely, the `integrate()` function from the base R **stats** package) to compute the convolution of the prior $t$ density with normal noise:
+
+```{r}
+llik_t <- function(x, s, tau, nu) {
+  llik_one_obs <- function(x, s) {
+    integrate(function(theta) {
+      dnorm(x - theta, sd = s) * dt(theta / tau, df = nu) / tau
+    }, lower = -Inf, upper = Inf)$value
+  }
+  vllik <- Vectorize(llik_one_obs) 
+  return(sum(log(vllik(x, s))))
+}
+```
+
+For the second step, we use the `optim()` function (again available in the **stats** package) to optimize over possible values of `tau` and `nu`. We use `method = "L-BFGS-B"` since it allows us to constrain both parameters to be nonnegative. To avoid potential optimization issues, we set sensible lower and upper bounds for both `tau` and `nu`:
+
+```{r}
+opt_t <- function(x, s, tau_init, nu_init) {
+  # optim only does minimization, so we provide the negative log likelihood:
+  optim(par = c(tau_init, nu_init), 
+        fn = function(par) -llik_t(x, s, par[1], par[2]), 
+        method = "L-BFGS-B",
+        lower = c(min(s) / 10, 1),
+        upper = c(max(x), 1e3))
+}
+```
+
+
+## Calculating posteriors
+
+Given an optimal $\hat{g} \in \mathcal{G}$, we can obtain point estimates for the "true means" $\theta_i$ using posterior means $\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$. In general, we might like to compute various summaries about the posterior:
+
+\begin{equation}
+p(\theta_i \mid x_i, s_i, \hat{g}) \propto 
+\hat{g}(\theta_i) \, p(x_i \mid \theta_i, s_i),
+\end{equation}
+
+including, for example, posterior standard deviations, second moments, and local false sign rates [@Stephens_NewDeal]. If the EBNM solver is intended for use in the **flashier** package, then posterior means (`mean`) and second moments (`second_moment`) *must* be computed.
+
+Since posteriors are not analytically available for $t$ priors, we implement an MCMC sampler using the **mcmc** package and then compute summaries using 10000 samples from each posterior. The following code is principally for purposes of illustration; in particular, speed and efficiency could likely be improved.
+
+```{r}
+post_sampler <- function(x, s, tau, nu, nsamp) {
+  sample_one_theta <- function(x_i, s_i) {
+    lpostdens <- function(theta) {
+      dt(theta / tau, df = nu, log = TRUE) - log(tau) + dnorm(x_i - theta, sd = s_i, log = TRUE)
+    }
+    mcmc::metrop(lpostdens, initial = x_i, nbatch = nsamp)$batch
+  }
+  vsampler <- Vectorize(sample_one_theta)
+  return(vsampler(x, s))
+}
+
+post_summaries <- function(x, s, tau, nu) {
+  samp <- post_sampler(x, s, tau, nu, nsamp = 10000)
+  return(data.frame(
+    mean = apply(samp, 2, mean),
+    sd = apply(samp, 2, sd),
+    second_moment = apply(samp, 2, function(x) mean(x^2))
+  ))
+}
+```
+
+
+## Putting everything together
+
+We now have all the ingredients required for our custom EBNM solver. We should ensure that inputs are the same as for function `ebnm()` (and we will also use the same defaults). We can simply ignore parameters that we do not want to implement. The `optmethod` parameter can typically be ignored unless we want to make multiple optimization methods available for a single prior family (e.g., both `nlm()` and `optim()`). We will also ignore the `control` parameter, although it could be used here, for example, to alter the default settings of `lower` and `upper` in the call to `optim`. Finally, for simplicity, we will ignore the `output` parameter and just return everything (the data, the posterior summaries, the fitted prior, the log likelihood, and the posterior sampler). See `?ebnm` for further details about the expected structure of the returned `"ebnm"` object.
+
+```{r}
+ebnm_t <- function(x, 
+                   s = 1, 
+                   mode = 0, 
+                   scale = "estimate", 
+                   g_init = NULL, 
+                   fix_g = FALSE, 
+                   output = ebnm_output_default(),
+                   optmethod = NULL,
+                   control = NULL) {
+  # Basic argument checks.
+  if (mode != 0) {
+    stop("The mode of the t-prior must be fixed at zero.")
+  }
+  if (scale != "estimate") {
+    stop("The scale of the t-prior must be estimated rather than fixed at a particular value.")
+  }
+  
+  # If g_init is provided, extract the parameters.
+  if (!is.null(g_init)) {
+    tau_init <- g_init$scale
+    nu_init <- g_init$df
+  } 
+  # Otherwise, use sensible defaults.
+  else {
+    tau_init <- sqrt(mean(x^2))
+    nu_init <- 10
+  }
+  
+  # Perform the optimization.
+  opt_res  <- opt_t(x, s, tau_init, nu_init)
+  opt_tau  <- opt_res$par[1]
+  opt_nu   <- opt_res$par[2]
+  opt_llik <- -opt_res$value
+  
+  # Create the return object.
+  ebnm_res <- structure(list(
+    data = data.frame(x = x, s = s),
+    posterior = post_summaries(x, s, opt_tau, opt_nu),
+    fitted_g = tdist(scale = opt_tau, df = opt_nu),
+    log_likelihood = opt_llik,
+    post_sampler = function(nsamp) post_sampler(x, s, opt_tau, opt_nu, nsamp)
+  ), class = "ebnm")
+  
+  return(ebnm_res)
+}
+```
+
+## Illustration
+
+To test our function, we simulate from a $t$ prior with 5 degrees of freedom and with the scale parameter $\tau = 2$. We then add noise simulated from a standard normal distribution. We set a seed for reproducibility:
+
+```{r}
+set.seed(123)
+theta <- 2 * rt(100, df = 5)
+x <- theta + rnorm(100)
+```
+
+Next we fit EBNM models using: 1. the family of normal priors, as implemented by `ebnm_normal()`; 2. the family of $t$ priors that we just implemented. Due to our reliance on MCMC sampling to calculate posterior means, fitting the second model is much slower than the first (it took us about 15 seconds on a new MacBook Pro). We compare results using the `plot()` method for `"ebnm"` objects:
+
+```{r fig.width=6, fig.height=4}
+library("ebnm")
+normal_res <- ebnm_normal(x, s = 1)
+t_res <- ebnm_t(x, s = 1)
+plot(normal_res, t_res)
+```
+
+Note that `ebnm_t()` shrinks smaller observations more aggressively while estimates for larger observations remain close to their original values. As a result, the accuracy (root mean-squared error) of the estimates improves:
+
+```{r}
+rmse_normal <- sqrt(mean((coef(normal_res) - theta)^2))
+rmse_t <- sqrt(mean((coef(t_res) - theta)^2))
+c("rmse_normal" = rmse_normal, "rmse_t" = rmse_t)
+```
+
+This improvement is as expected, since the true prior $g$ used to simulate the data belongs to the family of $t$ distributions but not the family of normal distributions. And indeed, the estimated prior parameters end up being similar to the parameters used to simulate the data ($\tau = 2$ and $\nu = 5$):
+
+```{r}
+t_res$fitted_g
+```
+
+
+## Session information
+
+The following R version and packages were used to generate this vignette:
+
+```{r}
+sessionInfo()
+```
+
+
+## References
