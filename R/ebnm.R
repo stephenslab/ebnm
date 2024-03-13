@@ -144,26 +144,40 @@
 #'   below.
 #'
 #' @param optmethod A string specifying which optimization function is to be
-#'   used. Since all non-parametric families rely upon external packages, this
-#'   parameter is only available for parametric families (point-normal,
-#'   point-Laplace, point-exponential, and normal). Options include \code{"nlm"},
-#'   \code{"lbfgsb"} (which calls
-#'   \code{optim} with \code{method = "L-BFGS-B"}), and \code{"trust"} (which
-#'   calls into package \code{trust}). Other options are \code{"nohess_nlm"},
-#'   \code{"nograd_nlm"}, and \code{"nograd_lbfgsb"}, which use numerical
-#'   approximations rather than exact expressions for the Hessian and (for
-#'   the latter two) the gradient. The default option is \code{"nohess_nlm"}.
+#'   used.
 #'
+#'   For parametric families other than the horseshoe and generalized binary
+#'   (normal, point-normal, point-Laplace, and point-exponential), options
+#'   include \code{"nlm"} (which calls \code{\link[stats]{nlm}}), \code{"lbfgsb"}
+#'   (which calls \code{\link[stats]{optim}}
+#'   with \code{method = "L-BFGS-B"}), and \code{"trust"} (which
+#'   calls into the \code{\link[trust]{trust}} package).
+#'   Other options are \code{"nohess_nlm"},
+#'   \code{"nograd_nlm"}, and \code{"nograd_lbfgsb"}, which use numerical
+#'   approximations rather than exact expressions for the Hessian; both of the
+#'   \code{"nograd"} functions use numerical approximations for the gradient as
+#'   well. The default option is \code{"nohess_nlm"}.
+#'
+#'   Since the horseshoe and generalized binary families only require one
+#'   parameter to be estimated, the only available optimization method is
+#'   \code{\link[stats]{optimize}}, and thus \code{optmethod} is ignored by
+#'   \code{ebnm_horseshoe} and \code{ebnm_generalized_binary}.
+#'
+#'   For nonparametric families (scale mixtures of normals; unimodal,
+#'   symmetric unimodal, nonnegative unimodal, and nonpositive unimodal families;
+#'   and the NPMLE), \code{optmethod} options are provided by package
+#'   \code{ashr}. The default method uses the mix-SQP algorithm implemented in
+#'   the \code{mixsqp} package. See the \code{\link[ashr]{ash}} function
+#'   documentation for other options. For the NPMLE only, it is also possible to
+#'   specify \code{optmethod = "REBayes"}, which uses function
+#'   \code{\link[REBayes]{GLmix}} in the \code{REBayes} package
+#'   to estimate the NPMLE rather than \code{ashr}. Note that \code{REBayes}
+#'   requires installation of the commercial interior-point solver MOSEK; for
+#'   details, see \code{\link[REBayes]{KWDual}} (the core optimization routine
+#'   for the \code{REBayes} package).
 #'
 #' @param control A list of control parameters to be passed to the optimization
-#'   function. \code{\link[stats]{optimize}} is used for normal, horseshoe, and
-#'   generalized binary prior families. Other parametric families use
-#'   \code{\link[stats]{nlm}} unless parameter \code{optmethod} specifies otherwise.
-#'   \code{\link[stats]{nlm}} is also used for the \code{deconvolveR} prior family.
-#'   For ash families (including scale mixtures of normals, the NPMLE, and
-#'   all \code{unimodal_} families), function \code{\link[mixsqp]{mixsqp}} in
-#'   package \code{mixsqp} is the default. For generalized binary priors,
-#'   function \code{\link[stats]{optim}} is used with \code{method = "L-BFGS-B"}.
+#'   function specified by parameter \code{optmethod}.
 #'
 #' @param ... Additional parameters. When a \code{unimodal_} prior family is used,
 #'   these parameters are passed to function \code{\link[ashr]{ash}} in package
@@ -497,7 +511,8 @@ ebnm_workhorse <- function(x,
                                    control = control,
                                    call = call,
                                    ...)
-  } else if (prior_family == "normal_scale_mixture") {
+  } else if (prior_family == "normal_scale_mixture"
+             && (is.null(optmethod) || optmethod == "mixSQP")) {
     retlist <- ebnm_normal_mix_workhorse(x = x,
                                          s = s,
                                          mode = mode,
@@ -508,6 +523,19 @@ ebnm_workhorse <- function(x,
                                          control = control,
                                          call = call,
                                          ...)
+  } else if (prior_family == "normal_scale_mixture") {
+    retlist <- ebnm_ash_workhorse(x = x,
+                                  s = s,
+                                  mode = mode,
+                                  scale = scale,
+                                  g_init = g_init,
+                                  fix_g = fix_g,
+                                  output = output,
+                                  optmethod = optmethod,
+                                  control = control,
+                                  call = call,
+                                  mixcompdist = "normal",
+                                  ...)
   } else if (prior_family == "unimodal") {
     retlist <- ebnm_ash_workhorse(x = x,
                                   s = s,
@@ -516,6 +544,7 @@ ebnm_workhorse <- function(x,
                                   g_init = g_init,
                                   fix_g = fix_g,
                                   output = output,
+                                  optmethod = optmethod,
                                   control = control,
                                   call = call,
                                   mixcompdist = "halfuniform",
@@ -528,6 +557,7 @@ ebnm_workhorse <- function(x,
                                   g_init = g_init,
                                   fix_g = fix_g,
                                   output = output,
+                                  optmethod = optmethod,
                                   control = control,
                                   call = call,
                                   mixcompdist = "uniform",
@@ -540,6 +570,7 @@ ebnm_workhorse <- function(x,
                                   g_init = g_init,
                                   fix_g = fix_g,
                                   output = output,
+                                  optmethod = optmethod,
                                   control = control,
                                   call = call,
                                   mixcompdist = "+uniform",
@@ -552,6 +583,7 @@ ebnm_workhorse <- function(x,
                                   g_init = g_init,
                                   fix_g = fix_g,
                                   output = output,
+                                  optmethod = optmethod,
                                   control = control,
                                   call = call,
                                   mixcompdist = "-uniform",
@@ -564,6 +596,7 @@ ebnm_workhorse <- function(x,
                                   g_init = g_init,
                                   fix_g = fix_g,
                                   output = output,
+                                  optmethod = optmethod,
                                   control = control,
                                   call = call,
                                   ...)
@@ -591,16 +624,31 @@ ebnm_workhorse <- function(x,
       call$scale <- NULL
     }
 
-    retlist <- ebnm_normal_mix_workhorse(x = x,
-                                         s = s,
-                                         mode = mode,
-                                         scale = scale,
-                                         g_init = g_init,
-                                         fix_g = fix_g,
-                                         output = output,
-                                         control = control,
-                                         call = call,
-                                         ...)
+    if (is.null(optmethod) || optmethod == "mixSQP") {
+      retlist <- ebnm_normal_mix_workhorse(x = x,
+                                           s = s,
+                                           mode = mode,
+                                           scale = scale,
+                                           g_init = g_init,
+                                           fix_g = fix_g,
+                                           output = output,
+                                           control = control,
+                                           call = call,
+                                           ...)
+    } else {
+      retlist <- ebnm_ash_workhorse(x = x,
+                                    s = s,
+                                    mode = mode,
+                                    scale = scale,
+                                    g_init = g_init,
+                                    fix_g = fix_g,
+                                    output = output,
+                                    optmethod = optmethod,
+                                    control = control,
+                                    call = call,
+                                    mixcompdist = "normal",
+                                    ...)
+    }
   } else if (prior_family == "deconvolver") {
     retlist <- deconvolver_workhorse(x = x,
                                      s = s,

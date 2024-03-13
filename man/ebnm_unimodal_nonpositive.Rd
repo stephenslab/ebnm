@@ -12,6 +12,7 @@ ebnm_unimodal_nonpositive(
   g_init = NULL,
   fix_g = FALSE,
   output = ebnm_output_default(),
+  optmethod = NULL,
   control = NULL,
   ...
 )
@@ -63,8 +64,14 @@ Function \code{ebnm_output_default()} provides the default return values, while
 \code{ebnm_output_all()} lists all possible return values. See \strong{Value}
 below.}
 
-\item{control}{A list of control parameters to be passed to optimization
-function \code{\link[mixsqp]{mixsqp}}.}
+\item{optmethod}{A string specifying which optimization function is to be
+used. Options are provided by package
+\code{ashr}. The default method uses the mix-SQP algorithm implemented in
+the \code{\link[mixsqp]{mixsqp}} package. See the \code{\link[ashr]{ash}} function
+documentation for other options.}
+
+\item{control}{A list of control parameters to be passed to the
+optimization function specified by parameter \code{optmethod}.}
 
 \item{...}{Additional parameters to be passed to function
 \code{\link[ashr]{ash}} in package \code{ashr}.}
