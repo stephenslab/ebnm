@@ -24,5 +24,6 @@ test_that("all families are inferred correctly", {
   test_family("generalized_binary")
   test_family("npmle")
   test_family("flat")
-  test_family("point_mass")
+  ebnm.res <- ebnm(x, s, prior_family = "point_mass", mode = 0)
+  expect_identical(infer_prior_family(ebnm.res$fitted_g), "point_mass")
 })
