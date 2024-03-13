@@ -1,11 +1,11 @@
 ---
-title: Creating a custom ebnm-style function 
+title: Extending ebnm with custom ebnm-style functions 
 output: 
   rmarkdown::html_vignette:
     toc: yes
 bibliography: ebnm.bib
 vignette: >
-  %\VignetteIndexEntry{Creating a custom ebnm-style function}
+  %\VignetteIndexEntry{Extending ebnm with custom ebnm-style functions}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,38 +15,67 @@ knitr::opts_chunk$set(comment = "#", collapse = TRUE, results = "hold",
                       fig.align = "center", dpi = 90)
 ```
 
-In this vignette we will create a custom EBNM solver in the style of other **ebnm** functions (`ebnm_normal()`, `ebnm_point_laplace()`, etc.). For more background on the empirical Bayes normal means (EBNM) problem, please see the introductory vignette (`shrink_intro`).
+The ebnm package, in addition to providing implementations of several
+popular priors (normal, Laplace, etc.), was also designed to be easy
+extensible so that analysts are not limited by the priors we have
+implemented. Here we show by example how to extend ebnm by creating a
+custom EBNM solver in the style of other ebnm functions
+(`ebnm_normal()`, `ebnm_point_laplace()`, etc.). In this example, we
+will implement empirical Bayes normal means a scaled (Student's) *t*
+prior, which is not currently one of the prior families included in
+the ebnm package.
 
-Specifically, we will create the `ebnm_t()` function, which will fit a (non-standardized) Student's $t$ prior with mode fixed at zero but with scale and degrees of freedom to be estimated. That is, we will fit the model:
+The normal means model with a scaled *t* prior assigned to the unknown
+means is
 
 \begin{aligned}
 x_i &\sim \mathcal{N}(\theta_i, s_i^2), \\
 \theta_i &\sim g \in \mathcal{G},
-\end{aligned}   
+\end{aligned}
 
-where the "true means" $\theta_i$ are unknown and $\mathcal{G}$ is the prior family:
+in which the prior family $\mathcal{G}$ is 
 
 \begin{equation}
-\mathcal{G} = \{g: g \sim \tau T; T \sim t_\nu; \tau \ge 0, \nu > 0\}.
+\mathcal{G} = \{g: g = \sigma t_\nu; \sigma > 0, \nu > 0\},
 \end{equation}
 
-Given observations $x_i$ and standard errors $s_i$, $g$ can be estimated by optimizing over two parameters: the scale $\tau$ and the degrees of freedom $\nu$.
-
+and where $t_{\nu}$ is the *t* distribution with $\nu$ degress of
+freedom. Fitting the prior therefore involves estimating two
+parameters: the scale parameter, $\sigma$; and the degrees of freedom,
+$\nu$.
 
 ## The prior family class
 
-First we will need a class that specifies the structure of the priors $g$ in our prior family $\mathcal{G}$. In some cases, an existing class can be used. For example, `ebnm_normal()`, `ebnm_point_normal()`, `ebnm_normal_scale_mixture()`, and `ebnm_point_mass()` all use the class `"normalmix"`, which is borrowed from the **ashr** package. In other cases, a new class must be created. 
+First we will need a class that specifies the structure of the priors
+$g$ in our prior family $\mathcal{G}$. In some cases, an existing
+class can be used. For example, `ebnm_normal()`,
+`ebnm_point_normal()`, `ebnm_normal_scale_mixture()`, and
+`ebnm_point_mass()` all use the class `"normalmix"`, which in turn was
+borrowed from the **ashr** package. In other cases, a new class must
+be created.
 
-**ebnm** uses these classes in two ways: first, to give information about the fitted prior $\hat{g}$ via the `fitted_g` field in the returned `"ebnm"` object; and second, to initialize solutions using the `g_init` argument. If one would like to be able to arbitrarily initialize the solver, then the prior family class should include all information required to do so. Note, however, that `ebnm` places no restrictions whatsoever on the structure of the class, since any initialization using `g_init` must be implemented within the custom function itself. In particular, we could choose to simply ignore `g_init` and return `fitted_g = NULL` (this is not recommended, of course, since it gives no information about the fitted prior $\hat{g} \in \mathcal{G}$).
+**ebnm** uses these classes in two ways: first, to give information
+about the fitted prior $\hat{g}$ via the `fitted_g` field in the
+returned `"ebnm"` object; and second, to initialize solutions using
+the `g_init` argument. If one would like to be able to arbitrarily
+initialize the solver, then the prior family class should include all
+information required to do so. Note, however, that `ebnm` places no
+restrictions whatsoever on the structure of the class, since any
+initialization using `g_init` must be implemented within the custom
+function itself. In particular, we could choose to simply ignore
+`g_init` and return `fitted_g = NULL` (this is not recommended, of
+course, since it gives no information about the fitted prior $\hat{g}
+\in \mathcal{G}$).
 
-For our custom solver, we will create a `"tdist"` class that includes the scale and degrees of freedom. We create a constructor function for the class as follows:
+For our custom solver, we will create a `"tdist"` class that includes
+the scale and degrees of freedom. We create a constructor function for
+the class as follows:
 
 ```{r}
 tdist <- function(scale, df) {
   structure(data.frame(scale, df), class = "tdist")
 }
 ```
-
 
 ## The optimization function
 
