@@ -2,7 +2,7 @@
 % Please edit documentation in R/ebnm_methods.R
 \name{confint.ebnm}
 \alias{confint.ebnm}
-\title{Obtain confidence intervals using a fitted EBNM model}
+\title{Obtain credible intervals using a fitted EBNM model}
 \usage{
 \method{confint}{ebnm}(object, parm, level = 0.95, nsim = 1000, ...)
 }
@@ -13,7 +13,7 @@
 are to be given confidence intervals. If missing, all observations are
 considered.}
 
-\item{level}{The confidence level required.}
+\item{level}{The "confidence level" \eqn{1 - \alpha} desired.}
 
 \item{nsim}{The number of samples to use to estimate confidence intervals.}
 
@@ -29,12 +29,12 @@ A matrix with columns giving lower and upper confidence limits for
 }
 \description{
 The \code{\link[stats]{confint}} method for class \code{\link{ebnm}}.
-  Estimates credible intervals by sampling from
-  the posterior. Specifically, for each set of samples
-  \eqn{y_{1i}, \ldots, y_{mi} \sim p(\theta_i \mid x_i, \hat{g})},
-  returns the narrowest interval \eqn{[a_i, b_i]} such that the proportion
-  of points \eqn{y_{1i}, \ldots, y_{mi}} contained in \eqn{[a_i, b_i]} is at
-  least equal to the proportion specified by argument \code{level}. Note
+  Estimates posterior "credible intervals" for each "true mean" \eqn{\theta_i}.
+  We define the \eqn{(1 - \alpha)}\% credible interval for \eqn{\theta_i} as
+  the narrowest continuous interval \eqn{[a_i, b_i]} such that
+  \eqn{\theta_i \in [a_i, b_i]} with posterior probability at least
+  \eqn{1 - \alpha}, where \eqn{\alpha \in (0,1)}. We estimate these credible
+  intervals using Monte Carlo sampling. Note
   that by default, \code{\link{ebnm}} does not return a posterior
   sampler; one can be added to the \code{ebnm} object using function
   \code{\link{ebnm_add_sampler}}.
