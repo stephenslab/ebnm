@@ -3,6 +3,7 @@ pkgdown: 2.0.7
 pkgdown_sha: ~
 articles:
   baseball: baseball.html
+  custom_function: custom_function.html
   shrink_intro: shrink_intro.html
-last_built: 2024-03-12T16:47Z
+last_built: 2024-03-12T22:20Z
 
