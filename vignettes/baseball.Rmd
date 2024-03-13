@@ -228,10 +228,9 @@ The posterior means and standard errors returned from the `ebnm()`
 call cannot be used to obtain credible intervals (except for the
 special case of the normal prior). Therefore, we provide additional
 methods `quantile()` and `confint()`, which return, respectively,
-posterior quantiles and credible intervals, defined as the narrowest 
-*continuous* intervals 
-covering $(1 - \alpha)\%$ of the posterior, where $1 - \alpha$ is the 
-desired confidence level.
+posterior quantiles and posterior credible intervals, defined as the narrowest 
+*continuous* intervals $[a_i, b_i]$ such that the "true mean" $\theta_i$ is in $[a_i, b_i]$
+with posterior probability at least $1 - \alpha$, where $\alpha \in (0, 1)$.
 Both methods are implemented using Monte Carlo techniques, which
 can be slow for large data sets, so credible intervals are not
 computed by default.  
@@ -351,17 +350,17 @@ normal scale mixture prior families.
 One potential issue with the NPMLE is that, since it is discrete (as
 the above CDF plot makes apparent), observations are variously shrunk
 toward one of the support points, which can result in poor interval
-estimates. For illustration, we calculate 80% credible intervals using 
+estimates. For illustration, we calculate 80% intervals using 
 10% and 90% quantiles (note that this is not the same as using the
 `confint()` method with `level = 0.8`, since `confint()` returns the
-*narrowest* continuous intervals covering 80% of the posterior):
+*narrowest* continuous intervals covering 80% of the posterior probability):
 
 ```{r ebnm-npmle-sampler}
 fit_npmle <- ebnm_add_sampler(fit_npmle)
 print(head(quantile(fit_npmle, probs = c(0.1, 0.9))), digits = 3)
 ```
 
-Each credible interval bound is constrained to lie at one of the
+Each interval endpoint is constrained to lie at one of the
 support points of the NPMLE $\hat{g}$. The interval estimate for
 Judge strikes us as far too narrow. Indeed, the NPMLE can sometimes
 yield degenerate interval estimates:
@@ -385,7 +384,7 @@ fits a model to $z$-scores rather than observations and associated
 standard errors, the "true" means $\theta$ being estimated are
 $z$-scores rather than raw wOBA skill. While this may be  
 reasonable in many settings, it does
-not seem appropriate for the present analysis:
+not seem appropriate for the wOBA data:
 
 ```{r ebnm-deconvolver-head}
 print(head(confint(fit_deconv, level = 0.8) * s), digits = 3)
