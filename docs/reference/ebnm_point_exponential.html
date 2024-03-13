@@ -23,7 +23,7 @@ model, see ebnm.'><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ebnm</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-19</span>
       </span>
     </div>
 
@@ -129,12 +129,15 @@ below.</p></dd>
 
 <dt>optmethod</dt>
 <dd><p>A string specifying which optimization function is to be
-used. Options include <code>"nlm"</code>, <code>"lbfgsb"</code> (which calls
-<code>optim</code> with <code>method = "L-BFGS-B"</code>), and <code>"trust"</code> (which
-calls into package <code>trust</code>). Other options are <code>"nohess_nlm"</code>,
+used. Options include <code>"nlm"</code> (which calls <code><a href="https://rdrr.io/r/stats/nlm.html" class="external-link">nlm</a></code>),
+<code>"lbfgsb"</code> (which calls <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></code>
+with <code>method = "L-BFGS-B"</code>), and <code>"trust"</code> (which
+calls into the <code><a href="https://rdrr.io/pkg/trust/man/trust.html" class="external-link">trust</a></code> package).
+Other options are <code>"nohess_nlm"</code>,
 <code>"nograd_nlm"</code>, and <code>"nograd_lbfgsb"</code>, which use numerical
-approximations rather than exact expressions for the Hessian and (for
-the latter two) the gradient. The default option is <code>"nohess_nlm"</code>.</p></dd>
+approximations rather than exact expressions for the Hessian; both of the
+<code>"nograd"</code> functions use numerical approximations for the gradient as
+well. The default option is <code>"nohess_nlm"</code>.</p></dd>
 
 
 <dt>control</dt>

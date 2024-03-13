@@ -20,7 +20,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ebnm</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-19</span>
       </span>
     </div>
 
@@ -125,12 +125,22 @@ below.</p></dd>
 
 
 <dt>optmethod</dt>
-<dd><p>Not used by <code>ebnm_npmle</code>.</p></dd>
+<dd><p>A string specifying which optimization function is to be
+used. Options are provided by package
+<code>ashr</code>. The default method uses the mix-SQP algorithm implemented in
+the <code>mixsqp</code> package. See the <code><a href="https://rdrr.io/pkg/ashr/man/ash.html" class="external-link">ash</a></code> function
+documentation for other options. It is also possible to
+specify <code>optmethod = "REBayes"</code>, which uses function
+<code><a href="https://rdrr.io/pkg/REBayes/man/GLmix.html" class="external-link">GLmix</a></code> in the <code>REBayes</code> package
+to estimate the NPMLE rather than <code>ashr</code>. Note that <code>REBayes</code>
+requires installation of the commercial interior-point solver MOSEK; for
+details, see <code><a href="https://rdrr.io/pkg/REBayes/man/KWDual.html" class="external-link">KWDual</a></code> (the core optimization routine
+for the <code>REBayes</code> package).</p></dd>
 
 
 <dt>control</dt>
-<dd><p>A list of control parameters to be passed to optimization
-function <code><a href="https://rdrr.io/pkg/mixsqp/man/mixsqp.html" class="external-link">mixsqp</a></code>.</p></dd>
+<dd><p>A list of control parameters to be passed to the
+optimization function specified by parameter <code>optmethod</code>.</p></dd>
 
 </dl></div>
     <div id="value">
