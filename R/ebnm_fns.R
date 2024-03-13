@@ -40,12 +40,15 @@
 #'   below.
 #'
 #' @param optmethod A string specifying which optimization function is to be
-#'   used. Options include \code{"nlm"}, \code{"lbfgsb"} (which calls
-#'   \code{optim} with \code{method = "L-BFGS-B"}), and \code{"trust"} (which
-#'   calls into package \code{trust}). Other options are \code{"nohess_nlm"},
+#'   used. Options include \code{"nlm"} (which calls \code{\link[stats]{nlm}}),
+#'   \code{"lbfgsb"} (which calls \code{\link[stats]{optim}}
+#'   with \code{method = "L-BFGS-B"}), and \code{"trust"} (which
+#'   calls into the \code{\link[trust]{trust}} package).
+#'   Other options are \code{"nohess_nlm"},
 #'   \code{"nograd_nlm"}, and \code{"nograd_lbfgsb"}, which use numerical
-#'   approximations rather than exact expressions for the Hessian and (for
-#'   the latter two) the gradient. The default option is \code{"nohess_nlm"}.
+#'   approximations rather than exact expressions for the Hessian; both of the
+#'   \code{"nograd"} functions use numerical approximations for the gradient as
+#'   well. The default option is \code{"nohess_nlm"}.
 #'
 #' @param control A list of control parameters to be passed to the
 #'   optimization function specified by parameter \code{optmethod}.
@@ -354,8 +357,11 @@ ebnm_horseshoe <- function(x,
 #'   \code{\link[ashr]{normalmix}} or an \code{ebnm} object in which the fitted
 #'   prior is an object of class \code{normalmix}.
 #'
-#' @param control A list of control parameters to be passed to optimization
-#'   function \code{\link[mixsqp]{mixsqp}}.
+#' @param optmethod A string specifying which optimization function is to be
+#'   used. Options are provided by package
+#'   \code{ashr}. The default method uses the mix-SQP algorithm implemented in
+#'   the \code{\link[mixsqp]{mixsqp}} package. See the \code{\link[ashr]{ash}} function
+#'   documentation for other options.
 #'
 #' @param ... When parameter \code{gridmult} is set, an
 #'   \code{\link[ashr]{ash}}-style grid will be used instead of the default
@@ -371,6 +377,7 @@ ebnm_normal_scale_mixture <- function(x,
                                       g_init = NULL,
                                       fix_g = FALSE,
                                       output = ebnm_output_default(),
+                                      optmethod = NULL,
                                       control = NULL,
                                       ...) {
   return(ebnm_workhorse(x = x,
@@ -436,6 +443,7 @@ ebnm_unimodal <- function(x,
                           g_init = NULL,
                           fix_g = FALSE,
                           output = ebnm_output_default(),
+                          optmethod = NULL,
                           control = NULL,
                           ...) {
   return(ebnm_workhorse(x = x,
@@ -487,6 +495,7 @@ ebnm_unimodal_symmetric <- function(x,
                                     g_init = NULL,
                                     fix_g = FALSE,
                                     output = ebnm_output_default(),
+                                    optmethod = NULL,
                                     control = NULL,
                                     ...) {
   return(ebnm_workhorse(x = x,
@@ -539,6 +548,7 @@ ebnm_unimodal_nonnegative <- function(x,
                                       g_init = NULL,
                                       fix_g = FALSE,
                                       output = ebnm_output_default(),
+                                      optmethod = NULL,
                                       control = NULL,
                                       ...) {
   return(ebnm_workhorse(x = x,
@@ -591,6 +601,7 @@ ebnm_unimodal_nonpositive <- function(x,
                                       g_init = NULL,
                                       fix_g = FALSE,
                                       output = ebnm_output_default(),
+                                      optmethod = NULL,
                                       control = NULL,
                                       ...) {
   return(ebnm_workhorse(x = x,
@@ -642,8 +653,7 @@ ebnm_unimodal_nonpositive <- function(x,
 #'   prior is an object of class \code{tnormalmix}.
 #'
 #' @param control A list of control parameters to be passed to function
-#'   \code{\link[stats]{optim}}, where \code{method} has been set to
-#'   \code{"L-BFGS-B"}.
+#'   \code{\link[stats]{optimize}}.
 #'
 #' @param ... The following additional arguments act as control parameters for
 #'   the outer EM loops in the fitting algorithm. Each loop iteratively updates
@@ -730,7 +740,17 @@ ebnm_generalized_binary <- function(x,
 #'   or an \code{ebnm} object in which the fitted
 #'   prior is an object of class \code{normalmix}.
 #'
-#' @param optmethod Not used by \code{ebnm_npmle}.
+#' @param optmethod A string specifying which optimization function is to be
+#'   used. Options are provided by package
+#'   \code{ashr}. The default method uses the mix-SQP algorithm implemented in
+#'   the \code{mixsqp} package. See the \code{\link[ashr]{ash}} function
+#'   documentation for other options. It is also possible to
+#'   specify \code{optmethod = "REBayes"}, which uses function
+#'   \code{\link[REBayes]{GLmix}} in the \code{REBayes} package
+#'   to estimate the NPMLE rather than \code{ashr}. Note that \code{REBayes}
+#'   requires installation of the commercial interior-point solver MOSEK; for
+#'   details, see \code{\link[REBayes]{KWDual}} (the core optimization routine
+#'   for the \code{REBayes} package).
 #'
 #' @export
 #'

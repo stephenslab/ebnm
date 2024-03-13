@@ -20,7 +20,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ebnm</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-20</span>
       </span>
     </div>
 
@@ -67,6 +67,7 @@
 <span>  g_init <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  fix_g <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  output <span class="op">=</span> <span class="fu"><a href="ebnm.html">ebnm_output_default</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  optmethod <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  control <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -133,9 +134,17 @@ Function <code><a href="ebnm.html">ebnm_output_default()</a></code> provides the
 below.</p></dd>
 
 
+<dt>optmethod</dt>
+<dd><p>A string specifying which optimization function is to be
+used. Options are provided by package
+<code>ashr</code>. The default method uses the mix-SQP algorithm implemented in
+the <code><a href="https://rdrr.io/pkg/mixsqp/man/mixsqp.html" class="external-link">mixsqp</a></code> package. See the <code><a href="https://rdrr.io/pkg/ashr/man/ash.html" class="external-link">ash</a></code> function
+documentation for other options.</p></dd>
+
+
 <dt>control</dt>
-<dd><p>A list of control parameters to be passed to optimization
-function <code><a href="https://rdrr.io/pkg/mixsqp/man/mixsqp.html" class="external-link">mixsqp</a></code>.</p></dd>
+<dd><p>A list of control parameters to be passed to the
+optimization function specified by parameter <code>optmethod</code>.</p></dd>
 
 
 <dt>...</dt>

@@ -4,8 +4,8 @@ x <- 1:10
 s <- 1
 
 test_that("Basic functionality works", {
-  pm.res <- ebnm(x, s, prior_family = "point_mass")
-  pm.res2 <- ebnm_point_mass(x, s)
+  pm.res <- ebnm(x, s, prior_family = "point_mass", mode = 0)
+  pm.res2 <- ebnm_point_mass(x, s, mode = 0)
   pm.res$call <- pm.res2$call <- NULL
   expect_identical(pm.res, pm.res2)
   expect_identical(pm.res$posterior$mean, rep(0, length(x)))

@@ -52,8 +52,7 @@ Function \code{ebnm_output_default()} provides the default return values, while
 below.}
 
 \item{control}{A list of control parameters to be passed to function
-\code{\link[stats]{optim}}, where \code{method} has been set to
-\code{"L-BFGS-B"}.}
+\code{\link[stats]{optimize}}.}
 
 \item{...}{The following additional arguments act as control parameters for
 the outer EM loops in the fitting algorithm. Each loop iteratively updates

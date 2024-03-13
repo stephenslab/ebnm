@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ebnm</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-15</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-20</span>
       </span>
     </div>
 
@@ -288,12 +288,12 @@ flexible enough to permit posterior estimates above .400.</p>
 <code><a href="../reference/ebnm.html">ebnm()</a></code> call cannot be used to obtain credible intervals
 (except for the special case of the normal prior). Therefore, we provide
 additional methods <code><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile()</a></code> and <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code>,
-which return, respectively, posterior quantiles and credible intervals,
-defined as the narrowest <em>continuous</em> intervals covering <span class="math inline">\((1 - \alpha)\%\)</span> of the posterior, where
-<span class="math inline">\(1 - \alpha\)</span> is the desired
-confidence level. Both methods are implemented using Monte Carlo
-techniques, which can be slow for large data sets, so credible intervals
-are not computed by default.<br>
+which return, respectively, posterior quantiles and posterior credible
+intervals, defined as the narrowest <em>continuous</em> intervals <span class="math inline">\([a_i, b_i]\)</span> such that the “true mean”
+<span class="math inline">\(\theta_i\)</span> is in <span class="math inline">\([a_i, b_i]\)</span> with posterior probability at
+least <span class="math inline">\(1 - \alpha\)</span>, where <span class="math inline">\(\alpha \in (0, 1)\)</span>. Both methods are
+implemented using Monte Carlo techniques, which can be slow for large
+data sets, so credible intervals are not computed by default.<br>
 We add a Monte Carlo sampler using function
 <code><a href="../reference/ebnm_add_sampler.html">ebnm_add_sampler()</a></code>; alternatively, we could have added a
 sampler in our initial calls to <code><a href="../reference/ebnm.html">ebnm()</a></code> by specifying
@@ -434,11 +434,11 @@ respectively, unimodal and normal scale mixture prior families.</p>
 <p>One potential issue with the NPMLE is that, since it is discrete (as
 the above CDF plot makes apparent), observations are variously shrunk
 toward one of the support points, which can result in poor interval
-estimates. For illustration, we calculate 80% credible intervals using
-10% and 90% quantiles (note that this is not the same as using the
+estimates. For illustration, we calculate 80% intervals using 10% and
+90% quantiles (note that this is not the same as using the
 <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code> method with <code>level = 0.8</code>, since
 <code><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint()</a></code> returns the <em>narrowest</em> continuous
-intervals covering 80% of the posterior):</p>
+intervals covering 80% of the posterior probability):</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_npmle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm_add_sampler.html">ebnm_add_sampler</a></span><span class="op">(</span><span class="va">fit_npmle</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">fit_npmle</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
@@ -449,10 +449,10 @@ intervals covering 80% of the posterior):</p>
 <span><span class="co"># James Outman   0.276 0.342</span></span>
 <span><span class="co"># Matt Carpenter 0.309 0.430</span></span>
 <span><span class="co"># Aaron Judge    0.419 0.430</span></span></code></pre></div>
-<p>Each credible interval bound is constrained to lie at one of the
-support points of the NPMLE <span class="math inline">\(\hat{g}\)</span>. The interval estimate for Judge
-strikes us as far too narrow. Indeed, the NPMLE can sometimes yield
-degenerate interval estimates:</p>
+<p>Each interval endpoint is constrained to lie at one of the support
+points of the NPMLE <span class="math inline">\(\hat{g}\)</span>. The
+interval estimate for Judge strikes us as far too narrow. Indeed, the
+NPMLE can sometimes yield degenerate interval estimates:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_npmle</span>, level <span class="op">=</span> <span class="fl">0.8</span>, parm <span class="op">=</span> <span class="st">"Aaron Judge"</span><span class="op">)</span></span>
 <span><span class="co">#              CI.lower  CI.upper</span></span>
@@ -469,8 +469,8 @@ proportions are zero:</p>
 model to <span class="math inline">\(z\)</span>-scores rather than
 observations and associated standard errors, the “true” means <span class="math inline">\(\theta\)</span> being estimated are <span class="math inline">\(z\)</span>-scores rather than raw wOBA skill.
 While this may be<br>
-reasonable in many settings, it does not seem appropriate for the
-present analysis:</p>
+reasonable in many settings, it does not seem appropriate for the wOBA
+data:</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">fit_deconv</span>, level <span class="op">=</span> <span class="fl">0.8</span><span class="op">)</span> <span class="op">*</span> <span class="va">s</span><span class="op">)</span>, digits <span class="op">=</span> <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#                CI.lower CI.upper</span></span>
@@ -567,7 +567,7 @@ vignette:</p>
 <span><span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># other attached packages:</span></span>
-<span><span class="co"># [1] cowplot_1.1.3 ggplot2_3.4.4 ebnm_1.1-15  </span></span>
+<span><span class="co"># [1] cowplot_1.1.3 ggplot2_3.4.4 ebnm_1.1-20  </span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#  [1] sass_0.4.8         utf8_1.2.4         generics_0.1.3     ashr_2.2-63       </span></span>

@@ -55,10 +55,20 @@ Function \code{ebnm_output_default()} provides the default return values, while
 \code{ebnm_output_all()} lists all possible return values. See \strong{Value}
 below.}
 
-\item{optmethod}{Not used by \code{ebnm_npmle}.}
+\item{optmethod}{A string specifying which optimization function is to be
+used. Options are provided by package
+\code{ashr}. The default method uses the mix-SQP algorithm implemented in
+the \code{mixsqp} package. See the \code{\link[ashr]{ash}} function
+documentation for other options. It is also possible to
+specify \code{optmethod = "REBayes"}, which uses function
+\code{\link[REBayes]{GLmix}} in the \code{REBayes} package
+to estimate the NPMLE rather than \code{ashr}. Note that \code{REBayes}
+requires installation of the commercial interior-point solver MOSEK; for
+details, see \code{\link[REBayes]{KWDual}} (the core optimization routine
+for the \code{REBayes} package).}
 
-\item{control}{A list of control parameters to be passed to optimization
-function \code{\link[mixsqp]{mixsqp}}.}
+\item{control}{A list of control parameters to be passed to the
+optimization function specified by parameter \code{optmethod}.}
 }
 \value{
 An \code{ebnm} object. Depending on the argument to \code{output}, the

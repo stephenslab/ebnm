@@ -50,12 +50,15 @@ Function \code{ebnm_output_default()} provides the default return values, while
 below.}
 
 \item{optmethod}{A string specifying which optimization function is to be
-used. Options include \code{"nlm"}, \code{"lbfgsb"} (which calls
-\code{optim} with \code{method = "L-BFGS-B"}), and \code{"trust"} (which
-calls into package \code{trust}). Other options are \code{"nohess_nlm"},
+used. Options include \code{"nlm"} (which calls \code{\link[stats]{nlm}}),
+\code{"lbfgsb"} (which calls \code{\link[stats]{optim}}
+with \code{method = "L-BFGS-B"}), and \code{"trust"} (which
+calls into the \code{\link[trust]{trust}} package).
+Other options are \code{"nohess_nlm"},
 \code{"nograd_nlm"}, and \code{"nograd_lbfgsb"}, which use numerical
-approximations rather than exact expressions for the Hessian and (for
-the latter two) the gradient. The default option is \code{"nohess_nlm"}.}
+approximations rather than exact expressions for the Hessian; both of the
+\code{"nograd"} functions use numerical approximations for the gradient as
+well. The default option is \code{"nohess_nlm"}.}
 
 \item{control}{A list of control parameters to be passed to the
 optimization function specified by parameter \code{optmethod}.}
