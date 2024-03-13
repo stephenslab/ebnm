@@ -1,7 +1,7 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 1.1-17
+Version: 1.1-18
 Date: 2024-03-13
 Title: Solve the Empirical Bayes Normal Means Problem
 Authors@R: c(person("Jason", "Willwerscheid", role = "aut"),
@@ -37,7 +37,8 @@ Suggests:
     REBayes,
     knitr,
     rmarkdown,
-    cowplot
+    cowplot,
+    mcmc
 RoxygenNote: 7.3.0
 VignetteBuilder: knitr
 LazyData: true
