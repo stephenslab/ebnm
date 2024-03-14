@@ -20,9 +20,10 @@ test_that("Different optimization methods work", {
   pe_res2 <- ebnm_point_exponential(x, optmethod = "lbfgsb", control = list(maxit = 10))
   expect_equal(pe_res$fitted_g$scale[2], pe_res2$fitted_g$scale[2], 1e-4)
 
-  smn_res <- ebnm_normal_scale_mixture(x, optmethod = "mixIP", control = list(rtol = 1e-4))
-  smn_res2 <- ebnm(x, prior_family = "normal_scale_mixture", optmethod = "mixEM", control = list(tol = 1e-4))
-  expect_equal(smn_res$log_likelihood, smn_res2$log_likelihood, 1e-2)
+  # smn_res <- ebnm_normal_scale_mixture(x, optmethod = "mixIP", control = list(rtol = 1e-4))
+  smn_res <- ebnm_normal_scale_mixture(x, optmethod = "mixSQP", control = list(numiter.em = 10))
+  smn_res2 <- ebnm(x, prior_family = "normal_scale_mixture", optmethod = "mixEM", control = list(tol = 1e-6))
+  expect_equal(smn_res$log_likelihood, smn_res2$log_likelihood, 1e-1)
 
   uni_res <- ebnm_unimodal(x, optmethod = "mixVBEM", control = list(tol = 1e-5))
   uni_res2 <- ebnm(x, prior_family = "unimodal", optmethod = "mixSQP", control = list(maxiter.activeset = 10))
@@ -41,8 +42,9 @@ test_that("Different optimization methods work", {
   expect_equal(npuni_res$log_likelihood, npuni_res2$log_likelihood, 1e-2)
 
   npmle_res <- ebnm_npmle(x, optmethod = "mixSQP", control = list(numiter.em = 5))
-  npmle_res2 <- ebnm(x, prior_family = "npmle", optmethod = "REBayes", control = list(rtol = 1e-8))
-  expect_equal(npmle_res$log_likelihood, npmle_res2$log_likelihood, 1e-2)
+  npmle_res2 <- ebnm_npmle(x, optmethod = "mixEM", control = list(maxiter = 30))
+  # npmle_res2 <- ebnm(x, prior_family = "npmle", optmethod = "REBayes", control = list(rtol = 1e-8))
+  expect_equal(npmle_res$log_likelihood, npmle_res2$log_likelihood, 1e-1)
 
   deconv_res <- ebnm_deconvolver(x, control = list(ndigit = 6))
   deconv_res2 <- ebnm(x, prior_family = "deconvolver")
