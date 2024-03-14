@@ -26,7 +26,9 @@ rebayes_workhorse <- function(x = x,
     stop("REBayes parameter 'v' is not supported. Please use 'scale' instead.")
   }
 
-  if (!fix_g) {
+  if (fix_g) {
+    df <- 0
+  } else {
     if (scale == "estimate") {
       g <- init_g_for_npmle(x, s, force_pointmass = TRUE)
       n_gridpts <- length(g$pi)
@@ -42,7 +44,8 @@ rebayes_workhorse <- function(x = x,
                              ...))
 
     g_init <- ashr::normalmix(pi = rebayes_res$y, mean = rebayes_res$x, sd = 0)
-    fix_g = TRUE
+    df <- length(g_init$pi) - 1
+    fix_g <- TRUE
     call$scale <- NULL
   }
 
@@ -51,12 +54,16 @@ rebayes_workhorse <- function(x = x,
                              mode = 0,
                              scale = "estimate",
                              g_init = g_init,
-                             fix_g = fix_g,
+                             fix_g = TRUE,
                              output = output,
                              optmethod = NULL,
                              control = NULL,
                              prior_family = "npmle",
                              call = call)
+
+  if (df > 0) {
+    ebnm_res <- add_llik_to_retlist(ebnm_res, ebnm_res[[llik_ret_str()]], x, df = df)
+  }
 
   return(ebnm_res)
 }

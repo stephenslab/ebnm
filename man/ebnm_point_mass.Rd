@@ -10,7 +10,8 @@ ebnm_point_mass(
   mode = 0,
   g_init = NULL,
   fix_g = FALSE,
-  output = ebnm_output_default()
+  output = ebnm_output_default(),
+  control = NULL
 )
 }
 \arguments{
@@ -41,6 +42,9 @@ of estimating it.}
 Function \code{ebnm_output_default()} provides the default return values, while
 \code{ebnm_output_all()} lists all possible return values. See \strong{Value}
 below.}
+
+\item{control}{A list of control parameters to be passed to function
+\code{\link[stats]{optimize}}.}
 }
 \value{
 An \code{ebnm} object. Depending on the argument to \code{output}, the
