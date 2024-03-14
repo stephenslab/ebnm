@@ -42,7 +42,7 @@ test_that("Different optimization methods work", {
   expect_equal(npuni_res$log_likelihood, npuni_res2$log_likelihood, 1e-2)
 
   npmle_res <- ebnm_npmle(x, optmethod = "mixSQP", control = list(numiter.em = 5))
-  npmle_res2 <- ebnm_npmle(x, optmethod = "mixEM", control = list(maxiter = 30))
+  npmle_res2 <- ebnm_npmle(x, optmethod = "mixEM", control = list(maxiter = 500))
   # npmle_res2 <- ebnm(x, prior_family = "npmle", optmethod = "REBayes", control = list(rtol = 1e-8))
   expect_equal(npmle_res$log_likelihood, npmle_res2$log_likelihood, 1e-1)
 
