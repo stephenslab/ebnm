@@ -21,7 +21,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ebnm</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-20</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-21</span>
       </span>
     </div>
 
@@ -67,7 +67,8 @@
 <span>  mode <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  g_init <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  fix_g <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  output <span class="op">=</span> <span class="fu"><a href="ebnm.html">ebnm_output_default</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  output <span class="op">=</span> <span class="fu"><a href="ebnm.html">ebnm_output_default</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  control <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -111,6 +112,11 @@ of estimating it.</p></dd>
 Function <code><a href="ebnm.html">ebnm_output_default()</a></code> provides the default return values, while
 <code><a href="ebnm.html">ebnm_output_all()</a></code> lists all possible return values. See <strong>Value</strong>
 below.</p></dd>
+
+
+<dt>control</dt>
+<dd><p>A list of control parameters to be passed to function
+<code><a href="https://rdrr.io/r/stats/optimize.html" class="external-link">optimize</a></code>.</p></dd>
 
 </dl></div>
     <div id="value">

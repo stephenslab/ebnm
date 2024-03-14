@@ -387,7 +387,7 @@ ebnm_normal_scale_mixture <- function(x,
                         g_init = g_init,
                         fix_g = fix_g,
                         output = output,
-                        optmethod = NULL,
+                        optmethod = optmethod,
                         control = control,
                         prior_family = "normal_scale_mixture",
                         call = match.call(),
@@ -453,7 +453,7 @@ ebnm_unimodal <- function(x,
                         g_init = g_init,
                         fix_g = fix_g,
                         output = output,
-                        optmethod = NULL,
+                        optmethod = optmethod,
                         control = control,
                         prior_family = "unimodal",
                         call = match.call(),
@@ -505,7 +505,7 @@ ebnm_unimodal_symmetric <- function(x,
                         g_init = g_init,
                         fix_g = fix_g,
                         output = output,
-                        optmethod = NULL,
+                        optmethod = optmethod,
                         control = control,
                         prior_family = "unimodal_symmetric",
                         call = match.call(),
@@ -558,7 +558,7 @@ ebnm_unimodal_nonnegative <- function(x,
                         g_init = g_init,
                         fix_g = fix_g,
                         output = output,
-                        optmethod = NULL,
+                        optmethod = optmethod,
                         control = control,
                         prior_family = "unimodal_nonnegative",
                         call = match.call(),
@@ -611,7 +611,7 @@ ebnm_unimodal_nonpositive <- function(x,
                         g_init = g_init,
                         fix_g = fix_g,
                         output = output,
-                        optmethod = NULL,
+                        optmethod = optmethod,
                         control = control,
                         prior_family = "unimodal_nonpositive",
                         call = match.call(),
@@ -693,6 +693,10 @@ ebnm_generalized_binary <- function(x,
                                     output = ebnm_output_default(),
                                     control = NULL,
                                     ...) {
+  if ("optmethod" %in% names(list(...))) {
+    stop("optmethod parameter is not used by ebnm_generalized_binary.")
+  }
+
   return(ebnm_workhorse(x = x,
                         s = s,
                         mode = mode,
@@ -860,6 +864,7 @@ ebnm_flat <- function(x,
                         g_init = g_init,
                         fix_g = fix_g,
                         output = output,
+                        optmethod = NULL,
                         control = NULL,
                         prior_family = "flat",
                         call = match.call()))
@@ -888,6 +893,9 @@ ebnm_flat <- function(x,
 #'   \code{\link[ashr]{normalmix}} or an \code{ebnm} object in which the fitted
 #'   prior is an object of class \code{normalmix}.
 #'
+#' @param control A list of control parameters to be passed to function
+#'   \code{\link[stats]{optimize}}.
+#'
 #' @export
 #'
 ebnm_point_mass <- function(x,
@@ -895,7 +903,8 @@ ebnm_point_mass <- function(x,
                             mode = 0,
                             g_init = NULL,
                             fix_g = FALSE,
-                            output = ebnm_output_default()) {
+                            output = ebnm_output_default(),
+                            control = NULL) {
   return(ebnm_workhorse(x = x,
                         s = s,
                         mode = mode,

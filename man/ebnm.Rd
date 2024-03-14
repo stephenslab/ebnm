@@ -121,23 +121,28 @@ below.}
   \code{"nograd"} functions use numerical approximations for the gradient as
   well. The default option is \code{"nohess_nlm"}.
 
-  Since the horseshoe and generalized binary families only require one
-  parameter to be estimated, the only available optimization method is
-  \code{\link[stats]{optimize}}, and thus \code{optmethod} is ignored by
-  \code{ebnm_horseshoe} and \code{ebnm_generalized_binary}.
+  Since the horseshoe, generalized binary, and point mass families only require
+  one parameter to be estimated (at most), the only available optimization method
+  is \code{\link[stats]{optimize}}, and thus the \code{optmethod} parameter is
+  ignored by \code{ebnm_horseshoe}, \code{ebnm_generalized_binary}, and
+  \code{ebnm_point_mass}.
 
-  For nonparametric families (scale mixtures of normals; unimodal,
+  For most nonparametric families (scale mixtures of normals; unimodal,
   symmetric unimodal, nonnegative unimodal, and nonpositive unimodal families;
   and the NPMLE), \code{optmethod} options are provided by package
   \code{ashr}. The default method uses the mix-SQP algorithm implemented in
   the \code{mixsqp} package. See the \code{\link[ashr]{ash}} function
   documentation for other options. For the NPMLE only, it is also possible to
   specify \code{optmethod = "REBayes"}, which uses function
-  \code{\link[REBayes]{GLmix}} in the \code{REBayes} package
-  to estimate the NPMLE rather than \code{ashr}. Note that \code{REBayes}
+  \code{\link[REBayes]{GLmix}} in the \code{REBayes} package to estimate
+  the NPMLE rather than using the \code{ashr} package. Note that \code{REBayes}
   requires installation of the commercial interior-point solver MOSEK; for
-  details, see \code{\link[REBayes]{KWDual}} (the core optimization routine
-  for the \code{REBayes} package).}
+  details, see the documentation for \code{REBayes} function
+  \code{\link[REBayes]{KWDual}}.
+
+  The nonparametric exception is the the "deconvolveR" family. Since
+  the \code{deconvolveR} package only ever uses \code{\link[stats]{nlm}},
+  \code{ebnm_deconvolver} ignores the \code{optmethod} parameter.}
 
 \item{control}{A list of control parameters to be passed to the optimization
 function specified by parameter \code{optmethod}.}
