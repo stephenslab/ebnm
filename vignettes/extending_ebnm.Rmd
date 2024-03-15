@@ -16,7 +16,7 @@ knitr::opts_chunk$set(comment = "#", collapse = TRUE, results = "hold",
 ```
 
 The **ebnm** package, in addition to providing implementations of
-several commonly used priors (normal, Laplace, etc.), was also
+several commonly used priors (normal, Laplace, etc.), was
 designed to be easily extensible so that researchers are not limited
 by the existing options (though a wide variety of options are
 available). Here we show by example how to extend **ebnm** by creating
@@ -44,7 +44,7 @@ freedom. Fitting the prior therefore involves estimating two
 parameters: the scale parameter, $\sigma$; and the degrees of freedom,
 $\nu$.
 
-Please refer to the [paper][ebnm-paper] for background on empirical
+Please refer to the **ebnm** [paper][ebnm-paper] for background on empirical
 Bayes normal means (EBNM) and mathematical notation.
 
 ## The prior family class
@@ -53,11 +53,11 @@ First, we define a data structure for the priors in our prior
 family. In some cases, an existing data structure can be used. For
 example, `ebnm_normal()`, `ebnm_point_normal()`,
 `ebnm_normal_scale_mixture()`, and `ebnm_point_mass()` all use the
-`"normalmix"` class which is borrowed from the **ashr**
+`"normalmix"` class, which is borrowed from the **ashr**
 package. Here, we will define a new class.
 
 **ebnm** uses these data structures in two ways: to give information
-about the fitted prior, $\hat{g}$ (via the `fitted_g` field in the
+about the fitted prior $\hat{g}$ (via the `fitted_g` field in the
 returned `"ebnm"` object); and to initialize solutions (via the
 `g_init` argument). If one would like to be able to arbitrarily
 initialize the solver, then the data structure should include all
@@ -89,8 +89,7 @@ from the stats package since this doesn't require installing any new
 packages. In particular, we use `method = "L-BFGS-B"` since it allows
 us to constrain the parameters (recall, they should always be greater
 than zero). Further, to avoid numerical issues, we set sensible lower
-and upper bounds for both parameters. This is the final optimization
-function:
+and upper bounds for both parameters:
 
 ```{r opt_t}
 opt_t <- function(x, s, sigma_init, nu_init) {
@@ -111,7 +110,7 @@ at the current parameter estimates. Since `optim()` performs
 minimization by default, we take the negative of the log-likelihood.
 
 The log-likelihood involves an *integral* or *convolution* over the
-unknown mean:
+unknown means:
 
 \begin{equation}
 \log p(\mathbf{x} \mid g, \, \mathbf{s}) = 
@@ -154,7 +153,7 @@ L(g) :=  p(\mathbf{x} \mid g, \, \mathbf{s}) =
 
 This completes the prior estimation step.
 
-## The posterior statistics function
+## The posterior summary function
 
 The other key computation in EBNM is the computation of various
 statistics (means, variances, etc.) from the posterior distribution of
