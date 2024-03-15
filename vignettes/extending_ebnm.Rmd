@@ -24,7 +24,7 @@ a custom EBNM solver in the style of other **ebnm** functions
 (`ebnm_normal()`, `ebnm_point_laplace()`, etc.). In this example, we
 will implement a solution to the empirical Bayes normal means problem
 using a scaled (Student's) *t* prior, which is not currently one of
-the prior families included in the **ebnm** package.
+the prior families included in the **ebnm** package. 
 
 The EBNM model with scaled *t* prior is
 
@@ -43,6 +43,9 @@ where $t_{\nu}$ is the *t* distribution with $\nu$ degress of
 freedom. Fitting the prior therefore involves estimating two
 parameters: the scale parameter, $\sigma$; and the degrees of freedom,
 $\nu$.
+
+Please refer to the [paper][ebnm-paper] for background on empirical
+Bayes normal means (EBNM) and mathematical notation.
 
 ## The prior family class
 
@@ -151,19 +154,27 @@ L(g) :=  p(\mathbf{x} \mid g, \, \mathbf{s}) =
 
 This completes the prior estimation step.
 
-## Calculating posteriors
+## The posterior statistics function
 
-Given an optimal $\hat{g} \in \mathcal{G}$, we can obtain point
-estimates for the "true means" $\theta_i$ using posterior means
-$\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$. In general, we might
-like a number of summaries about the posterior,
+The other key computation in EBNM is the computation of various
+statistics (means, variances, etc.) from the posterior distribution of
+the "true means" given the prior we estimated. From Bayes' rule, the
+posterior distribution for the *i*th unknown mean is
 
 \begin{equation}
-p(\theta_i \mid x_i, s_i, \hat{g}) \propto 
-\hat{g}(\theta_i) \, p(x_i \mid \theta_i, s_i),
+p(\theta_i \mid x_i, s_i, g) \propto 
+g(\theta_i) \, p(x_i \mid \theta_i, s_i),
 \end{equation}
 
-including, for example, posterior standard deviations, second moments, and local false sign rates [@Stephens_NewDeal]. If the EBNM solver is intended for use in the **flashier** package, then posterior means and second moments *must* be computed.
+<!-- Given an optimal $\hat{g} \in \mathcal{G}$, we can obtain point
+estimates for the "true means" $\theta_i$ using posterior means
+$\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$. In general, we might
+like a number of summaries about the posterior. -->
+
+<!-- including, for example, posterior standard deviations, second moments,
+and local false sign rates [@Stephens_NewDeal]. If the EBNM solver is
+intended for use in the **flashier** package, then posterior means and
+second moments *must* be computed. -->
 
 Since posteriors are not analytically available for $t$ priors [or at least, not easily available: see @Pogany], we implement an MCMC sampler using the **mcmc** package and then compute summaries using 10000 samples from each posterior. The following code is principally for purposes of illustration; in particular, speed and efficiency could likely be improved.
 
@@ -303,5 +314,6 @@ The following R version and packages were used to generate this vignette:
 sessionInfo()
 ```
 
-
 ## References
+
+[ebnm-paper]: https://arxiv.org/abs/2110.00152
