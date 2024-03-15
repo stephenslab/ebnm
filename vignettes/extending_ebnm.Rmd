@@ -18,7 +18,7 @@ knitr::opts_chunk$set(comment = "#", collapse = TRUE, results = "hold",
 The **ebnm** package, in addition to providing implementations of several
 commonly-used priors (normal, Laplace, etc.), was also designed to be easily
 extensible so that researchers are not limited by the existing options (though
-a wide variety is already available). Here we show by example how to extend 
+a wide variety of options are available). Here we show by example how to extend 
 **ebnm** by creating a custom EBNM solver in the style of other **ebnm** 
 functions (`ebnm_normal()`, `ebnm_point_laplace()`, etc.). In this example, we
 will implement a solution to the empirical Bayes normal means problem using 
