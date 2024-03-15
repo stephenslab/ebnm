@@ -3,7 +3,6 @@ title: Extending ebnm with custom ebnm-style functions
 output: 
   rmarkdown::html_vignette:
     toc: yes
-bibliography: ebnm.bib
 vignette: >
   %\VignetteIndexEntry{Extending ebnm with custom ebnm-style functions}
   %\VignetteEngine{knitr::rmarkdown}
@@ -380,7 +379,5 @@ vignette:
 ```{r}
 sessionInfo()
 ```
-
-## References
 
 [ebnm-paper]: https://arxiv.org/abs/2110.00152
