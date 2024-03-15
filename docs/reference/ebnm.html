@@ -422,7 +422,7 @@ other cases, additional parameters are ignored.</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Inspect results:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/logLik.html" class="external-link">logLik</a></span><span class="op">(</span><span class="va">pn.res</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 'log Lik.' -363.9128 (df=2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 'log Lik.' -375.1112 (df=2)</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pn.res</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="ebnm-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
@@ -448,19 +448,19 @@ other cases, additional parameters are ignored.</p></dd>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pn.quantiles</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">pn.res</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pn.quantiles</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             10%      90%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -1.9361249 0.000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.6785643 0.302056</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,]  0.0000000 1.234251</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] -2.2634886 0.000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] -0.4696357 0.395253</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>            10%       90%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.000000 0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.000000 0.7029197</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] -1.978767 0.0000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]  0.000000 0.6217533</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]  0.000000 0.0000000</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/stats/confint.html" class="external-link">confint</a></span><span class="op">(</span><span class="va">pn.res</span>, level <span class="op">=</span> <span class="fl">0.8</span>, parm <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         CI.lower    CI.upper</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1,] -1.55365943 0.003007782</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2,] -0.66439152 0.199625097</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] -0.07418367 1.108194474</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4,] -1.99149139 0.000000000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5,] -0.68277644 0.268204757</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       CI.lower   CI.upper</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1,]  0.000000 0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [2,]  0.000000 0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [3,] -1.300744 0.02306465</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [4,]  0.000000 0.00000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5,]  0.000000 0.00000000</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Examples of usage of control parameter:</span></span></span>
 <span class="r-in"><span><span class="co">#  point_normal uses nlm:</span></span></span>
@@ -469,26 +469,26 @@ other cases, additional parameters are ignored.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Step:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0 0</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.000000 0.837735</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.000000 1.050494</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Function Value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 180.377</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 194.8282</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Gradient:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  1.360919 -3.374823</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.786635 -8.825390</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> iteration = 7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> iteration = 8</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parameter:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.005918155 0.989152853</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.8450065 1.7936373</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Function Value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 180.1251</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 191.3235</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Gradient:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  1.603467e-05 -7.931232e-06</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.332302e-05 4.035188e-06</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Relative gradient close to zero.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Current iterate is probably solution.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span><span class="co">#  unimodal uses mixsqp:</span></span></span>
 <span class="r-in"><span><span class="va">unimodal.res</span> <span class="op">&lt;-</span> <span class="fu"><a href="ebnm_unimodal.html">ebnm_unimodal</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, control <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Running mix-SQP algorithm 0.3-54 on 201 x 9 matrix</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Running mix-SQP algorithm 0.3-54 on 201 x 11 matrix</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> convergence tol. (SQP):     1.0e-08</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> conv. tol. (active-set):    1.0e-10</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> zero threshold (solution):  1.0e-08</span>
@@ -497,36 +497,34 @@ other cases, additional parameters are ignored.</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> step size reduction factor: 7.5e-01</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> minimum step size:          1.0e-08</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> max. iter (SQP):            1000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> max. iter (active-set):     10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> max. iter (active-set):     12</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> number of EM iterations:    20</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Computing SVD of 201 x 9 matrix.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Computing SVD of 201 x 11 matrix.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Matrix is not low-rank; falling back to full matrix.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> iter        objective max(rdual) nnz stepsize max.diff nqp nls</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1 +7.690318976e-01  -- EM --    9 1.00e+00 1.07e-01  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    2 +6.591090315e-01  -- EM --    9 1.00e+00 1.05e-01  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    3 +6.026636556e-01  -- EM --    9 1.00e+00 8.44e-02  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    4 +5.740088718e-01  -- EM --    9 1.00e+00 6.10e-02  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    5 +5.591548637e-01  -- EM --    9 1.00e+00 4.19e-02  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    6 +5.511220802e-01  -- EM --    9 1.00e+00 2.83e-02  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    7 +5.465438068e-01  -- EM --    9 1.00e+00 1.90e-02  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    8 +5.437862209e-01  -- EM --    9 1.00e+00 1.28e-02  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    9 +5.420346024e-01  -- EM --    9 1.00e+00 8.70e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   10 +5.408670077e-01  -- EM --    9 1.00e+00 5.99e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   11 +5.400552804e-01  -- EM --    9 1.00e+00 4.20e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   12 +5.394703598e-01  -- EM --    9 1.00e+00 3.00e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   13 +5.390359133e-01  -- EM --    9 1.00e+00 2.20e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   14 +5.387048506e-01  -- EM --    9 1.00e+00 1.66e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   15 +5.384469804e-01  -- EM --    8 1.00e+00 1.50e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   16 +5.382422709e-01  -- EM --    8 1.00e+00 1.52e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   17 +5.380770253e-01  -- EM --    8 1.00e+00 1.52e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   18 +5.379416309e-01  -- EM --    8 1.00e+00 1.51e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   19 +5.378291867e-01  -- EM --    8 1.00e+00 1.49e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   20 +5.377346408e-01  -- EM --    8 1.00e+00 1.46e-03  --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    1 +5.376542312e-01 +9.636e-03   8  ------   ------   --  --</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    2 +5.367638082e-01 +1.892e-02   4 1.00e+00 7.83e-02   6   1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    3 +5.367417405e-01 +1.321e-03   4 1.00e+00 2.33e-03   2   1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    4 +5.367416030e-01 +5.365e-06   4 1.00e+00 3.21e-04   2   1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    5 +5.367416030e-01 -2.166e-06   4 1.00e+00 2.31e-06   2   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    1 +8.530977206e-01  -- EM --   11 1.00e+00 1.12e-01  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    2 +7.273892833e-01  -- EM --   11 1.00e+00 1.14e-01  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    3 +6.682372217e-01  -- EM --   11 1.00e+00 9.08e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    4 +6.413782181e-01  -- EM --   11 1.00e+00 6.45e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    5 +6.288251264e-01  -- EM --   11 1.00e+00 4.42e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    6 +6.225212521e-01  -- EM --   11 1.00e+00 3.03e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    7 +6.190543704e-01  -- EM --   11 1.00e+00 2.10e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    8 +6.169636159e-01  -- EM --   11 1.00e+00 1.48e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    9 +6.155905862e-01  -- EM --   11 1.00e+00 1.07e-02  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   10 +6.146188746e-01  -- EM --   11 1.00e+00 7.84e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   11 +6.138875704e-01  -- EM --   11 1.00e+00 5.86e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   12 +6.133109372e-01  -- EM --   11 1.00e+00 4.46e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   13 +6.128410789e-01  -- EM --   11 1.00e+00 3.46e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   14 +6.124496122e-01  -- EM --   11 1.00e+00 2.73e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   15 +6.121184746e-01  -- EM --   11 1.00e+00 2.20e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   16 +6.118353033e-01  -- EM --   11 1.00e+00 1.80e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   17 +6.115910997e-01  -- EM --   11 1.00e+00 1.50e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   18 +6.113790156e-01  -- EM --   11 1.00e+00 1.28e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   19 +6.111936830e-01  -- EM --   11 1.00e+00 1.10e-03  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   20 +6.110308137e-01  -- EM --   11 1.00e+00 9.65e-04  --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    1 +6.108869371e-01 +4.025e-02  11  ------   ------   --  --</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    2 +6.092034277e-01 +3.098e-03   5 1.00e+00 3.71e-02   8   1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    3 +6.092031944e-01 -2.719e-06   5 1.00e+00 7.89e-04   2   1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Optimization took 0.00 seconds.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Convergence criteria met---optimal solution found.</span>
 <span class="r-in"><span></span></span>
