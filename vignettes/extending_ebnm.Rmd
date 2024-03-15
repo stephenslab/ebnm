@@ -165,6 +165,46 @@ p(\theta_i \mid x_i, s_i, g) \propto
 g(\theta_i) \, p(x_i \mid \theta_i, s_i),
 \end{equation}
 
+In this example, we summarize the posterior by the mean, standard
+deviation and second moment:
+
+```{r post_summary-t}
+post_summary_t <- function(x, s, sigma, nu) {
+  samp <- post_sampler_t(x, s, sigma, nu, nsamp = 1000)
+  return(data.frame(
+    mean = colMeans(samp),
+    sd = apply(samp, 2, sd),
+    second_moment = apply(samp, 2, function(x) mean(x^2))
+  ))
+}
+```
+
+The function requires a function `post_sampler_t` to draw *random
+samples* from the posterior distribution. While drawing independent
+samples is difficult, we can easily design an MCMC scheme to
+approximately draw samples from the posterior. We implement this 
+using the mcmc package:
+
+```{r post_sampler_t}
+# install.packages("mcmc")
+library(mcmc)
+post_sampler_t <- function(x, s, sigma, nu, nsamp) {
+  sample_one_theta <- function(x_i, s_i) {
+    lpostdens <- function(theta) {
+      dt(theta/sigma, df = nu, log = TRUE) - log(sigma) + 
+        dnorm(x_i - theta, sd = s_i, log = TRUE)
+    }
+    metrop(lpostdens, initial = x_i, nbatch = nsamp)$batch
+  }
+  vsampler <- Vectorize(sample_one_theta)
+  return(vsampler(x, s))
+}
+```
+
+Note this is most likely not the most efficient way to compute
+posterior summaries, but we tried to keep our implementation simple
+for the purpose of this illustration.
+
 <!-- Given an optimal $\hat{g} \in \mathcal{G}$, we can obtain point
 estimates for the "true means" $\theta_i$ using posterior means
 $\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$. In general, we might
@@ -175,37 +215,39 @@ and local false sign rates [@Stephens_NewDeal]. If the EBNM solver is
 intended for use in the **flashier** package, then posterior means and
 second moments *must* be computed. -->
 
-Since posteriors are not analytically available for $t$ priors [or at least, not easily available: see @Pogany], we implement an MCMC sampler using the **mcmc** package and then compute summaries using 10000 samples from each posterior. The following code is principally for purposes of illustration; in particular, speed and efficiency could likely be improved.
+<!-- Since posteriors are not analytically available for $t$ priors
+[or at least, not easily available: see @Pogany], we implement an MCMC
+sampler using the **mcmc** package and then compute summaries using
+1,000 samples from each posterior. The following code is principally
+for purposes of illustration; in particular, speed and efficiency
+could likely be improved. -->
 
-```{r}
-post_sampler <- function(x, s, sigma, nu, nsamp) {
-  sample_one_theta <- function(x_i, s_i) {
-    lpostdens <- function(theta) {
-      dt(theta / sigma, df = nu, log = TRUE) - log(sigma) + 
-        dnorm(x_i - theta, sd = s_i, log = TRUE)
-    }
-    mcmc::metrop(lpostdens, initial = x_i, nbatch = nsamp)$batch
-  }
-  vsampler <- Vectorize(sample_one_theta)
-  return(vsampler(x, s))
-}
+## Putting it all together
 
-post_summaries <- function(x, s, sigma, nu) {
-  samp <- post_sampler(x, s, sigma, nu, nsamp = 10000)
-  return(data.frame(
-    mean = apply(samp, 2, mean),
-    sd = apply(samp, 2, sd),
-    second_moment = apply(samp, 2, function(x) mean(x^2))
-  ))
-}
-```
+We have now implemented the key computations for our new EBNM
+function. We will call this new function `ebnm_t()` to be consistent
+with other EBNM functions (`ebnm_normal()`, etc.).
 
+The inputs should be the same as the other ebnm functions. We will
+also use the same defaults. We can ignore parameters that are not
+relevant.
 
-## Putting everything together
+<!-- The `optmethod` parameter can typically be ignored unless we
+want to make multiple optimization methods available for a single
+prior family (e.g., both `nlm()` and `optim()`). We will also ignore
+the `control` parameter, although it could be used here, for example,
+to alter the default settings of `lower` and `upper` in the call to
+`optim`. -->
 
-We now have all the ingredients required for our custom EBNM solver. We should ensure that inputs are the same as for function `ebnm()` (and we will also use the same defaults). We can simply ignore parameters that we do not want to implement. The `optmethod` parameter can typically be ignored unless we want to make multiple optimization methods available for a single prior family (e.g., both `nlm()` and `optim()`). We will also ignore the `control` parameter, although it could be used here, for example, to alter the default settings of `lower` and `upper` in the call to `optim`. Finally, for simplicity, we will ignore the `output` parameter and just return everything (the data, the posterior summaries, the fitted prior, the log likelihood, and the posterior sampler). See `?ebnm` for further details about the expected structure of the returned `"ebnm"` object.
+For simplicity, we will ignore the `output` parameter and just return
+everything (the data, the posterior summaries, the fitted prior, the
+log likelihood, and the posterior sampler). See `help(ebnm)` for
+further details about the expected structure of the returned `"ebnm"`
+object.
 
-```{r}
+Here's the new function:
+
+```{r ebnm_t}
 ebnm_t <- function(x, 
                    s = 1, 
                    mode = 0, 
@@ -215,74 +257,82 @@ ebnm_t <- function(x,
                    output = ebnm_output_default(),
                    optmethod = NULL,
                    control = NULL) {
-  # Basic argument checks.
+				   
+  # Some very basic argument checks.
   if (mode != 0) {
     stop("The mode of the t-prior must be fixed at zero.")
   }
   if (scale != "estimate") {
-    stop("The scale of the t-prior must be estimated rather than fixed at a particular value.")
+    stop("The scale of the t-prior must be estimated rather than fixed ",
+	     "at a particular value.")
   }
   
-  # If g_init is provided, extract the parameters.
+  # If g_init is provided, extract the parameters, otherwise provide
+  # reasonable initial estimates.
   if (!is.null(g_init)) {
     sigma_init <- g_init$scale
     nu_init <- g_init$df
-  } 
-  # Otherwise, use sensible defaults.
-  else {
+  } else {
     sigma_init <- sqrt(mean(x^2))
     nu_init <- 10
   }
   
-  # If g is fixed, use g_init.
+  # If g is fixed, use g_init, otherwise optimize g.
   if (fix_g) {
     sigma <- sigma_init
     nu    <- nu_init
     llik  <- llik_t(x, s, sigma, nu)
-  } 
-  # Otherwise, optimize over the prior family G.
-  else {
+  } else {
     opt_res <- opt_t(x, s, sigma_init, nu_init)
     sigma   <- opt_res$par[1]
     nu      <- opt_res$par[2]
     llik    <- -opt_res$value
   }
   
-  # Create the return object.
-  ebnm_res <- structure(list(
+  # Prepare the final output.
+  return(structure(list(
     data = data.frame(x = x, s = s),
-    posterior = post_summaries(x, s, sigma, nu),
+    posterior = post_summary_t(x, s, sigma, nu),
     fitted_g = tdist(scale = sigma, df = nu),
     log_likelihood = llik,
-    post_sampler = function(nsamp) post_sampler(x, s, sigma, nu, nsamp)
-  ), class = c("list", "ebnm"))
-  
-  return(ebnm_res)
+    post_sampler = function (nsamp) post_sampler_t(x, s, sigma, nu, nsamp)
+  ), class = c("list", "ebnm")))
 }
 ```
 
+## Checking the EBNM function
 
-## Checking the function
+**ebnm** provides a function, `ebnm_check_fn()`, that runs basic tests
+to verify that the EBNM function works as expected. Let's run the
+checks using a small, simulated data set:
 
-Conveniently, **ebnm** provides a function `ebnm_check_fn()` that will run basic checks to help determine whether a custom EBNM solver is properly constructed. We can run the check on a random test set as follows:
-
-```{r}
-library("ebnm")
-ebnm_check_fn(ebnm_t, x = rnorm(100, sd = 2), s = 1)
+```{r check}
+library(ebnm)
+set.seed(1)
+x <- rnorm(100, sd = 2)
+s <- rep(1,100)
+ebnm_check_fn(ebnm_t, x, s)
 ```
 
+## The new EBNM function in action
 
-## Illustration using simulated data
-
-Now we are ready to test our function on simulated data. We simulate from a $t$ prior with 5 degrees of freedom and with scale parameter $\sigma = 2$. We then add noise simulated from a standard normal distribution. We set a seed for reproducibility:
+Now we are ready to test our function on simulated data. We simulate
+from a $t$ prior with 5 degrees of freedom and with scale parameter
+$\sigma = 2$. We then add noise simulated from a standard normal
+distribution.
 
 ```{r}
-set.seed(123)
+set.seed(1)
 theta <- 2 * rt(100, df = 5)
 x <- theta + rnorm(100)
 ```
 
-Next we fit EBNM models using: 1. the family of normal priors, as implemented by `ebnm_normal()`; and 2. the family of $t$ priors that we just implemented. Due to our reliance on MCMC sampling to calculate posterior means, fitting the second model is much slower than the first (it took us about 15 seconds on a new MacBook Pro). We compare results using the `plot()` method for `"ebnm"` objects:
+Next we fit EBNM models using: 1. the family of normal priors, as
+implemented by `ebnm_normal()`; and 2. the family of $t$ priors that
+we just implemented. Due to our reliance on MCMC sampling to calculate
+posterior means, fitting the second model is much slower than the
+first (it took us about 15 seconds on a new MacBook Pro). We compare
+results using the `plot()` method for `"ebnm"` objects:
 
 ```{r fig.width=6, fig.height=4}
 normal_res <- ebnm_normal(x, s = 1)
@@ -290,7 +340,10 @@ t_res <- ebnm_t(x, s = 1)
 plot(normal_res, t_res)
 ```
 
-Note that `ebnm_t()` shrinks smaller observations more aggressively while estimates for larger observations remain close to their original values. As a result, the accuracy (root mean-squared error) of the estimates improves:
+Note that `ebnm_t()` shrinks smaller observations more aggressively
+while estimates for larger observations remain close to their original
+values. As a result, the accuracy (root mean-squared error) of the
+estimates improves:
 
 ```{r}
 rmse_normal <- sqrt(mean((coef(normal_res) - theta)^2))
@@ -298,16 +351,20 @@ rmse_t <- sqrt(mean((coef(t_res) - theta)^2))
 c("rmse_normal" = rmse_normal, "rmse_t" = rmse_t)
 ```
 
-This improvement is as expected, since the true prior $g$ used to simulate the data belongs to the family of $t$ distributions but not the family of normal distributions. And indeed, the estimated prior parameters end up being similar to the parameters used to simulate the data ($\sigma = 2$ and $\nu = 5$):
+This improvement is as expected, since the true prior $g$ used to
+simulate the data belongs to the family of $t$ distributions but not
+the family of normal distributions. And indeed, the estimated prior
+parameters end up being similar to the parameters used to simulate the
+data ($\sigma = 2$ and $\nu = 5$):
 
 ```{r}
 t_res$fitted_g
 ```
 
-
 ## Session information
 
-The following R version and packages were used to generate this vignette:
+The following R version and packages were used to generate this
+vignette:
 
 ```{r}
 sessionInfo()
