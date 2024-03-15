@@ -376,7 +376,7 @@ t_res$fitted_g
 The following R version and packages were used to generate this
 vignette:
 
-```{r}
+```{r session-info}
 sessionInfo()
 ```
 
