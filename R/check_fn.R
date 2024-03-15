@@ -31,7 +31,7 @@ ebnm_check_fn <- function(fn, x, s) {
 
   ebnm_res <- fn(x = x, s = s, output = ebnm_output_all())
   if (!inherits(ebnm_res, "ebnm") || !inherits(ebnm_res, "list")) {
-    stop("Function should return an object (named list) of class 'ebnm'.")
+    stop("Function should return a named list of class 'ebnm'.")
   }
 
   required_ret_fields <- c(df_ret_str(), g_ret_str(), llik_ret_str())
