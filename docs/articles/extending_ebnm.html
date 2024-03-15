@@ -210,6 +210,39 @@ posterior distribution for the <em>i</em>th unknown mean is</p>
 p(\theta_i \mid x_i, s_i, g) \propto
 g(\theta_i) \, p(x_i \mid \theta_i, s_i),
 \end{equation}\]</span></p>
+<p>In this example, we summarize the posterior by the mean, standard
+deviation and second moment:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">post_summary_t</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">samp</span> <span class="op">&lt;-</span> <span class="fu">post_sampler_t</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span>, nsamp <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>    mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colSums.html" class="external-link">colMeans</a></span><span class="op">(</span><span class="va">samp</span><span class="op">)</span>,</span>
+<span>    sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">samp</span>, <span class="fl">2</span>, <span class="va">sd</span><span class="op">)</span>,</span>
+<span>    second_moment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">samp</span>, <span class="fl">2</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>The function requires a function <code>post_sampler_t</code> to draw
+<em>random samples</em> from the posterior distribution. While drawing
+independent samples is difficult, we can easily design an MCMC scheme to
+approximately draw samples from the posterior. We implement this using
+the mcmc package:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("mcmc")</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://www.stat.umn.edu/geyer/mcmc/" class="external-link">mcmc</a></span><span class="op">)</span></span>
+<span><span class="va">post_sampler_t</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span>, <span class="va">nsamp</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">sample_one_theta</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x_i</span>, <span class="va">s_i</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">lpostdens</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">theta</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html" class="external-link">dt</a></span><span class="op">(</span><span class="va">theta</span><span class="op">/</span><span class="va">sigma</span>, df <span class="op">=</span> <span class="va">nu</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">sigma</span><span class="op">)</span> <span class="op">+</span> </span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">x_i</span> <span class="op">-</span> <span class="va">theta</span>, sd <span class="op">=</span> <span class="va">s_i</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span>    <span class="op">}</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/pkg/mcmc/man/metrop.html" class="external-link">metrop</a></span><span class="op">(</span><span class="va">lpostdens</span>, initial <span class="op">=</span> <span class="va">x_i</span>, nbatch <span class="op">=</span> <span class="va">nsamp</span><span class="op">)</span><span class="op">$</span><span class="va">batch</span></span>
+<span>  <span class="op">}</span></span>
+<span>  <span class="va">vsampler</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">Vectorize</a></span><span class="op">(</span><span class="va">sample_one_theta</span><span class="op">)</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu">vsampler</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<p>Note this is most likely not the most efficient way to compute
+posterior summaries, but we tried to keep our implementation simple for
+the purpose of this illustration.</p>
 <!-- Given an optimal $\hat{g} \in \mathcal{G}$, we can obtain point
 estimates for the "true means" $\theta_i$ using posterior means
 $\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$. In general, we might
@@ -218,53 +251,36 @@ like a number of summaries about the posterior. -->
 and local false sign rates [@Stephens_NewDeal]. If the EBNM solver is
 intended for use in the **flashier** package, then posterior means and
 second moments *must* be computed. -->
-<p>Since posteriors are not analytically available for <span class="math inline">\(t\)</span> priors <span class="citation">(or at
-least, not easily available: see Pogány and Nadarajah 2013)</span>, we
-implement an MCMC sampler using the <strong>mcmc</strong> package and
-then compute summaries using 10000 samples from each posterior. The
-following code is principally for purposes of illustration; in
-particular, speed and efficiency could likely be improved.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">post_sampler</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span>, <span class="va">nsamp</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">sample_one_theta</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x_i</span>, <span class="va">s_i</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">lpostdens</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">theta</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html" class="external-link">dt</a></span><span class="op">(</span><span class="va">theta</span> <span class="op">/</span> <span class="va">sigma</span>, df <span class="op">=</span> <span class="va">nu</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">sigma</span><span class="op">)</span> <span class="op">+</span> </span>
-<span>        <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">x_i</span> <span class="op">-</span> <span class="va">theta</span>, sd <span class="op">=</span> <span class="va">s_i</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span>    <span class="op">}</span></span>
-<span>    <span class="fu">mcmc</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/mcmc/man/metrop.html" class="external-link">metrop</a></span><span class="op">(</span><span class="va">lpostdens</span>, initial <span class="op">=</span> <span class="va">x_i</span>, nbatch <span class="op">=</span> <span class="va">nsamp</span><span class="op">)</span><span class="op">$</span><span class="va">batch</span></span>
-<span>  <span class="op">}</span></span>
-<span>  <span class="va">vsampler</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">Vectorize</a></span><span class="op">(</span><span class="va">sample_one_theta</span><span class="op">)</span></span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu">vsampler</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="va">post_summaries</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">samp</span> <span class="op">&lt;-</span> <span class="fu">post_sampler</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span>, nsamp <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span></span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>    mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">samp</span>, <span class="fl">2</span>, <span class="va">mean</span><span class="op">)</span>,</span>
-<span>    sd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">samp</span>, <span class="fl">2</span>, <span class="va">sd</span><span class="op">)</span>,</span>
-<span>    second_moment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">samp</span>, <span class="fl">2</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
+<!-- Since posteriors are not analytically available for $t$ priors
+[or at least, not easily available: see @Pogany], we implement an MCMC
+sampler using the **mcmc** package and then compute summaries using
+1,000 samples from each posterior. The following code is principally
+for purposes of illustration; in particular, speed and efficiency
+could likely be improved. -->
 </div>
 <div class="section level2">
-<h2 id="putting-everything-together">Putting everything together<a class="anchor" aria-label="anchor" href="#putting-everything-together"></a>
+<h2 id="putting-it-all-together">Putting it all together<a class="anchor" aria-label="anchor" href="#putting-it-all-together"></a>
 </h2>
-<p>We now have all the ingredients required for our custom EBNM solver.
-We should ensure that inputs are the same as for function
-<code><a href="../reference/ebnm.html">ebnm()</a></code> (and we will also use the same defaults). We can
-simply ignore parameters that we do not want to implement. The
-<code>optmethod</code> parameter can typically be ignored unless we want
-to make multiple optimization methods available for a single prior
-family (e.g., both <code><a href="https://rdrr.io/r/stats/nlm.html" class="external-link">nlm()</a></code> and <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim()</a></code>). We will
-also ignore the <code>control</code> parameter, although it could be
-used here, for example, to alter the default settings of
-<code>lower</code> and <code>upper</code> in the call to
-<code>optim</code>. Finally, for simplicity, we will ignore the
-<code>output</code> parameter and just return everything (the data, the
-posterior summaries, the fitted prior, the log likelihood, and the
-posterior sampler). See <code><a href="../reference/ebnm.html">?ebnm</a></code> for further details about the
-expected structure of the returned <code>"ebnm"</code> object.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p>We have now implemented the key computations for our new EBNM
+function. We will call this new function <code>ebnm_t()</code> to be
+consistent with other EBNM functions (<code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>,
+etc.).</p>
+<p>The inputs should be the same as the other ebnm functions. We will
+also use the same defaults. We can ignore parameters that are not
+relevant.</p>
+<!-- The `optmethod` parameter can typically be ignored unless we
+want to make multiple optimization methods available for a single
+prior family (e.g., both `nlm()` and `optim()`). We will also ignore
+the `control` parameter, although it could be used here, for example,
+to alter the default settings of `lower` and `upper` in the call to
+`optim`. -->
+<p>For simplicity, we will ignore the <code>output</code> parameter and
+just return everything (the data, the posterior summaries, the fitted
+prior, the log likelihood, and the posterior sampler). See
+<code><a href="../reference/ebnm.html">help(ebnm)</a></code> for further details about the expected structure
+of the returned <code>"ebnm"</code> object.</p>
+<p>Here’s the new function:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ebnm_t</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, </span>
 <span>                   <span class="va">s</span> <span class="op">=</span> <span class="fl">1</span>, </span>
 <span>                   <span class="va">mode</span> <span class="op">=</span> <span class="fl">0</span>, </span>
@@ -274,108 +290,114 @@ expected structure of the returned <code>"ebnm"</code> object.</p>
 <span>                   <span class="va">output</span> <span class="op">=</span> <span class="fu"><a href="../reference/ebnm.html">ebnm_output_default</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>                   <span class="va">optmethod</span> <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>                   <span class="va">control</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="co"># Basic argument checks.</span></span>
+<span>                   </span>
+<span>  <span class="co"># Some very basic argument checks.</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="va">mode</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"The mode of the t-prior must be fixed at zero."</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="va">scale</span> <span class="op">!=</span> <span class="st">"estimate"</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"The scale of the t-prior must be estimated rather than fixed at a particular value."</span><span class="op">)</span></span>
+<span>    <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"The scale of the t-prior must be estimated rather than fixed "</span>,</span>
+<span>         <span class="st">"at a particular value."</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
 <span>  </span>
-<span>  <span class="co"># If g_init is provided, extract the parameters.</span></span>
+<span>  <span class="co"># If g_init is provided, extract the parameters, otherwise provide</span></span>
+<span>  <span class="co"># reasonable initial estimates.</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">g_init</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">sigma_init</span> <span class="op">&lt;-</span> <span class="va">g_init</span><span class="op">$</span><span class="va">scale</span></span>
 <span>    <span class="va">nu_init</span> <span class="op">&lt;-</span> <span class="va">g_init</span><span class="op">$</span><span class="va">df</span></span>
-<span>  <span class="op">}</span> </span>
-<span>  <span class="co"># Otherwise, use sensible defaults.</span></span>
-<span>  <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>    <span class="va">sigma_init</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span>    <span class="va">nu_init</span> <span class="op">&lt;-</span> <span class="fl">10</span></span>
 <span>  <span class="op">}</span></span>
 <span>  </span>
-<span>  <span class="co"># If g is fixed, use g_init.</span></span>
+<span>  <span class="co"># If g is fixed, use g_init, otherwise optimize g.</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="va">fix_g</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="va">sigma</span> <span class="op">&lt;-</span> <span class="va">sigma_init</span></span>
 <span>    <span class="va">nu</span>    <span class="op">&lt;-</span> <span class="va">nu_init</span></span>
 <span>    <span class="va">llik</span>  <span class="op">&lt;-</span> <span class="fu">llik_t</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span></span>
-<span>  <span class="op">}</span> </span>
-<span>  <span class="co"># Otherwise, optimize over the prior family G.</span></span>
-<span>  <span class="kw">else</span> <span class="op">{</span></span>
+<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>    <span class="va">opt_res</span> <span class="op">&lt;-</span> <span class="fu">opt_t</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma_init</span>, <span class="va">nu_init</span><span class="op">)</span></span>
 <span>    <span class="va">sigma</span>   <span class="op">&lt;-</span> <span class="va">opt_res</span><span class="op">$</span><span class="va">par</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span>
 <span>    <span class="va">nu</span>      <span class="op">&lt;-</span> <span class="va">opt_res</span><span class="op">$</span><span class="va">par</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span></span>
 <span>    <span class="va">llik</span>    <span class="op">&lt;-</span> <span class="op">-</span><span class="va">opt_res</span><span class="op">$</span><span class="va">value</span></span>
 <span>  <span class="op">}</span></span>
 <span>  </span>
-<span>  <span class="co"># Create the return object.</span></span>
-<span>  <span class="va">ebnm_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/structure.html" class="external-link">structure</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  <span class="co"># Prepare the final output.</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/structure.html" class="external-link">structure</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">x</span>, s <span class="op">=</span> <span class="va">s</span><span class="op">)</span>,</span>
-<span>    posterior <span class="op">=</span> <span class="fu">post_summaries</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span>,</span>
+<span>    posterior <span class="op">=</span> <span class="fu">post_summary_t</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span>,</span>
 <span>    fitted_g <span class="op">=</span> <span class="fu">tdist</span><span class="op">(</span>scale <span class="op">=</span> <span class="va">sigma</span>, df <span class="op">=</span> <span class="va">nu</span><span class="op">)</span>,</span>
 <span>    log_likelihood <span class="op">=</span> <span class="va">llik</span>,</span>
-<span>    post_sampler <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">nsamp</span><span class="op">)</span> <span class="fu">post_sampler</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span>, <span class="va">nsamp</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>, class <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"list"</span>, <span class="st">"ebnm"</span><span class="op">)</span><span class="op">)</span></span>
-<span>  </span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="va">ebnm_res</span><span class="op">)</span></span>
+<span>    post_sampler <span class="op">=</span> <span class="kw">function</span> <span class="op">(</span><span class="va">nsamp</span><span class="op">)</span> <span class="fu">post_sampler_t</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span>, <span class="va">nsamp</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>, class <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"list"</span>, <span class="st">"ebnm"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="checking-the-function">Checking the function<a class="anchor" aria-label="anchor" href="#checking-the-function"></a>
+<h2 id="checking-the-ebnm-function">Checking the EBNM function<a class="anchor" aria-label="anchor" href="#checking-the-ebnm-function"></a>
 </h2>
-<p>Conveniently, <strong>ebnm</strong> provides a function
-<code><a href="../reference/ebnm_check_fn.html">ebnm_check_fn()</a></code> that will run basic checks to help
-determine whether a custom EBNM solver is properly constructed. We can
-run the check on a random test set as follows:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/stephenslab/ebnm" class="external-link">"ebnm"</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/ebnm_check_fn.html">ebnm_check_fn</a></span><span class="op">(</span><span class="va">ebnm_t</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>, sd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>, s <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<p><strong>ebnm</strong> provides a function,
+<code><a href="../reference/ebnm_check_fn.html">ebnm_check_fn()</a></code>, that runs basic tests to verify that the
+EBNM function works as expected. Let’s run the checks using a small,
+simulated data set:</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/stephenslab/ebnm" class="external-link">ebnm</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span>, sd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">100</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/ebnm_check_fn.html">ebnm_check_fn</a></span><span class="op">(</span><span class="va">ebnm_t</span>, <span class="va">x</span>, <span class="va">s</span><span class="op">)</span></span>
 <span><span class="co"># Function passed all checks.</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="illustration-using-simulated-data">Illustration using simulated data<a class="anchor" aria-label="anchor" href="#illustration-using-simulated-data"></a>
+<h2 id="the-new-ebnm-function-in-action">The new EBNM function in action<a class="anchor" aria-label="anchor" href="#the-new-ebnm-function-in-action"></a>
 </h2>
-<p>Now we are ready to test our function on simulated data. We simulate
-from a <span class="math inline">\(t\)</span> prior with 5 degrees of
-freedom and with scale parameter <span class="math inline">\(\sigma =
-2\)</span>. We then add noise simulated from a standard normal
-distribution. We set a seed for reproducibility:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">123</span><span class="op">)</span></span>
-<span><span class="va">theta</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html" class="external-link">rt</a></span><span class="op">(</span><span class="fl">100</span>, df <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
-<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">theta</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">100</span><span class="op">)</span></span></code></pre></div>
-<p>Next we fit EBNM models using: 1. the family of normal priors, as
-implemented by <code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>; and 2. the family of <span class="math inline">\(t\)</span> priors that we just implemented. Due to
-our reliance on MCMC sampling to calculate posterior means, fitting the
-second model is much slower than the first (it took us about 15 seconds
-on a new MacBook Pro). We compare results using the <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>
-method for <code>"ebnm"</code> objects:</p>
+<p>Let’s illustrate the use of our new EBNM function on a data set in
+which the (unobserved) means are simulated from a <em>t</em>
+distribution with a scale of 2 and 5 degrees of freedom:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">normal_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm_normal.html">ebnm_normal</a></span><span class="op">(</span><span class="va">x</span>, s <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="va">t_res</span> <span class="op">&lt;-</span> <span class="fu">ebnm_t</span><span class="op">(</span><span class="va">x</span>, s <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">normal_res</span>, <span class="va">t_res</span><span class="op">)</span></span></code></pre></div>
-<p><img src="extending_ebnm_files/figure-html/unnamed-chunk-5-1.png" width="540" style="display: block; margin: auto;"></p>
-<p>Note that <code>ebnm_t()</code> shrinks smaller observations more
-aggressively while estimates for larger observations remain close to
-their original values. As a result, the accuracy (root mean-squared
-error) of the estimates improves:</p>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">theta</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html" class="external-link">rt</a></span><span class="op">(</span><span class="fl">100</span>, df <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">theta</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span><span class="op">)</span></span></code></pre></div>
+<p>Let’s compare the use of the <em>t</em> prior with a normal prior,
+which is already implemented by <code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">normal_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm_normal.html">ebnm_normal</a></span><span class="op">(</span><span class="va">x</span>, s <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">t_res</span> <span class="op">&lt;-</span> <span class="fu">ebnm_t</span><span class="op">(</span><span class="va">x</span>, s <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<!-- Next we fit EBNM models using: 1. the family of normal priors, as
+implemented by `ebnm_normal()`; and 2. the family of $t$ priors that
+we just implemented. Due to our reliance on MCMC sampling to calculate
+posterior means, fitting the second model is much slower than the
+first (it took us about 15 seconds on a new MacBook Pro). -->
+<p>You may have noticed that the call to <code>ebnm_t()</code> took
+longer than the call to <code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>. That is expected
+because the computations with the <em>t</em> distribution are more
+complex, and we did not a lot of effort into making the computations
+efficient.</p>
+<p>Let’s compare the two results:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">normal_res</span>, <span class="va">t_res</span><span class="op">)</span></span></code></pre></div>
+<p><img src="extending_ebnm_files/figure-html/plot-t-vs-normal-1.png" width="540" style="display: block; margin: auto;"></p>
+<p>Most strikingly, <code>ebnm_t()</code> shrinks the large values less
+aggressively than <code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>. The fit with the <span class="math inline">\(t\)</span> prior also resulted in slightly more
+accurate results overall:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rmse_normal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">normal_res</span><span class="op">)</span> <span class="op">-</span> <span class="va">theta</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">rmse_t</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">t_res</span><span class="op">)</span> <span class="op">-</span> <span class="va">theta</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rmse_normal"</span> <span class="op">=</span> <span class="va">rmse_normal</span>, <span class="st">"rmse_t"</span> <span class="op">=</span> <span class="va">rmse_t</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rmse_normal <span class="op">=</span> <span class="va">rmse_normal</span>, rmse_t <span class="op">=</span> <span class="va">rmse_t</span><span class="op">)</span></span>
 <span><span class="co"># rmse_normal      rmse_t </span></span>
-<span><span class="co">#   0.9017232   0.8703657</span></span></code></pre></div>
-<p>This improvement is as expected, since the true prior <span class="math inline">\(g\)</span> used to simulate the data belongs to
-the family of <span class="math inline">\(t\)</span> distributions but
-not the family of normal distributions. And indeed, the estimated prior
-parameters end up being similar to the parameters used to simulate the
-data (<span class="math inline">\(\sigma = 2\)</span> and <span class="math inline">\(\nu = 5\)</span>):</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<span><span class="co">#   0.9498794   0.9397445</span></span></code></pre></div>
+<!-- This improvement is as expected, since the true prior $g$ used to
+simulate the data belongs to the family of $t$ distributions but not
+the family of normal distributions.-->
+<p>Also, the estimated prior is not far from the parameters used to
+simulate the data (<span class="math inline">\(\sigma = 2\)</span>,
+<span class="math inline">\(\nu = 5\)</span>):</p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">t_res</span><span class="op">$</span><span class="va">fitted_g</span></span>
 <span><span class="co"># $scale</span></span>
-<span><span class="co"># [1] 1.856682</span></span>
+<span><span class="co"># [1] 1.682766</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># $df</span></span>
-<span><span class="co"># [1] 2.862615</span></span>
+<span><span class="co"># [1] 3.813005</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># attr(,"class")</span></span>
 <span><span class="co"># [1] "tdist"</span></span>
@@ -387,11 +409,11 @@ data (<span class="math inline">\(\sigma = 2\)</span> and <span class="math inli
 </h2>
 <p>The following R version and packages were used to generate this
 vignette:</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co"># R version 4.3.2 (2023-10-31)</span></span>
+<span><span class="co"># R version 4.3.3 (2024-02-29)</span></span>
 <span><span class="co"># Platform: aarch64-apple-darwin20 (64-bit)</span></span>
-<span><span class="co"># Running under: macOS Monterey 12.3</span></span>
+<span><span class="co"># Running under: macOS Sonoma 14.4</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Matrix products: default</span></span>
 <span><span class="co"># BLAS:   /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRblas.0.dylib </span></span>
@@ -400,44 +422,36 @@ vignette:</p>
 <span><span class="co"># locale:</span></span>
 <span><span class="co"># [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
 <span><span class="co"># </span></span>
-<span><span class="co"># time zone: America/New_York</span></span>
+<span><span class="co"># time zone: America/Chicago</span></span>
 <span><span class="co"># tzcode source: internal</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># attached base packages:</span></span>
 <span><span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># other attached packages:</span></span>
-<span><span class="co"># [1] ebnm_1.1-25</span></span>
+<span><span class="co"># [1] ebnm_1.1-25 mcmc_0.9-8 </span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#  [1] sass_0.4.8         utf8_1.2.4         generics_0.1.3     ashr_2.2-63       </span></span>
-<span><span class="co">#  [5] stringi_1.8.3      lattice_0.21-9     digest_0.6.34      magrittr_2.0.3    </span></span>
-<span><span class="co">#  [9] RColorBrewer_1.1-3 evaluate_0.23      grid_4.3.2         fastmap_1.1.1     </span></span>
-<span><span class="co"># [13] jsonlite_1.8.8     Matrix_1.6-1.1     mcmc_0.9-8         mixsqp_0.3-54     </span></span>
-<span><span class="co"># [17] purrr_1.0.2        fansi_1.0.6        scales_1.3.0       truncnorm_1.0-9   </span></span>
-<span><span class="co"># [21] invgamma_1.1       textshaping_0.3.7  jquerylib_0.1.4    cli_3.6.2         </span></span>
-<span><span class="co"># [25] rlang_1.1.3        deconvolveR_1.2-1  munsell_0.5.0      splines_4.3.2     </span></span>
-<span><span class="co"># [29] withr_3.0.0        cachem_1.0.8       yaml_2.3.8         tools_4.3.2       </span></span>
-<span><span class="co"># [33] SQUAREM_2021.1     memoise_2.0.1      dplyr_1.1.4        colorspace_2.1-0  </span></span>
-<span><span class="co"># [37] ggplot2_3.5.0      vctrs_0.6.5        R6_2.5.1           lifecycle_1.0.4   </span></span>
-<span><span class="co"># [41] stringr_1.5.1      fs_1.6.3           trust_0.1-8        ragg_1.2.7        </span></span>
-<span><span class="co"># [45] irlba_2.3.5.1      pkgconfig_2.0.3    desc_1.4.3         pkgdown_2.0.7     </span></span>
-<span><span class="co"># [49] bslib_0.6.1        pillar_1.9.0       gtable_0.3.4       glue_1.7.0        </span></span>
-<span><span class="co"># [53] Rcpp_1.0.12        systemfonts_1.0.5  highr_0.10         xfun_0.41         </span></span>
-<span><span class="co"># [57] tibble_3.2.1       tidyselect_1.2.1   rstudioapi_0.15.0  knitr_1.45        </span></span>
-<span><span class="co"># [61] farver_2.1.1       htmltools_0.5.7    labeling_0.4.3     rmarkdown_2.25    </span></span>
-<span><span class="co"># [65] compiler_4.3.2     horseshoe_0.2.0</span></span></code></pre></div>
+<span><span class="co">#  [1] sass_0.4.8         utf8_1.2.4         generics_0.1.3     ashr_2.2-64       </span></span>
+<span><span class="co">#  [5] lattice_0.22-5     digest_0.6.34      magrittr_2.0.3     RColorBrewer_1.1-3</span></span>
+<span><span class="co">#  [9] evaluate_0.23      grid_4.3.3         fastmap_1.1.1      jsonlite_1.8.8    </span></span>
+<span><span class="co"># [13] Matrix_1.6-5       mixsqp_0.3-54      purrr_1.0.2        fansi_1.0.6       </span></span>
+<span><span class="co"># [17] scales_1.3.0       truncnorm_1.0-9    invgamma_1.1       textshaping_0.3.7 </span></span>
+<span><span class="co"># [21] jquerylib_0.1.4    cli_3.6.2          rlang_1.1.3        deconvolveR_1.2-1 </span></span>
+<span><span class="co"># [25] munsell_0.5.0      splines_4.3.3      withr_3.0.0        cachem_1.0.8      </span></span>
+<span><span class="co"># [29] yaml_2.3.8         tools_4.3.3        SQUAREM_2021.1     memoise_2.0.1     </span></span>
+<span><span class="co"># [33] dplyr_1.1.4        colorspace_2.1-0   ggplot2_3.5.0      vctrs_0.6.5       </span></span>
+<span><span class="co"># [37] R6_2.5.1           lifecycle_1.0.4    fs_1.6.3           trust_0.1-8       </span></span>
+<span><span class="co"># [41] ragg_1.2.7         irlba_2.3.5.1      pkgconfig_2.0.3    desc_1.4.3        </span></span>
+<span><span class="co"># [45] pkgdown_2.0.7      bslib_0.6.1        pillar_1.9.0       gtable_0.3.4      </span></span>
+<span><span class="co"># [49] glue_1.7.0         Rcpp_1.0.12        systemfonts_1.0.6  highr_0.10        </span></span>
+<span><span class="co"># [53] xfun_0.42          tibble_3.2.1       tidyselect_1.2.0   knitr_1.45        </span></span>
+<span><span class="co"># [57] farver_2.1.1       htmltools_0.5.7    labeling_0.4.3     rmarkdown_2.26    </span></span>
+<span><span class="co"># [61] compiler_4.3.3     horseshoe_0.2.0</span></span></code></pre></div>
 </div>
-<div class="section level2 unnumbered">
-<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+<div class="section level2">
+<h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-Pogany" class="csl-entry">
-Pogány, Tibor K., and Saralees Nadarajah. 2013. <span>“On the
-Convolution of Normal and t Random Variables.”</span>
-<em>Statistics</em> 47 (6): 1363–69.
-</div>
-</div>
 </div>
   </div>
 
