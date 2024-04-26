@@ -237,7 +237,7 @@ calc_gb_posterior <- function(x, s, g, output){
 
     pm <- zeta * tmp1
     pm2 <- zeta * (tmp1^2 + tmp2)
-    pm2 <- pmax(pm, pm^2)
+    pm2 <- pmax(pm2, pm^2)
     psd <- sqrt(pmax(0, pm2 - pm^2))
     lfsr <- 1 - zeta
 
