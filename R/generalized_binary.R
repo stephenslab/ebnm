@@ -101,7 +101,7 @@ gb_workhorse <- function(x,
           a = c(-Inf, 0),
           b = c(Inf, Inf),
           mean = c(0, mu),
-          sd = c(0, mu * scale)
+          sd = c(0, abs(mu * scale))
         )
         zeta <- calc_gb_posterior(x, s, g, output = "zeta")
 
@@ -152,7 +152,7 @@ gb_workhorse <- function(x,
         a = c(-Inf, 0),
         b = c(Inf, Inf),
         mean = c(0, mu),
-        sd = c(0, mu * scale)
+        sd = c(0, abs(mu * scale))
       )
       opt_list[[k]] <- g
       val_list[k] <- calc_gb_posterior(x, s, g, output = "llik")
