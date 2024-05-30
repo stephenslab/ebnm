@@ -25,7 +25,7 @@ will implement a solution to the empirical Bayes normal means problem
 using the family of scaled (Student's) *t* priors, which is not currently one of
 the prior families included in the **ebnm** package. 
 
-The EBNM model with scaled *t* prior is
+The empirical Bayes normal means (EBNM) model with scaled *t* prior is:
 
 \begin{aligned}
 x_i &\sim \mathcal{N}(\theta_i, s_i^2), \\
@@ -43,12 +43,37 @@ freedom. Fitting the prior therefore involves estimating two
 parameters: the scale parameter, $\sigma$; and the degrees of freedom,
 $\nu$.
 
-Please refer to the **ebnm** [paper][ebnm-paper] for background on empirical
-Bayes normal means (EBNM) and mathematical notation.
+For background and notation, 
+please refer to the **ebnm** [paper][ebnm-paper].
+
+## Overview
+
+In general, to fit an EBNM model one needs to: 1. Specify the prior family $\mathcal{G}$;
+2. Given observations $x_i$ with standard errors $s_i$, estimate
+$g \in \mathcal{G}$; 3. Given an estimate $\hat{g} \in \mathcal{G}$, compute
+posterior means $\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$ and other 
+quantities of interest. In the following sections, we show how we
+might implement these three steps for the prior family $\mathcal{G}_t$. We
+then incorporate these implementations into a new function `ebnm_t()` that 
+uses the common interface supplied by the **ebnm** package. After checking our
+new function using the convenient checker `ebnm_check_fn()`, we 
+demonstrate that, as expected, our new function performs better than the family
+of normal priors when the "true means" $\theta_i$ are simulated from a scaled
+*t* distribution.
+
+Apart from using the common **ebnm** interface, we do not have specific 
+requirements for **ebnm**-style solvers to be incorporated into the **ebnm** 
+package. In general, however, we prefer that code styling adheres to the 
+[Tidyverse style guide](https://style.tidyverse.org/). Further, we expect
+functions to be well-tested. At minimum, functions should pass the tests in
+`ebnm_check_fn()`. Additional unit tests are strongly encouraged; **ebnm**
+runs unit tests on all currently implemented prior families using the 
+**testthat** [package](https://testthat.r-lib.org/).
 
 ## The prior family class
 
-First, we define a data structure for the priors in our prior
+The first step in implementing a solution to the EBNM problem with scaled
+*t* prior is to define a data structure for the priors in our prior
 family. In some cases, an existing data structure can be used. For
 example, `ebnm_normal()`, `ebnm_point_normal()`,
 `ebnm_normal_scale_mixture()`, and `ebnm_point_mass()` all use the
@@ -81,31 +106,47 @@ tdist <- function (scale, df) {
 ## The optimization function
 
 Next, we implement a function for estimating the two parameters
-specifying the prior. Typically we do this by maximizing the
-likelihood. There are several ways one could approach this
-maximization problem, but for simplicity we use the `optim()` function
-from the **stats** package since this doesn't require installing any new
-packages. In particular, we use `method = "L-BFGS-B"` since it allows
-us to constrain the parameters (recall, they should always be greater
-than zero). Further, to avoid numerical issues, we set sensible lower
-and upper bounds for both parameters:
+specifying the prior. This estimation is typically done by maximizing the (log)
+likelihood. There are many possible ways to perform this maximization; for
+an overview of the dozens of R packages available for solving optimization
+problems using various algorithms and implementing various constraints, see the 
+[CRAN task view on optimization](https://cran.r-project.org/web/views/Optimization.html).
+The `ebnm` package includes an `optmethod` argument that allows the user to 
+choose among three general-purpose optimization methods when estimating 
+parametric priors (e.g., normal or point-Laplace):
+a Newton-type algorithm implemented in the built-in `nlm()` function; the 
+L-BFGS-B algorithm, via the built-in `optim()` function; and the trust region 
+algorithm implemented in the **trust** package. Further, the user can choose 
+whether to use analytic expressions to evaluate gradients and/or Hessians or 
+whether to estimate them using numerical methods. In general, we found that it 
+was often fastest to evaluate gradients analytically but to allow Hessians to be
+computed numerically. We thus recommend including the gradient for the log
+likelihood when it is straightforward to do so.
+
+Here, we will use the L-BFGS-B algorithm to maximize the log likelihood since:
+1. it doesn't require installing any new packages; and 2. unlike `nlm()`, it allows
+us to constrain parameters (recall that $\nu$ and $\sigma$ should always be 
+greater than zero). To avoid numerical issues, we will set sensible lower
+and upper bounds for both parameters (namely, 
+$\min_i s_i / 10 \le \sigma \le \max_i x_i$ and $1 \le \nu \le 1000$).
+Our optimization function will take initial parameter estimates as input and
+return optimal values for the parameters of interest:
 
 ```{r opt_t}
 opt_t <- function(x, s, sigma_init, nu_init) {
-  optim(par = c(sigma_init, nu_init), 
-        fn = function(par) -llik_t(x, s, par[1], par[2]), 
-        method = "L-BFGS-B",
-        lower = c(min(s)/10, 1),
-        upper = c(max(x), 1e3))
+  optim(
+    par = c(sigma_init, nu_init), 
+    fn = function(par) -llik_t(x, s, par[1], par[2]), 
+    method = "L-BFGS-B",
+    lower = c(min(s)/10, 1),
+    upper = c(max(x), 1e3)
+  )
 }
 ```
 
-This function takes initial parameter estimates as input and
-returns optimal values for the parameters of interest.
-
 Notice that this function calls another function, `llik_t()`, which is
 not yet implemented: this function should compute the log likelihood
-at the current parameter estimates. Since `optim()` performs
+at the current parameter estimates `par[1]` and `par[2]`. Since `optim()` performs
 minimization by default, we take the negative of the log likelihood.
 
 The log likelihood involves an integral or *convolution* over the
@@ -118,39 +159,50 @@ unknown means:
 \end{equation}
 
 Inside the integral, we have the product of a normal distribution and
-the prior, which in this case is a *t* distribution. We compute this
-integral numerically using the `integrate()` function from the **stats**
-package:
+the prior, which in our case is a *t* distribution. We compute this
+integral numerically using the built-in `integrate()` function:
 
 ```{r llik_t}
 llik_t <- function(x, s, sigma, nu) {
   llik_one_obs <- function(x, s) {
-    integrate(f = function(theta) {
-                    dnorm(x - theta, sd = s) * dt(theta/sigma, df = nu)/sigma
-                  }, lower = -Inf, upper = Inf)$value
+    integrate(
+      f = function(theta) {
+        dnorm(x - theta, sd = s) * dt(theta / sigma, df = nu) / sigma
+      }, 
+      lower = -Inf, 
+      upper = Inf
+    )$value
   }
   vllik <- Vectorize(llik_one_obs) 
   return(sum(log(vllik(x, s))))
 }
 ```
 
-<!-- 1. Create a function that calculates the log likelihood:
+Notice that we have not included the gradient of the log likelihood in our
+optimization function. Indeed, the gradient is difficult to compute, so
+we allow `optim()` to estimate it using numerical methods. If, however, an
+efficient expression for computing the gradient were available (e.g., by 
+explicitly calculating the gradient or using a package that performs 
+automatic differentiation), we could 
+implement it as follows (replacing the numerical estimation of the gradient
+using **numDeriv** with a more efficient function):
 
-\begin{equation}
-L(g) :=  p(\mathbf{x} \mid g, \, \mathbf{s}) = 
-\prod_{i=1}^n \textstyle 
-\int p(x_i \mid \theta_i, s_i) \, g(\theta_i) \, d\theta_i
-\end{equation}
+```{r opt_grad}
+opt_t_grad <- function(x, s, sigma_init, nu_init) {
+  optim(
+    par = c(sigma_init, nu_init), 
+    fn = function(par) -llik_t(x, s, par[1], par[2]), 
+    gr = function(par) -grad_t(x, s, par[1], par[2]),
+    method = "L-BFGS-B",
+    lower = c(min(s) / 10, 1),
+    upper = c(max(x), 1e3)
+  )
+}
 
-2. Use an off-the-shelf method such as `nlm()` or `optim()` to
-   maximize $L(g)$:
-
-\begin{equation}
-\hat{g} := 
-\text{argmax}_{g \,\in\, \mathcal{G}} L(g)
-\end{equation} -->
-
-This completes the prior estimation step.
+grad_t <- function(x, s, sigma, nu) {
+  numDeriv::grad(function(par) llik_t(x, s, par[1], par[2]), c(sigma, nu))
+}
+```
 
 ## The posterior summary function
 
@@ -214,13 +266,6 @@ and local false sign rates [@Stephens_NewDeal]. If the EBNM solver is
 intended for use in the **flashier** package, then posterior means and
 second moments *must* be computed. -->
 
-<!-- Since posteriors are not analytically available for $t$ priors
-[or at least, not easily available: see @Pogany], we implement an MCMC
-sampler using the **mcmc** package and then compute summaries using
-1,000 samples from each posterior. The following code is principally
-for purposes of illustration; in particular, speed and efficiency
-could likely be improved. -->
-
 ## Putting it all together
 
 We have now implemented the key computations for our new EBNM
@@ -266,7 +311,7 @@ ebnm_t <- function(x,
 	     "at a particular value.")
   }
   
-  # If g_init is provided, extract the parameters, otherwise provide
+  # If g_init is provided, extract the parameters. Otherwise, provide
   # reasonable initial estimates.
   if (!is.null(g_init)) {
     sigma_init <- g_init$scale
@@ -276,7 +321,7 @@ ebnm_t <- function(x,
     nu_init    <- 10
   }
   
-  # If g is fixed, use g_init, otherwise optimize g.
+  # If g is fixed, use g_init. Otherwise optimize g.
   if (fix_g) {
     sigma <- sigma_init
     nu    <- nu_init
@@ -309,7 +354,7 @@ checks using a small, simulated data set:
 library(ebnm)
 set.seed(1)
 x <- rnorm(100, sd = 2)
-s <- rep(1,100)
+s <- rep(1, 100)
 ebnm_check_fn(ebnm_t, x, s)
 ```
 
