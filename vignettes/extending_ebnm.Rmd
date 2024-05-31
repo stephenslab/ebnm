@@ -51,7 +51,7 @@ please refer to the **ebnm** [paper][ebnm-paper].
 In general, to fit an EBNM model one needs to: 1. Specify the prior family $\mathcal{G}$;
 2. Given observations $x_i$ with standard errors $s_i$, estimate
 $g \in \mathcal{G}$; 3. Given an estimate $\hat{g} \in \mathcal{G}$, compute
-posterior means $\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$ and other 
+posterior means $\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$ and/or other 
 quantities of interest. In the following sections, we show how we
 might implement these three steps for the prior family $\mathcal{G}_t$. We
 then incorporate these implementations into a new function `ebnm_t()` that 
@@ -106,16 +106,16 @@ tdist <- function (scale, df) {
 ## The optimization function
 
 Next, we implement a function for estimating the two parameters
-specifying the prior. This estimation is typically done by maximizing the (log)
+specifying the prior. This estimation is typically done by maximizing the 
 likelihood. There are many possible ways to perform this maximization; for
-an overview of the dozens of R packages available for solving optimization
+an overview of the many R packages available for solving optimization
 problems using various algorithms and implementing various constraints, see the 
 [CRAN task view on optimization](https://cran.r-project.org/web/views/Optimization.html).
-The `ebnm` package includes an `optmethod` argument that allows the user to 
-choose among three general-purpose optimization methods when estimating 
-parametric priors (e.g., normal or point-Laplace):
-a Newton-type algorithm implemented in the built-in `nlm()` function; the 
-L-BFGS-B algorithm, via the built-in `optim()` function; and the trust region 
+Solvers in the **ebnm** package include an `optmethod` argument; when estimating
+parametric priors (e.g., normal or point-Laplace), this argument allows the user to 
+choose among three general-purpose optimization methods:
+the Newton-type algorithm implemented in the base R `nlm()` function; the 
+L-BFGS-B algorithm implemented in the base R `optim()` function; and the trust region 
 algorithm implemented in the **trust** package. Further, the user can choose 
 whether to use analytic expressions to evaluate gradients and/or Hessians or 
 whether to estimate them using numerical methods. In general, we found that it 
@@ -126,11 +126,11 @@ likelihood when it is straightforward to do so.
 Here, we will use the L-BFGS-B algorithm to maximize the log likelihood since:
 1. it doesn't require installing any new packages; and 2. unlike `nlm()`, it allows
 us to constrain parameters (recall that $\nu$ and $\sigma$ should always be 
-greater than zero). To avoid numerical issues, we will set sensible lower
+greater than zero). To avoid numerical issues, we set sensible lower
 and upper bounds for both parameters (namely, 
 $\min_i s_i / 10 \le \sigma \le \max_i x_i$ and $1 \le \nu \le 1000$).
-Our optimization function will take initial parameter estimates as input and
-return optimal values for the parameters of interest:
+Our optimization function takes initial parameter estimates as input and
+returns optimal values for the parameters of interest:
 
 ```{r opt_t}
 opt_t <- function(x, s, sigma_init, nu_init) {
@@ -145,7 +145,7 @@ opt_t <- function(x, s, sigma_init, nu_init) {
 ```
 
 Notice that this function calls another function, `llik_t()`, which is
-not yet implemented: this function should compute the log likelihood
+not yet implemented: this function will compute the log likelihood
 at the current parameter estimates `par[1]` and `par[2]`. Since `optim()` performs
 minimization by default, we take the negative of the log likelihood.
 
@@ -179,13 +179,13 @@ llik_t <- function(x, s, sigma, nu) {
 ```
 
 Notice that we have not included the gradient of the log likelihood in our
-optimization function. Indeed, the gradient is difficult to compute, so
-we allow `optim()` to estimate it using numerical methods. If, however, an
+optimization function. Indeed, the gradient is difficult to compute in this case, so
+we allow `optim()` to estimate it numerically. If, however, an
 efficient expression for computing the gradient were available (e.g., by 
 explicitly calculating the gradient or using a package that performs 
 automatic differentiation), we could 
 implement it as follows (replacing the numerical estimation of the gradient
-using **numDeriv** with a more efficient function):
+using **numDeriv** with this more efficient function):
 
 ```{r opt_grad}
 opt_t_grad <- function(x, s, sigma_init, nu_init) {
