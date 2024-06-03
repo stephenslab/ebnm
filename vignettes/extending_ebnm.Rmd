@@ -41,15 +41,16 @@ $\mathcal{G}_t$ is the family of scaled-*t* priors and is defined as
 follows:
 
 \begin{equation}
-\mathcal{G}_t := \{g: g = \sigma t_\nu; \sigma > 0, \nu > 0\},
+\mathcal{G}_t := \{g: g(x) = \sigma t_{\nu}(x); \sigma > 0, \nu > 0\},
 \end{equation}
 
-in which $t_{\nu}$ is the *t* distribution with $\nu$ degrees of
-freedom. Fitting the prior therefore involves estimating two
-parameters: the scale parameter, $\sigma$, and the degrees of freedom,
-$\nu$.
+where $t_{\nu}(x)$ denotes the density function of the *t*
+distribution at $x$, with $\nu$ degrees of freedom. Fitting the prior
+therefore involves estimating two parameters: the scale parameter,
+$\sigma$, and the degrees of freedom, $\nu$.
 
-For background and notation, please see the [ebnm paper][ebnm-paper].
+For background and mathematical notation, please see the
+[ebnm paper][ebnm-paper].
 
 Overview of the process
 -----------------------
@@ -85,23 +86,25 @@ encouraged; **ebnm** runs unit tests on all currently implemented
 prior families using the **testthat**
 [package](https://testthat.r-lib.org/).
 
-Define the prior family class
------------------------------
+First step: define the prior family class
+-----------------------------------------
 
-The first step in implementing a solution to the EBNM problem with
-scaled-*t* prior is to define a data structure for the priors in our
-prior family. In some cases, an existing data structure can be
-used. For example, `ebnm_normal()`, `ebnm_point_normal()`,
-`ebnm_normal_scale_mixture()`, and `ebnm_point_mass()` all use the
-`"normalmix"` class, which is borrowed from the **ashr**
-package. Here, we will define a new class.
+First, we define a data structure for the priors in our prior
+family. Sometimes, an existing data structure can be used. For
+example, `ebnm_normal()`, `ebnm_point_normal()`,
+`ebnm_normal_scale_mixture()`, and `ebnm_point_mass()` all share the
+`"normalmix"` class. Here we will define a new class.
 
-**ebnm** uses these data structures in two ways: to give information
-about the fitted prior $\hat{g}$ (via the `fitted_g` field in the
-returned `"ebnm"` object); and to initialize solutions (via the
-`g_init` argument). If one would like to be able to arbitrarily
-initialize the solver, then the data structure should include all
-information required to do so.
+<!-- which is borrowed from the **ashr** package -->
+
+**ebnm** uses this data structure in two ways: (1) to store information
+about the fitted prior, $\hat{g}$ (via the `fitted_g` field in the
+returned `"ebnm"` object); (2) to initialize solutions (via the
+`g_init` argument).
+
+<!-- If one would like to be able to arbitrarily initialize the
+solver, then the data structure should include all information
+required to do so. -->
 
 <!-- Note, however, that **ebnm** places no restrictions on data
 structure since any initialization using `g_init` must be implemented

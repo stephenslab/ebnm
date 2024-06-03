@@ -92,43 +92,45 @@ of this writing, it is not one of the prior families included in
 <div class="section level3">
 <h3 id="ebnm-for-the-scaled-t-prior-family">EBNM for the scaled-<em>t</em> prior family<a class="anchor" aria-label="anchor" href="#ebnm-for-the-scaled-t-prior-family"></a>
 </h3>
-<p>The <em>empirical Bayes normal means</em> (EBNM) model with scaled
-<em>t</em> prior is:</p>
+<p>The <em>empirical Bayes normal means</em> (EBNM) model with
+scaled-<em>t</em> prior is:</p>
 <span class="math display">\[\begin{aligned}
 x_i &amp;\sim \mathcal{N}(\theta_i, s_i^2), \\
 \theta_i &amp;\sim g \in \mathcal{G}_t,
 \end{aligned}\]</span>
 <p><span class="math inline">\(\mathcal{G}_t\)</span> is the family of
-scaled <span class="math inline">\(t\)</span> priors and is defined as
-follows:</p>
+scaled-<em>t</em> priors and is defined as follows:</p>
 <p><span class="math display">\[\begin{equation}
-\mathcal{G}_t := \{g: g = \sigma t_\nu; \sigma &gt; 0, \nu &gt; 0\},
+\mathcal{G}_t := \{g: g(x) = \sigma t_{\nu}(x); \sigma &gt; 0, \nu &gt;
+0\},
 \end{equation}\]</span></p>
-<p>in which <span class="math inline">\(t_{\nu}\)</span> is the
-<em>t</em> distribution with <span class="math inline">\(\nu\)</span>
-degrees of freedom. Fitting the prior therefore involves estimating two
-parameters: the scale parameter, <span class="math inline">\(\sigma\)</span>, and the degrees of freedom, <span class="math inline">\(\nu\)</span>.</p>
+<p>where <span class="math inline">\(t_{\nu}(x)\)</span> denotes density
+function of the <em>t</em> distribution at <span class="math inline">\(x\)</span>, with <span class="math inline">\(\nu\)</span> degrees of freedom. Fitting the prior
+therefore involves estimating two parameters: the scale parameter, <span class="math inline">\(\sigma\)</span>, and the degrees of freedom, <span class="math inline">\(\nu\)</span>.</p>
 <p>For background and notation, please see the <a href="https://arxiv.org/abs/2110.00152" class="external-link">ebnm paper</a>.</p>
 </div>
 <div class="section level2">
-<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+<h2 id="overview-of-the-process">Overview of the process<a class="anchor" aria-label="anchor" href="#overview-of-the-process"></a>
 </h2>
-<p>In general, to fit an EBNM model one needs to: 1. Specify the prior
-family <span class="math inline">\(\mathcal{G}\)</span>; 2. Given
-observations <span class="math inline">\(x_i\)</span> with standard
-errors <span class="math inline">\(s_i\)</span>, estimate <span class="math inline">\(g \in \mathcal{G}\)</span>; 3. Given an estimate
-<span class="math inline">\(\hat{g} \in \mathcal{G}\)</span>, compute
-posterior means <span class="math inline">\(\mathbb{E}(\theta_i \mid
-x_i, s_i, \hat{g})\)</span> and/or other quantities of interest. In the
-following sections, we show how we might implement these three steps for
-the prior family <span class="math inline">\(\mathcal{G}_t\)</span>. We
-then incorporate these implementations into a new function
-<code>ebnm_t()</code> that uses the common interface supplied by the
-<strong>ebnm</strong> package. After checking our new function using the
-convenient checker <code><a href="../reference/ebnm_check_fn.html">ebnm_check_fn()</a></code>, we demonstrate that, as
-expected, our new function performs better than the family of normal
-priors when the “true means” <span class="math inline">\(\theta_i\)</span> are simulated from a scaled
-<em>t</em> distribution.</p>
+<p>Implementing the custom EBNM solver will involve the following
+steps:</p>
+<ol style="list-style-type: decimal">
+<li><p>Specify the prior family <span class="math inline">\(\mathcal{G}\)</span>;</p></li>
+<li><p>Given observations <span class="math inline">\(x_i\)</span> with
+standard errors <span class="math inline">\(s_i\)</span>, estimate <span class="math inline">\(g \in \mathcal{G}\)</span>;</p></li>
+<li><p>Given an estimate <span class="math inline">\(\hat{g} \in
+\mathcal{G}\)</span>, compute posterior means <span class="math inline">\(\mathbb{E}(\theta_i \mid x_i, s_i,
+\hat{g})\)</span> and/or other quantities of interest.</p></li>
+</ol>
+<p>In the following sections, we show how we might implement these three
+steps for the prior family <span class="math inline">\(\mathcal{G}_t\)</span>. We then incorporate these
+implementations into a new function <code>ebnm_t()</code> that uses the
+common interface supplied by the <strong>ebnm</strong> package. After
+checking our new function using the convenient checker
+<code><a href="../reference/ebnm_check_fn.html">ebnm_check_fn()</a></code>, we demonstrate that, as expected, our new
+function performs better than the family of normal priors when the “true
+means” <span class="math inline">\(\theta_i\)</span> are simulated from
+a scaled-<em>t</em> distribution.</p>
 <p>Apart from using the common <strong>ebnm</strong> interface, we do
 not have specific requirements for <strong>ebnm</strong>-style solvers
 to be incorporated into the <strong>ebnm</strong> package. In general,
@@ -140,10 +142,10 @@ currently implemented prior families using the <strong>testthat</strong>
 <a href="https://testthat.r-lib.org/" class="external-link">package</a>.</p>
 </div>
 <div class="section level2">
-<h2 id="the-prior-family-class">The prior family class<a class="anchor" aria-label="anchor" href="#the-prior-family-class"></a>
+<h2 id="define-the-prior-family-class">Define the prior family class<a class="anchor" aria-label="anchor" href="#define-the-prior-family-class"></a>
 </h2>
 <p>The first step in implementing a solution to the EBNM problem with
-scaled <em>t</em> prior is to define a data structure for the priors in
+scaled-<em>t</em> prior is to define a data structure for the priors in
 our prior family. In some cases, an existing data structure can be used.
 For example, <code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>,
 <code><a href="../reference/ebnm_point_normal.html">ebnm_point_normal()</a></code>,
@@ -163,7 +165,7 @@ within the custom function itself. In particular, we could choose to
 simply ignore `g_init` and return `fitted_g = NULL` (though this is
 not recommended, since it gives no information about the fitted prior
 $\hat{g} \in \mathcal{G}$). -->
-<p>For the scaled <em>t</em> prior, we define a new class,
+<p>For the scaled-<em>t</em> prior, we define a new class,
 <code>"tdist"</code>, that includes the scale and degrees of
 freedom:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -430,7 +432,7 @@ which is implemented by <code><a href="../reference/ebnm_normal.html">ebnm_norma
 <code class="sourceCode R"><span><span class="va">normal_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm_normal.html">ebnm_normal</a></span><span class="op">(</span><span class="va">x</span>, s <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">t_res</span> <span class="op">&lt;-</span> <span class="fu">ebnm_t</span><span class="op">(</span><span class="va">x</span>, s <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <!-- Next we fit EBNM models using: 1. the family of normal priors, as
-implemented by `ebnm_normal()`; and 2. the family of $t$ priors that
+implemented by `ebnm_normal()`; and 2. the family of *t* priors that
 we just implemented. Due to our reliance on MCMC sampling to calculate
 posterior means, fitting the second model is much slower than the
 first (it took us about 15 seconds on a new MacBook Pro). -->
@@ -444,8 +446,9 @@ efficient.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">normal_res</span>, <span class="va">t_res</span><span class="op">)</span></span></code></pre></div>
 <p><img src="extending_ebnm_files/figure-html/plot-t-vs-normal-1.png" width="540" style="display: block; margin: auto;"></p>
 <p>Most strikingly, <code>ebnm_t()</code> shrinks the large values less
-aggressively than <code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>. The fit with the <span class="math inline">\(t\)</span> prior also resulted in slightly more
-accurate results overall:</p>
+aggressively than <code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>. The fit with the
+<em>t</em> prior also resulted in slightly more accurate results
+overall:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rmse_normal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">normal_res</span><span class="op">)</span> <span class="op">-</span> <span class="va">theta</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">rmse_t</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">t_res</span><span class="op">)</span> <span class="op">-</span> <span class="va">theta</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
@@ -453,7 +456,7 @@ accurate results overall:</p>
 <span><span class="co"># rmse_normal      rmse_t </span></span>
 <span><span class="co">#   0.9498794   0.9397445</span></span></code></pre></div>
 <!-- This improvement is as expected, since the true prior $g$ used to
-simulate the data belongs to the family of $t$ distributions but not
+simulate the data belongs to the family of *t* distributions but not
 the family of normal distributions.-->
 <p>Finally, the estimated prior is not far from the parameters used to
 simulate the data (<span class="math inline">\(\sigma = 2\)</span>,
