@@ -15,67 +15,83 @@ knitr::opts_chunk$set(comment = "#", collapse = TRUE, results = "hold",
 ```
 
 The **ebnm** package, in addition to providing implementations of
-several commonly used priors (normal, Laplace, etc.), was
-designed to be easily extensible so that researchers are not limited
-by the existing options (though a wide variety of options are
-available). Here we show by example how to extend **ebnm** by creating
-a custom EBNM solver in the style of other **ebnm** functions
-(`ebnm_normal()`, `ebnm_point_laplace()`, etc.). Namely, we
-will implement a solution to the empirical Bayes normal means problem
-using the family of scaled (Student's) *t* priors, which is not currently one of
-the prior families included in the **ebnm** package. 
+several commonly used priors (normal, Laplace, etc.), was designed to
+be easily extensible so that researchers are not limited by the
+existing options (despite the fact that a wide variety of options are
+available!).
 
-The empirical Bayes normal means (EBNM) model with scaled *t* prior is:
+In this vignette, we illustrate how to extend **ebnm** by creating a
+*custom EBNM solver* in the style of other **ebnm** functions such as
+`ebnm_normal()` and `ebnm_point_laplace()`. In this illustration, we
+implement an EBNM solver for the family of scaled (Student's) *t*
+priors. (As of this writing, it is not one of the prior families
+included in **ebnm**.) It is formally defined next.
+
+### EBNM for the scaled-*t* prior family
+
+The *empirical Bayes normal means* (EBNM) model with scaled-*t* prior
+is:
 
 \begin{aligned}
 x_i &\sim \mathcal{N}(\theta_i, s_i^2), \\
 \theta_i &\sim g \in \mathcal{G}_t,
 \end{aligned}
 
-where the prior family $\mathcal{G}_t$ is defined:
+$\mathcal{G}_t$ is the family of scaled-*t* priors and is defined as
+follows:
 
 \begin{equation}
 \mathcal{G}_t := \{g: g = \sigma t_\nu; \sigma > 0, \nu > 0\},
 \end{equation}
 
-where $t_{\nu}$ is the *t* distribution with $\nu$ degrees of
+in which $t_{\nu}$ is the *t* distribution with $\nu$ degrees of
 freedom. Fitting the prior therefore involves estimating two
-parameters: the scale parameter, $\sigma$; and the degrees of freedom,
+parameters: the scale parameter, $\sigma$, and the degrees of freedom,
 $\nu$.
 
-For background and notation, 
-please refer to the **ebnm** [paper][ebnm-paper].
+For background and notation, please see the [ebnm paper][ebnm-paper].
 
-## Overview
+Overview of the process
+-----------------------
 
-In general, to fit an EBNM model one needs to: 1. Specify the prior family $\mathcal{G}$;
-2. Given observations $x_i$ with standard errors $s_i$, estimate
-$g \in \mathcal{G}$; 3. Given an estimate $\hat{g} \in \mathcal{G}$, compute
-posterior means $\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$ and/or other 
-quantities of interest. In the following sections, we show how we
-might implement these three steps for the prior family $\mathcal{G}_t$. We
-then incorporate these implementations into a new function `ebnm_t()` that 
-uses the common interface supplied by the **ebnm** package. After checking our
-new function using the convenient checker `ebnm_check_fn()`, we 
-demonstrate that, as expected, our new function performs better than the family
-of normal priors when the "true means" $\theta_i$ are simulated from a scaled
-*t* distribution.
+Implementing the custom EBNM solver will involve the following steps:
 
-Apart from using the common **ebnm** interface, we do not have specific 
-requirements for **ebnm**-style solvers to be incorporated into the **ebnm** 
-package. In general, however, we prefer that code styling adheres to the 
-[Tidyverse style guide](https://style.tidyverse.org/). Further, we expect
-functions to be well-tested. At minimum, functions should pass the tests in
-`ebnm_check_fn()`. Additional unit tests are strongly encouraged; **ebnm**
-runs unit tests on all currently implemented prior families using the 
-**testthat** [package](https://testthat.r-lib.org/).
+1. Specify the prior family $\mathcal{G}$;
 
-## The prior family class
+2. Given observations $x_i$ with standard errors $s_i$, estimate $g
+\in \mathcal{G}$;
 
-The first step in implementing a solution to the EBNM problem with scaled
-*t* prior is to define a data structure for the priors in our prior
-family. In some cases, an existing data structure can be used. For
-example, `ebnm_normal()`, `ebnm_point_normal()`,
+3. Given an estimate $\hat{g} \in \mathcal{G}$, compute posterior
+means $\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$ and/or other
+quantities of interest.
+
+In the following sections, we show how we might implement these three
+steps for the prior family $\mathcal{G}_t$. We then incorporate these
+implementations into a new function `ebnm_t()` that uses the common
+interface supplied by the **ebnm** package. After checking our new
+function using the convenient checker `ebnm_check_fn()`, we
+demonstrate that, as expected, our new function performs better than
+the family of normal priors when the "true means" $\theta_i$ are
+simulated from a scaled-*t* distribution.
+
+Apart from using the common **ebnm** interface, we do not have
+specific requirements for **ebnm**-style solvers to be incorporated
+into the **ebnm** package. In general, however, we prefer that code
+styling adheres to the
+[Tidyverse style guide](https://style.tidyverse.org/). Further, we
+expect functions to be well-tested. At minimum, functions should pass
+the tests in `ebnm_check_fn()`. Additional unit tests are strongly
+encouraged; **ebnm** runs unit tests on all currently implemented
+prior families using the **testthat**
+[package](https://testthat.r-lib.org/).
+
+Define the prior family class
+-----------------------------
+
+The first step in implementing a solution to the EBNM problem with
+scaled-*t* prior is to define a data structure for the priors in our
+prior family. In some cases, an existing data structure can be
+used. For example, `ebnm_normal()`, `ebnm_point_normal()`,
 `ebnm_normal_scale_mixture()`, and `ebnm_point_mass()` all use the
 `"normalmix"` class, which is borrowed from the **ashr**
 package. Here, we will define a new class.
@@ -94,7 +110,7 @@ simply ignore `g_init` and return `fitted_g = NULL` (though this is
 not recommended, since it gives no information about the fitted prior
 $\hat{g} \in \mathcal{G}$). -->
 
-For the scaled *t* prior, we define a new class, `"tdist"`, that
+For the scaled-*t* prior, we define a new class, `"tdist"`, that
 includes the scale and degrees of freedom:
 
 ```{r tdist}
@@ -103,7 +119,8 @@ tdist <- function (scale, df) {
 }
 ```
 
-## The optimization function
+The optimization function
+-------------------------
 
 Next, we implement a function for estimating the two parameters
 specifying the prior. This estimation is typically done by maximizing the 
@@ -204,12 +221,14 @@ grad_t <- function(x, s, sigma, nu) {
 }
 ```
 
-## The posterior summary function
+The posterior summary function
+------------------------------
 
-The other key computation required to fit the EBNM model is the computation of various
-statistics (means, variances, etc.) from the posterior distribution of
-the "true means" given the prior we estimated. From Bayes' rule, the
-posterior distribution for the *i*th unknown mean is
+The other key computation required to fit the EBNM model is the
+computation of various statistics (means, variances, etc.) from the
+posterior distribution of the "true means" given the prior we
+estimated. From Bayes' rule, the posterior distribution for the *i*th
+unknown mean is
 
 \begin{equation}
 p(\theta_i \mid x_i, s_i, g) \propto 
@@ -266,7 +285,8 @@ and local false sign rates [@Stephens_NewDeal]. If the EBNM solver is
 intended for use in the **flashier** package, then posterior means and
 second moments *must* be computed. -->
 
-## Putting it all together
+Putting it all together
+-----------------------
 
 We have now implemented the key computations for our new EBNM
 solver. We will call this new solver `ebnm_t()` to be consistent
@@ -344,7 +364,8 @@ ebnm_t <- function(x,
 }
 ```
 
-## Checking the EBNM function
+Verifying the EBNM function
+---------------------------
 
 **ebnm** provides a function, `ebnm_check_fn()`, that runs basic tests
 to verify that the EBNM function works as expected. Let's run the
@@ -358,7 +379,8 @@ s <- rep(1, 100)
 ebnm_check_fn(ebnm_t, x, s)
 ```
 
-## The new EBNM function in action
+The new EBNM function in action
+-------------------------------
 
 Let's illustrate the use of our new EBNM function on a data set in
 which the (unobserved) means are simulated from a *t* distribution
@@ -379,7 +401,7 @@ t_res <- ebnm_t(x, s = 1)
 ```
 
 <!-- Next we fit EBNM models using: 1. the family of normal priors, as
-implemented by `ebnm_normal()`; and 2. the family of $t$ priors that
+implemented by `ebnm_normal()`; and 2. the family of *t* priors that
 we just implemented. Due to our reliance on MCMC sampling to calculate
 posterior means, fitting the second model is much slower than the
 first (it took us about 15 seconds on a new MacBook Pro). -->
@@ -396,7 +418,7 @@ plot(normal_res, t_res)
 ```
 
 Most strikingly, `ebnm_t()` shrinks the large values less aggressively
-than `ebnm_normal()`. The fit with the $t$ prior also resulted in
+than `ebnm_normal()`. The fit with the *t* prior also resulted in
 slightly more accurate results overall:
 
 ```{r rmse}
@@ -406,7 +428,7 @@ c(rmse_normal = rmse_normal, rmse_t = rmse_t)
 ```
 
 <!-- This improvement is as expected, since the true prior $g$ used to
-simulate the data belongs to the family of $t$ distributions but not
+simulate the data belongs to the family of *t* distributions but not
 the family of normal distributions.-->
 
 Finally, the estimated prior is not far from the parameters used to
@@ -416,7 +438,8 @@ simulate the data ($\sigma = 2$, $\nu = 5$):
 t_res$fitted_g
 ```
 
-## Session information
+Session information
+-------------------
 
 The following R version and packages were used to generate this
 vignette:
