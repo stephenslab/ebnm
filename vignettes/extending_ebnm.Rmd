@@ -403,12 +403,13 @@ s <- rep(1, 100)
 ebnm_check_fn(ebnm_t, x, s)
 ```
 
-Step 6: the new EBNM function in action
----------------------------------------
+Step 6: use the new EBNM function to analyze a data set
+-------------------------------------------------------
 
-Let's illustrate the use of our new EBNM function on a data set in
-which the (unobserved) means are simulated from a *t* distribution
-with a scale of 2 and 5 degrees of freedom:
+Assuming the checks passed, our new EBNM solver can be used to analyze
+a data set. Here we analyze a simulated data set in which the
+unobserved means are simulated from a *t* distribution with a scale of
+2 and 5 degrees of freedom:
 
 ```{r sim-data}
 set.seed(1)
@@ -416,8 +417,7 @@ theta <- 2 * rt(100, df = 5)
 x <- theta + rnorm(200)
 ```
 
-We will compare the use of the *t* prior with a normal prior, which is
-implemented by `ebnm_normal()`.
+Let's compare the use of the scaled-*t* prior with a normal prior:
 
 ```{r t-vs-normal}
 normal_res <- ebnm_normal(x, s = 1)
@@ -430,10 +430,10 @@ we just implemented. Due to our reliance on MCMC sampling to calculate
 posterior means, fitting the second model is much slower than the
 first (it took us about 15 seconds on a new MacBook Pro). -->
 
-You may have noticed that the call to `ebnm_t()` took longer than the
-call to `ebnm_normal()`. That is expected because the computations
-with the *t* distribution are more complex, and we did not put a lot of
-effort into making the computations efficient.
+(Note that the call to `ebnm_t()` is considerably slower than the call
+to `ebnm_normal()` because the computations with the scaled-*t* prior
+are more complex and we did not put any effort into making the
+computations efficient.)
 
 Let's compare the two results:
 
@@ -441,9 +441,9 @@ Let's compare the two results:
 plot(normal_res, t_res)
 ```
 
-Most strikingly, `ebnm_t()` shrinks the large values less aggressively
-than `ebnm_normal()`. The fit with the *t* prior also resulted in
-slightly more accurate results overall:
+`ebnm_t()` shrinks the large values less aggressively than
+`ebnm_normal()` and so the fit with the scaled-*t* prior resulted in
+slightly more accurate estimates:
 
 ```{r rmse}
 rmse_normal <- sqrt(mean((coef(normal_res) - theta)^2))
@@ -455,8 +455,8 @@ c(rmse_normal = rmse_normal, rmse_t = rmse_t)
 simulate the data belongs to the family of *t* distributions but not
 the family of normal distributions.-->
 
-Finally, the estimated prior is not far from the parameters used to
-simulate the data ($\sigma = 2$, $\nu = 5$):
+Somewhat reassuringly, the estimated prior is not too far from the
+simulation parameters ($\sigma = 2$, $\nu = 5$):
 
 ```{r t-fitted-g}
 t_res$fitted_g
