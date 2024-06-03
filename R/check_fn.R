@@ -77,6 +77,6 @@ ebnm_check_fn <- function(fn, x, s) {
     }
   }
 
-  cat("Function passed all checks.")
+  message("Function has passed all checks.")
   return(invisible(1))
 }

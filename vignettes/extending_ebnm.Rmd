@@ -90,8 +90,8 @@ encouraged; **ebnm** runs unit tests on all currently implemented
 prior families using the **testthat**
 [package](https://testthat.r-lib.org/).
 
-First step: define the prior family class
------------------------------------------
+Step 1: define the prior family class
+-------------------------------------
 
 First, we define a data structure for the priors in our prior
 family. Sometimes, an existing data structure can be used. For
@@ -126,8 +126,8 @@ tdist <- function (scale, df) {
 }
 ```
 
-Second step: implement the optimization function
-------------------------------------------------
+Step 2: implement the optimization function
+-------------------------------------------
 
 Next we implement a function for estimating the two parameters
 specifying the prior. This estimation is typically done by maximizing
@@ -207,7 +207,7 @@ llik_t <- function (x, s, sigma, nu) {
 }
 ```
 
-### Optional: include gradients in the optimization
+### Include gradients in the optimization (optional)
 
 **TO DO: Fix this next part.**
 
@@ -241,8 +241,8 @@ grad_t <- function(x, s, sigma, nu) {
 }
 ```
 
-Third step: implement the posterior summary function
-----------------------------------------------------
+Step 3: implement the posterior summary function
+------------------------------------------------
 
 The other key computation is the computation of summary statistics
 (means, variances, etc.) from the posterior distribution.
@@ -309,16 +309,17 @@ and local false sign rates [@Stephens_NewDeal]. If the EBNM solver is
 intended for use in the **flashier** package, then posterior means and
 second moments *must* be computed. -->
 
-Putting it all together
------------------------
+Step 4: put it all together
+---------------------------
 
 We have now implemented the key computations for our new EBNM
-solver. We will call this new solver `ebnm_t()` to be consistent
-with other **ebnm** functions (`ebnm_normal()`, etc.).
+solver. We will now incorporate these computations into a single
+function, ebnm_t, that accepts the same inputs as the other
+EBNM-solver functions.
 
-The inputs should be the same as the other **ebnm** functions. We will
-also use the same defaults. We can ignore parameters that are not
-relevant (here, `optmethod` and `control`).
+<!-- The inputs should be the same as the other **ebnm** functions. We
+will also use the same defaults. We can ignore parameters that are not
+relevant (here, `optmethod` and `control`). -->
 
 <!-- The `optmethod` parameter can typically be ignored unless we
 want to make multiple optimization methods available for a single
@@ -327,11 +328,10 @@ the `control` parameter, although it could be used here, for example,
 to alter the default settings of `lower` and `upper` in the call to
 `optim`. -->
 
-For simplicity, we will ignore the `output` parameter and just return
-everything (the data, the posterior summaries, the fitted prior, the
-log-likelihood, and the posterior sampler). See `help(ebnm)` for
-further details about the expected structure of the returned `"ebnm"`
-object.
+For simplicity, we ignore the "output" parameter and just return all
+the results (data, posterior summaries, fitted prior, log-likelihood
+and posterior sampler). See `help(ebnm)` for details about the
+expected structure of return value.
 
 Here's the new function:
 
@@ -346,7 +346,7 @@ ebnm_t <- function (x,
 					optmethod = NULL,
 					control = NULL) {
 				   
-  # Some very basic argument checks.
+  # Some basic argument checks.
   if (mode != 0) {
     stop("The mode of the t-prior must be fixed at zero.")
   }
@@ -388,8 +388,8 @@ ebnm_t <- function (x,
 }
 ```
 
-Verifying the EBNM function
----------------------------
+Step 5: verify the EBNM function
+--------------------------------
 
 **ebnm** provides a function, `ebnm_check_fn()`, that runs basic tests
 to verify that the EBNM function works as expected. Let's run the
@@ -403,8 +403,8 @@ s <- rep(1, 100)
 ebnm_check_fn(ebnm_t, x, s)
 ```
 
-The new EBNM function in action
--------------------------------
+Step 6: the new EBNM function in action
+---------------------------------------
 
 Let's illustrate the use of our new EBNM function on a data set in
 which the (unobserved) means are simulated from a *t* distribution
