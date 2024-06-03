@@ -159,10 +159,10 @@ sensible upper and lower bounds for the parameters: $\min_i s_i / 10
 Putting this all together, the optimization function looks like this:
 
 ```{r opt_t}
-opt_t <- function(x, s, sigma_init, nu_init) {
+opt_t <- function (x, s, sigma_init, nu_init) {
   optim(
     par = c(sigma_init, nu_init), 
-    fn = function(par) -llik_t(x, s, par[1], par[2]), 
+    fn = function (par) -llik_t(x, s, par[1], par[2]), 
     method = "L-BFGS-B",
     lower = c(min(s)/10, 1),
     upper = c(max(x), 1e3)
@@ -184,15 +184,18 @@ Computing log-likelihood involves computing 1-d integrals, or
 \int p(x_i \mid \theta_i, s_i) \, g(\theta_i) \, d\theta_i.
 \end{equation}
 
-Inside the integral, we have the product of a normal distribution and
-the prior, which in our case is a *t* distribution. We compute this
-integral numerically using the built-in `integrate()` function:
+Since we do not have a convenient closed-form expression for these
+integrals, we compute these integrals numerically using the
+`integrate()` function:
+
+<!-- Inside the integral, we have the product of a normal distribution
+and the prior, which in our case is a *t* distribution. -->
 
 ```{r llik_t}
-llik_t <- function(x, s, sigma, nu) {
-  llik_one_obs <- function(x, s) {
+llik_t <- function (x, s, sigma, nu) {
+  llik_one_obs <- function (x, s) {
     integrate(
-      f = function(theta) {
+      f = function (theta) {
         dnorm(x - theta, sd = s) * dt(theta / sigma, df = nu) / sigma
       }, 
       lower = -Inf, 
@@ -203,6 +206,14 @@ llik_t <- function(x, s, sigma, nu) {
   return(sum(log(vllik(x, s))))
 }
 ```
+
+### Optional: include gradients in the optimization
+
+**TO DO: Fix this next part.**
+
+In general, we found that it was often fastest to evaluate gradients
+analytically but to allow Hessians to be computed numerically. We thus
+recommend including gradients when possible.
 
 Notice that we have not included the gradient of the log-likelihood in
 our optimization function. Indeed, the gradient is difficult to
@@ -230,26 +241,24 @@ grad_t <- function(x, s, sigma, nu) {
 }
 ```
 
-In general, we found that it was often fastest to evaluate gradients
-analytically but to allow Hessians to be computed numerically. We thus
-recommend including gradients when possible.
+Third step: implement the posterior summary function
+----------------------------------------------------
 
-This step: implement the posterior summary function
----------------------------------------------------
+The other key computation is the computation of summary statistics
+(means, variances, etc.) from the posterior distribution.
 
-The other key computation required to fit the EBNM model is the
-computation of various statistics (means, variances, etc.) from the
-posterior distribution of the "true means" given the prior we
-estimated. From Bayes' rule, the posterior distribution for the *i*th
-unknown mean is
+From Bayes' rule, the posterior distribution for the *i*th unknown
+mean is
 
 \begin{equation}
 p(\theta_i \mid x_i, s_i, g) \propto 
-g(\theta_i) \, p(x_i \mid \theta_i, s_i),
+p(x_i \mid \theta_i, s_i) \, g(\theta_i).
 \end{equation}
 
-In this example, we summarize the posterior by the mean, standard
-deviation and second moment:
+For this example, we compute three posterior statistics: the posterior
+mean, the posterior second moment, and the posterior standard
+deviation. This is all accomplished inside one function that returns a
+data frame containing the posterior statistics:
 
 ```{r post_summary-t}
 post_summary_t <- function(x, s, sigma, nu) {
@@ -262,19 +271,21 @@ post_summary_t <- function(x, s, sigma, nu) {
 }
 ```
 
-The function requires a function `post_sampler_t` to draw *random
-samples* from the posterior distribution. While drawing independent
+The missing piece is a function `post_sampler_t()` that draws random
+samples from the posterior distribution. While drawing independent
 samples is difficult, we can easily design an MCMC scheme to
-approximately draw samples from the posterior. We implement this 
-using the **mcmc** package:
+approximately draw samples from the posterior. This is implemented
+using the **mcmc** package (which you should install if you haven't
+already):
 
 ```{r post_sampler_t}
 # install.packages("mcmc")
 library(mcmc)
-post_sampler_t <- function(x, s, sigma, nu, nsamp) {
-  sample_one_theta <- function(x_i, s_i) {
-    lpostdens <- function(theta) {
-      dt(theta/sigma, df = nu, log = TRUE) - log(sigma) + 
+post_sampler_t <- function (x, s, sigma, nu, nsamp) {
+  sample_one_theta <- function (x_i, s_i) {
+    lpostdens <- function (theta) {
+      dt(theta/sigma, df = nu, log = TRUE) -
+	    log(sigma) + 
         dnorm(x_i - theta, sd = s_i, log = TRUE)
     }
     metrop(lpostdens, initial = x_i, nbatch = nsamp)$batch
@@ -284,9 +295,9 @@ post_sampler_t <- function(x, s, sigma, nu, nsamp) {
 }
 ```
 
-Note this is most likely not the most efficient way to compute
-posterior summaries, but we tried to keep our implementation simple
-for purposes of illustration.
+This is most certainly not the most efficient way to compute the
+posterior summaries. But we do it this way here to keep the example
+simple.
 
 <!-- Given an optimal $\hat{g} \in \mathcal{G}$, we can obtain point
 estimates for the "true means" $\theta_i$ using posterior means
@@ -325,15 +336,15 @@ object.
 Here's the new function:
 
 ```{r ebnm_t}
-ebnm_t <- function(x, 
-                   s = 1, 
-                   mode = 0, 
-                   scale = "estimate", 
-                   g_init = NULL, 
-                   fix_g = FALSE, 
-                   output = ebnm_output_default(),
-                   optmethod = NULL,
-                   control = NULL) {
+ebnm_t <- function (x, 
+                    s = 1, 
+					mode = 0, 
+					scale = "estimate", 
+					g_init = NULL, 
+					fix_g = FALSE, 
+					output = ebnm_output_default(),
+					optmethod = NULL,
+					control = NULL) {
 				   
   # Some very basic argument checks.
   if (mode != 0) {
