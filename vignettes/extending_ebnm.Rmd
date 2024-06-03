@@ -25,7 +25,11 @@ In this vignette, we illustrate how to extend **ebnm** by creating a
 `ebnm_normal()` and `ebnm_point_laplace()`. In this illustration, we
 implement an EBNM solver for the family of scaled (Student's) *t*
 priors. (As of this writing, it is not one of the prior families
-included in **ebnm**.) It is formally defined next.
+included in **ebnm**.) This is formally defined in the next section.
+
+**Please note:** This vignette assumes that you are already familiar
+with the basic functionality of the **ebnm** package and have read the
+[ebnm paper][ebnm-paper].
 
 ### EBNM for the scaled-*t* prior family
 
@@ -122,35 +126,37 @@ tdist <- function (scale, df) {
 }
 ```
 
-The optimization function
--------------------------
+Second step: implement the optimization function
+------------------------------------------------
 
-Next, we implement a function for estimating the two parameters
-specifying the prior. This estimation is typically done by maximizing the 
-likelihood. There are many possible ways to perform this maximization; for
-an overview of the many R packages available for solving optimization
-problems using various algorithms and implementing various constraints, see the 
-[CRAN task view on optimization](https://cran.r-project.org/web/views/Optimization.html).
-Solvers in the **ebnm** package include an `optmethod` argument; when estimating
-parametric priors (e.g., normal or point-Laplace), this argument allows the user to 
-choose among three general-purpose optimization methods:
-the Newton-type algorithm implemented in the base R `nlm()` function; the 
-L-BFGS-B algorithm implemented in the base R `optim()` function; and the trust region 
-algorithm implemented in the **trust** package. Further, the user can choose 
-whether to use analytic expressions to evaluate gradients and/or Hessians or 
-whether to estimate them using numerical methods. In general, we found that it 
-was often fastest to evaluate gradients analytically but to allow Hessians to be
-computed numerically. We thus recommend including the gradient for the log
-likelihood when it is straightforward to do so.
+Next we implement a function for estimating the two parameters
+specifying the prior. This estimation is typically done by maximizing
+the likelihood. There are many approaches one can take to implement
+this step, and the best approach very much depends on context. For a
+good overview of the many R packages for numerical optimization,
+please see the [CRAN task view on optimization][cran-task-view-opt].
 
-Here, we will use the L-BFGS-B algorithm to maximize the log likelihood since:
-1. it doesn't require installing any new packages; and 2. unlike `nlm()`, it allows
-us to constrain parameters (recall that $\nu$ and $\sigma$ should always be 
-greater than zero). To avoid numerical issues, we set sensible lower
-and upper bounds for both parameters (namely, 
-$\min_i s_i / 10 \le \sigma \le \max_i x_i$ and $1 \le \nu \le 1000$).
-Our optimization function takes initial parameter estimates as input and
-returns optimal values for the parameters of interest:
+<!-- Most of the EBNM solvers in **ebnm** include an "optmethod"
+argument; when estimating parametric priors (e.g., normal or
+point-Laplace), this argument allows the user to control and fine-tune
+the optimization. One can choose among three general-purpose
+optimization methods: a Newton-type algorithm implemented by `nlm()`
+function; the L-BFGS-B algorithm implemented by `optim()`; and the
+trust region algorithm implemented by the **trust** package. Further,
+the user can choose whether to use analytic expressions to evaluate
+gradients and/or Hessians or whether to estimate them using numerical
+methods. -->
+
+Here, we will use the L-BFGS-B method (implemented by the `optim()`
+function) to maximize the log-likelihood. There are at least a couple
+reasons why we prefer using L-BFGS-B here: (1) it doesn't require
+installing any additional packages; (2) it allows for bound
+constraints which is helpful since the two parameters in the prior
+both need to be positive. Further, to avoid numerical issues, we set
+sensible upper and lower bounds for the parameters: $\min_i s_i / 10
+\le \sigma \le \max_i x_i$, $1 \le \nu \le 1000$.
+
+Putting this all together, the optimization function looks like this:
 
 ```{r opt_t}
 opt_t <- function(x, s, sigma_init, nu_init) {
@@ -164,18 +170,18 @@ opt_t <- function(x, s, sigma_init, nu_init) {
 }
 ```
 
-Notice that this function calls another function, `llik_t()`, which is
-not yet implemented: this function will compute the log likelihood
-at the current parameter estimates `par[1]` and `par[2]`. Since `optim()` performs
-minimization by default, we take the negative of the log likelihood.
+This function calls another function, `llik_t()`, which isn't yet
+implemented: this function should give us the log-likelihood at the
+current parameter estimates. (Note that, since `optim()` attempts to
+minimize the objective, we compute the negative log-likelihood.)
 
-The log likelihood involves an integral or *convolution* over the
-unknown means:
+Computing log-likelihood involves computing 1-d integrals, or
+*1-d convolutions*, over the unknown means $\theta_i$:
 
 \begin{equation}
 \log p(\mathbf{x} \mid g, \, \mathbf{s}) = 
 \sum_{i=1}^n \textstyle \log
-\int p(x_i \mid \theta_i, s_i) \, g(\theta_i) \, d\theta_i
+\int p(x_i \mid \theta_i, s_i) \, g(\theta_i) \, d\theta_i.
 \end{equation}
 
 Inside the integral, we have the product of a normal distribution and
@@ -198,14 +204,14 @@ llik_t <- function(x, s, sigma, nu) {
 }
 ```
 
-Notice that we have not included the gradient of the log likelihood in our
-optimization function. Indeed, the gradient is difficult to compute in this case, so
-we allow `optim()` to estimate it numerically. If, however, an
-efficient expression for computing the gradient were available (e.g., by 
-explicitly calculating the gradient or using a package that performs 
-automatic differentiation), we could 
-implement it as follows (replacing the numerical estimation of the gradient
-using **numDeriv** with this more efficient function):
+Notice that we have not included the gradient of the log-likelihood in
+our optimization function. Indeed, the gradient is difficult to
+compute in this case, so we allow `optim()` to estimate it
+numerically. If, however, an efficient expression for computing the
+gradient were available (e.g., by explicitly calculating the gradient
+or using a package that performs automatic differentiation), we could
+implement it as follows (replacing the numerical estimation of the
+gradient using **numDeriv** with this more efficient function):
 
 ```{r opt_grad}
 opt_t_grad <- function(x, s, sigma_init, nu_init) {
@@ -224,8 +230,12 @@ grad_t <- function(x, s, sigma, nu) {
 }
 ```
 
-The posterior summary function
-------------------------------
+In general, we found that it was often fastest to evaluate gradients
+analytically but to allow Hessians to be computed numerically. We thus
+recommend including gradients when possible.
+
+This step: implement the posterior summary function
+---------------------------------------------------
 
 The other key computation required to fit the EBNM model is the
 computation of various statistics (means, variances, etc.) from the
@@ -308,7 +318,7 @@ to alter the default settings of `lower` and `upper` in the call to
 
 For simplicity, we will ignore the `output` parameter and just return
 everything (the data, the posterior summaries, the fitted prior, the
-log likelihood, and the posterior sampler). See `help(ebnm)` for
+log-likelihood, and the posterior sampler). See `help(ebnm)` for
 further details about the expected structure of the returned `"ebnm"`
 object.
 
@@ -452,3 +462,4 @@ sessionInfo()
 ```
 
 [ebnm-paper]: https://arxiv.org/abs/2110.00152
+[cran-task-view-opt]: https://cran.r-project.org/web/views/Optimization.html
