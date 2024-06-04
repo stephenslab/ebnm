@@ -61,34 +61,42 @@ Overview of the process
 
 Implementing the custom EBNM solver will involve the following steps:
 
-1. Specify the prior family $\mathcal{G}$;
+1. Define the prior family class.
 
-2. Given observations $x_i$ with standard errors $s_i$, estimate $g
-\in \mathcal{G}$;
+2. Implement a function that estimates the prior.
 
-3. Given an estimate $\hat{g} \in \mathcal{G}$, compute posterior
-means $\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$ and/or other
-quantities of interest.
+3. Implement a function that computes posterior summaries.
 
-In the following sections, we show how we might implement these three
-steps for the prior family $\mathcal{G}_t$. We then incorporate these
-implementations into a new function `ebnm_t()` that uses the common
-interface supplied by the **ebnm** package. After checking our new
-function using the convenient checker `ebnm_check_fn()`, we
-demonstrate that, as expected, our new function performs better than
-the family of normal priors when the "true means" $\theta_i$ are
-simulated from a scaled-*t* distribution.
+4. Implement the main EBNM solver function.
 
-Apart from using the common **ebnm** interface, we do not have
-specific requirements for **ebnm**-style solvers to be incorporated
-into the **ebnm** package. In general, however, we prefer that code
-styling adheres to the
-[Tidyverse style guide](https://style.tidyverse.org/). Further, we
-expect functions to be well-tested. At minimum, functions should pass
+5. Test the EBNM solver.
+
+6. Use the new EBNM solver to analyze a data set.
+
+<!-- Given observations $x_i$ with standard errors $s_i$, estimate $g
+\in \mathcal{G}$; Given an estimate $\hat{g} \in \mathcal{G}$, compute
+posterior means $\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$ and/or
+other quantities of interest. -->
+
+In the following sections, we work through each of these steps in detail.
+
+We then incorporate these implementations into a new
+function `ebnm_t()` that uses the common interface supplied by the
+**ebnm** package.
+
+<!-- After checking our new function using the convenient checker
+`ebnm_check_fn()`, we demonstrate that, as expected, our new function
+performs better than the family of normal priors when the "true means"
+$\theta_i$ are simulated from a scaled-*t* distribution. -->
+
+The **ebnm** package is intended to be quite general and so should
+permit implementation of a wide range of prior families. In terms of
+implementation, we advise adhering to the
+[Tidyverse style guide][tidyverse-style]. The functions
+should also be carefully tested; at a minimum, functions should pass
 the tests in `ebnm_check_fn()`. Additional unit tests are strongly
-encouraged; **ebnm** runs unit tests on all currently implemented
-prior families using the **testthat**
-[package](https://testthat.r-lib.org/).
+encouraged. The **ebnm** package implements a large suite of unit
+tests using the [testthat package][testthat].
 
 Step 1: define the prior family class
 -------------------------------------
@@ -194,16 +202,19 @@ and the prior, which in our case is a *t* distribution. -->
 ```{r llik_t}
 llik_t <- function (x, s, sigma, nu) {
   llik_one_obs <- function (x, s) {
-    integrate(
-      f = function (theta) {
-        dnorm(x - theta, sd = s) * dt(theta / sigma, df = nu) / sigma
-      }, 
-      lower = -Inf, 
-      upper = Inf
-    )$value
+    integrate(lik_times_prior, -Inf, Inf, x = x, s = s,
+	          sigma = sigma, nu = nu)$value
   }
   vllik <- Vectorize(llik_one_obs) 
   return(sum(log(vllik(x, s))))
+}
+```
+
+ADD TEXT HERE.
+
+```{r lik_times_prior}
+lik_times_prior <- function (theta, x, s, sigma, nu) {
+   dnorm(x - theta, sd = s) * dt(theta / sigma, df = nu) / sigma
 }
 ```
 
@@ -224,20 +235,25 @@ or using a package that performs automatic differentiation), we could
 implement it as follows (replacing the numerical estimation of the
 gradient using **numDeriv** with this more efficient function):
 
-```{r opt_grad}
-opt_t_grad <- function(x, s, sigma_init, nu_init) {
+```{r opt_grad, eval=TRUE}
+opt_t <- function (x, s, sigma_init, nu_init) {
   optim(
     par = c(sigma_init, nu_init), 
-    fn = function(par) -llik_t(x, s, par[1], par[2]), 
-    gr = function(par) -grad_t(x, s, par[1], par[2]),
+    fn = function (par) -llik_t(x, s, par[1], par[2]), 
+    gr = function (par) -grad_t(x, s, par[1], par[2]),
     method = "L-BFGS-B",
-    lower = c(min(s) / 10, 1),
+    lower = c(min(s)/10, 1),
     upper = c(max(x), 1e3)
   )
 }
+```
 
-grad_t <- function(x, s, sigma, nu) {
-  numDeriv::grad(function(par) llik_t(x, s, par[1], par[2]), c(sigma, nu))
+ADD TEXT HERE.
+
+```{r grad_t}
+library(pracma)
+grad_t <- function (x, s, sigma, nu) {
+  grad(function(par) llik_t(x, s, par[1], par[2]), c(sigma, nu))
 }
 ```
 
@@ -261,12 +277,12 @@ deviation. This is all accomplished inside one function that returns a
 data frame containing the posterior statistics:
 
 ```{r post_summary-t}
-post_summary_t <- function(x, s, sigma, nu) {
+post_summary_t <- function (x, s, sigma, nu) {
   samp <- post_sampler_t(x, s, sigma, nu, nsamp = 1000)
   return(data.frame(
     mean = colMeans(samp),
     sd = apply(samp, 2, sd),
-    second_moment = apply(samp, 2, function(x) mean(x^2))
+    second_moment = apply(samp, 2, function (x) mean(x^2))
   ))
 }
 ```
@@ -295,9 +311,9 @@ post_sampler_t <- function (x, s, sigma, nu, nsamp) {
 }
 ```
 
-This is most certainly not the most efficient way to compute the
-posterior summaries. But we do it this way here to keep the example
-simple.
+This is most certainly not the most efficient nor numerically stable
+to perform these computations. But we do it this way here to
+keep the example simple.
 
 <!-- Given an optimal $\hat{g} \in \mathcal{G}$, we can obtain point
 estimates for the "true means" $\theta_i$ using posterior means
@@ -314,8 +330,10 @@ Step 4: put it all together
 
 We have now implemented the key computations for our new EBNM
 solver. We will now incorporate these computations into a single
-function, ebnm_t, that accepts the same inputs as the other
-EBNM-solver functions.
+function, `ebnm_t()`, that accepts the same inputs as the other
+EBNM-solver functions. This function includes extra steps to check
+that the input arguments are valid and to initialize the parameters if
+an initialization isn't provided by the user.
 
 <!-- The inputs should be the same as the other **ebnm** functions. We
 will also use the same defaults. We can ignore parameters that are not
@@ -362,7 +380,7 @@ ebnm_t <- function (x,
     nu_init    <- g_init$df
   } else {
     sigma_init <- sqrt(mean(x^2))
-    nu_init    <- 10
+    nu_init    <- 4
   }
   
   # If g is fixed, use g_init. Otherwise optimize g.
@@ -388,8 +406,8 @@ ebnm_t <- function (x,
 }
 ```
 
-Step 5: verify the EBNM function
---------------------------------
+Step 5: test the EBNM function
+------------------------------
 
 **ebnm** provides a function, `ebnm_check_fn()`, that runs basic tests
 to verify that the EBNM function works as expected. Let's run the
@@ -459,7 +477,7 @@ Somewhat reassuringly, the estimated prior is not too far from the
 simulation parameters ($\sigma = 2$, $\nu = 5$):
 
 ```{r t-fitted-g}
-t_res$fitted_g
+c(t_res$fitted_g)
 ```
 
 Session information
@@ -473,4 +491,6 @@ sessionInfo()
 ```
 
 [ebnm-paper]: https://arxiv.org/abs/2110.00152
+[testthat]: https://testthat.r-lib.org
+[tidyverse-style]: https://style.tidyverse.org
 [cran-task-view-opt]: https://cran.r-project.org/web/views/Optimization.html
