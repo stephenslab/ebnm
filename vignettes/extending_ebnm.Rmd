@@ -23,25 +23,25 @@ available!).
 In this vignette, we illustrate how to extend **ebnm** by creating a
 *custom EBNM solver* in the style of other **ebnm** functions such as
 `ebnm_normal()` and `ebnm_point_laplace()`. In this illustration, we
-implement an EBNM solver for the family of scaled (Student's) *t*
-priors. (As of this writing, it is not one of the prior families
-included in **ebnm**.) This is formally defined in the next section.
+implement an EBNM solver, `ebnm_t()`, that uses the family of scaled (Student's) *t*
+priors. (As of this writing, this is not one of the prior families
+included in **ebnm**.)
 
-**Please note:** This vignette assumes that you are already familiar
-with the basic functionality of the **ebnm** package and have read the
-[ebnm paper][ebnm-paper].
+**Please note:** This vignette assumes that you have read the
+[ebnm paper][ebnm-paper] and are familiar
+with the basic functionality of the **ebnm** package.
 
-### EBNM for the scaled-*t* prior family
+## The EBNM model for the scaled-*t* prior family
 
 The *empirical Bayes normal means* (EBNM) model with scaled-*t* prior
 is:
 
 \begin{aligned}
 x_i &\sim \mathcal{N}(\theta_i, s_i^2), \\
-\theta_i &\sim g \in \mathcal{G}_t,
+\theta_i &\sim g \in \mathcal{G}_t.
 \end{aligned}
 
-$\mathcal{G}_t$ is the family of scaled-*t* priors and is defined as
+$\mathcal{G}_t$ is the family of scaled-*t* priors, defined as
 follows:
 
 \begin{equation}
@@ -49,17 +49,17 @@ follows:
 \end{equation}
 
 where $t_{\nu}(x)$ denotes the density function of the *t*
-distribution at $x$, with $\nu$ degrees of freedom. Fitting the prior
+distribution at $x$ with $\nu$ degrees of freedom. Fitting the prior
+$g \in \mathcal{G}_t$
 therefore involves estimating two parameters: the scale parameter,
 $\sigma$, and the degrees of freedom, $\nu$.
 
-For background and mathematical notation, please see the
-[ebnm paper][ebnm-paper].
+<!-- For background and mathematical notation, please see the -->
+<!-- [ebnm paper][ebnm-paper]. -->
 
-Overview of the process
------------------------
+## Overview of the implementation process
 
-Implementing the custom EBNM solver will involve the following steps:
+In general, fitting the EBNM model involves the following steps:
 
 1. Define the prior family class.
 
@@ -98,19 +98,16 @@ the tests in `ebnm_check_fn()`. Additional unit tests are strongly
 encouraged. The **ebnm** package implements a large suite of unit
 tests using the [testthat package][testthat].
 
-Step 1: define the prior family class
--------------------------------------
+## Step 1: Define the prior family class
 
 First, we define a data structure for the priors in our prior
 family. Sometimes, an existing data structure can be used. For
 example, `ebnm_normal()`, `ebnm_point_normal()`,
 `ebnm_normal_scale_mixture()`, and `ebnm_point_mass()` all share the
-`"normalmix"` class. Here we will define a new class.
-
-<!-- which is borrowed from the **ashr** package -->
+`"normalmix"` class. Here, we define a new class.
 
 **ebnm** uses this data structure in two ways: (1) to store information
-about the fitted prior, $\hat{g}$ (via the `fitted_g` field in the
+about the fitted prior $\hat{g}$ (via the `fitted_g` field in the
 returned `"ebnm"` object); (2) to initialize solutions (via the
 `g_init` argument).
 
@@ -134,37 +131,23 @@ tdist <- function (scale, df) {
 }
 ```
 
-Step 2: implement the optimization function
--------------------------------------------
+## Step 2: Implement the optimization function
 
 Next we implement a function for estimating the two parameters
 specifying the prior. This estimation is typically done by maximizing
 the likelihood. There are many approaches one can take to implement
-this step, and the best approach very much depends on context. For a
-good overview of the many R packages for numerical optimization,
+this step, and the best approach very much depends on context. For an
+excellent overview of the many R packages that can be used for numerical optimization,
 please see the [CRAN task view on optimization][cran-task-view-opt].
 
-<!-- Most of the EBNM solvers in **ebnm** include an "optmethod"
-argument; when estimating parametric priors (e.g., normal or
-point-Laplace), this argument allows the user to control and fine-tune
-the optimization. One can choose among three general-purpose
-optimization methods: a Newton-type algorithm implemented by `nlm()`
-function; the L-BFGS-B algorithm implemented by `optim()`; and the
-trust region algorithm implemented by the **trust** package. Further,
-the user can choose whether to use analytic expressions to evaluate
-gradients and/or Hessians or whether to estimate them using numerical
-methods. -->
-
-Here, we will use the L-BFGS-B method (implemented by the `optim()`
-function) to maximize the log-likelihood. There are at least a couple
+Here, we use the L-BFGS-B method (implemented by the `optim()`
+function) to maximize the log likelihood. There are at least a couple of
 reasons why we prefer using L-BFGS-B here: (1) it doesn't require
 installing any additional packages; (2) it allows for bound
-constraints which is helpful since the two parameters in the prior
-both need to be positive. Further, to avoid numerical issues, we set
-sensible upper and lower bounds for the parameters: $\min_i s_i / 10
-\le \sigma \le \max_i x_i$, $1 \le \nu \le 1000$.
-
-Putting this all together, the optimization function looks like this:
+constraints, which is helpful since the two parameters in the prior
+both need to be positive. To avoid numerical issues, it can also be helpful to set
+sensible upper and lower bounds. Here, we use the constraints 
+$\min_i s_i / 10 \le \sigma \le \max_i x_i$ and $1 \le \nu \le 1000$:
 
 ```{r opt_t}
 opt_t <- function (x, s, sigma_init, nu_init) {
@@ -178,12 +161,12 @@ opt_t <- function (x, s, sigma_init, nu_init) {
 }
 ```
 
-This function calls another function, `llik_t()`, which isn't yet
-implemented: this function should give us the log-likelihood at the
+Our optimization function `opt_t()` calls another function, `llik_t()`, which isn't yet
+implemented: this function should give us the log likelihood at the
 current parameter estimates. (Note that, since `optim()` attempts to
-minimize the objective, we compute the negative log-likelihood.)
+minimize the objective, we compute the negative log likelihood.)
 
-Computing log-likelihood involves computing 1-d integrals, or
+Computing the log likelihood involves computing 1-d integrals, or
 *1-d convolutions*, over the unknown means $\theta_i$:
 
 \begin{equation}
@@ -193,7 +176,7 @@ Computing log-likelihood involves computing 1-d integrals, or
 \end{equation}
 
 Since we do not have a convenient closed-form expression for these
-integrals, we compute these integrals numerically using the
+integrals, we compute them numerically using the
 `integrate()` function:
 
 <!-- Inside the integral, we have the product of a normal distribution
@@ -210,15 +193,13 @@ llik_t <- function (x, s, sigma, nu) {
 }
 ```
 
-ADD TEXT HERE.
-
 ```{r lik_times_prior}
 lik_times_prior <- function (theta, x, s, sigma, nu) {
    dnorm(x - theta, sd = s) * dt(theta / sigma, df = nu) / sigma
 }
 ```
 
-### Include gradients in the optimization (optional)
+### (Optional) Include gradients in the optimization
 
 **TO DO: Fix this next part.**
 
@@ -226,8 +207,8 @@ In general, we found that it was often fastest to evaluate gradients
 analytically but to allow Hessians to be computed numerically. We thus
 recommend including gradients when possible.
 
-Notice that we have not included the gradient of the log-likelihood in
-our optimization function. Indeed, the gradient is difficult to
+Notice that we have not included the gradient of the log likelihood in
+our optimization function above. Indeed, the gradient is difficult to
 compute in this case, so we allow `optim()` to estimate it
 numerically. If, however, an efficient expression for computing the
 gradient were available (e.g., by explicitly calculating the gradient
@@ -257,23 +238,23 @@ grad_t <- function (x, s, sigma, nu) {
 }
 ```
 
-Step 3: implement the posterior summary function
-------------------------------------------------
+## Step 3: Implement the posterior summary function
 
-The other key computation is the computation of summary statistics
+Once we've estimated a prior $\hat{g} \in \mathcal{G}_t$, we can compute
+summary statistics
 (means, variances, etc.) from the posterior distribution.
 
-From Bayes' rule, the posterior distribution for the *i*th unknown
+From Bayes' rule, the posterior distribution for the *i*-th unknown
 mean is
 
 \begin{equation}
-p(\theta_i \mid x_i, s_i, g) \propto 
-p(x_i \mid \theta_i, s_i) \, g(\theta_i).
+p(\theta_i \mid x_i, s_i, \hat{g}) \propto 
+p(x_i \mid \theta_i, s_i) \, \hat{g}(\theta_i).
 \end{equation}
 
 For this example, we compute three posterior statistics: the posterior
 mean, the posterior second moment, and the posterior standard
-deviation. This is all accomplished inside one function that returns a
+deviation. This is all accomplished inside a single function that returns a
 data frame containing the posterior statistics:
 
 ```{r post_summary-t}
@@ -315,25 +296,22 @@ This is most certainly not the most efficient nor numerically stable
 to perform these computations. But we do it this way here to
 keep the example simple.
 
+
 <!-- Given an optimal $\hat{g} \in \mathcal{G}$, we can obtain point
 estimates for the "true means" $\theta_i$ using posterior means
 $\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$. In general, we might
-like a number of summaries about the posterior. -->
-
-<!-- including, for example, posterior standard deviations, second moments,
+like a number of summaries about the posterior,
+including, for example, posterior standard deviations, second moments,
 and local false sign rates [@Stephens_NewDeal]. If the EBNM solver is
 intended for use in the **flashier** package, then posterior means and
 second moments *must* be computed. -->
 
-Step 4: put it all together
----------------------------
+## Step 4: Put it all together
 
-We have now implemented the key computations for our new EBNM
-solver. We will now incorporate these computations into a single
-function, `ebnm_t()`, that accepts the same inputs as the other
-EBNM-solver functions. This function includes extra steps to check
-that the input arguments are valid and to initialize the parameters if
-an initialization isn't provided by the user.
+Having implemented the key computations for our new EBNM
+solver, we will now incorporate these computations into a single
+function, `ebnm_t()`, which accepts the same inputs as the
+solvers in the **ebnm** package.
 
 <!-- The inputs should be the same as the other **ebnm** functions. We
 will also use the same defaults. We can ignore parameters that are not
@@ -346,10 +324,10 @@ the `control` parameter, although it could be used here, for example,
 to alter the default settings of `lower` and `upper` in the call to
 `optim`. -->
 
-For simplicity, we ignore the "output" parameter and just return all
-the results (data, posterior summaries, fitted prior, log-likelihood
+For simplicity, we ignore the `output` parameter and just return all
+the results (data, posterior summaries, fitted prior, log likelihood
 and posterior sampler). See `help(ebnm)` for details about the
-expected structure of return value.
+expected structure of the return value.
 
 Here's the new function:
 
@@ -396,18 +374,20 @@ ebnm_t <- function (x,
   }
   
   # Prepare the final output.
-  return(structure(list(
+  retval <- structure(list(
     data = data.frame(x = x, s = s),
     posterior = post_summary_t(x, s, sigma, nu),
     fitted_g = tdist(scale = sigma, df = nu),
     log_likelihood = llik,
     post_sampler = function (nsamp) post_sampler_t(x, s, sigma, nu, nsamp)
-  ), class = c("list", "ebnm")))
+  ), class = c("list", "ebnm"))
+  
+  return(retval)
 }
 ```
 
-Step 5: test the EBNM function
-------------------------------
+Step 5: verify the EBNM function
+--------------------------------
 
 **ebnm** provides a function, `ebnm_check_fn()`, that runs basic tests
 to verify that the EBNM function works as expected. Let's run the
@@ -416,23 +396,21 @@ checks using a small, simulated data set:
 ```{r check}
 library(ebnm)
 set.seed(1)
-x <- rnorm(100, sd = 2)
-s <- rep(1, 100)
+x <- rnorm(10, sd = 2)
+s <- rep(1, 10)
 ebnm_check_fn(ebnm_t, x, s)
 ```
 
-Step 6: use the new EBNM function to analyze a data set
--------------------------------------------------------
+## Step 6: Use the new EBNM function to analyze a data set
 
-Assuming the checks passed, our new EBNM solver can be used to analyze
-a data set. Here we analyze a simulated data set in which the
+Finally, we analyze a simulated data set in which the
 unobserved means are simulated from a *t* distribution with a scale of
 2 and 5 degrees of freedom:
 
 ```{r sim-data}
 set.seed(1)
 theta <- 2 * rt(100, df = 5)
-x <- theta + rnorm(200)
+x <- theta + rnorm(100)
 ```
 
 Let's compare the use of the scaled-*t* prior with a normal prior:
@@ -441,12 +419,6 @@ Let's compare the use of the scaled-*t* prior with a normal prior:
 normal_res <- ebnm_normal(x, s = 1)
 t_res <- ebnm_t(x, s = 1)
 ```
-
-<!-- Next we fit EBNM models using: 1. the family of normal priors, as
-implemented by `ebnm_normal()`; and 2. the family of *t* priors that
-we just implemented. Due to our reliance on MCMC sampling to calculate
-posterior means, fitting the second model is much slower than the
-first (it took us about 15 seconds on a new MacBook Pro). -->
 
 (Note that the call to `ebnm_t()` is considerably slower than the call
 to `ebnm_normal()` because the computations with the scaled-*t* prior
@@ -459,8 +431,8 @@ Let's compare the two results:
 plot(normal_res, t_res)
 ```
 
-`ebnm_t()` shrinks the large values less aggressively than
-`ebnm_normal()` and so the fit with the scaled-*t* prior resulted in
+`ebnm_t()` shrinks large observations less aggressively than
+`ebnm_normal()` and so the fit with the scaled-*t* prior results in
 slightly more accurate estimates:
 
 ```{r rmse}
@@ -469,19 +441,16 @@ rmse_t <- sqrt(mean((coef(t_res) - theta)^2))
 c(rmse_normal = rmse_normal, rmse_t = rmse_t)
 ```
 
-<!-- This improvement is as expected, since the true prior $g$ used to
-simulate the data belongs to the family of *t* distributions but not
-the family of normal distributions.-->
-
-Somewhat reassuringly, the estimated prior is not too far from the
-simulation parameters ($\sigma = 2$, $\nu = 5$):
+For this simulation, the estimated prior is somewhat different from the
+simulation parameters ($\sigma = 2$, $\nu = 5$), with noticeably lighter tails,
+but it is certainly not outside the range of variation we might expect in
+our estimates:
 
 ```{r t-fitted-g}
 c(t_res$fitted_g)
 ```
 
-Session information
--------------------
+## Session information
 
 The following R version and packages were used to generate this
 vignette:

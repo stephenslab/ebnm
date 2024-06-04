@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ebnm</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-28</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-29</span>
       </span>
     </div>
 
@@ -88,7 +88,11 @@ by creating a <em>custom EBNM solver</em> in the style of other
 <code><a href="../reference/ebnm_point_laplace.html">ebnm_point_laplace()</a></code>. In this illustration, we implement an
 EBNM solver for the family of scaled (Student’s) <em>t</em> priors. (As
 of this writing, it is not one of the prior families included in
-<strong>ebnm</strong>.) It is formally defined next.</p>
+<strong>ebnm</strong>.) This is formally defined in the next
+section.</p>
+<p><strong>Please note:</strong> This vignette assumes that you are
+already familiar with the basic functionality of the
+<strong>ebnm</strong> package and have read the <a href="https://arxiv.org/abs/2110.00152" class="external-link">ebnm paper</a>.</p>
 <div class="section level3">
 <h3 id="ebnm-for-the-scaled-t-prior-family">EBNM for the scaled-<em>t</em> prior family<a class="anchor" aria-label="anchor" href="#ebnm-for-the-scaled-t-prior-family"></a>
 </h3>
@@ -104,10 +108,10 @@ scaled-<em>t</em> priors and is defined as follows:</p>
 \mathcal{G}_t := \{g: g(x) = \sigma t_{\nu}(x); \sigma &gt; 0, \nu &gt;
 0\},
 \end{equation}\]</span></p>
-<p>where <span class="math inline">\(t_{\nu}(x)\)</span> denotes density
-function of the <em>t</em> distribution at <span class="math inline">\(x\)</span>, with <span class="math inline">\(\nu\)</span> degrees of freedom. Fitting the prior
+<p>where <span class="math inline">\(t_{\nu}(x)\)</span> denotes the
+density function of the <em>t</em> distribution at <span class="math inline">\(x\)</span>, with <span class="math inline">\(\nu\)</span> degrees of freedom. Fitting the prior
 therefore involves estimating two parameters: the scale parameter, <span class="math inline">\(\sigma\)</span>, and the degrees of freedom, <span class="math inline">\(\nu\)</span>.</p>
-<p>For background and notation, please see the <a href="https://arxiv.org/abs/2110.00152" class="external-link">ebnm paper</a>.</p>
+<p>For background and mathematical notation, please see the <a href="https://arxiv.org/abs/2110.00152" class="external-link">ebnm paper</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="overview-of-the-process">Overview of the process<a class="anchor" aria-label="anchor" href="#overview-of-the-process"></a>
@@ -115,50 +119,52 @@ therefore involves estimating two parameters: the scale parameter, <span class="
 <p>Implementing the custom EBNM solver will involve the following
 steps:</p>
 <ol style="list-style-type: decimal">
-<li><p>Specify the prior family <span class="math inline">\(\mathcal{G}\)</span>;</p></li>
-<li><p>Given observations <span class="math inline">\(x_i\)</span> with
-standard errors <span class="math inline">\(s_i\)</span>, estimate <span class="math inline">\(g \in \mathcal{G}\)</span>;</p></li>
-<li><p>Given an estimate <span class="math inline">\(\hat{g} \in
-\mathcal{G}\)</span>, compute posterior means <span class="math inline">\(\mathbb{E}(\theta_i \mid x_i, s_i,
-\hat{g})\)</span> and/or other quantities of interest.</p></li>
+<li><p>Define the prior family class.</p></li>
+<li><p>Implement a function that estimates the prior.</p></li>
+<li><p>Implement a function that computes posterior summaries.</p></li>
+<li><p>Implement the main EBNM solver function.</p></li>
+<li><p>Test the EBNM solver.</p></li>
+<li><p>Use the new EBNM solver to analyze a data set.</p></li>
 </ol>
-<p>In the following sections, we show how we might implement these three
-steps for the prior family <span class="math inline">\(\mathcal{G}_t\)</span>. We then incorporate these
-implementations into a new function <code>ebnm_t()</code> that uses the
-common interface supplied by the <strong>ebnm</strong> package. After
-checking our new function using the convenient checker
+<!-- Given observations $x_i$ with standard errors $s_i$, estimate $g
+\in \mathcal{G}$; Given an estimate $\hat{g} \in \mathcal{G}$, compute
+posterior means $\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$ and/or
+other quantities of interest. --><p>In the following sections, we work through each of these steps in
+detail.</p>
+<p>show how we might implement these three steps for the prior family
+<span class="math inline">\(\mathcal{G}_t\)</span>. We then incorporate
+these implementations into a new function <code>ebnm_t()</code> that
+uses the common interface supplied by the <strong>ebnm</strong> package.
+After checking our new function using the convenient checker
 <code><a href="../reference/ebnm_check_fn.html">ebnm_check_fn()</a></code>, we demonstrate that, as expected, our new
 function performs better than the family of normal priors when the “true
 means” <span class="math inline">\(\theta_i\)</span> are simulated from
 a scaled-<em>t</em> distribution.</p>
-<p>Apart from using the common <strong>ebnm</strong> interface, we do
-not have specific requirements for <strong>ebnm</strong>-style solvers
-to be incorporated into the <strong>ebnm</strong> package. In general,
-however, we prefer that code styling adheres to the <a href="https://style.tidyverse.org/" class="external-link">Tidyverse style guide</a>. Further,
-we expect functions to be well-tested. At minimum, functions should pass
-the tests in <code><a href="../reference/ebnm_check_fn.html">ebnm_check_fn()</a></code>. Additional unit tests are
-strongly encouraged; <strong>ebnm</strong> runs unit tests on all
-currently implemented prior families using the <strong>testthat</strong>
-<a href="https://testthat.r-lib.org/" class="external-link">package</a>.</p>
+<p>The <strong>ebnm</strong> package is intended to be quite general and
+so should permit implementation of a wide range of prior families. In
+terms of implementation, we advise adhering to the <a href="https://style.tidyverse.org" class="external-link">Tidyverse style guide</a>. The
+functions should also be carefully tested; at a minimum, functions
+should pass the tests in <code><a href="../reference/ebnm_check_fn.html">ebnm_check_fn()</a></code>. Additional unit
+tests are strongly encouraged. The <strong>ebnm</strong> package
+implements a large suite of unit tests using the <a href="https://testthat.r-lib.org" class="external-link">testthat package</a>.</p>
 </div>
 <div class="section level2">
-<h2 id="define-the-prior-family-class">Define the prior family class<a class="anchor" aria-label="anchor" href="#define-the-prior-family-class"></a>
+<h2 id="step-1-define-the-prior-family-class">Step 1: define the prior family class<a class="anchor" aria-label="anchor" href="#step-1-define-the-prior-family-class"></a>
 </h2>
-<p>The first step in implementing a solution to the EBNM problem with
-scaled-<em>t</em> prior is to define a data structure for the priors in
-our prior family. In some cases, an existing data structure can be used.
-For example, <code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>,
-<code><a href="../reference/ebnm_point_normal.html">ebnm_point_normal()</a></code>,
+<p>First, we define a data structure for the priors in our prior family.
+Sometimes, an existing data structure can be used. For example,
+<code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>, <code><a href="../reference/ebnm_point_normal.html">ebnm_point_normal()</a></code>,
 <code><a href="../reference/ebnm_normal_scale_mixture.html">ebnm_normal_scale_mixture()</a></code>, and
-<code><a href="../reference/ebnm_point_mass.html">ebnm_point_mass()</a></code> all use the <code>"normalmix"</code>
-class, which is borrowed from the <strong>ashr</strong> package. Here,
-we will define a new class.</p>
-<p><strong>ebnm</strong> uses these data structures in two ways: to give
-information about the fitted prior <span class="math inline">\(\hat{g}\)</span> (via the <code>fitted_g</code>
-field in the returned <code>"ebnm"</code> object); and to initialize
-solutions (via the <code>g_init</code> argument). If one would like to
-be able to arbitrarily initialize the solver, then the data structure
-should include all information required to do so.</p>
+<code><a href="../reference/ebnm_point_mass.html">ebnm_point_mass()</a></code> all share the <code>"normalmix"</code>
+class. Here we will define a new class.</p>
+<!-- which is borrowed from the **ashr** package -->
+<p><strong>ebnm</strong> uses this data structure in two ways: (1) to
+store information about the fitted prior, <span class="math inline">\(\hat{g}\)</span> (via the <code>fitted_g</code>
+field in the returned <code>"ebnm"</code> object); (2) to initialize
+solutions (via the <code>g_init</code> argument).</p>
+<!-- If one would like to be able to arbitrarily initialize the
+solver, then the data structure should include all information
+required to do so. -->
 <!-- Note, however, that **ebnm** places no restrictions on data
 structure since any initialization using `g_init` must be implemented
 within the custom function itself. In particular, we could choose to
@@ -174,70 +180,68 @@ freedom:</p>
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="the-optimization-function">The optimization function<a class="anchor" aria-label="anchor" href="#the-optimization-function"></a>
+<h2 id="step-2-implement-the-optimization-function">Step 2: implement the optimization function<a class="anchor" aria-label="anchor" href="#step-2-implement-the-optimization-function"></a>
 </h2>
-<p>Next, we implement a function for estimating the two parameters
+<p>Next we implement a function for estimating the two parameters
 specifying the prior. This estimation is typically done by maximizing
-the likelihood. There are many possible ways to perform this
-maximization; for an overview of the many R packages available for
-solving optimization problems using various algorithms and implementing
-various constraints, see the <a href="https://cran.r-project.org/web/views/Optimization.html" class="external-link">CRAN task
-view on optimization</a>. Solvers in the <strong>ebnm</strong> package
-include an <code>optmethod</code> argument; when estimating parametric
-priors (e.g., normal or point-Laplace), this argument allows the user to
-choose among three general-purpose optimization methods: the Newton-type
-algorithm implemented in the base R <code><a href="https://rdrr.io/r/stats/nlm.html" class="external-link">nlm()</a></code> function; the
-L-BFGS-B algorithm implemented in the base R <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim()</a></code>
-function; and the trust region algorithm implemented in the
-<strong>trust</strong> package. Further, the user can choose whether to
-use analytic expressions to evaluate gradients and/or Hessians or
-whether to estimate them using numerical methods. In general, we found
-that it was often fastest to evaluate gradients analytically but to
-allow Hessians to be computed numerically. We thus recommend including
-the gradient for the log likelihood when it is straightforward to do
-so.</p>
-<p>Here, we will use the L-BFGS-B algorithm to maximize the log
-likelihood since: 1. it doesn’t require installing any new packages; and
-2. unlike <code><a href="https://rdrr.io/r/stats/nlm.html" class="external-link">nlm()</a></code>, it allows us to constrain parameters
-(recall that <span class="math inline">\(\nu\)</span> and <span class="math inline">\(\sigma\)</span> should always be greater than
-zero). To avoid numerical issues, we set sensible lower and upper bounds
-for both parameters (namely, <span class="math inline">\(\min_i s_i / 10
-\le \sigma \le \max_i x_i\)</span> and <span class="math inline">\(1 \le
-\nu \le 1000\)</span>). Our optimization function takes initial
-parameter estimates as input and returns optimal values for the
-parameters of interest:</p>
+the likelihood. There are many approaches one can take to implement this
+step, and the best approach very much depends on context. For a good
+overview of the many R packages for numerical optimization, please see
+the <a href="https://cran.r-project.org/web/views/Optimization.html" class="external-link">CRAN task
+view on optimization</a>.</p>
+<!-- Most of the EBNM solvers in **ebnm** include an "optmethod"
+argument; when estimating parametric priors (e.g., normal or
+point-Laplace), this argument allows the user to control and fine-tune
+the optimization. One can choose among three general-purpose
+optimization methods: a Newton-type algorithm implemented by `nlm()`
+function; the L-BFGS-B algorithm implemented by `optim()`; and the
+trust region algorithm implemented by the **trust** package. Further,
+the user can choose whether to use analytic expressions to evaluate
+gradients and/or Hessians or whether to estimate them using numerical
+methods. -->
+<p>Here, we will use the L-BFGS-B method (implemented by the
+<code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim()</a></code> function) to maximize the log-likelihood. There are
+at least a couple reasons why we prefer using L-BFGS-B here: (1) it
+doesn’t require installing any additional packages; (2) it allows for
+bound constraints which is helpful since the two parameters in the prior
+both need to be positive. Further, to avoid numerical issues, we set
+sensible upper and lower bounds for the parameters: <span class="math inline">\(\min_i s_i / 10 \le \sigma \le \max_i
+x_i\)</span>, <span class="math inline">\(1 \le \nu \le
+1000\)</span>.</p>
+<p>Putting this all together, the optimization function looks like
+this:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">opt_t</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma_init</span>, <span class="va">nu_init</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="va">opt_t</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma_init</span>, <span class="va">nu_init</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></span><span class="op">(</span></span>
 <span>    par <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">sigma_init</span>, <span class="va">nu_init</span><span class="op">)</span>, </span>
-<span>    fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">par</span><span class="op">)</span> <span class="op">-</span><span class="fu">llik_t</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">par</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">par</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, </span>
+<span>    fn <span class="op">=</span> <span class="kw">function</span> <span class="op">(</span><span class="va">par</span><span class="op">)</span> <span class="op">-</span><span class="fu">llik_t</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">par</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">par</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, </span>
 <span>    method <span class="op">=</span> <span class="st">"L-BFGS-B"</span>,</span>
 <span>    lower <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span><span class="op">/</span><span class="fl">10</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>    upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fl">1e3</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Notice that this function calls another function,
-<code>llik_t()</code>, which is not yet implemented: this function will
-compute the log likelihood at the current parameter estimates
-<code>par[1]</code> and <code>par[2]</code>. Since <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim()</a></code>
-performs minimization by default, we take the negative of the log
-likelihood.</p>
-<p>The log likelihood involves an integral or <em>convolution</em> over
-the unknown means:</p>
+<p>This function calls another function, <code>llik_t()</code>, which
+isn’t yet implemented: this function should give us the log-likelihood
+at the current parameter estimates. (Note that, since
+<code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim()</a></code> attempts to minimize the objective, we compute the
+negative log-likelihood.)</p>
+<p>Computing log-likelihood involves computing 1-d integrals, or <em>1-d
+convolutions</em>, over the unknown means <span class="math inline">\(\theta_i\)</span>:</p>
 <p><span class="math display">\[\begin{equation}
 \log p(\mathbf{x} \mid g, \, \mathbf{s}) =
 \sum_{i=1}^n \textstyle \log
-\int p(x_i \mid \theta_i, s_i) \, g(\theta_i) \, d\theta_i
+\int p(x_i \mid \theta_i, s_i) \, g(\theta_i) \, d\theta_i.
 \end{equation}\]</span></p>
-<p>Inside the integral, we have the product of a normal distribution and
-the prior, which in our case is a <em>t</em> distribution. We compute
-this integral numerically using the built-in <code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">integrate()</a></code>
-function:</p>
+<p>Since we do not have a convenient closed-form expression for these
+integrals, we compute these integrals numerically using the
+<code><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">integrate()</a></code> function:</p>
+<!-- Inside the integral, we have the product of a normal distribution
+and the prior, which in our case is a *t* distribution. -->
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">llik_t</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">llik_one_obs</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="va">llik_t</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">llik_one_obs</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">x</span>, <span class="va">s</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">integrate</a></span><span class="op">(</span></span>
-<span>      f <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">theta</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      f <span class="op">=</span> <span class="kw">function</span> <span class="op">(</span><span class="va">theta</span><span class="op">)</span> <span class="op">{</span></span>
 <span>        <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">x</span> <span class="op">-</span> <span class="va">theta</span>, sd <span class="op">=</span> <span class="va">s</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html" class="external-link">dt</a></span><span class="op">(</span><span class="va">theta</span> <span class="op">/</span> <span class="va">sigma</span>, df <span class="op">=</span> <span class="va">nu</span><span class="op">)</span> <span class="op">/</span> <span class="va">sigma</span></span>
 <span>      <span class="op">}</span>, </span>
 <span>      lower <span class="op">=</span> <span class="op">-</span><span class="cn">Inf</span>, </span>
@@ -247,7 +251,14 @@ function:</p>
 <span>  <span class="va">vllik</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">Vectorize</a></span><span class="op">(</span><span class="va">llik_one_obs</span><span class="op">)</span> </span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu">vllik</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Notice that we have not included the gradient of the log likelihood
+<div class="section level3">
+<h3 id="include-gradients-in-the-optimization-optional">Include gradients in the optimization (optional)<a class="anchor" aria-label="anchor" href="#include-gradients-in-the-optimization-optional"></a>
+</h3>
+<p><strong>TO DO: Fix this next part.</strong></p>
+<p>In general, we found that it was often fastest to evaluate gradients
+analytically but to allow Hessians to be computed numerically. We thus
+recommend including gradients when possible.</p>
+<p>Notice that we have not included the gradient of the log-likelihood
 in our optimization function. Indeed, the gradient is difficult to
 compute in this case, so we allow <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim()</a></code> to estimate it
 numerically. If, however, an efficient expression for computing the
@@ -272,20 +283,22 @@ function):</p>
 <span>  <span class="fu">numDeriv</span><span class="fu">::</span><span class="fu">grad</span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">par</span><span class="op">)</span> <span class="fu">llik_t</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">par</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">par</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 </div>
+</div>
 <div class="section level2">
-<h2 id="the-posterior-summary-function">The posterior summary function<a class="anchor" aria-label="anchor" href="#the-posterior-summary-function"></a>
+<h2 id="step-3-implement-the-posterior-summary-function">Step 3: implement the posterior summary function<a class="anchor" aria-label="anchor" href="#step-3-implement-the-posterior-summary-function"></a>
 </h2>
-<p>The other key computation required to fit the EBNM model is the
-computation of various statistics (means, variances, etc.) from the
-posterior distribution of the “true means” given the prior we estimated.
-From Bayes’ rule, the posterior distribution for the <em>i</em>th
+<p>The other key computation is the computation of summary statistics
+(means, variances, etc.) from the posterior distribution.</p>
+<p>From Bayes’ rule, the posterior distribution for the <em>i</em>th
 unknown mean is</p>
 <p><span class="math display">\[\begin{equation}
 p(\theta_i \mid x_i, s_i, g) \propto
-g(\theta_i) \, p(x_i \mid \theta_i, s_i),
+p(x_i \mid \theta_i, s_i) \, g(\theta_i).
 \end{equation}\]</span></p>
-<p>In this example, we summarize the posterior by the mean, standard
-deviation and second moment:</p>
+<p>For this example, we compute three posterior statistics: the
+posterior mean, the posterior second moment, and the posterior standard
+deviation. This is all accomplished inside one function that returns a
+data frame containing the posterior statistics:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">post_summary_t</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">samp</span> <span class="op">&lt;-</span> <span class="fu">post_sampler_t</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span>, nsamp <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
@@ -295,18 +308,20 @@ deviation and second moment:</p>
 <span>    second_moment <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">samp</span>, <span class="fl">2</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">x</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>The function requires a function <code>post_sampler_t</code> to draw
-<em>random samples</em> from the posterior distribution. While drawing
+<p>The missing piece is a function <code>post_sampler_t()</code> that
+draws random samples from the posterior distribution. While drawing
 independent samples is difficult, we can easily design an MCMC scheme to
-approximately draw samples from the posterior. We implement this using
-the <strong>mcmc</strong> package:</p>
+approximately draw samples from the posterior. This is implemented using
+the <strong>mcmc</strong> package (which you should install if you
+haven’t already):</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("mcmc")</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://www.stat.umn.edu/geyer/mcmc/" class="external-link">mcmc</a></span><span class="op">)</span></span>
-<span><span class="va">post_sampler_t</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span>, <span class="va">nsamp</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">sample_one_theta</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x_i</span>, <span class="va">s_i</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">lpostdens</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">theta</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html" class="external-link">dt</a></span><span class="op">(</span><span class="va">theta</span><span class="op">/</span><span class="va">sigma</span>, df <span class="op">=</span> <span class="va">nu</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">sigma</span><span class="op">)</span> <span class="op">+</span> </span>
+<span><span class="va">post_sampler_t</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span>, <span class="va">nsamp</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">sample_one_theta</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">x_i</span>, <span class="va">s_i</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="va">lpostdens</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">theta</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html" class="external-link">dt</a></span><span class="op">(</span><span class="va">theta</span><span class="op">/</span><span class="va">sigma</span>, df <span class="op">=</span> <span class="va">nu</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">-</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">sigma</span><span class="op">)</span> <span class="op">+</span> </span>
 <span>        <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">dnorm</a></span><span class="op">(</span><span class="va">x_i</span> <span class="op">-</span> <span class="va">theta</span>, sd <span class="op">=</span> <span class="va">s_i</span>, log <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span>    <span class="op">}</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/pkg/mcmc/man/metrop.html" class="external-link">metrop</a></span><span class="op">(</span><span class="va">lpostdens</span>, initial <span class="op">=</span> <span class="va">x_i</span>, nbatch <span class="op">=</span> <span class="va">nsamp</span><span class="op">)</span><span class="op">$</span><span class="va">batch</span></span>
@@ -314,9 +329,9 @@ the <strong>mcmc</strong> package:</p>
 <span>  <span class="va">vsampler</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">Vectorize</a></span><span class="op">(</span><span class="va">sample_one_theta</span><span class="op">)</span></span>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu">vsampler</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>Note this is most likely not the most efficient way to compute
-posterior summaries, but we tried to keep our implementation simple for
-purposes of illustration.</p>
+<p>This is most certainly not the most efficient way to compute the
+posterior summaries. But we do it this way here to keep the example
+simple.</p>
 <!-- Given an optimal $\hat{g} \in \mathcal{G}$, we can obtain point
 estimates for the "true means" $\theta_i$ using posterior means
 $\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$. In general, we might
@@ -327,40 +342,40 @@ intended for use in the **flashier** package, then posterior means and
 second moments *must* be computed. -->
 </div>
 <div class="section level2">
-<h2 id="putting-it-all-together">Putting it all together<a class="anchor" aria-label="anchor" href="#putting-it-all-together"></a>
+<h2 id="step-4-put-it-all-together">Step 4: put it all together<a class="anchor" aria-label="anchor" href="#step-4-put-it-all-together"></a>
 </h2>
 <p>We have now implemented the key computations for our new EBNM solver.
-We will call this new solver <code>ebnm_t()</code> to be consistent with
-other <strong>ebnm</strong> functions (<code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>,
-etc.).</p>
-<p>The inputs should be the same as the other <strong>ebnm</strong>
-functions. We will also use the same defaults. We can ignore parameters
-that are not relevant (here, <code>optmethod</code> and
-<code>control</code>).</p>
+We will now incorporate these computations into a single function,
+<code>ebnm_t()</code>, that accepts the same inputs as the other
+EBNM-solver functions. This function includes extra steps to check that
+the input arguments are valid and to initialize the parameters if an
+initialization isn’t provided by the user.</p>
+<!-- The inputs should be the same as the other **ebnm** functions. We
+will also use the same defaults. We can ignore parameters that are not
+relevant (here, `optmethod` and `control`). -->
 <!-- The `optmethod` parameter can typically be ignored unless we
 want to make multiple optimization methods available for a single
 prior family (e.g., both `nlm()` and `optim()`). We will also ignore
 the `control` parameter, although it could be used here, for example,
 to alter the default settings of `lower` and `upper` in the call to
 `optim`. -->
-<p>For simplicity, we will ignore the <code>output</code> parameter and
-just return everything (the data, the posterior summaries, the fitted
-prior, the log likelihood, and the posterior sampler). See
-<code><a href="../reference/ebnm.html">help(ebnm)</a></code> for further details about the expected structure
-of the returned <code>"ebnm"</code> object.</p>
+<p>For simplicity, we ignore the “output” parameter and just return all
+the results (data, posterior summaries, fitted prior, log-likelihood and
+posterior sampler). See <code><a href="../reference/ebnm.html">help(ebnm)</a></code> for details about the
+expected structure of return value.</p>
 <p>Here’s the new function:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ebnm_t</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, </span>
-<span>                   <span class="va">s</span> <span class="op">=</span> <span class="fl">1</span>, </span>
-<span>                   <span class="va">mode</span> <span class="op">=</span> <span class="fl">0</span>, </span>
-<span>                   <span class="va">scale</span> <span class="op">=</span> <span class="st">"estimate"</span>, </span>
-<span>                   <span class="va">g_init</span> <span class="op">=</span> <span class="cn">NULL</span>, </span>
-<span>                   <span class="va">fix_g</span> <span class="op">=</span> <span class="cn">FALSE</span>, </span>
-<span>                   <span class="va">output</span> <span class="op">=</span> <span class="fu"><a href="../reference/ebnm.html">ebnm_output_default</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>                   <span class="va">optmethod</span> <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>                   <span class="va">control</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="va">ebnm_t</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">x</span>, </span>
+<span>                    <span class="va">s</span> <span class="op">=</span> <span class="fl">1</span>, </span>
+<span>                    <span class="va">mode</span> <span class="op">=</span> <span class="fl">0</span>, </span>
+<span>                    <span class="va">scale</span> <span class="op">=</span> <span class="st">"estimate"</span>, </span>
+<span>                    <span class="va">g_init</span> <span class="op">=</span> <span class="cn">NULL</span>, </span>
+<span>                    <span class="va">fix_g</span> <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>                    <span class="va">output</span> <span class="op">=</span> <span class="fu"><a href="../reference/ebnm.html">ebnm_output_default</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>                    <span class="va">optmethod</span> <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>                    <span class="va">control</span> <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span> <span class="op">{</span></span>
 <span>                   </span>
-<span>  <span class="co"># Some very basic argument checks.</span></span>
+<span>  <span class="co"># Some basic argument checks.</span></span>
 <span>  <span class="kw">if</span> <span class="op">(</span><span class="va">mode</span> <span class="op">!=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="kw"><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop</a></span><span class="op">(</span><span class="st">"The mode of the t-prior must be fixed at zero."</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
@@ -402,7 +417,7 @@ of the returned <code>"ebnm"</code> object.</p>
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="verifying-the-ebnm-function">Verifying the EBNM function<a class="anchor" aria-label="anchor" href="#verifying-the-ebnm-function"></a>
+<h2 id="step-5-test-the-ebnm-function">Step 5: test the EBNM function<a class="anchor" aria-label="anchor" href="#step-5-test-the-ebnm-function"></a>
 </h2>
 <p><strong>ebnm</strong> provides a function,
 <code><a href="../reference/ebnm_check_fn.html">ebnm_check_fn()</a></code>, that runs basic tests to verify that the
@@ -417,17 +432,18 @@ simulated data set:</p>
 <span><span class="co"># Function passed all checks.</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="the-new-ebnm-function-in-action">The new EBNM function in action<a class="anchor" aria-label="anchor" href="#the-new-ebnm-function-in-action"></a>
+<h2 id="step-6-use-the-new-ebnm-function-to-analyze-a-data-set">Step 6: use the new EBNM function to analyze a data set<a class="anchor" aria-label="anchor" href="#step-6-use-the-new-ebnm-function-to-analyze-a-data-set"></a>
 </h2>
-<p>Let’s illustrate the use of our new EBNM function on a data set in
-which the (unobserved) means are simulated from a <em>t</em>
-distribution with a scale of 2 and 5 degrees of freedom:</p>
+<p>Assuming the checks passed, our new EBNM solver can be used to
+analyze a data set. Here we analyze a simulated data set in which the
+unobserved means are simulated from a <em>t</em> distribution with a
+scale of 2 and 5 degrees of freedom:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">theta</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/TDist.html" class="external-link">rt</a></span><span class="op">(</span><span class="fl">100</span>, df <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">theta</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">200</span><span class="op">)</span></span></code></pre></div>
-<p>We will compare the use of the <em>t</em> prior with a normal prior,
-which is implemented by <code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>.</p>
+<p>Let’s compare the use of the scaled-<em>t</em> prior with a normal
+prior:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">normal_res</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm_normal.html">ebnm_normal</a></span><span class="op">(</span><span class="va">x</span>, s <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">t_res</span> <span class="op">&lt;-</span> <span class="fu">ebnm_t</span><span class="op">(</span><span class="va">x</span>, s <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
@@ -436,19 +452,17 @@ implemented by `ebnm_normal()`; and 2. the family of *t* priors that
 we just implemented. Due to our reliance on MCMC sampling to calculate
 posterior means, fitting the second model is much slower than the
 first (it took us about 15 seconds on a new MacBook Pro). -->
-<p>You may have noticed that the call to <code>ebnm_t()</code> took
-longer than the call to <code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>. That is expected
-because the computations with the <em>t</em> distribution are more
-complex, and we did not put a lot of effort into making the computations
-efficient.</p>
+<p>(Note that the call to <code>ebnm_t()</code> is considerably slower
+than the call to <code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code> because the computations
+with the scaled-<em>t</em> prior are more complex and we did not put any
+effort into making the computations efficient.)</p>
 <p>Let’s compare the two results:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">normal_res</span>, <span class="va">t_res</span><span class="op">)</span></span></code></pre></div>
 <p><img src="extending_ebnm_files/figure-html/plot-t-vs-normal-1.png" width="540" style="display: block; margin: auto;"></p>
-<p>Most strikingly, <code>ebnm_t()</code> shrinks the large values less
-aggressively than <code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>. The fit with the
-<em>t</em> prior also resulted in slightly more accurate results
-overall:</p>
+<p><code>ebnm_t()</code> shrinks the large values less aggressively than
+<code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code> and so the fit with the scaled-<em>t</em>
+prior resulted in slightly more accurate estimates:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rmse_normal</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">normal_res</span><span class="op">)</span> <span class="op">-</span> <span class="va">theta</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">rmse_t</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">sqrt</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">t_res</span><span class="op">)</span> <span class="op">-</span> <span class="va">theta</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
@@ -458,8 +472,8 @@ overall:</p>
 <!-- This improvement is as expected, since the true prior $g$ used to
 simulate the data belongs to the family of *t* distributions but not
 the family of normal distributions.-->
-<p>Finally, the estimated prior is not far from the parameters used to
-simulate the data (<span class="math inline">\(\sigma = 2\)</span>,
+<p>Somewhat reassuringly, the estimated prior is not too far from the
+simulation parameters (<span class="math inline">\(\sigma = 2\)</span>,
 <span class="math inline">\(\nu = 5\)</span>):</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">t_res</span><span class="op">$</span><span class="va">fitted_g</span></span>
