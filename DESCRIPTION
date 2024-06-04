@@ -1,7 +1,7 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 1.1-32
+Version: 1.1-33
 Date: 2024-06-04
 Title: Solve the Empirical Bayes Normal Means Problem
 Authors@R: c(person("Jason", "Willwerscheid", role = "aut"),
@@ -33,7 +33,6 @@ Imports:
     ggplot2
 Suggests: 
     testthat, 
-    numDeriv,
     REBayes,
     knitr,
     rmarkdown,
