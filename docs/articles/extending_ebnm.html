@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ebnm</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-32</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-34</span>
       </span>
     </div>
 
@@ -249,7 +249,7 @@ particularly when analytic expressions for the gradients are available.
 <p>Gradients for the scaled-<em>t</em> priors turn out to be difficult
 to obtain, but to illustrate how one might provide gradients to “optim”,
 here we compute gradients using the “grad” function from the
-<strong>pracma</strong> package, which estimates the gradients
+<strong>numDeriv</strong> package, which estimates the gradients
 numerically. This is not a particularly efficient calculation so we do
 not expect this to lead to faster optimization, but we include this code
 for illustrative purposes.</p>
@@ -267,11 +267,11 @@ definition—we add one line to specify the “gr” argument:</p>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>The <code>grad_t</code> function used above will estimate the
-gradients numerically using <strong>pracma</strong>:</p>
+gradients numerically using <strong>numDeriv</strong>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">pracma</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://optimizer.r-forge.r-project.org/" class="external-link">numDeriv</a></span><span class="op">)</span></span>
 <span><span class="va">grad_t</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/pracma/man/grad.html" class="external-link">grad</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">par</span><span class="op">)</span> <span class="fu">llik_t</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">par</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">par</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/numDeriv/man/grad.html" class="external-link">grad</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">par</span><span class="op">)</span> <span class="fu">llik_t</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">par</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">par</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Using this version of the <code>opt_t</code> function should produce
 very similar results to the implementation without gradients.</p>

@@ -211,7 +211,7 @@ are available.)
 
 Gradients for the scaled-*t* priors turn out to be difficult to
 obtain, but to illustrate how one might provide gradients to "optim",
-here we compute gradients using the "grad" function from the **pracma**
+here we compute gradients using the "grad" function from the **numDeriv**
 package, which estimates the gradients numerically. This is not a
 particularly efficient calculation so we do not expect this to lead to
 faster optimization, but we include this code for illustrative purposes.
@@ -233,10 +233,10 @@ opt_t <- function (x, s, sigma_init, nu_init) {
 ```
 
 The `grad_t` function used above will estimate the gradients
-numerically using **pracma**:
+numerically using **numDeriv**:
 
 ```{r grad_t, eval=FALSE}
-library(pracma)
+library(numDeriv)
 grad_t <- function (x, s, sigma, nu) {
   grad(function(par) llik_t(x, s, par[1], par[2]), c(sigma, nu))
 }
