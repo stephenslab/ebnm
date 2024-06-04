@@ -344,9 +344,11 @@ print.ebnm <- function(x, digits = 2, ...) {
 }
 
 print_it <- function(x, digits, summary) {
-  cat("\nCall:\n")
-  print(x$call)
-  cat("\n")
+  if (!is.null(x$call)) {
+    cat("\nCall:\n")
+    print(x$call)
+    cat("\n")
+  }
 
   if (!is.null(x$nobs)) {
     cat("EBNM model was fitted to", x$nobs, "observations with",
@@ -356,9 +358,13 @@ print_it <- function(x, digits, summary) {
   }
 
   if (!is.null(x$prior_family) && x$prior_family != "npmle") {
-    cat("The fitted prior belongs to the",
-        paste0("_", x$prior_family, "_"),
-        "prior family.\n")
+    if (x$prior_family == "unknown") {
+      cat("The fitted prior belongs to an _unrecognized_ prior family.\n")
+    } else {
+      cat("The fitted prior belongs to the",
+          paste0("_", x$prior_family, "_"),
+          "prior family.\n")
+    }
     if (!is.null(x$pointmass_location)) {
       cat("It includes a point mass at",
           signif(x$pointmass_location, digits = digits),
@@ -369,9 +375,11 @@ print_it <- function(x, digits, summary) {
   }
 
   if (!is.null(x$log_likelihood)) {
-    cat(attr(x$log_likelihood, "df"),
-        "degrees of freedom were used to estimate the model.\n")
-    cat("The log likelihood is",
+    if (!is.null(attr(x$log_likelihood, "df"))) {
+      cat(attr(x$log_likelihood, "df"),
+          "degrees of freedom were used to estimate the model.\n")
+    }
+    cat("The log likelihood for the model is",
         paste0(round(as.numeric(x$log_likelihood), digits = digits), ".\n\n"))
   }
 
@@ -391,8 +399,10 @@ print_it <- function(x, digits, summary) {
       cat("A posterior sampler _is_ available and can be accessed using",
           "method simulate().\n")
     } else {
-      cat("A posterior sampler is _not_ available.\nOne can be added via",
-          "function ebnm_add_sampler().\n")
+      cat("A posterior sampler is _not_ available.\n")
+      if (x$prior_family != "unknown") {
+        cat("One can be added via function ebnm_add_sampler().\n")
+      }
     }
     cat("\n")
   }

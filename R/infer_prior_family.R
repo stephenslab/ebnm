@@ -1,4 +1,5 @@
 infer_prior_family <- function(g) {
+  prior_family <- "unknown"
   if (inherits(g, "normalmix")) {
     if (length(g$sd) == 1) {
       if (g$sd == Inf) {
