@@ -201,22 +201,25 @@ lik_times_prior <- function (theta, x, s, sigma, nu) {
 
 ### (Optional) Include gradients in the optimization
 
-**TO DO: Fix this next part.**
+In some cases, providing the gradient calculations to "optim" can
+greatly speed up the optimization. (This is what we found empirically
+in our numerical experiments in [the paper][ebnm-paper].) For
+implementing your own custom EBNM solver, you should consider
+providing gradients, particularly when analytic expressions for the
+gradients are available. (Or when automatic differentiation methods
+are available.)
 
-In general, we found that it was often fastest to evaluate gradients
-analytically but to allow Hessians to be computed numerically. We thus
-recommend including gradients when possible.
+Gradients for the scaled-*t* priors turn out to be difficult to
+obtain, but to illustrate how one might provide gradients to "optim",
+here we compute gradients using the "grad" function from the **pracma**
+package, which estimates the gradients numerically. This is not a
+particularly efficient calculation so we do not expect this to lead to
+faster optimization, but we include this code for illustrative purposes.
 
-Notice that we have not included the gradient of the log likelihood in
-our optimization function above. Indeed, the gradient is difficult to
-compute in this case, so we allow `optim()` to estimate it
-numerically. If, however, an efficient expression for computing the
-gradient were available (e.g., by explicitly calculating the gradient
-or using a package that performs automatic differentiation), we could
-implement it as follows (replacing the numerical estimation of the
-gradient using **numDeriv** with this more efficient function):
+The new `opt_t` function has one change from the previous
+definition—we add one line to specify the "gr" argument:
 
-```{r opt_grad, eval=TRUE}
+```{r opt_grad, eval=FALSE}
 opt_t <- function (x, s, sigma_init, nu_init) {
   optim(
     par = c(sigma_init, nu_init), 
@@ -229,14 +232,18 @@ opt_t <- function (x, s, sigma_init, nu_init) {
 }
 ```
 
-ADD TEXT HERE.
+The `grad_t` function used above will estimate the gradients
+numerically using **pracma**:
 
-```{r grad_t}
+```{r grad_t, eval=FALSE}
 library(pracma)
 grad_t <- function (x, s, sigma, nu) {
   grad(function(par) llik_t(x, s, par[1], par[2]), c(sigma, nu))
 }
 ```
+
+Using this version of the `opt_t` function should produce very similar
+results to the implementation without gradients.
 
 ## Step 3: Implement the posterior summary function
 
@@ -386,8 +393,7 @@ ebnm_t <- function (x,
 }
 ```
 
-Step 5: verify the EBNM function
---------------------------------
+## Step 5: verify the EBNM function
 
 **ebnm** provides a function, `ebnm_check_fn()`, that runs basic tests
 to verify that the EBNM function works as expected. Let's run the
