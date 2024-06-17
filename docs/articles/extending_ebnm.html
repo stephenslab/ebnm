@@ -85,16 +85,16 @@ are available!).</p>
 <p>In this vignette, we illustrate how to extend <strong>ebnm</strong>
 by creating a <em>custom EBNM solver</em> in the style of other
 <strong>ebnm</strong> functions such as <code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code> and
-<code><a href="../reference/ebnm_point_laplace.html">ebnm_point_laplace()</a></code>. In this illustration, we implement an
-EBNM solver, <code>ebnm_t()</code>, that uses the family of scaled
+<code><a href="../reference/ebnm_point_laplace.html">ebnm_point_laplace()</a></code>. Specifically, we implement an EBNM
+solver, <code>ebnm_t()</code>, that uses the family of scaled
 (Student’s) <em>t</em> priors. (As of this writing, this is not one of
 the prior families included in <strong>ebnm</strong>.)</p>
 <p><strong>Please note:</strong> This vignette assumes that you have
-read the <a href="https://arxiv.org/abs/2110.00152" class="external-link">ebnm paper</a> and
-are familiar with the basic functionality of the <strong>ebnm</strong>
-package.</p>
+read the <a href="https://arxiv.org/abs/2110.00152" class="external-link"><strong>ebnm</strong> paper</a>
+and are familiar with the basic functionality of the
+<strong>ebnm</strong> package.</p>
 <div class="section level2">
-<h2 id="the-ebnm-model-for-the-scaled-t-prior-family">The EBNM model for the scaled-<em>t</em> prior family<a class="anchor" aria-label="anchor" href="#the-ebnm-model-for-the-scaled-t-prior-family"></a>
+<h2 id="the-scaled-t-prior-family">The scaled-<em>t</em> prior family<a class="anchor" aria-label="anchor" href="#the-scaled-t-prior-family"></a>
 </h2>
 <p>The <em>empirical Bayes normal means</em> (EBNM) model with
 scaled-<em>t</em> prior is:</p>
@@ -111,53 +111,39 @@ scaled-<em>t</em> priors, defined as follows:</p>
 <p>where <span class="math inline">\(t_{\nu}(x)\)</span> denotes the
 density function of the <em>t</em> distribution at <span class="math inline">\(x\)</span> with <span class="math inline">\(\nu\)</span> degrees of freedom. Fitting the prior
 <span class="math inline">\(g \in \mathcal{G}_t\)</span> therefore
-involves estimating two parameters: the scale parameter, <span class="math inline">\(\sigma\)</span>, and the degrees of freedom, <span class="math inline">\(\nu\)</span>.</p>
-<!-- For background and mathematical notation, please see the -->
-<!-- [ebnm paper][ebnm-paper]. -->
+involves estimating two parameters: the scale parameter <span class="math inline">\(\sigma\)</span> and the degrees of freedom <span class="math inline">\(\nu\)</span>.</p>
 </div>
 <div class="section level2">
 <h2 id="overview-of-the-implementation-process">Overview of the implementation process<a class="anchor" aria-label="anchor" href="#overview-of-the-implementation-process"></a>
 </h2>
-<p>In general, fitting the EBNM model involves the following steps:</p>
+<p>The <strong>ebnm</strong> package is intended to encompass a very
+broad range of prior families. In general, creating a custom EBNM solver
+involves the following steps:</p>
 <ol style="list-style-type: decimal">
-<li><p>Define the prior family class.</p></li>
-<li><p>Implement a function that estimates the prior.</p></li>
-<li><p>Implement a function that computes posterior summaries.</p></li>
-<li><p>Implement the main EBNM solver function.</p></li>
-<li><p>Test the EBNM solver.</p></li>
-<li><p>Use the new EBNM solver to analyze a data set.</p></li>
+<li><p>Define the prior family class <span class="math inline">\(\mathcal{G}\)</span>.</p></li>
+<li><p>Implement a function that estimates the prior <span class="math inline">\(g \in \mathcal{G}\)</span>.</p></li>
+<li><p>Implement a function that computes summaries of the posteriors
+<span class="math inline">\(p(x_i \mid s_i, \hat{g})\)</span>.</p></li>
+<li><p>Create the main EBNM solver function.</p></li>
+<li><p>Test the new EBNM solver.</p></li>
+<li><p>Use the solver to analyze a data set.</p></li>
 </ol>
-<!-- Given observations $x_i$ with standard errors $s_i$, estimate $g
-\in \mathcal{G}$; Given an estimate $\hat{g} \in \mathcal{G}$, compute
-posterior means $\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$ and/or
-other quantities of interest. --><p>In the following sections, we work through each of these steps in
-detail.</p>
-<p>We then incorporate these implementations into a new function
-<code>ebnm_t()</code> that uses the common interface supplied by the
-<strong>ebnm</strong> package.</p>
-<!-- After checking our new function using the convenient checker
-`ebnm_check_fn()`, we demonstrate that, as expected, our new function
-performs better than the family of normal priors when the "true means"
-$\theta_i$ are simulated from a scaled-*t* distribution. -->
-<p>The <strong>ebnm</strong> package is intended to be quite general and
-so should permit implementation of a wide range of prior families. In
-terms of implementation, we advise adhering to the <a href="https://style.tidyverse.org" class="external-link">Tidyverse style guide</a>. The
-functions should also be carefully tested; at a minimum, functions
-should pass the tests in <code><a href="../reference/ebnm_check_fn.html">ebnm_check_fn()</a></code>. Additional unit
-tests are strongly encouraged. The <strong>ebnm</strong> package
-implements a large suite of unit tests using the <a href="https://testthat.r-lib.org" class="external-link">testthat package</a>.</p>
+<p>In the following sections, we work through each of these steps in
+detail with the aim of creating a new function <code>ebnm_t()</code>
+that can fit the EBNM model with scaled-<em>t</em> prior.</p>
+<p>For readability, we advise adhering to the <a href="https://style.tidyverse.org" class="external-link">Tidyverse style guide</a>. Functions
+should also be carefully tested; at minimum, functions should pass the
+tests in <code><a href="../reference/ebnm_check_fn.html">ebnm_check_fn()</a></code>. Additional unit tests are
+strongly encouraged. The <strong>ebnm</strong> package implements a
+large suite of unit tests using the <a href="https://testthat.r-lib.org" class="external-link"><strong>testthat</strong>
+package</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="step-1-define-the-prior-family-class">Step 1: Define the prior family class<a class="anchor" aria-label="anchor" href="#step-1-define-the-prior-family-class"></a>
 </h2>
 <p>First, we define a data structure for the priors in our prior family.
-Sometimes, an existing data structure can be used. For example,
-<code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>, <code><a href="../reference/ebnm_point_normal.html">ebnm_point_normal()</a></code>,
-<code><a href="../reference/ebnm_normal_scale_mixture.html">ebnm_normal_scale_mixture()</a></code>, and
-<code><a href="../reference/ebnm_point_mass.html">ebnm_point_mass()</a></code> all share the <code>"normalmix"</code>
-class. Here, we define a new class.</p>
-<p><strong>ebnm</strong> uses this data structure in two ways: (1) to
-store information about the fitted prior <span class="math inline">\(\hat{g}\)</span> (via the <code>fitted_g</code>
+<strong>ebnm</strong> uses these structures in two ways: (1) to store
+information about the fitted prior <span class="math inline">\(\hat{g}\)</span> (via the <code>fitted_g</code>
 field in the returned <code>"ebnm"</code> object); (2) to initialize
 solutions (via the <code>g_init</code> argument).</p>
 <!-- If one would like to be able to arbitrarily initialize the
@@ -169,7 +155,11 @@ within the custom function itself. In particular, we could choose to
 simply ignore `g_init` and return `fitted_g = NULL` (though this is
 not recommended, since it gives no information about the fitted prior
 $\hat{g} \in \mathcal{G}$). -->
-<p>For the scaled-<em>t</em> prior, we define a new class,
+<p>Sometimes, an existing data structure can be used. For example,
+<code><a href="../reference/ebnm_normal.html">ebnm_normal()</a></code>, <code><a href="../reference/ebnm_point_normal.html">ebnm_point_normal()</a></code>,
+<code><a href="../reference/ebnm_normal_scale_mixture.html">ebnm_normal_scale_mixture()</a></code>, and
+<code><a href="../reference/ebnm_point_mass.html">ebnm_point_mass()</a></code> all share the <code>"normalmix"</code>
+class. For the scaled-<em>t</em> prior, we define a new class,
 <code>"tdist"</code>, that includes the scale and degrees of
 freedom:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -181,22 +171,20 @@ freedom:</p>
 <h2 id="step-2-implement-the-optimization-function">Step 2: Implement the optimization function<a class="anchor" aria-label="anchor" href="#step-2-implement-the-optimization-function"></a>
 </h2>
 <p>Next we implement a function for estimating the two parameters
-specifying the prior. This estimation is typically done by maximizing
-the likelihood. There are many approaches one can take to implement this
-step, and the best approach very much depends on context. For an
-excellent overview of the many R packages that can be used for numerical
-optimization, please see the <a href="https://cran.r-project.org/web/views/Optimization.html" class="external-link">CRAN task
+specifying the prior. Prior estimation is typically done by maximizing
+the likelihood. There are many approaches one might take to solve this
+optimization problem, and the best approach very much depends on
+context. For an excellent overview of the many R packages that can be
+used for numerical optimization, please see the <a href="https://cran.r-project.org/web/views/Optimization.html" class="external-link">CRAN task
 view on optimization</a>.</p>
 <p>Here, we use the L-BFGS-B method (implemented by the
-<code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim()</a></code> function) to maximize the log likelihood. There are
-at least a couple of reasons why we prefer using L-BFGS-B here: (1) it
-doesn’t require installing any additional packages; (2) it allows for
-bound constraints, which is helpful since the two parameters in the
-prior both need to be positive. To avoid numerical issues, it can also
-be helpful to set sensible upper and lower bounds. Here, we use the
-constraints <span class="math inline">\(\min_i s_i / 10 \le \sigma \le
-\max_i x_i\)</span> and <span class="math inline">\(1 \le \nu \le
-1000\)</span>:</p>
+<code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim()</a></code> function). There are at least a couple of reasons
+why we prefer using L-BFGS-B: (1) it doesn’t require installing any
+additional packages; (2) it allows for bound constraints, which is
+helpful since the two parameters in the prior both need to be positive.
+Setting sensible upper and lower bounds can also help avoid numerical
+issues. Here, we use the constraints <span class="math inline">\(\min_i
+s_i / 10 \le \sigma \le \max_i x_i\)</span> and <span class="math inline">\(1 \le \nu \le 1000\)</span>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">opt_t</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma_init</span>, <span class="va">nu_init</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></span><span class="op">(</span></span>
@@ -210,9 +198,9 @@ constraints <span class="math inline">\(\min_i s_i / 10 \le \sigma \le
 <p>Our optimization function <code>opt_t()</code> calls another
 function, <code>llik_t()</code>, which isn’t yet implemented: this
 function should give us the log likelihood at the current parameter
-estimates. (Note that, since <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim()</a></code> attempts to minimize
-the objective, we compute the negative log likelihood.)</p>
-<p>Computing the log likelihood involves computing 1-d integrals, or
+estimates. (Note that, since <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim()</a></code> seeks to minimize the
+objective, we compute the negative log likelihood.)</p>
+<p>Computing the log likelihood involves taking 1-d integrals, or
 <em>1-d convolutions</em>, over the unknown means <span class="math inline">\(\theta_i\)</span>:</p>
 <p><span class="math display">\[\begin{equation}
 \log p(\mathbf{x} \mid g, \, \mathbf{s}) =
@@ -226,12 +214,12 @@ integrals, we compute them numerically using the
 and the prior, which in our case is a *t* distribution. -->
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">llik_t</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">llik_one_obs</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">x</span>, <span class="va">s</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">lik_one_obs</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">x</span>, <span class="va">s</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/stats/integrate.html" class="external-link">integrate</a></span><span class="op">(</span><span class="va">lik_times_prior</span>, <span class="op">-</span><span class="cn">Inf</span>, <span class="cn">Inf</span>, x <span class="op">=</span> <span class="va">x</span>, s <span class="op">=</span> <span class="va">s</span>,</span>
 <span>              sigma <span class="op">=</span> <span class="va">sigma</span>, nu <span class="op">=</span> <span class="va">nu</span><span class="op">)</span><span class="op">$</span><span class="va">value</span></span>
 <span>  <span class="op">}</span></span>
-<span>  <span class="va">vllik</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">Vectorize</a></span><span class="op">(</span><span class="va">llik_one_obs</span><span class="op">)</span> </span>
-<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu">vllik</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="va">vlik</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Vectorize.html" class="external-link">Vectorize</a></span><span class="op">(</span><span class="va">lik_one_obs</span><span class="op">)</span> </span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="fu">vlik</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">lik_times_prior</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">theta</span>, <span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span> <span class="op">{</span></span>
@@ -240,21 +228,18 @@ and the prior, which in our case is a *t* distribution. -->
 <div class="section level3">
 <h3 id="optional-include-gradients-in-the-optimization">(Optional) Include gradients in the optimization<a class="anchor" aria-label="anchor" href="#optional-include-gradients-in-the-optimization"></a>
 </h3>
-<p>In some cases, providing the gradient calculations to “optim” can
-greatly speed up the optimization. (This is what we found empirically in
-our numerical experiments in <a href="https://arxiv.org/abs/2110.00152" class="external-link">the paper</a>.) For implementing
-your own custom EBNM solver, you should consider providing gradients,
-particularly when analytic expressions for the gradients are available.
-(Or when automatic differentiation methods are available.)</p>
+<p>As we found empirically in our <a href="https://arxiv.org/abs/2110.00152" class="external-link">numerical experiments</a>,
+providing the gradient calculations to <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim()</a></code> can in some
+cases greatly speed up the optimization. When implementing your own
+custom EBNM solvers, you should consider providing gradients,
+particularly when analytic expressions are available (either via pen and
+paper or via automatic differentiation).</p>
 <p>Gradients for the scaled-<em>t</em> priors turn out to be difficult
-to obtain, but to illustrate how one might provide gradients to “optim”,
-here we compute gradients using the “grad” function from the
-<strong>numDeriv</strong> package, which estimates the gradients
-numerically. This is not a particularly efficient calculation so we do
-not expect this to lead to faster optimization, but we include this code
-for illustrative purposes.</p>
-<p>The new <code>opt_t</code> function has one change from the previous
-definition—we add one line to specify the “gr” argument:</p>
+to obtain, but to illustrate how one might provide them, we estimate
+gradients numerically using the <code><a href="https://rdrr.io/pkg/numDeriv/man/grad.html" class="external-link">grad()</a></code> function from the
+<strong>numDeriv</strong> package. We include this code for illustrative
+purposes; since <code><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim()</a></code> also computes gradients
+numerically, we do not expect this solution to provide any speedup.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">opt_t</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma_init</span>, <span class="va">nu_init</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/optim.html" class="external-link">optim</a></span><span class="op">(</span></span>
@@ -266,7 +251,7 @@ definition—we add one line to specify the “gr” argument:</p>
 <span>    upper <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span>, <span class="fl">1e3</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>The <code>grad_t</code> function used above will estimate the
+<p>The <code>grad_t()</code> function used above will estimate the
 gradients numerically using <strong>numDeriv</strong>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="http://optimizer.r-forge.r-project.org/" class="external-link">numDeriv</a></span><span class="op">)</span></span>
@@ -274,7 +259,8 @@ gradients numerically using <strong>numDeriv</strong>:</p>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/numDeriv/man/grad.html" class="external-link">grad</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">par</span><span class="op">)</span> <span class="fu">llik_t</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">par</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span>, <span class="va">par</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>Using this version of the <code>opt_t</code> function should produce
-very similar results to the implementation without gradients.</p>
+very similar results to the implementation that does not include the
+gradient.</p>
 </div>
 </div>
 <div class="section level2">
@@ -282,7 +268,7 @@ very similar results to the implementation without gradients.</p>
 </h2>
 <p>Once we’ve estimated a prior <span class="math inline">\(\hat{g} \in
 \mathcal{G}_t\)</span>, we can compute summary statistics (means,
-variances, etc.) from the posterior distribution.</p>
+variances, etc.) from the posterior distributions.</p>
 <p>From Bayes’ rule, the posterior distribution for the <em>i</em>-th
 unknown mean is</p>
 <p><span class="math display">\[\begin{equation}
@@ -291,8 +277,8 @@ p(x_i \mid \theta_i, s_i) \, \hat{g}(\theta_i).
 \end{equation}\]</span></p>
 <p>For this example, we compute three posterior statistics: the
 posterior mean, the posterior second moment, and the posterior standard
-deviation. This is all accomplished inside a single function that
-returns a data frame containing the posterior statistics:</p>
+deviation. This is all accomplished by a single function that returns a
+data frame containing the posterior statistics:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">post_summary_t</span> <span class="op">&lt;-</span> <span class="kw">function</span> <span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">samp</span> <span class="op">&lt;-</span> <span class="fu">post_sampler_t</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, <span class="va">sigma</span>, <span class="va">nu</span>, nsamp <span class="op">=</span> <span class="fl">1000</span><span class="op">)</span></span>
@@ -303,10 +289,10 @@ returns a data frame containing the posterior statistics:</p>
 <span>  <span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>The missing piece is a function <code>post_sampler_t()</code> that
-draws random samples from the posterior distribution. While drawing
-independent samples is difficult, we can easily design an MCMC scheme to
-approximately draw samples from the posterior. This is implemented using
-the <strong>mcmc</strong> package (which you should install if you
+draws random samples from the posteriors. While drawing independent
+samples is difficult, we can easily design an MCMC scheme to
+approximately draw samples from the posteriors. This is implemented
+using the <strong>mcmc</strong> package (which you should install if you
 haven’t already):</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("mcmc")</span></span>
@@ -324,8 +310,8 @@ haven’t already):</p>
 <span>  <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="fu">vsampler</span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p>This is most certainly not the most efficient nor numerically stable
-to perform these computations. But we do it this way here to keep the
-example simple.</p>
+way to perform these computations. But we do it this way here to keep
+the example simple.</p>
 <!-- Given an optimal $\hat{g} \in \mathcal{G}$, we can obtain point
 estimates for the "true means" $\theta_i$ using posterior means
 $\mathbb{E}(\theta_i \mid x_i, s_i, \hat{g})$. In general, we might
@@ -411,7 +397,7 @@ details about the expected structure of the return value.</p>
 <span><span class="op">}</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="step-5-verify-the-ebnm-function">Step 5: verify the EBNM function<a class="anchor" aria-label="anchor" href="#step-5-verify-the-ebnm-function"></a>
+<h2 id="step-5-verify-the-ebnm-function">Step 5: Verify the EBNM function<a class="anchor" aria-label="anchor" href="#step-5-verify-the-ebnm-function"></a>
 </h2>
 <p><strong>ebnm</strong> provides a function,
 <code><a href="../reference/ebnm_check_fn.html">ebnm_check_fn()</a></code>, that runs basic tests to verify that the
@@ -423,7 +409,7 @@ simulated data set:</p>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">10</span>, sd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">10</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/ebnm_check_fn.html">ebnm_check_fn</a></span><span class="op">(</span><span class="va">ebnm_t</span>, <span class="va">x</span>, <span class="va">s</span><span class="op">)</span></span>
-<span><span class="co"># Function passed all checks.</span></span></code></pre></div>
+<span><span class="co"># Function has passed all checks.</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="step-6-use-the-new-ebnm-function-to-analyze-a-data-set">Step 6: Use the new EBNM function to analyze a data set<a class="anchor" aria-label="anchor" href="#step-6-use-the-new-ebnm-function-to-analyze-a-data-set"></a>
@@ -457,11 +443,9 @@ scaled-<em>t</em> prior results in slightly more accurate estimates:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>rmse_normal <span class="op">=</span> <span class="va">rmse_normal</span>, rmse_t <span class="op">=</span> <span class="va">rmse_t</span><span class="op">)</span></span>
 <span><span class="co"># rmse_normal      rmse_t </span></span>
 <span><span class="co">#   0.9056053   0.8662794</span></span></code></pre></div>
-<p>For this simulation, the estimated prior is somewhat different from
+<p>Reassuringly, the parameters of the estimated prior are similar to
 the simulation parameters (<span class="math inline">\(\sigma =
-2\)</span>, <span class="math inline">\(\nu = 5\)</span>), with
-noticeably lighter tails, but it is certainly not outside the range of
-variation we might expect in our estimates:</p>
+2\)</span>, <span class="math inline">\(\nu = 5\)</span>):</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">t_res</span><span class="op">$</span><span class="va">fitted_g</span><span class="op">)</span></span>
 <span><span class="co"># $scale</span></span>
@@ -477,9 +461,9 @@ variation we might expect in our estimates:</p>
 vignette:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co"># R version 4.3.3 (2024-02-29)</span></span>
+<span><span class="co"># R version 4.3.2 (2023-10-31)</span></span>
 <span><span class="co"># Platform: aarch64-apple-darwin20 (64-bit)</span></span>
-<span><span class="co"># Running under: macOS Sonoma 14.5</span></span>
+<span><span class="co"># Running under: macOS Monterey 12.7.4</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Matrix products: default</span></span>
 <span><span class="co"># BLAS:   /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRblas.0.dylib </span></span>
@@ -488,32 +472,33 @@ vignette:</p>
 <span><span class="co"># locale:</span></span>
 <span><span class="co"># [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
 <span><span class="co"># </span></span>
-<span><span class="co"># time zone: America/Chicago</span></span>
+<span><span class="co"># time zone: America/New_York</span></span>
 <span><span class="co"># tzcode source: internal</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># attached base packages:</span></span>
 <span><span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># other attached packages:</span></span>
-<span><span class="co"># [1] ebnm_1.1-27 mcmc_0.9-8 </span></span>
+<span><span class="co"># [1] ebnm_1.1-34 mcmc_0.9-8 </span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#  [1] sass_0.4.8         utf8_1.2.4         generics_0.1.3     ashr_2.2-66       </span></span>
-<span><span class="co">#  [5] lattice_0.22-5     digest_0.6.34      magrittr_2.0.3     RColorBrewer_1.1-3</span></span>
-<span><span class="co">#  [9] evaluate_0.23      grid_4.3.3         fastmap_1.1.1      jsonlite_1.8.8    </span></span>
-<span><span class="co"># [13] Matrix_1.6-5       mixsqp_0.3-54      purrr_1.0.2        fansi_1.0.6       </span></span>
-<span><span class="co"># [17] scales_1.3.0       truncnorm_1.0-9    invgamma_1.1       textshaping_0.3.7 </span></span>
-<span><span class="co"># [21] jquerylib_0.1.4    cli_3.6.2          rlang_1.1.3        deconvolveR_1.2-1 </span></span>
-<span><span class="co"># [25] munsell_0.5.0      splines_4.3.3      withr_3.0.0        cachem_1.0.8      </span></span>
-<span><span class="co"># [29] yaml_2.3.8         tools_4.3.3        SQUAREM_2021.1     memoise_2.0.1     </span></span>
-<span><span class="co"># [33] dplyr_1.1.4        colorspace_2.1-0   ggplot2_3.5.0      vctrs_0.6.5       </span></span>
-<span><span class="co"># [37] R6_2.5.1           lifecycle_1.0.4    fs_1.6.3           trust_0.1-8       </span></span>
-<span><span class="co"># [41] ragg_1.2.7         irlba_2.3.5.1      pkgconfig_2.0.3    desc_1.4.3        </span></span>
-<span><span class="co"># [45] pkgdown_2.0.7      bslib_0.6.1        pillar_1.9.0       gtable_0.3.4      </span></span>
-<span><span class="co"># [49] glue_1.7.0         Rcpp_1.0.12        systemfonts_1.0.6  highr_0.10        </span></span>
-<span><span class="co"># [53] xfun_0.42          tibble_3.2.1       tidyselect_1.2.0   knitr_1.45        </span></span>
-<span><span class="co"># [57] farver_2.1.1       htmltools_0.5.7    labeling_0.4.3     rmarkdown_2.26    </span></span>
-<span><span class="co"># [61] compiler_4.3.3     horseshoe_0.2.0</span></span></code></pre></div>
+<span><span class="co">#  [1] sass_0.4.8         utf8_1.2.4         generics_0.1.3     ashr_2.2-63       </span></span>
+<span><span class="co">#  [5] stringi_1.8.3      lattice_0.21-9     digest_0.6.34      magrittr_2.0.3    </span></span>
+<span><span class="co">#  [9] RColorBrewer_1.1-3 evaluate_0.23      grid_4.3.2         fastmap_1.1.1     </span></span>
+<span><span class="co"># [13] jsonlite_1.8.8     Matrix_1.6-1.1     mixsqp_0.3-54      purrr_1.0.2       </span></span>
+<span><span class="co"># [17] fansi_1.0.6        scales_1.3.0       truncnorm_1.0-9    invgamma_1.1      </span></span>
+<span><span class="co"># [21] textshaping_0.3.7  jquerylib_0.1.4    cli_3.6.2          rlang_1.1.3       </span></span>
+<span><span class="co"># [25] deconvolveR_1.2-1  munsell_0.5.0      splines_4.3.2      withr_3.0.0       </span></span>
+<span><span class="co"># [29] cachem_1.0.8       yaml_2.3.8         tools_4.3.2        SQUAREM_2021.1    </span></span>
+<span><span class="co"># [33] memoise_2.0.1      dplyr_1.1.4        colorspace_2.1-0   ggplot2_3.5.0     </span></span>
+<span><span class="co"># [37] vctrs_0.6.5        R6_2.5.1           lifecycle_1.0.4    stringr_1.5.1     </span></span>
+<span><span class="co"># [41] fs_1.6.3           trust_0.1-8        ragg_1.2.7         irlba_2.3.5.1     </span></span>
+<span><span class="co"># [45] pkgconfig_2.0.3    desc_1.4.3         gtable_0.3.4       pkgdown_2.0.7     </span></span>
+<span><span class="co"># [49] bslib_0.6.1        pillar_1.9.0       glue_1.7.0         Rcpp_1.0.12       </span></span>
+<span><span class="co"># [53] systemfonts_1.0.5  highr_0.10         xfun_0.41          tibble_3.2.1      </span></span>
+<span><span class="co"># [57] tidyselect_1.2.1   rstudioapi_0.15.0  knitr_1.45         farver_2.1.1      </span></span>
+<span><span class="co"># [61] htmltools_0.5.7    labeling_0.4.3     rmarkdown_2.25     compiler_4.3.2    </span></span>
+<span><span class="co"># [65] horseshoe_0.2.0</span></span></code></pre></div>
 </div>
   </div>
 
