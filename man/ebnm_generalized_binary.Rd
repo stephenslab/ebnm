@@ -111,10 +111,12 @@ Solves the empirical Bayes normal means (EBNM) problem using the family of
   For details, see Liu et al. (2023), cited in \strong{References} below.
 }
 \references{
-Yusha Liu, Peter Carbonetto, Jason Willwerscheid, Scott A Oakes, Kay F Macleod,
-  and Matthew Stephens (2023). Dissecting tumor transcriptional heterogeneity
-  from single-cell RNA-seq data by generalized binary covariance decomposition.
-  bioRxiv 2023.08.15.553436.
+Yusha Liu, Peter Carbonetto, Jason Willwerscheid, Scott A Oakes,
+  Kay F Macleod, and Matthew Stephens (2025). Dissecting tumor
+  transcriptional heterogeneity from single-cell RNA-seq data by
+  generalized binary covariance decomposition.  \emph{Nature Genetics}
+  \strong{57}, 263--273. doi:10.1038/s41588-024-01997-z
+  \url{https://doi.org/10.1038/s41588-024-01997-z}.
 }
 \seealso{
 See \code{\link{ebnm}} for examples of usage and model details.

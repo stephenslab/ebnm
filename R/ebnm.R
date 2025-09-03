@@ -1,8 +1,9 @@
 #' Solve the EBNM problem
 #'
 #' Solves the empirical Bayes normal means (EBNM) problem using a specified
-#'   family of priors. For an article-length introduction to the package, see
-#'   Willwerscheid and Stephens (2021), cited in \strong{References} below.
+#'   family of priors. For a detailed introduction to the package, see
+#'   Willwerscheid, Carbonetto, and Stephens (2025), our JSS article cited in
+#'   \strong{References} below.
 #'
 #' Given vectors of data \code{x} and standard errors \code{s}, \code{ebnm}
 #'   solves the "empirical Bayes normal means" (EBNM) problem for various
@@ -225,16 +226,18 @@
 #'    respective help pages, linked below under \strong{See Also}.
 #'
 #' @references
-#' Jason Willwerscheid, Peter Carbonetto and Matthew Stephens (2023).
+#' Jason Willwerscheid, Peter Carbonetto, and Matthew Stephens (2025).
 #'   \code{ebnm}: an \code{R} Package for solving the empirical Bayes
-#'   normal means problem using a variety of prior families.
-#'   arXiv:2110.00152.
+#'   normal means problem using a variety of prior families. \emph{Journal of
+#'   Statistical Software}, \strong{114}(3), 1--33.
+#'   doi:10.18637/jss.v114.i03 \url{https://doi.org/10.18637/jss.v114.i03}.
 #'
 #' Yusha Liu, Peter Carbonetto, Jason Willwerscheid, Scott A Oakes,
-#'   Kay F Macleod, and Matthew Stephens (2023). Dissecting tumor
+#'   Kay F Macleod, and Matthew Stephens (2025). Dissecting tumor
 #'   transcriptional heterogeneity from single-cell RNA-seq data by
-#'   generalized binary covariance decomposition.  bioRxiv
-#'    2023.08.15.553436.
+#'   generalized binary covariance decomposition.  \emph{Nature Genetics}
+#'   \strong{57}, 263--273. doi:10.1038/s41588-024-01997-z
+#'   \url{https://doi.org/10.1038/s41588-024-01997-z}.
 #'
 #' @seealso A plotting method is available for \code{ebnm} objects: see
 #'   \code{\link{plot.ebnm}}.
