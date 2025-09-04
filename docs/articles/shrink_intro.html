@@ -6,20 +6,19 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Introduction to the empirical Bayes normal means model via shrinkage estimation • ebnm</title>
-<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
+<!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Introduction to the empirical Bayes normal means model via shrinkage estimation">
-<meta property="og:description" content="ebnm">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
-    
+
 
     <div class="container template-article">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -33,7 +32,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">ebnm</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-34</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1-38</span>
       </span>
     </div>
 
@@ -61,7 +60,7 @@
 </div>
 <!--/.navbar -->
 
-      
+
 
       </header><div class="row">
   <div class="col-md-9 contents">
@@ -80,64 +79,93 @@ model via shrinkage estimation</h1>
 <div class="section level2">
 <h2 id="the-normal-means-model-and-empirical-bayes">The normal means model and empirical Bayes<a class="anchor" aria-label="anchor" href="#the-normal-means-model-and-empirical-bayes"></a>
 </h2>
-<p>Given <span class="math inline">\(n\)</span> observations <span class="math inline">\(x_i\)</span> with known standard deviations <span class="math inline">\(s_i &gt; 0\)</span>, <span class="math inline">\(i
-= 1, \dots, n\)</span>, the normal means model <span class="citation">(Robbins 1951; Efron and Morris 1972; Stephens 2017;
-Bhadra et al. 2019; Johnstone 2019; Sun 2020)</span> has <span class="math display">\[\begin{equation}
+<p>Given
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>n</mi><annotation encoding="application/x-tex">n</annotation></semantics></math>
+observations
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>i</mi></msub><annotation encoding="application/x-tex">x_i</annotation></semantics></math>
+with known standard deviations
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>s</mi><mi>i</mi></msub><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">s_i &gt; 0</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mn>1</mn><mo>,</mo><mi>…</mi><mo>,</mo><mi>n</mi></mrow><annotation encoding="application/x-tex">i
+= 1, \dots, n</annotation></semantics></math>, the normal means model
+<span class="citation">(Robbins 1951; Efron and Morris 1972; Stephens
+2017; Bhadra et al. 2019; Johnstone 2019; Sun 2020)</span> has
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>i</mi></msub><mover><mo>∼</mo><mtext mathvariant="normal">ind.</mtext></mover><mi>𝒩</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>θ</mi><mi>i</mi></msub><mo>,</mo><msubsup><mi>s</mi><mi>i</mi><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo></mrow><annotation encoding="application/x-tex">\begin{equation}
 x_i \overset{\text{ind.}}{\sim} \mathcal{N}(\theta_i, s_i^2),
-\end{equation}\]</span> where the unknown (“true”) means <span class="math inline">\(\theta_i\)</span> are the quantities to be
-estimated. Here and throughout, we use <span class="math inline">\(\mathcal{N}(\mu, \sigma^2)\)</span> to denote the
-normal distribution with mean <span class="math inline">\(\mu\)</span>
-and variance <span class="math inline">\(\sigma^2\)</span>.</p>
-<p>The empirical Bayes (EB) approach to inferring <span class="math inline">\(\theta_i\)</span> attempts to improve upon the
-maximum-likelihood estimate <span class="math inline">\(\hat{\theta}_i =
-x_i\)</span> by “borrowing information” across observations, exploiting
-the fact that each observation contains information not only about its
-respective mean, but also about how the means are collectively
-distributed <span class="citation">(Robbins 1956; Morris 1983; Efron
-2010; Stephens 2017)</span>. Specifically, the empirical Bayes normal
-means (EBNM) approach assumes that <span class="math display">\[\begin{equation}
+\end{equation}</annotation></semantics></math> where the unknown
+(“true”) means
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\theta_i</annotation></semantics></math>
+are the quantities to be estimated. Here and throughout, we use
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>𝒩</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>,</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mathcal{N}(\mu, \sigma^2)</annotation></semantics></math>
+to denote the normal distribution with mean
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>
+and variance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>σ</mi><mn>2</mn></msup><annotation encoding="application/x-tex">\sigma^2</annotation></semantics></math>.</p>
+<p>The empirical Bayes (EB) approach to inferring
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\theta_i</annotation></semantics></math>
+attempts to improve upon the maximum-likelihood estimate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>θ</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>=</mo><msub><mi>x</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\hat{\theta}_i = x_i</annotation></semantics></math>
+by “borrowing information” across observations, exploiting the fact that
+each observation contains information not only about its respective
+mean, but also about how the means are collectively distributed <span class="citation">(Robbins 1956; Morris 1983; Efron 2010; Stephens
+2017)</span>. Specifically, the empirical Bayes normal means (EBNM)
+approach assumes that
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>i</mi></msub><mover><mo>∼</mo><mtext mathvariant="normal">ind.</mtext></mover><mi>g</mi><mo>∈</mo><mi>𝒢</mi><mo>,</mo></mrow><annotation encoding="application/x-tex">\begin{equation}
 \theta_i \overset{\text{ind.}}{\sim} g \in \mathcal{G},
-\end{equation}\]</span> where <span class="math inline">\(\mathcal{G}\)</span> is some family of
-distributions that is specified in advance and <span class="math inline">\(g \in \mathcal{G}\)</span> is estimated using the
-data.</p>
+\end{equation}</annotation></semantics></math> where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝒢</mi><annotation encoding="application/x-tex">\mathcal{G}</annotation></semantics></math>
+is some family of distributions that is specified in advance and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo>∈</mo><mi>𝒢</mi></mrow><annotation encoding="application/x-tex">g \in \mathcal{G}</annotation></semantics></math>
+is estimated using the data.</p>
 <p>The EBNM model is fit by first using all of the observations to
-estimate the prior <span class="math inline">\(g \in
-\mathcal{G}\)</span>, and then using the estimated distribution <span class="math inline">\(\hat{g}\)</span> to compute posteriors and/or
-posterior summaries for the “true” means <span class="math inline">\(\theta_i\)</span>. Commonly, <span class="math inline">\(g\)</span> is estimated via maximum-likelihood and
-posterior means are used as point estimates for the unknown means. The
-<strong>ebnm</strong> package provides a unified interface for
-efficiently carrying out both steps, with a wide range of available
-options for the prior family <span class="math inline">\(\mathcal{G}\)</span>.</p>
-<p>For a detailed introduction, see our <a href="https://arxiv.org/abs/2110.00152" class="external-link">ebnm paper</a>. For further
-background, see for example <a href="https://jdstorey.org/fas" class="external-link">John
+estimate the prior
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo>∈</mo><mi>𝒢</mi></mrow><annotation encoding="application/x-tex">g \in \mathcal{G}</annotation></semantics></math>,
+and then using the estimated distribution
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><mi>g</mi><mo accent="true">̂</mo></mover><annotation encoding="application/x-tex">\hat{g}</annotation></semantics></math>
+to compute posteriors and/or posterior summaries for the “true” means
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\theta_i</annotation></semantics></math>.
+Commonly,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
+is estimated via maximum-likelihood and posterior means are used as
+point estimates for the unknown means. The <strong>ebnm</strong> package
+provides a unified interface for efficiently carrying out both steps,
+with a wide range of available options for the prior family
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>𝒢</mi><annotation encoding="application/x-tex">\mathcal{G}</annotation></semantics></math>.</p>
+<p>For a detailed introduction, see our <a href="https://doi.org/10.18637/jss.v114.i03" class="external-link">JSS paper</a>. For further
+background, see for example <a href="https://jdstorey.org/fas/" class="external-link">John
 Storey’s book</a>.</p>
 </div>
 <div class="section level2">
 <h2 id="an-illustration-shrinkage-estimation">An illustration: shrinkage estimation<a class="anchor" aria-label="anchor" href="#an-illustration-shrinkage-estimation"></a>
 </h2>
 <p>Our example data set consists of 400 data points simulated from a
-normal means model in which the true prior <span class="math inline">\(g\)</span> is a mixture of (a) a normal
-distribution centered at 2 and (b) a point-mass also centered at 2:</p>
-<p><span class="math display">\[
+normal means model in which the true prior
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>g</mi><annotation encoding="application/x-tex">g</annotation></semantics></math>
+is a mixture of (a) a normal distribution centered at 2 and (b) a
+point-mass also centered at 2:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>θ</mi><mi>i</mi></msub><mo>∼</mo><mn>0.8</mn><msub><mi>δ</mi><mn>2</mn></msub><mo>+</mo><mn>0.2</mn><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>2</mn><mo>,</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">
 \theta_i \sim 0.8\delta_2 + 0.2 N(2,1)
-\]</span></p>
-<p>First, we simulate the “true” means <span class="math inline">\(\theta_i\)</span> from this prior:</p>
+</annotation></semantics></math></p>
+<p>First, we simulate the “true” means
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\theta_i</annotation></semantics></math>
+from this prior:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">400</span></span>
 <span><span class="va">u</span> <span class="op">&lt;-</span> <span class="fl">2</span> <span class="op">+</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Uniform.html" class="external-link">runif</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span> <span class="op">&lt;</span> <span class="fl">0.2</span><span class="op">)</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></code></pre></div>
-<p>Next, we simulate the observed means <span class="math inline">\(x_i\)</span> as “noisy” estimates of the true
-means (in this example, the noise is homoskedastic):</p>
-<p><span class="math display">\[
+<p>Next, we simulate the observed means
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>i</mi></msub><annotation encoding="application/x-tex">x_i</annotation></semantics></math>
+as “noisy” estimates of the true means (in this example, the noise is
+homoskedastic):</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>i</mi></msub><mo>∼</mo><mi>N</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>θ</mi><mi>i</mi></msub><mo>,</mo><msub><mi>s</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>s</mi><mi>i</mi></msub><mo>=</mo><mn>1</mn><mi>/</mi><mn>3</mn><mo>,</mo></mrow><annotation encoding="application/x-tex">
 x_i \sim N(\theta_i,s_i), \quad s_i = 1/3,
-\]</span></p>
+</annotation></semantics></math></p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">/</span><span class="fl">3</span>, <span class="va">n</span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="va">u</span> <span class="op">+</span> <span class="va">s</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">n</span><span class="op">)</span></span></code></pre></div>
 <p>Although we know what the true means are in this example, we’ll treat
 them as quantities we cannot observe.</p>
 <p>The maximum-likelihood estimates (MLEs) of the true means are simply
-<span class="math inline">\(\hat{u}_i = x_i\)</span>:</p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>u</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>=</mo><msub><mi>x</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\hat{u}_i = x_i</annotation></semantics></math>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">lims</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.55</span>, <span class="fl">5.05</span><span class="op">)</span></span>
@@ -156,9 +184,10 @@ that simulated data using a mixture of a normal and a point-mass.)</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/stephenslab/ebnm" class="external-link">"ebnm"</a></span><span class="op">)</span></span>
 <span><span class="va">fit_normal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ebnm.html">ebnm</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">s</span>, prior_family <span class="op">=</span> <span class="st">"normal"</span>, mode <span class="op">=</span> <span class="st">"estimate"</span><span class="op">)</span></span></code></pre></div>
-<p>Next we estimate the true means using posterior means <span class="math inline">\(\hat{u}_i = E[\theta_i \,|\, x_i,
-\hat{g}]\)</span>. We extract these posterior means using the
-<code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> method:</p>
+<p>Next we estimate the true means using posterior means
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mover><mi>u</mi><mo accent="true">̂</mo></mover><mi>i</mi></msub><mo>=</mo><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>θ</mi><mi>i</mi></msub><mspace width="0.167em"></mspace><mo stretchy="false" form="prefix">|</mo><mspace width="0.167em"></mspace><msub><mi>x</mi><mi>i</mi></msub><mo>,</mo><mover><mi>g</mi><mo accent="true">̂</mo></mover><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">\hat{u}_i = E[\theta_i \,|\, x_i, \hat{g}]</annotation></semantics></math>.
+We extract these posterior means using the <code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code>
+method:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="va">fit_normal</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">4</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
@@ -166,9 +195,11 @@ that simulated data using a mixture of a normal and a point-mass.)</p>
 <span>     xlab <span class="op">=</span> <span class="st">"true value"</span>, ylab <span class="op">=</span> <span class="st">"estimate"</span>, main <span class="op">=</span> <span class="st">"normal prior"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/abline.html" class="external-link">abline</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">0</span>, b <span class="op">=</span> <span class="fl">1</span>, col <span class="op">=</span> <span class="st">"magenta"</span>, lty <span class="op">=</span> <span class="st">"dotted"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="shrink_intro_files/figure-html/plot-ebnm-normal-1.png" width="315" style="display: block; margin: auto;"></p>
-<p>These “shrunken” estimates are better when true means <span class="math inline">\(\theta_i\)</span> are near 2, but worse when they
-are far from 2. Still, they substantially improve the <em>overall
-estimation error</em> (the “root mean-squared error” or RMSE):</p>
+<p>These “shrunken” estimates are better when true means
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>θ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\theta_i</annotation></semantics></math>
+are near 2, but worse when they are far from 2. Still, they
+substantially improve the <em>overall estimation error</em> (the “root
+mean-squared error” or RMSE):</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">err_mle</span>           <span class="op">&lt;-</span> <span class="op">(</span><span class="va">x</span> <span class="op">-</span> <span class="va">u</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span></span>
 <span><span class="va">err_shrink_normal</span> <span class="op">&lt;-</span> <span class="op">(</span><span class="va">y</span> <span class="op">-</span> <span class="va">u</span><span class="op">)</span><span class="op">^</span><span class="fl">2</span></span>
@@ -222,13 +253,13 @@ substantial improvement:</p>
 vignette:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co"># R version 4.3.2 (2023-10-31)</span></span>
-<span><span class="co"># Platform: aarch64-apple-darwin20 (64-bit)</span></span>
-<span><span class="co"># Running under: macOS Monterey 12.7.4</span></span>
+<span><span class="co"># R version 4.5.1 (2025-06-13)</span></span>
+<span><span class="co"># Platform: aarch64-apple-darwin20</span></span>
+<span><span class="co"># Running under: macOS Sequoia 15.5</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># Matrix products: default</span></span>
-<span><span class="co"># BLAS:   /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRblas.0.dylib </span></span>
-<span><span class="co"># LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0</span></span>
+<span><span class="co"># BLAS:   /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRblas.0.dylib </span></span>
+<span><span class="co"># LAPACK: /Library/Frameworks/R.framework/Versions/4.5-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.12.1</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># locale:</span></span>
 <span><span class="co"># [1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8</span></span>
@@ -240,30 +271,28 @@ vignette:</p>
 <span><span class="co"># [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># other attached packages:</span></span>
-<span><span class="co"># [1] ebnm_1.1-34</span></span>
+<span><span class="co"># [1] ebnm_1.1-38</span></span>
 <span><span class="co"># </span></span>
 <span><span class="co"># loaded via a namespace (and not attached):</span></span>
-<span><span class="co">#  [1] sass_0.4.8        utf8_1.2.4        generics_0.1.3    ashr_2.2-63      </span></span>
-<span><span class="co">#  [5] stringi_1.8.3     lattice_0.21-9    digest_0.6.34     magrittr_2.0.3   </span></span>
-<span><span class="co">#  [9] evaluate_0.23     grid_4.3.2        fastmap_1.1.1     jsonlite_1.8.8   </span></span>
-<span><span class="co"># [13] Matrix_1.6-1.1    mixsqp_0.3-54     purrr_1.0.2       fansi_1.0.6      </span></span>
-<span><span class="co"># [17] scales_1.3.0      truncnorm_1.0-9   invgamma_1.1      textshaping_0.3.7</span></span>
-<span><span class="co"># [21] jquerylib_0.1.4   cli_3.6.2         rlang_1.1.3       deconvolveR_1.2-1</span></span>
-<span><span class="co"># [25] munsell_0.5.0     splines_4.3.2     cachem_1.0.8      yaml_2.3.8       </span></span>
-<span><span class="co"># [29] tools_4.3.2       SQUAREM_2021.1    memoise_2.0.1     dplyr_1.1.4      </span></span>
-<span><span class="co"># [33] colorspace_2.1-0  ggplot2_3.5.0     vctrs_0.6.5       R6_2.5.1         </span></span>
-<span><span class="co"># [37] lifecycle_1.0.4   stringr_1.5.1     fs_1.6.3          trust_0.1-8      </span></span>
-<span><span class="co"># [41] ragg_1.2.7        irlba_2.3.5.1     pkgconfig_2.0.3   desc_1.4.3       </span></span>
-<span><span class="co"># [45] pkgdown_2.0.7     bslib_0.6.1       pillar_1.9.0      gtable_0.3.4     </span></span>
-<span><span class="co"># [49] glue_1.7.0        Rcpp_1.0.12       systemfonts_1.0.5 xfun_0.41        </span></span>
-<span><span class="co"># [53] tibble_3.2.1      tidyselect_1.2.1  highr_0.10        rstudioapi_0.15.0</span></span>
-<span><span class="co"># [57] knitr_1.45        htmltools_0.5.7   rmarkdown_2.25    compiler_4.3.2   </span></span>
-<span><span class="co"># [61] horseshoe_0.2.0</span></span></code></pre></div>
+<span><span class="co">#  [1] trust_0.1-8        Matrix_1.7-3       gtable_0.3.6       jsonlite_2.0.0    </span></span>
+<span><span class="co">#  [5] dplyr_1.1.4        compiler_4.5.1     tidyselect_1.2.1   Rcpp_1.1.0        </span></span>
+<span><span class="co">#  [9] jquerylib_0.1.4    scales_1.4.0       splines_4.5.1      systemfonts_1.2.3 </span></span>
+<span><span class="co"># [13] textshaping_1.0.1  yaml_2.3.10        fastmap_1.2.0      lattice_0.22-7    </span></span>
+<span><span class="co"># [17] ggplot2_3.5.2      R6_2.6.1           generics_0.1.4     mixsqp_0.3-54     </span></span>
+<span><span class="co"># [21] horseshoe_0.2.0    deconvolveR_1.2-1  knitr_1.50         htmlwidgets_1.6.4 </span></span>
+<span><span class="co"># [25] tibble_3.3.0       desc_1.4.3         RColorBrewer_1.1-3 bslib_0.9.0       </span></span>
+<span><span class="co"># [29] pillar_1.11.0      rlang_1.1.6        cachem_1.1.0       SQUAREM_2021.1    </span></span>
+<span><span class="co"># [33] xfun_0.52          fs_1.6.6           sass_0.4.10        truncnorm_1.0-9   </span></span>
+<span><span class="co"># [37] invgamma_1.2       cli_3.6.5          pkgdown_2.1.3      magrittr_2.0.3    </span></span>
+<span><span class="co"># [41] digest_0.6.37      grid_4.5.1         rstudioapi_0.17.1  irlba_2.3.5.1     </span></span>
+<span><span class="co"># [45] lifecycle_1.0.4    vctrs_0.6.5        evaluate_1.0.4     glue_1.8.0        </span></span>
+<span><span class="co"># [49] farver_2.1.2       ragg_1.4.0         ashr_2.2-63        rmarkdown_2.29    </span></span>
+<span><span class="co"># [53] pkgconfig_2.0.3    tools_4.5.1        htmltools_0.5.8.1</span></span></code></pre></div>
 </div>
 <div class="section level2 unnumbered">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-bhadra2019lasso" class="csl-entry">
 Bhadra, Anindya, Jyotishka Datta, Nicholas G. Polson, and Brandon
 Willard. 2019. <span>“Lasso Meets Horseshoe: A Survey.”</span>
@@ -321,9 +350,7 @@ PhD thesis, Chicago, IL: University of Chicago.
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
 
-        <nav id="toc" data-toggle="toc"><h2 data-toc-skip>Contents</h2>
-    </nav>
-</div>
+      </div>
 
 </div>
 
@@ -336,16 +363,16 @@ PhD thesis, Chicago, IL: University of Chicago.
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
       </footer>
 </div>
 
-  
 
 
-  
+
+
 
   </body>
 </html>
