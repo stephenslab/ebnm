@@ -52,7 +52,7 @@ package provides a unified interface for efficiently carrying out both steps,
 with a wide range of available 
 options for the prior family $\mathcal{G}$.
 
-For a detailed introduction, see our [ebnm paper][ebnm-paper]. For further
+For a detailed introduction, see our [JSS paper][ebnm-paper]. For further
 background, see for example [John Storey's book][storey-book]. 
 
 ## An illustration: shrinkage estimation
@@ -196,5 +196,5 @@ sessionInfo()
 
 ## References
 
-[ebnm-paper]: https://arxiv.org/abs/2110.00152
-[storey-book]: https://jdstorey.org/fas
+[ebnm-paper]: https://doi.org/10.18637/jss.v114.i03
+[storey-book]: https://jdstorey.org/fas/

@@ -443,7 +443,7 @@ vignette:
 sessionInfo()
 ```
 
-[ebnm-paper]: https://arxiv.org/abs/2110.00152
+[ebnm-paper]: https://doi.org/10.18637/jss.v114.i03
 [testthat]: https://testthat.r-lib.org
 [tidyverse-style]: https://style.tidyverse.org
-[cran-task-view-opt]: https://cran.r-project.org/web/views/Optimization.html
+[cran-task-view-opt]: https://CRAN.R-project.org/view=Optimization

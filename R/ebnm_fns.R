@@ -681,8 +681,7 @@ ebnm_unimodal_nonpositive <- function(x,
 #'   Kay F Macleod, and Matthew Stephens (2025). Dissecting tumor
 #'   transcriptional heterogeneity from single-cell RNA-seq data by
 #'   generalized binary covariance decomposition.  \emph{Nature Genetics}
-#'   \strong{57}, 263--273. doi:10.1038/s41588-024-01997-z
-#'   \url{https://doi.org/10.1038/s41588-024-01997-z}.
+#'   \strong{57}, 263--273. \doi{doi:10.1038/s41588-024-01997-z}.
 #'
 #' @export
 #'
