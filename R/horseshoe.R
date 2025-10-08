@@ -19,8 +19,6 @@ horseshoe <- function(scale) {
   structure(data.frame(scale), class = "horseshoe")
 }
 
-#' @importFrom horseshoe HS.post.mean HS.post.var HS.normal.means
-#'
 horseshoe_workhorse <- function(x = x,
                                 s = s,
                                 mode = mode,
@@ -89,7 +87,7 @@ horseshoe_workhorse <- function(x = x,
   }
 
   if (g_in_output(output)) {
-    fitted_g <- horseshoe(tau * s)
+    fitted_g <- horseshoe::horseshoe(tau * s)
     retlist  <- add_g_to_retlist(retlist, fitted_g)
   }
 
@@ -103,7 +101,7 @@ horseshoe_workhorse <- function(x = x,
   if (sampler_in_output(output)) {
     post_sampler <- function(nsamp, burn = 1000) {
       cat("MCMC Sampling with", burn, "burn-in samples\n")
-      samp <- HS.normal.means(
+      samp <- horseshoe::HS.normal.means(
         x,
         tau = tau,
         Sigma2 = s^2,

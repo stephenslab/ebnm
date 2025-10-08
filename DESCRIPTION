@@ -1,7 +1,7 @@
 Package: ebnm
 Encoding: UTF-8
 Type: Package
-Version: 1.1-39
+Version: 1.1-40
 Date: 2025-10-08
 Title: Solve the Empirical Bayes Normal Means Problem
 Authors@R: c(person("Jason", "Willwerscheid", role = "aut"),
@@ -26,7 +26,6 @@ Imports:
     mixsqp,
     truncnorm,
     trust,
-    horseshoe,
     deconvolveR,
     magrittr,
     rlang,
@@ -35,6 +34,7 @@ Imports:
 Suggests: 
     testthat, 
     REBayes,
+    horseshoe,
     knitr,
     rmarkdown,
     cowplot,
