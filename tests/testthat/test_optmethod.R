@@ -51,10 +51,6 @@ test_that("Different optimization methods work", {
   deconv_res2 <- ebnm(x, prior_family = "deconvolver")
   expect_equal(deconv_res$log_likelihood, deconv_res2$log_likelihood)
 
-  hs_res <- ebnm_horseshoe(x, control = list(tol = 1e-8))
-  hs_res2 <- ebnm(x, prior_family = "horseshoe")
-  expect_equal(hs_res$fitted_g$scale, hs_res2$fitted_g$scale, 1e-4)
-
   gb_res <- ebnm_generalized_binary(x, control = list(tol = 1e-8))
   gb_res2 <- ebnm(x, prior_family = "generalized_binary")
   expect_equal(gb_res$log_likelihood, gb_res2$log_likelihood, 1e-4)
@@ -62,12 +58,18 @@ test_that("Different optimization methods work", {
   pm_res <- ebnm_point_mass(x, mode = "estimate", control = list(tol = 1e-8))
   pm_res2 <- ebnm(x, prior_family = "point_mass", mode = "estimate", control = list(interval = c(-1, 1)))
   expect_equal(pm_res$fitted_g$mean, pm_res2$fitted_g$mean, 1e-4)
+
+  skip_if_not_installed("horseshoe")
+  hs_res <- ebnm_horseshoe(x, control = list(tol = 1e-8))
+  hs_res2 <- ebnm(x, prior_family = "horseshoe")
+  expect_equal(hs_res$fitted_g$scale, hs_res2$fitted_g$scale, 1e-4)
 })
 
 test_that("Warnings get thrown when they should be", {
-  expect_warning(ebnm(x, prior_family = "horseshoe", optmethod = "nlm"))
   expect_error(ebnm_generalized_binary(x, optmethod = "nlm"))
   expect_warning(ebnm(x, prior_family = "generalized_binary", optmethod = "nlm"))
   expect_warning(ebnm(x, prior_family = "flat", optmethod = "nlm"))
   expect_warning(ebnm(x, prior_family = "point_mass", optmethod = "nlm"))
+  skip_if_not_installed("horseshoe")
+  expect_warning(ebnm(x, prior_family = "horseshoe", optmethod = "nlm"))
 })

@@ -87,7 +87,7 @@ horseshoe_workhorse <- function(x = x,
   }
 
   if (g_in_output(output)) {
-    fitted_g <- horseshoe::horseshoe(tau * s)
+    fitted_g <- horseshoe(tau * s)
     retlist  <- add_g_to_retlist(retlist, fitted_g)
   }
 

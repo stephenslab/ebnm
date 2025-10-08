@@ -1,4 +1,5 @@
 context("Horseshoe")
+skip_if_not_installed("horseshoe")
 
 n <- 100
 set.seed(1)
