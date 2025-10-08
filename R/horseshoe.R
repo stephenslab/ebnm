@@ -28,6 +28,11 @@ horseshoe_workhorse <- function(x = x,
                                 output = output,
                                 control = control,
                                 call = call) {
+  if (!requireNamespace("horseshoe", quietly = TRUE)) {
+    stop("Package horseshoe must be installed to use the horseshoe ",
+         "prior family.")
+  }
+
   if (length(s) != 1) {
     if (!isTRUE(all.equal(min(s) / mean(s), max(s) / mean(s)))) {
       stop("The horseshoe prior family requires homoskedastic standard errors.")
