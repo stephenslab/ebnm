@@ -225,7 +225,8 @@ calc_gb_posterior <- function(x, s, g, output){
   if (output == "zeta") {
     out <- zeta
   } else if (output == "llik") {
-    out <- sum(log(L_mat %*% g$pi)) + sum(llik_norms) - 0.5 * log(pi) * length(x)
+    out <- sum(log(L_mat %*% g$pi)) + sum(llik_norms) - 
+             0.5 * log(2*pi) * length(x)
   } else if (output == "posterior") {
     tmp1 <- etruncnorm(a = 0, mean = post_mean, sd = post_sd)
     tmp1[is.nan(tmp1)] <- 0
